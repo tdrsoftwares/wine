@@ -24,6 +24,8 @@ const BrandRegister = () => {
   const [allBrands, setAllBrands] = useState([]);
   const [existingBrandUpdate, setExistingBrandUpdate] = useState("");
   const [newBrandName, setNewBrandName] = useState("");
+  const [newBrandType, setNewBrandType] = useState("");
+  const [newIndexNo, setNewIndexNo] = useState("");
   const [existingBrandDelete, setExistingBrandDelete] = useState("");
 
   const clearForm = () => {
@@ -42,7 +44,7 @@ const BrandRegister = () => {
       const createBrandResponse = await createBrand(payload, loginResponse);
       if (createBrandResponse.status === 200) {
         NotificationManager.success("Brand created successfully", "Success");
-        console.log("Brand created successfully:", createBrandResponse);
+        // console.log("Brand created successfully:", createBrandResponse);
         clearForm();
         fetchAllBrands();
       } else {
@@ -64,6 +66,8 @@ const BrandRegister = () => {
   const handleUpdateBrand = async () => {
     const payload = {
       name: newBrandName,
+      type: newBrandType,
+      indexNo: newIndexNo
     };
     try {
       const updateBrandResponse = await updateBrand(
@@ -73,9 +77,11 @@ const BrandRegister = () => {
       );
       if (updateBrandResponse.status === 200) {
         NotificationManager.success("Brand updated successfully", "Success");
-        console.log("Brand updated successfully:", updateBrandResponse);
+        // console.log("Brand updated successfully:", updateBrandResponse);
         setExistingBrandUpdate("");
         setNewBrandName("");
+        setNewBrandType("");
+        setIndexNo("");
         fetchAllBrands();
       } else {
         NotificationManager.error(
@@ -93,6 +99,15 @@ const BrandRegister = () => {
     }
   };
 
+  const handleBrandUpdateChange = (e) => {
+    setExistingBrandUpdate(e.target.value);
+    const selectedBrand = allBrands.find(brand => brand._id === e.target.value);
+
+    setNewBrandName(selectedBrand.name);
+    setNewBrandType(selectedBrand.type);
+    setNewIndexNo(selectedBrand.indexNo);
+  }
+
   const handleDeleteBrand = async () => {
     try {
       const deleteBrandResponse = await deleteBrand(
@@ -101,7 +116,7 @@ const BrandRegister = () => {
       );
       if (deleteBrandResponse.status === 200) {
         NotificationManager.success("Brand deleted successfully", "Success");
-        console.log("Brand deleted successfully:", deleteBrandResponse);
+        // console.log("Brand deleted successfully:", deleteBrandResponse);
         setExistingBrandDelete("");
         fetchAllBrands();
       } else {
@@ -123,7 +138,7 @@ const BrandRegister = () => {
   const fetchAllBrands = async () => {
     try {
       const allBrandsResponse = await getAllBrands(loginResponse);
-      console.log("allBrandsResponse ---> ", allBrandsResponse);
+      // console.log("allBrandsResponse ---> ", allBrandsResponse);
       setAllBrands(allBrandsResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
@@ -218,7 +233,7 @@ const BrandRegister = () => {
           Update Brand
         </Typography>
         <Grid container spacing={2}>
-          <Grid item xs={3}>
+          <Grid item xs={2.4}>
             <TextField
               select
               fullWidth
@@ -235,7 +250,7 @@ const BrandRegister = () => {
                   },
                 },
               }}
-              onChange={(e) => setExistingBrandUpdate(e.target.value)}
+              onChange={(e) => handleBrandUpdateChange(e)}
             >
               {allBrands?.map((brand) => (
                 <MenuItem key={brand._id} value={brand._id}>
@@ -245,17 +260,42 @@ const BrandRegister = () => {
             </TextField>
           </Grid>
 
-          <Grid item xs={3}>
-            <TextField
-              fullWidth
-              type="text"
-              name="newBrandName"
-              label="New Brand Name"
-              value={newBrandName}
-              variant="outlined"
-              onChange={(e) => setNewBrandName(e.target.value)}
-            />
-          </Grid>
+          {existingBrandUpdate && (
+            <>
+              <Grid item xs={2.4}>
+                <TextField
+                  fullWidth
+                  type="text"
+                  name="newBrandName"
+                  label="Brand Name"
+                  value={newBrandName}
+                  variant="outlined"
+                  onChange={(e) => setNewBrandName(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={2.4}>
+                <TextField
+                  fullWidth
+                  name="newBrandType"
+                  label="Brand Type"
+                  value={newBrandType}
+                  variant="outlined"
+                  onChange={(e) => setNewBrandType(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={2.4}>
+                <TextField
+                  fullWidth
+                  type="number"
+                  name="newIndexNo"
+                  label="Index No."
+                  value={newIndexNo}
+                  variant="outlined"
+                  onChange={(e) => setNewIndexNo(e.target.value)}
+                />
+              </Grid>
+            </>
+          )}
           <Box
             sx={{
               display: "flex",
@@ -278,6 +318,8 @@ const BrandRegister = () => {
               onClick={() => {
                 setExistingBrandUpdate("");
                 setNewBrandName("");
+                setNewBrandType("");
+                setIndexNo("");
               }}
             >
               Clear
