@@ -39,6 +39,18 @@ const ItemRegister = () => {
   const [newItemName, setNewItemName] = useState("");
   const [existingItemDelete, setExistingItemDelete] = useState("");
 
+  const [newFormData, setNewFormData] = useState({
+    name: "",
+    description: "",
+    categoryId: "",
+    subCategory: "",
+    companyId: "",
+    brandId: "",
+    group: "",
+    volume: "",
+    caseValue: "",
+  });
+
   const clearForm = () => {
     setName("");
     setDescription("");
@@ -101,13 +113,21 @@ const ItemRegister = () => {
   };
 
   const handleUpdateItem = async () => {
-    if (!newItemName) {
+    if (!newFormData.name) {
       NotificationManager.warning("Please fill New Item Name.", "Error");
       return;
     }
 
     const payload = {
-      name: newItemName,
+      name: newFormData.name,
+      description: newFormData.description,
+      categoryId: newFormData.categoryId,
+      subCategory: newFormData.subCategory,
+      companyId: newFormData.companyId,
+      brandId: newFormData.brandId,
+      group: newFormData.group,
+      volume: newFormData.volume,
+      caseValue: newFormData.caseValue,
     };
 
     try {
@@ -119,7 +139,7 @@ const ItemRegister = () => {
       if (updateItemResponse.status === 200) {
         NotificationManager.success("Item updated successfully", "Success");
         setExistingItemUpdate("");
-        setNewItemName("");
+        setNewFormData({})
         fetchAllItems();
       } else {
         NotificationManager.error(
@@ -133,6 +153,12 @@ const ItemRegister = () => {
         "Error"
       );
     }
+  };
+
+  const handleUpdateChange = (e) => {
+    setExistingItemUpdate(e.target.value);
+    const selectedItem = allItems.find((item) => item._id === e.target.value);
+    setNewFormData(selectedItem);
   };
 
   const handleDeleteItem = async () => {
@@ -162,6 +188,7 @@ const ItemRegister = () => {
   const fetchAllItems = async () => {
     try {
       const allItemsResponse = await getAllItems(loginResponse);
+      // console.log("allItemsResponse ---> ", allItemsResponse)
       setAllItems(allItemsResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
@@ -186,7 +213,7 @@ const ItemRegister = () => {
   const fetchAllBrands = async () => {
     try {
       const allBrandsResponse = await getAllBrands(loginResponse);
-      console.log("allBrandsResponse ---> ", allBrandsResponse);
+      // console.log("allBrandsResponse ---> ", allBrandsResponse);
       setAllBrands(allBrandsResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
@@ -200,7 +227,7 @@ const ItemRegister = () => {
   const fetchAllCompanies = async () => {
     try {
       const allCompaniesResponse = await getAllCompanies(loginResponse);
-      console.log("allCompaniesResponse ---> ", allCompaniesResponse);
+      // console.log("allCompaniesResponse ---> ", allCompaniesResponse);
       setAllCompanies(allCompaniesResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
@@ -283,6 +310,7 @@ const ItemRegister = () => {
 
           <Grid item xs={2.4}>
             <TextField
+              select
               fullWidth
               type="text"
               name="subCategory"
@@ -290,7 +318,13 @@ const ItemRegister = () => {
               variant="outlined"
               value={subCategory}
               onChange={(e) => setSubCategory(e.target.value)}
-            />
+            >
+              {["A", "B", "C", "D"].map((item, id) => (
+                <MenuItem key={id} value={item}>
+                  {item}
+                </MenuItem>
+              ))}
+            </TextField>
           </Grid>
 
           <Grid item xs={2.4}>
@@ -431,7 +465,7 @@ const ItemRegister = () => {
                   },
                 },
               }}
-              onChange={(e) => setExistingItemUpdate(e.target.value)}
+              onChange={(e) => handleUpdateChange(e)}
             >
               {allItems?.map((item) => (
                 <MenuItem key={item._id} value={item._id}>
@@ -440,18 +474,152 @@ const ItemRegister = () => {
               ))}
             </TextField>
           </Grid>
+          {existingItemUpdate && (
+            <>
+              <Grid item xs={3}>
+                <TextField
+                  fullWidth
+                  type="text"
+                  name="newItemName"
+                  label="Item Name"
+                  value={newFormData.name}
+                  variant="outlined"
+                  onChange={(e) =>
+                    setNewFormData({
+                      ...newFormData,
+                      name: e.target.value,
+                    })
+                  }
+                  
+                />
+              </Grid>
+              <Grid item xs={3}>
+                <TextField
+                  fullWidth
+                  type="text"
+                  name="description"
+                  label="Description"
+                  value={newFormData.description}
+                  variant="outlined"
+                  onChange={(e) =>
+                    setNewFormData({
+                      ...newFormData,
+                      description: e.target.value,
+                    })
+                  }
+                />
+              </Grid>
+              <Grid item xs={3}>
+                <TextField
+                  fullWidth
+                  type="text"
+                  name="categoryId"
+                  label="Category Id"
+                  value={newFormData.categoryId}
+                  variant="outlined"
+                  onChange={(e) =>
+                    setNewFormData({
+                      ...newFormData,
+                      categoryId: e.target.value,
+                    })
+                  }
+                />
+              </Grid>
+              <Grid item xs={3}>
+                <TextField
+                  fullWidth
+                  type="text"
+                  name="subCategory"
+                  label="Sub Category"
+                  value={newFormData.subCategory}
+                  variant="outlined"
+                  onChange={(e) =>
+                    setNewFormData({
+                      ...newFormData,
+                      subCategory: e.target.value,
+                    })
+                  }
+                />
+              </Grid>
+              <Grid item xs={3}>
+                <TextField
+                  fullWidth
+                  type="text"
+                  name="companyId"
+                  label="Company Id"
+                  value={newFormData.companyId}
+                  variant="outlined"
+                  onChange={(e) =>
+                    setNewFormData({
+                      ...newFormData,
+                      companyId: e.target.value,
+                    })
+                  }
+                />
+              </Grid>
+              <Grid item xs={3}>
+                <TextField
+                  fullWidth
+                  type="text"
+                  name="brandId"
+                  label="Brand Id"
+                  value={newFormData.brandId}
+                  variant="outlined"
+                  onChange={(e) =>
+                    setNewFormData({ ...newFormData, brandId: e.target.value })
+                  }
+                />
+              </Grid>
+              <Grid item xs={3}>
+                <TextField
+                  fullWidth
+                  type="number"
+                  name="volume"
+                  label="Volume"
+                  value={newFormData.volume}
+                  variant="outlined"
+                  onChange={(e) =>
+                    setNewFormData({
+                      ...newFormData,
+                      volume: e.target.value,
+                    })
+                  }
+                />
+              </Grid>
+              <Grid item xs={3}>
+                <TextField
+                  fullWidth
+                  name="group"
+                  label="Group"
+                  value={newFormData.group}
+                  variant="outlined"
+                  onChange={(e) =>
+                    setNewFormData({
+                      ...newFormData,
+                      group: e.target.value,
+                    })
+                  }
+                />
+              </Grid>
+              <Grid item xs={3}>
+                <TextField
+                  fullWidth
+                  type="number"
+                  name="caseValue"
+                  label="Case Value"
+                  value={newFormData.caseValue}
+                  variant="outlined"
+                  onChange={(e) =>
+                    setNewFormData({
+                      ...newFormData,
+                      caseValue: e.target.value,
+                    })
+                  }
+                />
+              </Grid>
+            </>
+          )}
 
-          <Grid item xs={3}>
-            <TextField
-              fullWidth
-              type="text"
-              name="newItemName"
-              label="New Item Name"
-              value={newItemName}
-              variant="outlined"
-              onChange={(e) => setNewItemName(e.target.value)}
-            />
-          </Grid>
           <Box
             sx={{
               display: "flex",
@@ -473,7 +641,7 @@ const ItemRegister = () => {
               variant="outlined"
               onClick={() => {
                 setExistingItemUpdate("");
-                setNewItemName("");
+                setNewFormData({});
               }}
             >
               Clear
