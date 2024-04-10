@@ -96,6 +96,18 @@ body {
   margin-left: 16px !important;
 }
 
+.css-rqglhn-MuiTable-root {
+  background-color: #daedf19e;
+}
+
+.css-md26zr-MuiInputBase-root-MuiOutlinedInput-root {
+  background-color: #e0f4f89e !important;
+}
+
+.css-9ddj71-MuiInputBase-root-MuiOutlinedInput-root {
+  background-color: #e0f4f89e !important;
+}
+
 .col-md-3 {
   flex: 0 0 15%;
   max-width: 15%;
@@ -104,6 +116,7 @@ body {
 .col-md-9 {
   flex: 0 0 85%;
   max-width: 85%;
+  background-color: #daedf1;
 }
 
 .col-md-12 {
