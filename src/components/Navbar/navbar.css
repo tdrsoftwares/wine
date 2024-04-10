@@ -1,0 +1,128 @@
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+
+.navbar {
+    background-image: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+    padding: 16px;
+}
+
+.navbar ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.navbar ul li.nav-item {
+    margin-right: 10px;
+}
+
+.navbar ul li.nav-title {
+    margin-right: auto;
+}
+
+.navbar ul li.nav-item a.nav-link,
+.navbar ul li.nav-item.dropdown .dropdown-toggle {
+    color: #fff;
+    text-decoration: none;
+    padding: 16px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+.nav-item .dropdown .sale-status-dropdown-toggle{
+
+}
+
+.navbar ul li a.nav-link:hover,
+.navbar ul li.nav-item .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-content, .sale-status-dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #e8e8e8;
+    min-width: 200px;
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    z-index: 2;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.dropdown-content.open {
+    display: block;
+    margin-top: 10px;
+}
+
+.sale-status-dropdown-content.open {
+  display: block;
+  left: 262px;
+  top: 145px;
+}
+
+.dropdown-content a,
+.dropdown-content li,
+.sale-status-dropdown-content a {
+  color: #000;
+  padding: 10px;
+  text-decoration: none;
+  display: block;
+  transition: background-color 0.3s;
+}
+
+.dropdown-content a:hover,
+.dropdown-content .nav-item span:hover,
+.sale-status-dropdown-content li:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+}
+
+.navbar ul li.dropdown .dropdown-toggle i {
+    margin-left: 5px;
+}
+
+
+.hamburger-icon {
+    display: none;
+    cursor: pointer;
+  }
+  
+  .bar {
+    width: 25px;
+    height: 3px;
+    background-color: #fff;
+    margin: 5px 0;
+  }
+  
+  /* Make the navbar responsive */
+  @media (max-width: 768px) {
+    .navbar-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  
+    .navbar-links {
+      display: flex;
+      flex-direction: column;
+      position: absolute;
+      top: 60px;
+      left: -100%;
+      width: 100%;
+      background: #333;
+      transition: all 0.5s;
+    }
+  
+    .navbar-links.active {
+      left: 0;
+    }
+  
+    .hamburger-icon {
+      display: block;
+    }
+  }
+
+/* display: block;
+    left: 262px;
+    top: 145px; */

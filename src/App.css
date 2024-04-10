@@ -1,0 +1,130 @@
+/* App.css */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Geneva, Verdana, sans-serif;
+}
+
+.mb-2 {
+  margin-bottom: 12px;
+}
+
+.container {
+  margin: 0 auto;
+  height: 100vh;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.form-container {
+  padding: 16px;
+  width: 350px;
+  margin: 0 auto;
+  margin-top: 50px;
+}
+
+.form-control {
+  margin-bottom: 16px;
+}
+
+.form-control label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.form-control input[type="text"],
+.form-control input[type="password"],
+.form-control input[type="email"] {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.form-switch {
+  margin-top: 16px;
+  font-size: 15px;
+}
+
+.form-switch a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.form-switch a:hover {
+  text-decoration: underline;
+}
+
+.form-container.signup-form,
+.form-container.login-form {
+  padding: 16px;
+  width: 350px;
+  margin-left: 16px;
+}
+
+.form-container.signup-form .form-header,
+.form-container.login-form .form-header {
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.css-6uzb1x {
+  padding-left: 44px !important;
+  padding-top: 24px !important;
+  width: 80vw !important;
+  margin-left: 16px !important;
+}
+
+.col-md-3 {
+  flex: 0 0 15%;
+  max-width: 15%;
+}
+
+.col-md-9 {
+  flex: 0 0 85%;
+  max-width: 85%;
+}
+
+.col-md-12 {
+  flex: 0 0 100%;
+  max-width: 100%;
+}
+
+.home-container {
+  margin-top: 20px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .form-container {
+    width: 80%;
+    margin-top: 20px;
+  }
+
+  .col-md-3,
+  .col-md-9 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
