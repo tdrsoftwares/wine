@@ -26,6 +26,10 @@ const ItemCatRegister = () => {
   const [existingCategoryUpdate, setExistingCategoryUpdate] = useState("");
   const [existingCategoryDelete, setExistingCategoryDelete] = useState("");
   const [newCategory, setNewCategory] = useState("");
+  const [newGroupName, setNewGroupName] = useState("");
+  const [newIndexNo, setNewIndexNo] = useState("");
+  const [newGroupNo, setNewGroupNo] = useState("");
+
   const groupOptions = [
     "All",
     "Beer",
@@ -34,7 +38,7 @@ const ItemCatRegister = () => {
     "India Made Liquor",
   ];
 
-  console.log("existingCategoryUpdate : ",existingCategoryUpdate)
+  console.log("existingCategoryUpdate : ", existingCategoryUpdate);
 
   const handleClear = (action) => {
     switch (action) {
@@ -47,6 +51,9 @@ const ItemCatRegister = () => {
       case "update":
         setExistingCategoryUpdate("");
         setNewCategory("");
+        setNewGroupName("");
+        setNewIndexNo("");
+        setNewGroupNo("");
         break;
       case "delete":
         setExistingCategoryDelete("");
@@ -85,7 +92,11 @@ const ItemCatRegister = () => {
   const updatedCategory = async () => {
     const payload = {
       categoryName: newCategory,
+      mainGroup: newGroupName,
+      indexNo: newIndexNo,
+      groupNo: newGroupNo,
     };
+
     try {
       const updatedCategoryResponse = await updateItemCategory(
         payload,
@@ -104,6 +115,18 @@ const ItemCatRegister = () => {
       );
     }
   };
+  const handleUpdateChange = (e) => {
+    const selectedCategoryId = e.target.value;
+    setExistingCategoryUpdate(selectedCategoryId);
+    const selectedCategory = allCategory.find((item) => item._id === selectedCategoryId);
+    if (selectedCategory) {
+      setNewCategory(selectedCategory.categoryName);
+      setNewGroupName(selectedCategory.mainGroup);
+      setNewIndexNo(selectedCategory.indexNo);
+      setNewGroupNo(selectedCategory.groupNo);
+    }
+  };
+  
 
   const deleteCategory = async () => {
     try {
@@ -135,6 +158,7 @@ const ItemCatRegister = () => {
   const fetchAllCategory = async () => {
     try {
       const getAllCategoryResponse = await getAllItemCategory(loginResponse);
+      console.log("getAllCategoryResponse: ", getAllCategoryResponse);
       setAllCategory(getAllCategoryResponse?.data?.data);
     } catch (err) {
       NotificationManager.error(
@@ -143,6 +167,8 @@ const ItemCatRegister = () => {
       );
     }
   };
+
+  console.log("allCategory: ", allCategory);
 
   useEffect(() => {
     fetchAllCategory();
@@ -244,7 +270,7 @@ const ItemCatRegister = () => {
           Update Category
         </Typography>
         <Grid container spacing={2}>
-          <Grid item xs={2.5}>
+          <Grid item xs={2.4}>
             <TextField
               select
               fullWidth
@@ -252,25 +278,64 @@ const ItemCatRegister = () => {
               label="Existing Category"
               value={existingCategoryUpdate}
               variant="outlined"
-              onChange={(e) => setExistingCategoryUpdate(e.target.value)}
+              onChange={(e) => handleUpdateChange(e)}
             >
-              {allCategory.map((item) => (
+              {allCategory?.map((item) => (
                 <MenuItem key={item._id} value={item._id}>
                   {item.categoryName}
                 </MenuItem>
               ))}
             </TextField>
           </Grid>
-          <Grid item xs={2.5}>
-            <TextField
-              fullWidth
-              name="newCategory"
-              label="New Category"
-              value={newCategory}
-              variant="outlined"
-              onChange={(e) => setNewCategory(e.target.value)}
-            />
-          </Grid>
+
+          {existingCategoryUpdate && (
+            <>
+              <Grid item xs={2.4}>
+                <TextField
+                  fullWidth
+                  type="text"
+                  name="newCategory"
+                  label="Category Name"
+                  value={newCategory}
+                  variant="outlined"
+                  onChange={(e) => setNewCategory(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={2.4}>
+                <TextField
+                  fullWidth
+                  type="text"
+                  name="newGroupName"
+                  label="Group Name"
+                  value={newGroupName}
+                  variant="outlined"
+                  onChange={(e) => setNewGroupName(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={1.2}>
+                <TextField
+                  fullWidth
+                  type="text"
+                  name="indexNo"
+                  label="Index No"
+                  value={newIndexNo}
+                  variant="outlined"
+                  onChange={(e) => setNewIndexNo(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={1.2}>
+                <TextField
+                  fullWidth
+                  type="text"
+                  name="groupNo"
+                  label="Group No"
+                  value={newGroupNo}
+                  variant="outlined"
+                  onChange={(e) => setNewGroupNo(e.target.value)}
+                />
+              </Grid>
+            </>
+          )}
 
           <Box
             sx={{
@@ -312,7 +377,7 @@ const ItemCatRegister = () => {
               variant="outlined"
               onChange={(e) => setExistingCategoryDelete(e.target.value)}
             >
-              {allCategory.map((item) => (
+              {allCategory?.map((item) => (
                 <MenuItem key={item._id} value={item._id}>
                   {item.categoryName}
                 </MenuItem>
