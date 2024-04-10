@@ -24,8 +24,10 @@ const CompanyRegister = () => {
   const [allCompanies, setAllCompanies] = useState([]);
   const [existingCompanyUpdate, setExistingCompanyUpdate] = useState("");
   const [newCompanyName, setNewCompanyName] = useState("");
+  const [newCompanyType, setNewCompanyType] = useState("");
   const [existingCompanyDelete, setExistingCompanyDelete] = useState("");
 
+  console.log("allCompanies: ", allCompanies);
   const clearForm = () => {
     setCompanyName("");
     setCompanyType("");
@@ -62,6 +64,7 @@ const CompanyRegister = () => {
   const handleUpdateCompany = async () => {
     const payload = {
       name: newCompanyName,
+      type: newCompanyType
     };
     try {
       const updateCompanyResponse = await updateCompany(
@@ -89,6 +92,16 @@ const CompanyRegister = () => {
       );
       console.error("Error updating company:", error);
     }
+  };
+
+  const handleUpdateCompanyChange = (e) => {
+    setExistingCompanyUpdate(e.target.value);
+    const selectedCompany = allCompanies.find(
+      (company) => company._id === e.target.value
+    );
+    console.log("selectedCompany ---> ", selectedCompany);
+    setNewCompanyName(selectedCompany.name);
+    setNewCompanyType(selectedCompany.type);
   };
 
   const handleDeleteCompany = async () => {
@@ -222,7 +235,7 @@ const CompanyRegister = () => {
                   },
                 },
               }}
-              onChange={(e) => setExistingCompanyUpdate(e.target.value)}
+              onChange={(e) => handleUpdateCompanyChange(e)}
             >
               {allCompanies?.map((company) => (
                 <MenuItem key={company._id} value={company._id}>
@@ -232,17 +245,33 @@ const CompanyRegister = () => {
             </TextField>
           </Grid>
 
-          <Grid item xs={3}>
-            <TextField
-              fullWidth
-              type="text"
-              name="newCompanyName"
-              label="New Company Name"
-              value={newCompanyName}
-              variant="outlined"
-              onChange={(e) => setNewCompanyName(e.target.value)}
-            />
-          </Grid>
+          {existingCompanyUpdate && (
+            <>
+              <Grid item xs={3}>
+                <TextField
+                  fullWidth
+                  type="text"
+                  name="newCompanyName"
+                  label="Company Name"
+                  value={newCompanyName}
+                  variant="outlined"
+                  onChange={(e) => setNewCompanyName(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={3}>
+                <TextField
+                  fullWidth
+                  type="text"
+                  name="newCompanyType"
+                  label="New Company Type"
+                  value={newCompanyType}
+                  variant="outlined"
+                  onChange={(e) => setNewCompanyType(e.target.value)}
+                />
+              </Grid>
+            </>
+          )}
+
           <Box
             sx={{
               display: "flex",
