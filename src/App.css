@@ -129,7 +129,7 @@ body {
   text-align: center;
 }
 
-.unauthorized-container {
+.not-found-container {
   width: 100%;
   max-width: 500px;
   margin: 10rem auto;
@@ -142,23 +142,24 @@ body {
   flex-direction: column;
 }
 
-.unauthorized-heading {
+.not-found-heading {
   font-size: 24px;
   margin-bottom: 10px;
 }
 
-.unauthorized-message {
+.not-found-message {
   font-size: 18px;
 }
 
-.unauthorized-message a{
+.not-found-message a {
   font-weight: 500;
   color: #000;
 }
 
-.unauthorized-message a:hover{
+.not-found-message a:hover {
   text-decoration: none;
 }
+
 
 @media (max-width: 768px) {
   .form-container {

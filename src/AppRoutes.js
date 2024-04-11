@@ -71,7 +71,7 @@ import { useLoginContext } from "./utils/loginContext";
 import BrandRegister from "./components/Sidebar/BrandRegister";
 import CompanyRegister from "./components/Sidebar/CompanyRegister";
 import ItemRegister from "./components/Navbar/MasterFile/StockRegister";
-import Unauthorized from "./components/Others/Unauthorized";
+import NotFound from "./components/Others/NotFound";
 
 
 const AppRoutes = ({
@@ -113,7 +113,7 @@ const AppRoutes = ({
         />
       )}
 
-      {!authenticatedUser && <Route path="*" element={<Unauthorized />} />}
+      {!authenticatedUser && <Route path="*" element={<NotFound />} />}
 
       {/* Navbar items */}
       <Route path="/inventory-report" element={<InventoryReport />} />
