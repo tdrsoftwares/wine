@@ -6,7 +6,7 @@ import SignUpForm from "./components/LoginComponents/SignupForm";
 import InventoryReport from "./components/Navbar/InventoryReport/InventoryReport";
 import ExciseReport from "./components/Navbar/ExciseReport/ExciseReport";
 import AuditAndAccounts from "./components/Navbar/AuditAndAccounts/AuditAndAccounts";
-import Utilities from "./components/Utilities/Utilities";
+import Utilities from "./components/Others/Utilities";
 import CustomerRegister from "./components/Navbar/MasterFile/CustomerRegister";
 import SuppliersRegister from "./components/Navbar/MasterFile/SuppliersRegister";
 import LPLSetup from "./components/Navbar/MasterFile/LPLSetup";
@@ -71,6 +71,7 @@ import { useLoginContext } from "./utils/loginContext";
 import BrandRegister from "./components/Sidebar/BrandRegister";
 import CompanyRegister from "./components/Sidebar/CompanyRegister";
 import ItemRegister from "./components/Navbar/MasterFile/StockRegister";
+import Unauthorized from "./components/Others/Unauthorized";
 
 
 const AppRoutes = ({
@@ -111,6 +112,8 @@ const AppRoutes = ({
           element={<SignUpForm handleSignUp={handleSignUp} />}
         />
       )}
+
+      {!authenticatedUser && <Route path="*" element={<Unauthorized />} />}
 
       {/* Navbar items */}
       <Route path="/inventory-report" element={<InventoryReport />} />
