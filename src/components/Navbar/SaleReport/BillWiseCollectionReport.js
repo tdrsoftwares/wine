@@ -140,7 +140,7 @@ const BillWiseCollectionReport = () => {
               name="userName"
               label="User Name"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={userName}
               onChange={(e) => setUserName(e.target.value)}
             >
@@ -159,7 +159,7 @@ const BillWiseCollectionReport = () => {
               name="bill"
               label="Bill"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={bill}
               onChange={(e) => setBill(e.target.value)}
             />
@@ -172,7 +172,7 @@ const BillWiseCollectionReport = () => {
               name="mode"
               label="Mode"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={mode}
               onChange={(e) => setmode(e.target.value)}
             >{["cash", "online"].map((user, id) => (
@@ -190,7 +190,7 @@ const BillWiseCollectionReport = () => {
               name="salesman"
               label="Salesman"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={salesman}
               onChange={(e) => setSalesman(e.target.value)}
             >
@@ -210,7 +210,7 @@ const BillWiseCollectionReport = () => {
                 name="Customer"
                 label="Customer"
                 variant="outlined"
-                className="form-field"
+                className="input-field"
                 value={selectedCustomer}
                 onChange={(e) => setSelectedCustomer(e.target.value)}
               >

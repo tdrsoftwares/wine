@@ -174,7 +174,7 @@ const ProfitOnSale = () => {
                 name="Customer"
                 label="Customer"
                 variant="outlined"
-                className="form-field"
+                className="input-field"
                 value={selectedCustomer}
                 onChange={(e) => setSelectedCustomer(e.target.value)}
               >
@@ -197,7 +197,7 @@ const ProfitOnSale = () => {
                 name="itemCode"
                 label="Item Code"
                 variant="outlined"
-                className="form-field"
+                className="input-field"
                 value={itemCode}
                 onChange={(e) => setItemCode(e.target.value)}
               >
@@ -285,7 +285,7 @@ const ProfitOnSale = () => {
                 name="packing"
                 label="Packing"
                 variant="outlined"
-                className="form-field"
+                className="input-field"
                 value={packing}
                 onChange={(e) => setPacking(e.target.value)}
               >

@@ -107,7 +107,7 @@ const PurchaseReportSummary = () => {
                 name="Supplier"
                 label="Supplier"
                 variant="outlined"
-                className="form-field"
+                className="input-field"
                 value={selectedSupplier}
                 onChange={(e) => setSelectedSupplier(e.target.value)}
               >

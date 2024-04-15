@@ -62,7 +62,7 @@ const DailyStatus = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.purBill}
               onChange={(e) =>
                 setFilterData({ ...filterData, purBill: e.target.value })
@@ -76,7 +76,7 @@ const DailyStatus = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.purMrp}
               onChange={(e) =>
                 setFilterData({ ...filterData, purMrp: e.target.value })
@@ -90,7 +90,7 @@ const DailyStatus = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.saleBill}
               onChange={(e) =>
                 setFilterData({ ...filterData, saleBill: e.target.value })
@@ -104,7 +104,7 @@ const DailyStatus = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.saleMrp}
               onChange={(e) =>
                 setFilterData({ ...filterData, saleMrp: e.target.value })
@@ -118,7 +118,7 @@ const DailyStatus = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.discAmt}
               onChange={(e) =>
                 setFilterData({ ...filterData, discAmt: e.target.value })
@@ -132,7 +132,7 @@ const DailyStatus = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.payment}
               onChange={(e) =>
                 setFilterData({ ...filterData, payment: e.target.value })
@@ -146,7 +146,7 @@ const DailyStatus = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.saleReceipt}
               onChange={(e) =>
                 setFilterData({ ...filterData, saleReceipt: e.target.value })
@@ -160,7 +160,7 @@ const DailyStatus = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.dueReceipt}
               onChange={(e) =>
                 setFilterData({ ...filterData, dueReceipt: e.target.value })
@@ -174,7 +174,7 @@ const DailyStatus = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.currStockPurVal}
               onChange={(e) =>
                 setFilterData({
@@ -191,7 +191,7 @@ const DailyStatus = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.currStockMrpVal}
               onChange={(e) =>
                 setFilterData({
@@ -209,7 +209,7 @@ const DailyStatus = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.balSupplier}
               onChange={(e) =>
                 setFilterData({ ...filterData, balSupplier: e.target.value })
@@ -223,7 +223,7 @@ const DailyStatus = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.balCustomer}
               onChange={(e) =>
                 setFilterData({ ...filterData, balCustomer: e.target.value })
@@ -237,7 +237,7 @@ const DailyStatus = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.cash}
               onChange={(e) =>
                 setFilterData({ ...filterData, cash: e.target.value })

@@ -76,7 +76,7 @@ const GeneralPayment = () => {
               variant="outlined"
               type="text"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={payeeName}
               select
               onChange={(e) => handlePayeeNameChange(e.target.value)}
@@ -95,7 +95,7 @@ const GeneralPayment = () => {
               variant="outlined"
               type="text"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={accountType}
               onChange={(e) => setAccountType(e.target.value)}
             >
@@ -116,7 +116,7 @@ const GeneralPayment = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={onAccount}
               onChange={(e) => setOnAccount(e.target.value)}
             />
@@ -129,7 +129,7 @@ const GeneralPayment = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={currentBal}
               onChange={(e) => setCurrentBal(e.target.value)}
             />
@@ -142,7 +142,7 @@ const GeneralPayment = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={voucherNo}
               onChange={(e) => setVoucherNo(e.target.value)}
             />
@@ -162,7 +162,7 @@ const GeneralPayment = () => {
                 variant="outlined"
                 type="number"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={amtPaid}
                 onChange={(e) => setAmtPaid(e.target.value)}
               />
@@ -174,7 +174,7 @@ const GeneralPayment = () => {
                 variant="outlined"
                 type="date"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={dayjs(amtPaidDate).format("YYYY-MM-DD")}
                 onChange={(e) => setAmtPaidDate(dayjs(e.target.value))}
               />
@@ -203,7 +203,7 @@ const GeneralPayment = () => {
                 variant="outlined"
                 type="text"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={chequeNo}
                 onChange={(e) => setChequeNo(e.target.value)}
               />
@@ -215,7 +215,7 @@ const GeneralPayment = () => {
                 variant="outlined"
                 type="date"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={chequeDate}
                 onChange={(e) => setChequeDate(e.target.value)}
               />
@@ -227,7 +227,7 @@ const GeneralPayment = () => {
                 variant="outlined"
                 type="text"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={bankAccnt}
                 onChange={(e) => setBankAccnt(e.target.value)}
               />
@@ -239,7 +239,7 @@ const GeneralPayment = () => {
                 variant="outlined"
                 type="text"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={remarks}
                 onChange={(e) => setRemarks(e.target.value)}
               />
@@ -251,7 +251,7 @@ const GeneralPayment = () => {
                 variant="outlined"
                 type="text"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={bankBal}
                 onChange={(e) => setBankBal(e.target.value)}
               />

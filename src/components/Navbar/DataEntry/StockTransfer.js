@@ -57,7 +57,7 @@ const StockTransfer = () => {
               variant="outlined"
               type="text"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={""}
               onChange={(e) => {}} //write the function
             >
@@ -76,7 +76,7 @@ const StockTransfer = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={""}
               onChange={(e) => {}} //write the function
             />
@@ -90,7 +90,7 @@ const StockTransfer = () => {
               variant="outlined"
               type="text"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={""}
               onChange={(e) => {}} //write the function
             >

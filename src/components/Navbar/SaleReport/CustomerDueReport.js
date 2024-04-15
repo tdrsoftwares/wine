@@ -93,7 +93,7 @@ const CustomerDueReport = () => {
                 name="type"
                 label="Type"
                 variant="outlined"
-                className="form-field"
+                className="input-field"
                 value={selectedType}
                 onChange={(e) => setSelectedType(e.target.value)}
               >
@@ -110,7 +110,7 @@ const CustomerDueReport = () => {
                 name="party"
                 label="Party"
                 variant="outlined"
-                className="form-field"
+                className="input-field"
                 value={selectedParty}
                 onChange={(e) => setSelectedParty(e.target.value)}
               >

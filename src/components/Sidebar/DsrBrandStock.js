@@ -182,7 +182,7 @@ const DsrBrandStock = () => {
               name="pack"
               label="Pack"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={filterData.pack}
               onChange={(e) =>
                 setFilterData({ ...filterData, pack: e.target.value })

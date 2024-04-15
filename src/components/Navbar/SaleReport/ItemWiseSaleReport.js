@@ -235,7 +235,7 @@ const ItemWiseSaleReport = () => {
               name="userName"
               label="User Name"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={filterData.userName}
               onChange={(e) =>
                 setFilterData({ ...filterData, userName: e.target.value })
@@ -256,7 +256,7 @@ const ItemWiseSaleReport = () => {
               label="Bill No"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.billNo}
               onChange={(e) =>
                 setFilterData({ ...filterData, billNo: e.target.value })
@@ -277,7 +277,7 @@ const ItemWiseSaleReport = () => {
               name="series"
               label="Series"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={filterData.series}
               onChange={(e) =>
                 setFilterData({ ...filterData, series: e.target.value })

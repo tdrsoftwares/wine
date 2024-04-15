@@ -70,7 +70,7 @@ const CustomerRegister = () => {
               label="Name of Customer/Company"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={formData.name}
               onChange={handleFormChange}
             />
@@ -81,7 +81,7 @@ const CustomerRegister = () => {
               label="Contact Persons"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={formData.contactPersons}
               onChange={handleFormChange}
             />
@@ -92,7 +92,7 @@ const CustomerRegister = () => {
               label="Address"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={formData.address}
               onChange={handleFormChange}
             />
@@ -103,7 +103,7 @@ const CustomerRegister = () => {
               label="Phone No."
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               type="number"
               value={formData.phoneNo}
               onChange={handleFormChange}
@@ -115,7 +115,7 @@ const CustomerRegister = () => {
               label="Mobile No."
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               type="number"
               value={formData.mobileNo}
               onChange={handleFormChange}
@@ -127,7 +127,7 @@ const CustomerRegister = () => {
               label="Opening Balance (Rs.)"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               type="number"
               inputProps={{ min: 0 }}
               value={formData.openingBalance}
@@ -140,7 +140,7 @@ const CustomerRegister = () => {
               label="Discount (%)"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               type="number"
               value={formData.discount}
               onChange={handleFormChange}
@@ -152,7 +152,7 @@ const CustomerRegister = () => {
               type="date"
               label="Valid Upto"
               name="validUpto"
-              className="form-field"
+              className="input-field"
               variant="outlined"
               value={formData.validUpto}
               onChange={handleFormChange}
@@ -165,7 +165,7 @@ const CustomerRegister = () => {
               label="Customer Type"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={formData.customerType}
               onChange={handleFormChange}
             >
@@ -180,7 +180,7 @@ const CustomerRegister = () => {
               label="Discount Category"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={formData.discountCategory}
               onChange={handleFormChange}
             >
@@ -194,7 +194,7 @@ const CustomerRegister = () => {
               label="Additional Charges (%)"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               type="number"
               value={formData.additionalCharges}
               onChange={handleFormChange}

@@ -134,7 +134,7 @@ const SalesmanReport = () => {
                 name="Customer"
                 label="Customer"
                 variant="outlined"
-                className="form-field"
+                className="input-field"
                 value={selectedCustomer}
                 onChange={(e) => setSelectedCustomer(e.target.value)}
               >
@@ -159,7 +159,7 @@ const SalesmanReport = () => {
                 name="Item"
                 label="Item"
                 variant="outlined"
-                className="form-field"
+                className="input-field"
                 value={selectedItem}
                 onChange={(e) => setselectedItem(e.target.value)}
               >
@@ -185,7 +185,7 @@ const SalesmanReport = () => {
               name="salesman"
               label="Salesman"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={selectedSalesman}
               onChange={(e) => setSelectedSalesman(e.target.value)}
             >

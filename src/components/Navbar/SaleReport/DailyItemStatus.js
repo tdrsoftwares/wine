@@ -58,7 +58,7 @@ const DailyItemStatus = () => {
               name="Item"
               label="Item"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={selectedItem}
               onChange={(e) => setSelectedItem(e.target.value)}
             >

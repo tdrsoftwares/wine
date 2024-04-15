@@ -213,7 +213,7 @@ const StoreInfo = () => {
               }}
               onChange={(e) => setExistingStoreUpdate(e.target.value)}
             >
-              {allStores.map((store) => (
+              {allStores?.map((store) => (
                 <MenuItem key={store._id} value={store._id}>
                   {store.name}
                 </MenuItem>
@@ -284,7 +284,7 @@ const StoreInfo = () => {
               }}
               onChange={(e) => setExistingStoreDelete(e.target.value)}
             >
-              {allStores.map((store) => (
+              {allStores?.map((store) => (
                 <MenuItem key={store._id} value={store._id}>
                   {store.name}
                 </MenuItem>

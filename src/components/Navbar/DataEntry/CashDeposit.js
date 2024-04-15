@@ -40,7 +40,7 @@ const CashDeposit = () => {
               variant="outlined"
               type="text"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={entryNo}
               onChange={(e) => setEntryNo(e.target.value)}
             />
@@ -53,7 +53,7 @@ const CashDeposit = () => {
               variant="outlined"
               type="date"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={dayjs(entryDate).format("YYYY-MM-DD")}
               onChange={(e) => setEntryDate(dayjs(e.target.value))}
             />
@@ -66,7 +66,7 @@ const CashDeposit = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={depBankAc}
               onChange={(e) => setDepBankAc(e.target.value)}
             />
@@ -79,7 +79,7 @@ const CashDeposit = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={amtDeposit}
               onChange={(e) => setamtDeposit(e.target.value)}
             />
@@ -92,7 +92,7 @@ const CashDeposit = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={credit}
               onChange={(e) => setCredit(e.target.value)}
             />
@@ -105,7 +105,7 @@ const CashDeposit = () => {
               variant="outlined"
               type="text"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={remarks}
               onChange={(e) => setRemarks(e.target.value)}
             />

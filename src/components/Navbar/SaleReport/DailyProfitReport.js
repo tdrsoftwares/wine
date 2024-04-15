@@ -245,7 +245,7 @@ const DailyProfitReport = () => {
               name="Item"
               label="Item"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={filterData.item}
               onChange={(e) =>
                 setFilterData({ ...filterData, item: e.target.value })
@@ -266,7 +266,7 @@ const DailyProfitReport = () => {
               name="billFrom"
               label="Bill from"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={filterData.billFrom}
               onChange={(e) =>
                 setFilterData({ ...filterData, billFrom: e.target.value })
@@ -287,7 +287,7 @@ const DailyProfitReport = () => {
               name="billTo"
               label="Bill to"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={filterData.billTo}
               onChange={(e) =>
                 setFilterData({ ...filterData, billTo: e.target.value })
@@ -308,7 +308,7 @@ const DailyProfitReport = () => {
               name="series"
               label="Series"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={filterData.series}
               onChange={(e) =>
                 setFilterData({ ...filterData, series: e.target.value })
@@ -329,7 +329,7 @@ const DailyProfitReport = () => {
               label="Bill Type"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.billType}
               onChange={(e) =>
                 setFilterData({ ...filterData, billType: e.target.value })
@@ -370,7 +370,7 @@ const DailyProfitReport = () => {
               name="userName"
               label="User Name"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={filterData.userName}
               onChange={(e) =>
                 setFilterData({ ...filterData, userName: e.target.value })

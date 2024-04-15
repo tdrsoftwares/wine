@@ -58,7 +58,7 @@ const GeneralReceipt = () => {
               variant="outlined"
               type="text"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={receivedFrom}
               select
               onChange={(e) => setReceivedFrom(e.target.value)}
@@ -78,7 +78,7 @@ const GeneralReceipt = () => {
               variant="outlined"
               type="text"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={receiptType}
               onChange={(e) => setReceiptType(e.target.value)}
             />
@@ -91,7 +91,7 @@ const GeneralReceipt = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={onAccount}
               onChange={(e) => setOnAccount(e.target.value)}
             />
@@ -104,7 +104,7 @@ const GeneralReceipt = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={currentBal}
               onChange={(e) => setCurrentBal(e.target.value)}
             />
@@ -117,7 +117,7 @@ const GeneralReceipt = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={docNo}
               onChange={(e) => setDocNo(e.target.value)}
             />
@@ -137,7 +137,7 @@ const GeneralReceipt = () => {
                 variant="outlined"
                 type="number"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={amtReceipt}
                 onChange={(e) => setAmtReceipt(e.target.value)}
               />
@@ -149,7 +149,7 @@ const GeneralReceipt = () => {
                 variant="outlined"
                 type="date"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={dayjs(amtReceiptDate).format("YYYY-MM-DD")}
                 onChange={(e) => setAmtReceiptDate(dayjs(e.target.value))}
               />
@@ -178,7 +178,7 @@ const GeneralReceipt = () => {
                 variant="outlined"
                 type="text"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={chequeNo}
                 onChange={(e) => setChequeNo(e.target.value)}
               />
@@ -190,7 +190,7 @@ const GeneralReceipt = () => {
                 variant="outlined"
                 type="date"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={chequeDate}
                 onChange={(e) => setChequeDate(e.target.value)}
               />
@@ -202,7 +202,7 @@ const GeneralReceipt = () => {
                 variant="outlined"
                 type="text"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={bankAccnt}
                 onChange={(e) => setBankAccnt(e.target.value)}
               />
@@ -214,7 +214,7 @@ const GeneralReceipt = () => {
                 variant="outlined"
                 type="text"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={remarks}
                 onChange={(e) => setRemarks(e.target.value)}
               />
@@ -226,7 +226,7 @@ const GeneralReceipt = () => {
                 variant="outlined"
                 type="text"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={bankBal}
                 onChange={(e) => setBankBal(e.target.value)}
               />

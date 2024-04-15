@@ -91,7 +91,7 @@ const __StockRegister = () => {
               label="Item Code"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={itemCode}
               onChange={(e) => handleChange(e, setItemCode)}
             />
@@ -134,7 +134,7 @@ const __StockRegister = () => {
               label="Item Description"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={itemDescription}
               onChange={(e) => handleChange(e, setItemDescription)}
             />
@@ -163,7 +163,7 @@ const __StockRegister = () => {
               label="MRP (₹)"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={mrp}
               onChange={(e) => handleChange(e, setMrp)}
             />
@@ -191,7 +191,7 @@ const __StockRegister = () => {
               label="New Item Name"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={newItemName}
               onChange={(e) => handleChange(e, newItemName)}
             />
@@ -257,7 +257,7 @@ const __StockRegister = () => {
               label="Packing"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={packing}
               onChange={(e) => handleChange(e, setPacking)}
             />
@@ -309,7 +309,7 @@ const __StockRegister = () => {
               label="Item Name"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={itemName}
               onChange={(e) => handleChange(e, setItemName)}
             />
@@ -339,7 +339,7 @@ const __StockRegister = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={""}
               onChange={() => {}}
             />
@@ -375,7 +375,7 @@ const __StockRegister = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={purchaseRate}
               onChange={(e) => handleChange(e, setPurchaseRate)}
             />
@@ -387,7 +387,7 @@ const __StockRegister = () => {
               label="New Brand Name"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={""}
               onChange={() => {}}
             />
@@ -416,7 +416,7 @@ const __StockRegister = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={bottleRate}
               onChange={(e) => handleChange(e, setBottleRate)}
             />
@@ -441,7 +441,7 @@ const __StockRegister = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={caseValue}
               onChange={(e) => handleChange(e, setCaseValue)}
             />
@@ -487,7 +487,7 @@ const __StockRegister = () => {
               label="Closing Stock(current)"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={closingStock}
               onChange={(e) => handleChange(e, setClosingStock)}
             />
@@ -516,7 +516,7 @@ const __StockRegister = () => {
               label="Barcode"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={barcode}
               onChange={(e) => handleChange(e, setBarcode)}
             />
@@ -528,7 +528,7 @@ const __StockRegister = () => {
               label="Stock at"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={stockAt}
               onChange={(e) => handleChange(e, setStockAt)}
             />
@@ -540,7 +540,7 @@ const __StockRegister = () => {
               label="New Item Name"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={""}
               onChange={() => {}}
             />
@@ -558,7 +558,7 @@ const __StockRegister = () => {
               label="Last Year Stock"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={lastYearStock}
               onChange={(e) => handleChange(e, setLastYearStock)}
             />
@@ -570,7 +570,7 @@ const __StockRegister = () => {
               label="Stock Out Position"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={stockOutPosition}
               onChange={(e) => handleChange(e, setStockOutPosition)}
             />
@@ -583,7 +583,7 @@ const __StockRegister = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={netPurchaseRate}
               onChange={(e) => handleChange(e, setNetPurchaseRate)}
             />

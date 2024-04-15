@@ -171,7 +171,7 @@ const SaleReportSummary = () => {
               name="userName"
               label="User Name"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={filterData.userName}
               onChange={(e) =>
                 setFilterData({ ...filterData, userName: e.target.value })
@@ -192,7 +192,7 @@ const SaleReportSummary = () => {
               name="series"
               label="Series"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={filterData.series}
               onChange={(e) =>
                 setFilterData({ ...filterData, series: e.target.value })
@@ -213,7 +213,7 @@ const SaleReportSummary = () => {
               label="Customer Type"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.customerType}
               onChange={(e) =>
                 setFilterData({ ...filterData, customerType: e.target.value })
@@ -234,7 +234,7 @@ const SaleReportSummary = () => {
               label="Phone"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.phone}
               onChange={(e) =>
                 setFilterData({ ...filterData, phone: e.target.value })

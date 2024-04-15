@@ -41,7 +41,7 @@ const JournalEntry = () => {
               variant="outlined"
               type="text"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={voucherNo}
               onChange={(e) => setVoucherNo(e.target.value)}
             />
@@ -54,7 +54,7 @@ const JournalEntry = () => {
               variant="outlined"
               type="date"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={dayjs(entryDate).format("YYYY-MM-DD")}
               onChange={(e) => setEntryDate(dayjs(e.target.value))}
             />
@@ -67,7 +67,7 @@ const JournalEntry = () => {
               variant="outlined"
               type="text"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={narration}
               onChange={(e) => setNarration(e.target.value)}
             />
@@ -81,7 +81,7 @@ const JournalEntry = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={debitAc}
               onChange={(e) => setDebitAc(e.target.value)}
             >
@@ -107,7 +107,7 @@ const JournalEntry = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={debtAmt}
               inputProps={{ "aria-readonly": true }}
               onChange={(e) => setDebitAmt(e.target.value)}
@@ -121,7 +121,7 @@ const JournalEntry = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={creditAmt}
               onChange={(e) => setCreditAmt(e.target.value)}
             />
@@ -135,7 +135,7 @@ const JournalEntry = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={creditAc}
               onChange={(e) => setCreditAc(e.target.value)}
             >
@@ -161,7 +161,7 @@ const JournalEntry = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={debtAmt}
               onChange={(e) => setDebitAmt(e.target.value)}
             />
@@ -174,7 +174,7 @@ const JournalEntry = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={creditAmt}
               onChange={(e) => setCreditAmt(e.target.value)}
             />

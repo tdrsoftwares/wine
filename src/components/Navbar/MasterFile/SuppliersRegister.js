@@ -241,7 +241,7 @@ const SuppliersRegister = () => {
               label="Name of Supplier/Company"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={formData.supName}
               onChange={handleSupplierChange}
             />
@@ -253,7 +253,7 @@ const SuppliersRegister = () => {
               label="Address"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={formData.address}
               onChange={handleSupplierChange}
             />
@@ -265,7 +265,7 @@ const SuppliersRegister = () => {
               label="Mobile Number"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={formData.contactNo}
               onChange={handleSupplierChange}
             />
@@ -276,7 +276,7 @@ const SuppliersRegister = () => {
               label="GSTIN Number"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={formData.gstinNo}
               onChange={handleSupplierChange}
             />
@@ -287,7 +287,7 @@ const SuppliersRegister = () => {
               label="PAN Number"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={formData.panNo}
               onChange={handleSupplierChange}
             />
@@ -298,7 +298,7 @@ const SuppliersRegister = () => {
               label="CIN Number"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={formData.cinNo}
               onChange={handleSupplierChange}
             />
@@ -310,7 +310,7 @@ const SuppliersRegister = () => {
               label="Opening Balance"
               variant="outlined"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={formData.openingBlance}
               onChange={handleSupplierChange}
             />

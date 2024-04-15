@@ -107,7 +107,7 @@ const LicenseeInfo = () => {
               name="licenseName"
               label="Name of License/Shop"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={licenseData.licenseName}
               onChange={(e) =>
                 setLicenseData({
@@ -125,7 +125,7 @@ const LicenseeInfo = () => {
               name="businessType"
               label="Business Type"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={licenseData.businessType}
               onChange={(e) =>
                 setLicenseData({
@@ -143,7 +143,7 @@ const LicenseeInfo = () => {
               name="address"
               label="Address"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={licenseData.address}
               onChange={(e) =>
                 setLicenseData({ ...licenseData, address: e.target.value })
@@ -158,7 +158,7 @@ const LicenseeInfo = () => {
               name="district"
               label="district"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={licenseData.district}
               onChange={(e) =>
                 setLicenseData({ ...licenseData, district: e.target.value })
@@ -173,7 +173,7 @@ const LicenseeInfo = () => {
               name="phNo"
               label="Phone Number"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={licenseData.phNo}
               onChange={(e) =>
                 setLicenseData({ ...licenseData, phNo: e.target.value })
@@ -188,7 +188,7 @@ const LicenseeInfo = () => {
               name="licenseId"
               label="licenseId"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={licenseData.licenseId}
               onChange={(e) =>
                 setLicenseData({ ...licenseData, licenseId: e.target.value })
@@ -237,7 +237,7 @@ const LicenseeInfo = () => {
               name="periodStartDate"
               label="Period Start Date"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={licenseData.periodStartDate}
               onChange={(e) =>
                 setLicenseData({
@@ -255,7 +255,7 @@ const LicenseeInfo = () => {
               name="periodEndDate"
               label="Period End Date"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={licenseData.periodEndDate}
               onChange={(e) =>
                 setLicenseData({
@@ -273,7 +273,7 @@ const LicenseeInfo = () => {
               name="billCategory"
               label="Bill Category"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={licenseData.billCategory}
               onChange={(e) =>
                 setLicenseData({ ...licenseData, billCategory: e.target.value })
@@ -289,7 +289,7 @@ const LicenseeInfo = () => {
               name="numberOfBillPrint"
               label="Number Of Bill Print"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={licenseData.numberOfBillPrint}
               onChange={(e) =>
                 setLicenseData({
@@ -400,7 +400,7 @@ const LicenseeInfo = () => {
               name="accountNo"
               label="Account Number"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={bankAccountData.accountNo}
               onChange={(e) =>
                 setBankAccountData({
@@ -418,7 +418,7 @@ const LicenseeInfo = () => {
               name="bankName"
               label="Bank Name"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={bankAccountData.bankName}
               onChange={(e) =>
                 setBankAccountData({
@@ -436,7 +436,7 @@ const LicenseeInfo = () => {
               name="branchName"
               label="Branch Name"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={bankAccountData.branchName}
               onChange={(e) =>
                 setBankAccountData({
@@ -454,7 +454,7 @@ const LicenseeInfo = () => {
               name="ifsc"
               label="IFSC Code"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={bankAccountData.ifsc}
               onChange={(e) =>
                 setBankAccountData({
@@ -472,7 +472,7 @@ const LicenseeInfo = () => {
               name="installDate"
               label="Installation Date"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={bankAccountData.installDate}
               onChange={(e) =>
                 setBankAccountData({
@@ -490,7 +490,7 @@ const LicenseeInfo = () => {
               name="renewalDate"
               label="Renewal Date"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={bankAccountData.renewalDate}
               onChange={(e) =>
                 setBankAccountData({
@@ -508,7 +508,7 @@ const LicenseeInfo = () => {
               name="renewalMode"
               label="Renewal Mode"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={bankAccountData.renewalMode}
               onChange={(e) =>
                 setBankAccountData({
@@ -532,7 +532,7 @@ const LicenseeInfo = () => {
               name="renewalAmt"
               label="Renewal Amt"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={bankAccountData.renewalAmt}
               onChange={(e) =>
                 setBankAccountData({
@@ -550,7 +550,7 @@ const LicenseeInfo = () => {
               name="renewalBy"
               label="Renewal By"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={bankAccountData.renewalBy}
               onChange={(e) =>
                 setBankAccountData({
@@ -574,7 +574,7 @@ const LicenseeInfo = () => {
               name="eposUserId"
               label="Epos User Id"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={eposData.eposUserId}
               onChange={(e) =>
                 setEposData({
@@ -592,7 +592,7 @@ const LicenseeInfo = () => {
               name="eposPassword"
               label="Epos Password"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={eposData.eposPassword}
               onChange={(e) =>
                 setEposData({
@@ -610,7 +610,7 @@ const LicenseeInfo = () => {
               name="itemPerBill"
               label="No. of Item Per Bill"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={eposData.itemPerBill}
               onChange={(e) =>
                 setEposData({
@@ -628,7 +628,7 @@ const LicenseeInfo = () => {
               name="maxWinePerBill"
               label="Max Wine Per Bill(ML)"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={eposData.maxWinePerBill}
               onChange={(e) =>
                 setEposData({
@@ -646,7 +646,7 @@ const LicenseeInfo = () => {
               name="maxCSPerBill"
               label="Max CS Per Bill(ML)"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={eposData.maxCSPerBill}
               onChange={(e) =>
                 setEposData({
@@ -664,7 +664,7 @@ const LicenseeInfo = () => {
               name="remotePath"
               label="Remote Path"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={eposData.remotePath}
               onChange={(e) =>
                 setEposData({
@@ -682,7 +682,7 @@ const LicenseeInfo = () => {
               name="backupDrive"
               label="Backup Drive"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={eposData.backupDrive}
               onChange={(e) =>
                 setEposData({
@@ -706,7 +706,7 @@ const LicenseeInfo = () => {
               name="billMessages"
               label="Bill Messages"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={eposData.billMessages}
               onChange={(e) =>
                 setEposData({
@@ -724,7 +724,7 @@ const LicenseeInfo = () => {
               name="messageMobile"
               label="Message Mobile"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={eposData.messageMobile}
               onChange={(e) =>
                 setEposData({

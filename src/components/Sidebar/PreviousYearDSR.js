@@ -139,7 +139,7 @@ const PreviousYearDSR = () => {
               name="dateFrom"
               label="Date from"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={periodStartDate}
               onChange={(e) => setPeriodStartDate(e.target.value)}
             />
@@ -152,7 +152,7 @@ const PreviousYearDSR = () => {
               name="endDate"
               label="Date to"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={periodEndDate}
               onChange={(e) => setPeriodEndDate(e.target.value)}
             />
@@ -165,7 +165,7 @@ const PreviousYearDSR = () => {
               name="brand"
               label="Brand"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={selectedBrand}
               onChange={(e) => setSelectedBrand(e.target.value)}
             >
@@ -184,7 +184,7 @@ const PreviousYearDSR = () => {
               name="category"
               label="Category"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
             >
@@ -203,7 +203,7 @@ const PreviousYearDSR = () => {
               name="Item"
               label="Item"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={selectedItem}
               onChange={(e) => setSelectedItem(e.target.value)}
             >
@@ -222,7 +222,7 @@ const PreviousYearDSR = () => {
               name="billFrom"
               label="Bill from"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={billFrom}
               onChange={(e) => setBillFrom(e.target.value)}
             >
@@ -241,7 +241,7 @@ const PreviousYearDSR = () => {
               name="billTo"
               label="Bill to"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={billTo}
               onChange={(e) => setBillTo(e.target.value)}
             >
@@ -260,7 +260,7 @@ const PreviousYearDSR = () => {
               name="series"
               label="Series"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={series}
               onChange={(e) => setSeries(e.target.value)}
             >
@@ -280,7 +280,7 @@ const PreviousYearDSR = () => {
               name="billType"
               label="Bill Type"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={selectedBillType}
               onChange={(e) => setSelectedBillType(e.target.value)}
             >

@@ -63,7 +63,7 @@ const CustomerReceipt = () => {
               variant="outlined"
               type="text"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={custName}
               select
               onChange={(e) => setcustName(e.target.value)}
@@ -81,7 +81,7 @@ const CustomerReceipt = () => {
               variant="outlined"
               type="text"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
             />
@@ -94,7 +94,7 @@ const CustomerReceipt = () => {
               variant="outlined"
               type="tel"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={contact}
               onChange={(e) => setContact(e.target.value)}
             />
@@ -107,7 +107,7 @@ const CustomerReceipt = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={currentBal}
               onChange={(e) => setCurrentBal(e.target.value)}
             />
@@ -120,7 +120,7 @@ const CustomerReceipt = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={receiptNo}
               onChange={(e) => setreceipttNo(e.target.value)}
             />
@@ -132,7 +132,7 @@ const CustomerReceipt = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={receiptNo}
               onChange={(e) => setreceipttNo(e.target.value)}
             />
@@ -225,7 +225,7 @@ const CustomerReceipt = () => {
                 size="small"
                 type="number"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={amtPaidRs}
                 onChange={(e) => setAmtPaidRs(e.target.value)}
               />
@@ -238,7 +238,7 @@ const CustomerReceipt = () => {
                 size="small"
                 type="date"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={dayjs(amtPaidDate).format("YYYY-MM-DD")}
                 onChange={(e) => setAmtPaidDate(dayjs(e.target.value))}
               />
@@ -269,7 +269,7 @@ const CustomerReceipt = () => {
                 size="small"
                 type="text"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={bankAccnt}
                 onChange={(e) => setBankAccnt(e.target.value)}
               />
@@ -282,7 +282,7 @@ const CustomerReceipt = () => {
                 size="small"
                 type="text"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={chequeNo}
                 onChange={(e) => setChequeNo(e.target.value)}
               />
@@ -295,7 +295,7 @@ const CustomerReceipt = () => {
                 size="small"
                 type="date"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={chequeDate}
                 onChange={(e) => setChequeDate(e.target.value)}
               />
@@ -309,7 +309,7 @@ const CustomerReceipt = () => {
                 size="small"
                 type="text"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={bankBal}
                 onChange={(e) => setBankBal(e.target.value)}
               />
@@ -323,7 +323,7 @@ const CustomerReceipt = () => {
                 size="small"
                 type="text"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={adjustAmt}
                 onChange={(e) => setAdjustAmt(e.target.value)}
               />
@@ -337,7 +337,7 @@ const CustomerReceipt = () => {
                 size="small"
                 type="text"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={remarks}
                 onChange={(e) => setRemarks(e.target.value)}
               />

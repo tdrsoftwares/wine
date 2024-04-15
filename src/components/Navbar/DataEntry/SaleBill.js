@@ -117,7 +117,7 @@ const SaleBill = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.customerName}
               onChange={() => {}}
             />
@@ -129,7 +129,7 @@ const SaleBill = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.balance}
               onChange={() => {}}
             />
@@ -142,7 +142,7 @@ const SaleBill = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.phoneNo}
               onChange={() => {}}
             />
@@ -155,7 +155,7 @@ const SaleBill = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.type}
               onChange={() => {}}
             />
@@ -168,7 +168,7 @@ const SaleBill = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.address}
               onChange={() => {}}
             />
@@ -187,7 +187,7 @@ const SaleBill = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.newcode}
               onChange={() => {}}
             />
@@ -200,7 +200,7 @@ const SaleBill = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.item}
               onChange={() => {}}
             />
@@ -213,7 +213,7 @@ const SaleBill = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.mrp}
               onChange={() => {}}
             />
@@ -226,7 +226,7 @@ const SaleBill = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.series}
               onChange={() => {}}
             />
@@ -239,7 +239,7 @@ const SaleBill = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={filterData.billno}
               onChange={() => {}}
             />

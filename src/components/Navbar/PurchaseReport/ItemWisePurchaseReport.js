@@ -176,7 +176,7 @@ const ItemWisePurchaseReport = () => {
                 name="Supplier"
                 label="Supplier"
                 variant="outlined"
-                className="form-field"
+                className="input-field"
                 value={selectedSupplier}
                 onChange={(e) => setSelectedSupplier(e.target.value)}
               >
@@ -264,7 +264,7 @@ const ItemWisePurchaseReport = () => {
                 name="packing"
                 label="Packing"
                 variant="outlined"
-                className="form-field"
+                className="input-field"
                 value={packing}
                 onChange={(e) => setPacking(e.target.value)}
               >
@@ -287,7 +287,7 @@ const ItemWisePurchaseReport = () => {
                 name="code"
                 label="Code"
                 variant="outlined"
-                className="form-field"
+                className="input-field"
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
               >

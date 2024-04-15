@@ -114,7 +114,7 @@ const ReceiptReport = () => {
                 name="Customer"
                 label="Customer"
                 variant="outlined"
-                className="form-field"
+                className="input-field"
                 value={selectedCustomer}
                 onChange={(e) => setSelectedCustomer(e.target.value)}
               >
@@ -158,7 +158,7 @@ const ReceiptReport = () => {
               name="userName"
               label="User Name"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={userName}
               onChange={(e) => setUserName(e.target.value)}
             >
@@ -177,7 +177,7 @@ const ReceiptReport = () => {
               name="bill"
               label="Bill"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={bill}
               onChange={(e) => setBill(e.target.value)}
             />
@@ -190,7 +190,7 @@ const ReceiptReport = () => {
               name="accountType"
               label="Account Type"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={accountType}
               onChange={(e) => setAccountType(e.target.value)}
             />
@@ -203,7 +203,7 @@ const ReceiptReport = () => {
               name="onAccount"
               label="On Account"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={onAccount}
               onChange={(e) => setOnAccount(e.target.value)}
             />

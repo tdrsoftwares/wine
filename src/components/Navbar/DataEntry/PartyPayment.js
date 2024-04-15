@@ -80,7 +80,7 @@ const PartyPayment = () => {
               variant="outlined"
               type="text"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={formData.supName}
               select
               onChange={(e) => handleSupplierNameChange(e.target.value)}
@@ -98,7 +98,7 @@ const PartyPayment = () => {
               variant="outlined"
               type="text"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={formData.address}
               onChange={(e) =>
                 setFormData({ ...formData, address: e.target.value })
@@ -113,7 +113,7 @@ const PartyPayment = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={formData.contact}
               onChange={(e) =>
                 setFormData({ ...formData, contact: e.target.value })
@@ -128,7 +128,7 @@ const PartyPayment = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={formData.currentBal}
               onChange={(e) =>
                 setFormData({ ...formData, currentBal: e.target.value })
@@ -143,7 +143,7 @@ const PartyPayment = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={formData.paymentNo}
               onChange={(e) =>
                 setFormData({ ...formData, paymentNo: e.target.value })
@@ -158,7 +158,7 @@ const PartyPayment = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={formData.paymentBillNo}
               onChange={(e) =>
                 setFormData({ ...formData, paymentBillNo: e.target.value })
@@ -253,7 +253,7 @@ const PartyPayment = () => {
                 size="small"
                 type="number"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={formData.amtPaidRs}
                 onChange={(e) =>
                   setFormData({ ...formData, amtPaidRs: e.target.value })
@@ -268,7 +268,7 @@ const PartyPayment = () => {
                 size="small"
                 type="date"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={dayjs(formData.amtPaidDate).format("YYYY-MM-DD")}
                 onChange={(e) =>
                   setFormData({
@@ -307,7 +307,7 @@ const PartyPayment = () => {
                 size="small"
                 type="text"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={formData.chequeNo}
                 onChange={(e) =>
                   setFormData({ ...formData, chequeNo: e.target.value })
@@ -322,7 +322,7 @@ const PartyPayment = () => {
                 size="small"
                 type="date"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={dayjs(formData.chequeDate).format("YYYY-MM-DD")}
                 onChange={(e) =>
                   setFormData({
@@ -340,7 +340,7 @@ const PartyPayment = () => {
                 size="small"
                 type="text"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={formData.bankAccnt}
                 onChange={(e) =>
                   setFormData({ ...formData, bankAccnt: e.target.value })
@@ -356,7 +356,7 @@ const PartyPayment = () => {
                 size="small"
                 type="text"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={formData.remarks}
                 onChange={(e) =>
                   setFormData({ ...formData, remarks: e.target.value })
@@ -371,7 +371,7 @@ const PartyPayment = () => {
                 size="small"
                 type="text"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={formData.bankBal}
                 onChange={(e) =>
                   setFormData({ ...formData, bankBal: e.target.value })
@@ -386,7 +386,7 @@ const PartyPayment = () => {
                 size="small"
                 type="text"
                 fullWidth
-                className="form-field"
+                className="input-field"
                 value={formData.adjustAmt}
                 onChange={(e) =>
                   setFormData({ ...formData, adjustAmt: e.target.value })

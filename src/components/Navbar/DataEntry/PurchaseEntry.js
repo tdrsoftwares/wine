@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -14,83 +14,76 @@ import {
   Paper,
   MenuItem,
   InputLabel,
+  Popover,
+  Input,
+  Select,
 } from "@mui/material";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
-
+import { getAllItems } from "../../../services/itemService";
+import { useLoginContext } from "../../../utils/loginContext";
+import { NotificationManager } from "react-notifications";
+import { getAllSuppliers } from "../../../services/supplierService";
+import { getAllStores } from "../../../services/storeService";
+import { searchAllPurchases } from "../../../services/purchaseService";
+import debounce from "lodash.debounce";
+import { CheckBox } from "@mui/icons-material";
 
 const PurchaseEntry = () => {
+  const { loginResponse } = useLoginContext();
   const todaysDate = dayjs();
-  const [filterData, setFilterData] = useState({
+  const [allItems, setAllItems] = useState([]);
+  const [allSuppliers, setAllSuppliers] = useState([]);
+  const [allStores, setAllStores] = useState([]);
+
+  const [searchResults, setSearchResults] = useState([]);
+  const [tableData, setTableData] = useState([]);
+  const [formData, setFormData] = useState({
     supplierName: "",
     passNo: "",
-    passDate: todaysDate,
+    passDate: "mm/dd/yyyy",
     address: "",
     billNo: "",
-    billDate: todaysDate,
+    billDate: "mm/dd/yyyy",
     stockIn: "",
-    entrtyNo: "",
+    entryNo: "",
+    itemCode: "",
+    itemName: "",
+    mrp: "",
+    batch: "",
+    case: "",
+    pcs: "",
+    brk: "",
+    purRate: "",
+    btlRate: "",
+    gro: "",
+    sp: "",
+    amount: "",
   });
 
-  const [tableData, setTableData] = useState(
-    Array.from({ length: 5 }, () => ({
-      itemCode: "",
-      itemDescription: "",
-      mrp: "",
-      batch: "",
-      case: "",
-      pcs: "",
-      brk: "",
-      purRate: "",
-      btlRate: "",
-      gro: "",
-      sp: "",
-      amount: "",
-    }))
-  );
+  const [anchorEl, setAnchorEl] = React.useState(null);
 
-  const handleItemCodeChange = (event, index, field) => {
-    const { value } = event.target;
-    const dummyData = {
-      itemCode: "12345",
-      itemDescription: "item1",
-      mrp: "550",
-      batch: "0",
-      case: "",
-      pcs: "1",
-      brk: "2",
-      purRate: "450",
-      btlRate: "550",
-      gro: "0",
-      sp: "0",
-      amount: "550",
-    };
-
-    const newData = [...tableData];
-    newData[index] = { ...newData[index], ...dummyData };
-
-    if (index === newData.length - 1) {
-      newData.push({
-        itemCode: "",
-        itemDescription: "",
-        mrp: "",
-        batch: "",
-        case: "",
-        pcs: "",
-        brk: "",
-        purRate: "",
-        btlRate: "",
-        gro: "",
-        sp: "",
-        amount: "",
-      });
-    }
-    setTableData(newData);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
   };
 
-  const handleSupplierNameChange = (event, field) => {
-    
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? "simple-popover" : undefined;
+  const label = { inputProps: { "aria-label": "select" } };
+
+  const handleItemNameChange = (event) => {
+    const itemName = event.target.value;
+    console.log("itemName: ", itemName);
+    debouncedSearch(itemName);
+    setFormData({ ...formData, itemName });
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleItemCodeChange = (event, index, field) => {
+    setFormData({ ...formData, [field]: event.target.value });
   };
 
   const calculateMRPValue = (rowData) => {
@@ -99,460 +92,629 @@ const PurchaseEntry = () => {
     return (pcs * mrp).toFixed(2);
   };
 
+  const fetchAllItems = async () => {
+    try {
+      const allItemsResponse = await getAllItems(loginResponse);
+      console.log("allItemsResponse ---> ", allItemsResponse);
+      setAllItems(allItemsResponse?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching items. Please try again later.",
+        "Error"
+      );
+    }
+  };
+
+  const fetchAllSuppliers = async () => {
+    try {
+      const allItemsResponse = await getAllSuppliers(loginResponse);
+      console.log("allItemsResponse: ", allItemsResponse);
+      setAllSuppliers(allItemsResponse?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching suppliers. Please try again later.",
+        "Error"
+      );
+    }
+  };
+
+  const fetchAllStores = async () => {
+    try {
+      const allStoresResponse = await getAllStores(loginResponse);
+      console.log("allStoresResponse ---> ", allStoresResponse);
+      setAllStores(allStoresResponse?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching stores. Please try again later.",
+        "Error"
+      );
+      console.error("Error fetching stores:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllItems();
+    fetchAllSuppliers();
+    fetchAllStores();
+  }, []);
+
+  const debouncedSearch = debounce(async (itemName) => {
+    try {
+      const response = await searchAllPurchases(loginResponse, itemName);
+      console.log("debouncedSearch response: ", response);
+      if (response?.data?.data) {
+        setSearchResults(response?.data?.data);
+        console.log("ami serc res ", searchResults);
+      } else {
+        setSearchResults([]);
+      }
+    } catch (error) {
+      console.error("Error searching items:", error);
+      setSearchResults([]);
+    }
+  }, 1000);
+
+  const handleRowClick = (index) => {
+    const selectedRow = searchResults[index];
+    setFormData({
+      ...formData,
+      itemCode: selectedRow.details[0]?.itemCode || "",
+      itemName: selectedRow.name || "",
+      mrp: selectedRow.details[0]?.mrp || "",
+      batch: selectedRow.batch || "",
+      case: selectedRow.caseValue || "",
+      pcs: selectedRow.pcs || "",
+      brk: selectedRow.brk || "",
+      purRate: selectedRow.purRate || "",
+      btlRate: selectedRow.btlRate || "",
+      gro: selectedRow.gro || "",
+      sp: selectedRow.sp || "",
+      amount: selectedRow.amount || "",
+    });
+  };
+  
+
   return (
     <form>
-      <Box sx={{ p: 2, width: "900px" }}>
-        <Typography variant="h5" component="div" gutterBottom>
-          Purchase Entry
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          Purchase Bills Entry
-        </Typography>
-
+      <Box component="form" sx={{ p: 2, width: "900px" }}>
         <Grid container spacing={2}>
-          <Grid item xs={2}>
-            <TextField
-              name="supplierName"
-              label="Supplier Name"
-              variant="outlined"
-              type="text"
-              fullWidth
-              className="form-field"
-              value={filterData.supplierName}
-              onChange={() => {}} //write the function
-            />
-          </Grid>
-
-          <Grid item xs={2}>
-            <TextField
-              name="passNo"
-              label="Pass No."
-              variant="outlined"
-              type="number"
-              fullWidth
-              className="form-field"
-              value={filterData.passNo}
-              onChange={(e) => {}} //write the function
-            />
-          </Grid>
-
-          <Grid item xs={2}>
-            <LocalizationProvider fullWidth dateAdapter={AdapterDayjs}>
-              <DatePicker
-                name="passDate"
-                label="Pass Date"
-                value={filterData.passDate}
-                sx={{ width: "100%" }}
-                onChange={() => {}} //write the function
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    fullWidth
-                    margin="normal"
-                    variant="outlined"
-                    InputProps={{ sx: { height: "100%" } }}
-                  />
-                )}
+          <Grid item xs={6}>
+            <div className="input-wrapper">
+              <InputLabel
+                htmlFor="supplierName"
+                className="input-label supplier-adjustment"
+              >
+                Supplier Name :
+              </InputLabel>
+              <TextField
+                select
                 fullWidth
+                id="supplierName"
+                variant="outlined"
+                size="small"
+                type="text"
+                className="input-field"
+                value={formData.supplierName}
+                onChange={(e) =>
+                  setFormData({ ...formData, supplierName: e.target.value })
+                }
+              >
+                {allSuppliers?.map((item) => (
+                  <MenuItem key={item._id} value={item._id}>
+                    {item.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </Grid>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="passNo" className="input-label">
+                Pass No :
+              </InputLabel>
+              <TextField
+                id="passNo"
+                size="small"
+                type="number"
+                className="input-field"
+                value={formData.passNo}
+                onChange={(e) =>
+                  setFormData({ ...formData, passNo: e.target.value })
+                }
               />
-            </LocalizationProvider>
+            </div>
           </Grid>
-
-          <Grid item xs={2}>
-            <TextField
-              name="address"
-              label="Address"
-              variant="outlined"
-              type="text"
-              fullWidth
-              className="form-field"
-              value={filterData.address}
-              onChange={(e) => {}} //write the function
-            />
-          </Grid>
-
-          <Grid item xs={2}>
-            <TextField
-              name="billNo"
-              label="Bill No."
-              variant="outlined"
-              type="number"
-              fullWidth
-              className="form-field"
-              value={filterData.billNo}
-              onChange={(e) => {}} //write the function
-            />
-          </Grid>
-
-          <Grid item xs={2}>
-            <LocalizationProvider fullWidth dateAdapter={AdapterDayjs}>
-              <DatePicker
-                name="billDate"
-                label="Bill Date"
-                value={filterData.billDate}
-                sx={{ width: "100%" }}
-                onChange={() => {}} //write the function
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    fullWidth
-                    margin="normal"
-                    variant="outlined"
-                  />
-                )}
-                fullWidth
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="passDate" className="input-label">
+                Pass Date :
+              </InputLabel>
+              <TextField
+                id="passDate"
+                size="small"
+                type="date"
+                className="input-field"
+                value={formData.passDate}
+                onChange={(e) =>
+                  setFormData({ ...formData, passDate: e.target.value })
+                }
               />
-            </LocalizationProvider>
+            </div>
           </Grid>
-
-          <Grid item xs={2}>
-            <TextField
-              select
-              name="stockIn"
-              label="Stock in"
-              variant="outlined"
-              type="text"
-              fullWidth
-              className="form-field"
-              value={filterData.stockIn}
-              onChange={(e) => {}} //write the function
-            >
-              <MenuItem value="item1">Item 1</MenuItem>
-              <MenuItem value="item2">Item 2</MenuItem>
-              <MenuItem value="item3">Item 3</MenuItem>
-              <MenuItem value="item4">Item 4</MenuItem>
-              <MenuItem value="item5">Item 5</MenuItem>
-            </TextField>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel
+                htmlFor="stockIn"
+                className="input-label store-adjustment"
+              >
+                Store Name :
+              </InputLabel>
+              <TextField
+                select
+                id="stockIn"
+                size="small"
+                className="input-field"
+                value={formData.stockIn}
+                onChange={(e) =>
+                  setFormData({ ...formData, stockIn: e.target.value })
+                }
+              >
+                {allStores?.map((store) => (
+                  <MenuItem key={store._id} value={store._id}>
+                    {store.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
           </Grid>
-
-          <Grid item xs={2}>
-            <TextField
-              name="entrtyNo"
-              label="Entry No."
-              variant="outlined"
-              type="number"
-              fullWidth
-              className="form-field"
-              value={filterData.entrtyNo}
-              onChange={(e) => {}} //write the function
-            />
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel
+                htmlFor="entryNo"
+                className="input-label entryno-adjustment"
+              >
+                Entry No :
+              </InputLabel>
+              <TextField
+                id="entryNo"
+                size="small"
+                type="number"
+                className="input-field"
+                value={formData.entryNo}
+                onChange={(e) =>
+                  setFormData({ ...formData, entryNo: e.target.value })
+                }
+              />
+            </div>
+          </Grid>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="billNo" className="input-label">
+                Bill No :
+              </InputLabel>
+              <TextField
+                id="billNo"
+                size="small"
+                type="number"
+                className="input-field"
+                value={formData.billNo}
+                onChange={(e) =>
+                  setFormData({ ...formData, billNo: e.target.value })
+                }
+              />
+            </div>
+          </Grid>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="billDate" className="input-label">
+                Bill Date :
+              </InputLabel>
+              <TextField
+                id="billDate"
+                size="small"
+                type="date"
+                className="input-field"
+                value={formData.billDate}
+                onChange={(e) =>
+                  setFormData({ ...formData, billDate: e.target.value })
+                }
+              />
+            </div>
           </Grid>
         </Grid>
 
-        <Grid container spacing={2} sx={{ marginTop: "12px" }}>
-          <Grid item xs={1}>
-            <InputLabel sx={{ marginBottom: "8px" }}>MRP Value</InputLabel>
-            <TextField
-              // label="MRP Value"
-              variant="outlined"
-              type="text"
-              size="small"
-              fullWidth
-              value={calculateMRPValue(tableData[0])}
-              InputProps={{ readOnly: true }}
-            />
-          </Grid>
-          <Grid item xs={1}>
-            <InputLabel sx={{ marginBottom: "8px" }}>S. Discount</InputLabel>
-            <TextField
-              // label="Special Discount"
-              variant="outlined"
-              type="text"
-              size="small"
-              fullWidth
-              value={""}
-              InputProps={{ readOnly: true }}
-            />
-          </Grid>
-          <Grid item xs={1}>
-            <InputLabel sx={{ marginBottom: "8px" }}>Govt. Rate Off</InputLabel>
-            <TextField
-              // label="Govt. Rate Off"
-              variant="outlined"
-              type="text"
-              size="small"
-              fullWidth
-              value={""}
-              InputProps={{ readOnly: true }}
-            />
-          </Grid>
-          <Grid item xs={1}>
-            <InputLabel sx={{ marginBottom: "8px" }}>Special Purposes</InputLabel>
-            <TextField
-              // label="Special Purposes"
-              variant="outlined"
-              type="text"
-              size="small"
-              fullWidth
-              value={""}
-              InputProps={{ readOnly: true }}
-            />
-          </Grid>
-          <Grid item xs={1}>
-            <InputLabel sx={{ marginBottom: "8px" }}>Service Tax</InputLabel>
-            <TextField
-              // label="Special Purposes"
-              variant="outlined"
-              type="text"
-              size="small"
-              fullWidth
-              value={""}
-              InputProps={{ readOnly: true }}
-            />
-          </Grid>
-          <Grid item xs={1}>
-            <InputLabel sx={{ marginBottom: "8px" }}>Tcs(%)</InputLabel>
-            <TextField
-              // label="Special Purposes"
-              variant="outlined"
-              type="text"
-              size="small"
-              fullWidth
-              value={""}
-              InputProps={{ readOnly: true }}
-            />
-          </Grid>
-          <Grid item xs={1}>
-            <InputLabel sx={{ marginBottom: "8px" }}>Tcs Amt.</InputLabel>
-            <TextField
-              // label="Special Purposes"
-              variant="outlined"
-              type="text"
-              size="small"
-              fullWidth
-              value={""}
-              InputProps={{ readOnly: true }}
-            />
-          </Grid>
-          <Grid item xs={1}>
-            <InputLabel sx={{ marginBottom: "8px" }}>Gross Amt.</InputLabel>
-            <TextField
-              // label="Special Purposes"
-              variant="outlined"
-              type="text"
-              size="small"
-              fullWidth
-              value={""}
-              InputProps={{ readOnly: true }}
-            />
-          </Grid>
-          <Grid item xs={1}>
-            <InputLabel sx={{ marginBottom: "8px" }}>Discount</InputLabel>
-            <TextField
-              // label="Special Purposes"
-              variant="outlined"
-              type="text"
-              size="small"
-              fullWidth
-              value={""}
-              InputProps={{ readOnly: true }}
-            />
-          </Grid>
-          <Grid item xs={1}>
-            <InputLabel sx={{ marginBottom: "8px" }}>Tax</InputLabel>
-            <TextField
-              // label="Special Purposes"
-              variant="outlined"
-              type="text"
-              size="small"
-              fullWidth
-              value={""}
-              InputProps={{ readOnly: true }}
-            />
-          </Grid>
-          <Grid item xs={1}>
-            <InputLabel sx={{ marginBottom: "8px" }}>Adjustment</InputLabel>
-            <TextField
-              // label="Special Purposes"
-              variant="outlined"
-              type="text"
-              size="small"
-              fullWidth
-              value={""}
-              InputProps={{ readOnly: true }}
-            />
-          </Grid>
-          <Grid item xs={1}>
-            <InputLabel sx={{ marginBottom: "8px" }}>Net Amount</InputLabel>
-            <TextField
-              // label="Special Purposes"
-              variant="outlined"
-              type="text"
-              size="small"
-              fullWidth
-              value={""}
-              InputProps={{ readOnly: true }}
-            />
-          </Grid>
-        </Grid>
-
-        <TableContainer
-          component={Paper}
-          sx={{ marginTop: 4, maxHeight: 300, overflowY: "auto" }}
+        <Box
+          sx={{ p: 2, boxShadow: 2, borderRadius: 1, marginTop: 4 }}
+          className="table-header"
         >
-          <Table>
-            <TableHead>
-              <TableRow>
-              <TableCell>S. No.</TableCell>
-                <TableCell>Item Code</TableCell>
-                <TableCell>Item Description</TableCell>
-                <TableCell>MRP</TableCell>
-                <TableCell>Batch</TableCell>
-                <TableCell>Case</TableCell>
-                <TableCell>Pcs</TableCell>
-                <TableCell>Brk</TableCell>
-                <TableCell>Pur Rate</TableCell>
-                <TableCell>Btl Rate</TableCell>
-                <TableCell>GRO</TableCell>
-                <TableCell>SP</TableCell>
-                <TableCell>Amt(₹)</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {tableData.map((row, index) => (
-                <TableRow key={index}>
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={index + 1}
-                      // fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.itemCode}
-                      onChange={(event) =>
-                        handleItemCodeChange(event, index, "itemCode")
-                      }
-                      fullWidth
-                      // InputProps={{ readOnly: row.itemDescription !== "" }}
-                    />
-                  </TableCell>
-                  <TableCell sx={{ padding: "10px" }}>
-                    <TextField
-                      select
-                      size="small"
-                      value={row.itemDescription}
-                      onChange={(event) =>
-                        handleItemCodeChange(event, index, "itemDescription")
-                      }
-                      fullWidth
-                    >
-                      <MenuItem value="item1">Item 1</MenuItem>
-                      <MenuItem value="item2">Item 2</MenuItem>
-                      <MenuItem value="item3">Item 3</MenuItem>
-                      <MenuItem value="item4">Item 4</MenuItem>
-                      <MenuItem value="item5">Item 5</MenuItem>
-                    </TextField>
-                  </TableCell>
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.mrp}
-                      onChange={(event) =>
-                        handleItemCodeChange(event, index, "mrp")
-                      }
-                      fullWidth
-                    />
-                  </TableCell>
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.batch || ""}
-                      onChange={(event) =>
-                        handleItemCodeChange(event, index, "batch")
-                      }
-                      fullWidth
-                    />
-                  </TableCell>
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.case || ""}
-                      onChange={(event) =>
-                        handleItemCodeChange(event, index, "case")
-                      }
-                      fullWidth
-                    />
-                  </TableCell>
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.pcs || ""}
-                      onChange={(event) =>
-                        handleItemCodeChange(event, index, "pcs")
-                      }
-                      fullWidth
-                    />
-                  </TableCell>
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.brk || ""}
-                      onChange={(event) =>
-                        handleItemCodeChange(event, index, "brk")
-                      }
-                      fullWidth
-                    />
-                  </TableCell>
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.purRate || ""}
-                      onChange={(event) =>
-                        handleItemCodeChange(event, index, "purRate")
-                      }
-                      fullWidth
-                    />
-                  </TableCell>
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.btlRate || ""}
-                      onChange={(event) =>
-                        handleItemCodeChange(event, index, "btlRate")
-                      }
-                      fullWidth
-                    />
-                  </TableCell>
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.gro || ""}
-                      onChange={(event) =>
-                        handleItemCodeChange(event, index, "gro")
-                      }
-                      fullWidth
-                    />
-                  </TableCell>
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.sp || ""}
-                      onChange={(event) =>
-                        handleItemCodeChange(event, index, "sp")
-                      }
-                      fullWidth
-                    />
-                  </TableCell>
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.amount || ""}
-                      onChange={(event) =>
-                        handleItemCodeChange(event, index, "amount")
-                      }
-                      fullWidth
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+          <Grid container spacing={1}>
+            <Grid item xs={1.5}>
+              <InputLabel className="input-label-2">Item Code</InputLabel>
+              <TextField
+                variant="outlined"
+                type="text"
+                size="small"
+                fullWidth
+                value={formData.itemCode || 0}
+                onChange={(e) =>
+                  setFormData({ ...formData, itemCode: e.target.value })
+                }
+              />
+            </Grid>
+            <Grid item xs={1.8}>
+              <InputLabel className="input-label-2">Item Name</InputLabel>
+              <TextField
+                variant="outlined"
+                type="text"
+                size="small"
+                fullWidth
+                value={formData.itemName}
+                onChange={handleItemNameChange}
+              />
+            </Grid>
+            <Grid item xs={0.8}>
+              <InputLabel className="input-label-2">MRP</InputLabel>
+              <TextField
+                variant="outlined"
+                type="text"
+                size="small"
+                fullWidth
+                value={formData.mrp}
+                onChange={(e) =>
+                  setFormData({ ...formData, mrp: e.target.value })
+                }
+              />
+            </Grid>
+            <Grid item xs={1}>
+              <InputLabel className="input-label-2">Batch</InputLabel>
+              <TextField
+                variant="outlined"
+                type="text"
+                size="small"
+                fullWidth
+                value={formData.batch}
+                onChange={(e) =>
+                  setFormData({ ...formData, batch: e.target.value })
+                }
+              />
+            </Grid>
+            <Grid item xs={0.8}>
+              <InputLabel className="input-label-2">Case</InputLabel>
+              <TextField
+                variant="outlined"
+                type="text"
+                size="small"
+                fullWidth
+                value={formData.case}
+                onChange={(e) =>
+                  setFormData({ ...formData, case: e.target.value })
+                }
+              />
+            </Grid>
+            <Grid item xs={0.8}>
+              <InputLabel className="input-label-2">Pcs.</InputLabel>
+              <TextField
+                variant="outlined"
+                type="text"
+                size="small"
+                fullWidth
+                value={formData.pcs}
+                onChange={(e) =>
+                  setFormData({ ...formData, pcs: e.target.value })
+                }
+              />
+            </Grid>
+            <Grid item xs={0.8}>
+              <InputLabel className="input-label-2">Brk.</InputLabel>
+              <TextField
+                variant="outlined"
+                type="text"
+                size="small"
+                fullWidth
+                value={formData.brk}
+                onChange={(e) =>
+                  setFormData({ ...formData, brk: e.target.value })
+                }
+              />
+            </Grid>
 
+            <Grid item xs={0.9}>
+              <InputLabel className="input-label-2">Pur. Rate</InputLabel>
+              <TextField
+                variant="outlined"
+                type="text"
+                size="small"
+                fullWidth
+                value={formData.purRate}
+                onChange={(e) =>
+                  setFormData({ ...formData, purRate: e.target.value })
+                }
+              />
+            </Grid>
+            <Grid item xs={0.9}>
+              <InputLabel className="input-label-2">Btl. Rate</InputLabel>
+              <TextField
+                variant="outlined"
+                type="text"
+                size="small"
+                fullWidth
+                value={formData.btlRate}
+                onChange={(e) =>
+                  setFormData({ ...formData, btlRate: e.target.value })
+                }
+              />
+            </Grid>
+            <Grid item xs={0.8}>
+              <InputLabel className="input-label-2">GRO</InputLabel>
+              <TextField
+                variant="outlined"
+                type="text"
+                size="small"
+                fullWidth
+                value={formData.gro}
+                onChange={(e) =>
+                  setFormData({ ...formData, gro: e.target.value })
+                }
+              />
+            </Grid>
+            <Grid item xs={0.8}>
+              <InputLabel className="input-label-2">SP</InputLabel>
+              <TextField
+                variant="outlined"
+                type="text"
+                size="small"
+                fullWidth
+                value={formData.sp}
+                onChange={(e) =>
+                  setFormData({ ...formData, sp: e.target.value })
+                }
+              />
+            </Grid>
+            <Grid item xs={1}>
+              <InputLabel className="input-label-2">Amt(₹)</InputLabel>
+              <TextField
+                variant="outlined"
+                type="text"
+                size="small"
+                fullWidth
+                value={formData.amount}
+                onChange={(e) =>
+                  setFormData({ ...formData, amount: e.target.value })
+                }
+              />
+            </Grid>
+          </Grid>
+
+          <TableContainer
+            component={Paper}
+            sx={{ marginTop: 1, maxHeight: 300, overflowY: "auto" }}
+          >
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>S. No.</TableCell>
+                  <TableCell>Item Code</TableCell>
+                  <TableCell>Item Name</TableCell>
+                  <TableCell>MRP</TableCell>
+                  <TableCell>Batch</TableCell>
+                  <TableCell>Case</TableCell>
+                  <TableCell>Pcs</TableCell>
+                  <TableCell>Brk</TableCell>
+                  <TableCell>Pur Rate</TableCell>
+                  <TableCell>Btl Rate</TableCell>
+                  <TableCell>GRO</TableCell>
+                  <TableCell>SP</TableCell>
+                  <TableCell>Amt(₹)</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {searchResults
+                  ? searchResults.map((row, index) => (
+                      <TableRow
+                        key={index}
+                        onClick={() => handleRowClick(index)}
+                        sx={{
+                          cursor: "pointer",
+                          backgroundColor:
+                            formData.itemName === row.name ? "#fff" : "inherit",
+                        }}
+                      >
+                        <TableCell sx={{ padding: "14px", paddingLeft: 3 }}>
+                          {index + 1}
+                        </TableCell>
+                        <TableCell sx={{ padding: "14px" }}>
+                          {row?.details[0].itemCode || 0}
+                        </TableCell>
+                        <TableCell sx={{ padding: "14px" }}>
+                          {row?.name || "No Data"}
+                        </TableCell>
+                        <TableCell sx={{ padding: "14px" }}>
+                          {row?.details[0].mrp || 0.0}
+                        </TableCell>
+                        <TableCell sx={{ padding: "14px" }}>
+                          {row.batch || 0}
+                        </TableCell>
+                        <TableCell sx={{ padding: "14px" }}>
+                          {row.caseValue || 0.0}
+                        </TableCell>
+                        <TableCell sx={{ padding: "14px" }}>
+                          {row.pcs || 0}
+                        </TableCell>
+                        <TableCell sx={{ padding: "14px" }}>
+                          {row.brk || 0}
+                        </TableCell>
+                        <TableCell sx={{ padding: "14px" }}>
+                          {row.purRate || 0.0}
+                        </TableCell>
+                        <TableCell sx={{ padding: "14px" }}>
+                          {row.btlRate || 0.0}
+                        </TableCell>
+                        <TableCell sx={{ padding: "14px" }}>
+                          {row.gro || 0.0}
+                        </TableCell>
+                        <TableCell sx={{ padding: "14px" }}>
+                          {row.sp || 0}
+                        </TableCell>
+                        <TableCell sx={{ padding: "14px" }}>
+                          {row.amount || 0.0}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  : "No Data"}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+
+        <Box
+          component="form"
+          sx={{
+            width: "100%",
+            p: 2,
+            marginTop: 3,
+            borderRadius: 1,
+            boxShadow: 2,
+          }}
+        >
+          <Grid container spacing={1}>
+            <Grid item xs={1}>
+              <InputLabel className="input-label-2">MRP Value</InputLabel>
+              <TextField
+                variant="outlined"
+                type="text"
+                size="small"
+                fullWidth
+                value={""}
+                InputProps={{ readOnly: true }}
+              />
+            </Grid>
+            <Grid item xs={1}>
+              <InputLabel className="input-label-2">S. Discount</InputLabel>
+              <TextField
+                // label="Special Discount"
+                variant="outlined"
+                type="text"
+                size="small"
+                fullWidth
+                value={""}
+                InputProps={{ readOnly: true }}
+              />
+            </Grid>
+            <Grid item xs={1}>
+              <InputLabel className="input-label-2">Govt. Rate Off</InputLabel>
+              <TextField
+                // label="Govt. Rate Off"
+                variant="outlined"
+                type="text"
+                size="small"
+                fullWidth
+                value={""}
+                InputProps={{ readOnly: true }}
+              />
+            </Grid>
+            <Grid item xs={1}>
+              <InputLabel className="input-label-2">
+                Special Purposes
+              </InputLabel>
+              <TextField
+                variant="outlined"
+                type="text"
+                size="small"
+                fullWidth
+                value={""}
+                InputProps={{ readOnly: true }}
+              />
+            </Grid>
+            <Grid item xs={1}>
+              <InputLabel className="input-label-2">Service Tax</InputLabel>
+              <TextField
+                variant="outlined"
+                type="text"
+                size="small"
+                fullWidth
+                value={""}
+                InputProps={{ readOnly: true }}
+              />
+            </Grid>
+            <Grid item xs={1}>
+              <InputLabel className="input-label-2">Tcs(%)</InputLabel>
+              <TextField
+                variant="outlined"
+                type="text"
+                size="small"
+                fullWidth
+                value={""}
+                InputProps={{ readOnly: true }}
+              />
+            </Grid>
+            <Grid item xs={1}>
+              <InputLabel className="input-label-2">Tcs Amt.</InputLabel>
+              <TextField
+                variant="outlined"
+                type="text"
+                size="small"
+                fullWidth
+                value={""}
+                InputProps={{ readOnly: true }}
+              />
+            </Grid>
+            <Grid item xs={1}>
+              <InputLabel className="input-label-2">Gross Amt.</InputLabel>
+              <TextField
+                variant="outlined"
+                type="text"
+                size="small"
+                fullWidth
+                value={""}
+                InputProps={{ readOnly: true }}
+              />
+            </Grid>
+            <Grid item xs={1}>
+              <InputLabel className="input-label-2">Discount</InputLabel>
+              <TextField
+                variant="outlined"
+                type="text"
+                size="small"
+                fullWidth
+                value={""}
+                InputProps={{ readOnly: true }}
+              />
+            </Grid>
+            <Grid item xs={1}>
+              <InputLabel className="input-label-2">Tax</InputLabel>
+              <TextField
+                variant="outlined"
+                type="text"
+                size="small"
+                fullWidth
+                value={""}
+                InputProps={{ readOnly: true }}
+              />
+            </Grid>
+            <Grid item xs={1}>
+              <InputLabel className="input-label-2">Adjustment</InputLabel>
+              <TextField
+                variant="outlined"
+                type="text"
+                size="small"
+                fullWidth
+                value={""}
+                InputProps={{ readOnly: true }}
+              />
+            </Grid>
+            <Grid item xs={1}>
+              <InputLabel className="input-label-2">Net Amount</InputLabel>
+              <TextField
+                variant="outlined"
+                type="text"
+                size="small"
+                fullWidth
+                value={""}
+                InputProps={{ readOnly: true }}
+              />
+            </Grid>
+          </Grid>
+        </Box>
         <Box
           sx={{
             display: "flex",
@@ -560,31 +722,59 @@ const PurchaseEntry = () => {
           }}
         >
           <Button
+            color="success"
+            size="small"
+            variant="outlined"
+            onClick={() => {}}
+            sx={{ marginTop: 3, marginRight: 2 }}
+          >
+            PREV PAGE
+          </Button>
+          <Button
+            color="secondary"
+            size="small"
+            variant="outlined"
+            onClick={() => {}}
+            sx={{ marginTop: 3, marginRight: 2 }}
+          >
+            NEXT PAGE
+          </Button>
+
+          <Button
             color="primary"
             size="large"
             variant="outlined"
             onClick={() => {}}
             sx={{ marginTop: 3, marginRight: 2 }}
           >
-            Save
-          </Button>
-          <Button
-            color="secondary"
-            size="large"
-            variant="outlined"
-            onClick={() => {}}
-            sx={{ marginTop: 3, marginRight: 2 }}
-          >
-            Print
+            EDIT
           </Button>
           <Button
             color="error"
             size="large"
-            variant="outlined"
+            variant="contained"
+            onClick={() => {}}
+            sx={{ marginTop: 3, marginRight: 2 }}
+          >
+            DELETE
+          </Button>
+          <Button
+            color="warning"
+            size="large"
+            variant="contained"
+            onClick={() => {}}
+            sx={{ marginTop: 3, marginRight: 2 }}
+          >
+            OPEN
+          </Button>
+          <Button
+            color="success"
+            size="small"
+            variant="contained"
             onClick={() => {}}
             sx={{ marginTop: 3 }}
           >
-            Clear
+            SAVE
           </Button>
         </Box>
       </Box>

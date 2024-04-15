@@ -215,7 +215,7 @@ const DailyPurchaseReport = () => {
               name="category"
               label="Category"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={filterData.categoryName}
               onChange={(e) =>
                 setFilterData({ ...filterData, categoryName: e.target.value })
@@ -256,7 +256,7 @@ const DailyPurchaseReport = () => {
               name="billFrom"
               label="Bill from"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={filterData.billFrom}
               onChange={(e) =>
                 setFilterData({ ...filterData, billFrom: e.target.value })
@@ -277,7 +277,7 @@ const DailyPurchaseReport = () => {
               name="billTo"
               label="Bill to"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={filterData.billTo}
               onChange={(e) =>
                 setFilterData({ ...filterData, billTo: e.target.value })
@@ -298,7 +298,7 @@ const DailyPurchaseReport = () => {
               name="series"
               label="Series"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={filterData.series}
               onChange={(e) =>
                 setFilterData({ ...filterData, series: e.target.value })
@@ -319,7 +319,7 @@ const DailyPurchaseReport = () => {
               name="billType"
               label="Bill Type"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={filterData.billType}
               onChange={(e) =>
                 setFilterData({ ...filterData, billType: e.target.value })
@@ -361,7 +361,7 @@ const DailyPurchaseReport = () => {
               name="supplier"
               label="supplier"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={filterData.supplier}
               onChange={(e) =>
                 setFilterData({ ...filterData, supplier: e.target.value })
@@ -382,7 +382,7 @@ const DailyPurchaseReport = () => {
               name="user"
               label="User"
               variant="outlined"
-              className="form-field"
+              className="input-field"
               value={filterData.user}
               onChange={(e) =>
                 setFilterData({ ...filterData, user: e.target.value })

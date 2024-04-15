@@ -40,7 +40,7 @@ const CashWithdrawn = () => {
               variant="outlined"
               type="text"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={entryNo}
               onChange={(e) => setEntryNo(e.target.value)}
             />
@@ -53,7 +53,7 @@ const CashWithdrawn = () => {
               variant="outlined"
               type="date"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={dayjs(entryDate).format("YYYY-MM-DD")}
               onChange={(e) => setEntryDate(dayjs(e.target.value))}
             />
@@ -66,7 +66,7 @@ const CashWithdrawn = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={withdrwBankAc}
               onChange={(e) => setWithdrwBankAc(e.target.value)}
             />
@@ -79,7 +79,7 @@ const CashWithdrawn = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={amtWithdraw}
               onChange={(e) => setamtWithdraw(e.target.value)}
             />
@@ -92,7 +92,7 @@ const CashWithdrawn = () => {
               variant="outlined"
               type="number"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={debit}
               onChange={(e) => setDebit(e.target.value)}
             />
@@ -105,7 +105,7 @@ const CashWithdrawn = () => {
               variant="outlined"
               type="text"
               fullWidth
-              className="form-field"
+              className="input-field"
               value={remarks}
               onChange={(e) => setRemarks(e.target.value)}
             />
