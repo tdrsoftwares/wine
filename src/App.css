@@ -197,14 +197,14 @@ body {
   display: flex;
   align-items: center;
   margin-bottom: 8px;
+  margin-right: 8px;
 }
 
 .input-wrapper .input-label {
   margin-right: 8px;
   flex: 0 0 30%; 
-  /* width: 30%; */
-  text-wrap: nowrap;
   font-size: 14px !important;
+  text-wrap: balance;
 }
 
 .input-label{
@@ -226,6 +226,14 @@ body {
 .input-field {
   background: #fdfbc8 !important;
   border-radius: 4px !important;
+}
+
+.input-wrapper .label-adjustment {
+  flex: 0 0 40% !important;
+}
+
+.input-wrapper .field-adjustment {
+  flex: 0 0 60% !important;
 }
 
 .input-wrapper .supplier-adjustment{
