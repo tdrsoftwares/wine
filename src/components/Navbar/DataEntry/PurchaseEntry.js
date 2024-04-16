@@ -929,7 +929,7 @@ const PurchaseEntry = () => {
         >
           <Button
             color="success"
-            size="small"
+            size="medium"
             variant="outlined"
             onClick={() => {}}
             sx={{ marginTop: 3, marginRight: 2 }}
@@ -938,7 +938,7 @@ const PurchaseEntry = () => {
           </Button>
           <Button
             color="secondary"
-            size="small"
+            size="medium"
             variant="outlined"
             onClick={() => {}}
             sx={{ marginTop: 3, marginRight: 2 }}
@@ -948,7 +948,7 @@ const PurchaseEntry = () => {
 
           <Button
             color="primary"
-            size="large"
+            size="medium"
             variant="outlined"
             onClick={() => {}}
             sx={{ marginTop: 3, marginRight: 2 }}
@@ -957,7 +957,7 @@ const PurchaseEntry = () => {
           </Button>
           <Button
             color="error"
-            size="large"
+            size="medium"
             variant="contained"
             onClick={() => {}}
             sx={{ marginTop: 3, marginRight: 2 }}
@@ -966,7 +966,7 @@ const PurchaseEntry = () => {
           </Button>
           <Button
             color="warning"
-            size="large"
+            size="medium"
             variant="contained"
             onClick={() => {}}
             sx={{ marginTop: 3, marginRight: 2 }}
@@ -975,7 +975,7 @@ const PurchaseEntry = () => {
           </Button>
           <Button
             color="success"
-            size="small"
+            size="medium"
             variant="contained"
             onClick={() => {}}
             sx={{ marginTop: 3 }}
