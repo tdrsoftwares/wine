@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
   Grid,
   TextField,
-  Typography,
   Table,
   TableBody,
   TableCell,
@@ -14,11 +13,7 @@ import {
   Paper,
   MenuItem,
   InputLabel,
-  Popover,
-  Input,
-  Select,
 } from "@mui/material";
-import dayjs from "dayjs";
 import { getAllItems } from "../../../services/itemService";
 import { useLoginContext } from "../../../utils/loginContext";
 import { NotificationManager } from "react-notifications";
@@ -26,16 +21,19 @@ import { getAllSuppliers } from "../../../services/supplierService";
 import { getAllStores } from "../../../services/storeService";
 import { searchAllPurchases } from "../../../services/purchaseService";
 import debounce from "lodash.debounce";
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from "@mui/icons-material/Close";
 
 const PurchaseEntry = () => {
   const { loginResponse } = useLoginContext();
-  const todaysDate = dayjs();
   const [allItems, setAllItems] = useState([]);
   const [allSuppliers, setAllSuppliers] = useState([]);
   const [allStores, setAllStores] = useState([]);
 
   const [searchResults, setSearchResults] = useState([]);
+  const [purchases, setPurchases] = useState([]);
+  const [searchMode, setSearchMode] = useState(false);
+
+  console.log("purchases: ", purchases);
   const [formData, setFormData] = useState({
     supplierName: "",
     passNo: "",
@@ -49,10 +47,10 @@ const PurchaseEntry = () => {
     itemName: "",
     mrp: "",
     batch: "",
-    case: "",
+    caseValue: "",
     pcs: "",
     brk: "",
-    purRate: "",
+    purchaseRate: "",
     btlRate: "",
     gro: "",
     sp: "",
@@ -60,19 +58,46 @@ const PurchaseEntry = () => {
     action: false,
   });
 
+  const itemNameRef = useRef(null);
+  const mrpRef = useRef(null);
+  const batchRef = useRef(null);
+  const caseRef = useRef(null);
+  const pcsRef = useRef(null);
+  const brkRef = useRef(null);
+  const purRateRef = useRef(null);
+  const btlRateRef = useRef(null);
+  const groRef = useRef(null);
+  const spRef = useRef(null);
+  const amountRef = useRef(null);
 
   const handleItemNameChange = (event) => {
     const itemName = event.target.value;
     console.log("itemName: ", itemName);
     debouncedSearch(itemName);
-    setFormData({ ...formData, itemName });
+    setFormData({
+      ...formData,
+      itemName,
+      itemCode: "",
+      mrp: "",
+      batch: "",
+      caseValue: "",
+      pcs: "",
+      brk: "",
+      purchaseRate: "",
+      btlRate: "",
+      gro: "",
+      sp: "",
+      amount: "",
+    });
+    setSearchMode(true);
+    if (!itemName) setSearchMode(false);
   };
 
-  const calculateMRPValue = (rowData) => {
-    const pcs = parseInt(rowData.pcs) || 0;
-    const mrp = parseFloat(rowData.mrp) || 0;
-    return (pcs * mrp).toFixed(2);
-  };
+  // const calculateMRPValue = (rowData) => {
+  //   const pcs = parseInt(rowData.pcs) || 0;
+  //   const mrp = parseFloat(rowData.mrp) || 0;
+  //   return (pcs * mrp).toFixed(2);
+  // };
 
   const fetchAllItems = async () => {
     try {
@@ -140,27 +165,67 @@ const PurchaseEntry = () => {
     const selectedRow = searchResults[index];
     setFormData({
       ...formData,
-      itemCode: selectedRow.details[0]?.itemCode || "",
-      itemName: selectedRow.name || "",
-      mrp: selectedRow.details[0]?.mrp || "",
-      batch: selectedRow.batch || "",
-      case: selectedRow.caseValue || "",
-      pcs: selectedRow.pcs || "",
-      brk: selectedRow.brk || "",
-      purRate: selectedRow.purRate || "",
-      btlRate: selectedRow.btlRate || "",
-      gro: selectedRow.gro || "",
-      sp: selectedRow.sp || "",
-      amount: selectedRow.amount || "",
+      itemCode: selectedRow.details[0]?.itemCode || 0,
+      itemName: selectedRow.name || 0,
+      mrp: selectedRow.details[0]?.mrp || 0,
+      batch: selectedRow.batch || 0,
+      caseValue: selectedRow.caseValue || 0,
+      pcs: selectedRow.pcs || 0,
+      brk: selectedRow.brk || 0,
+      purchaseRate: selectedRow.details[0]?.purchaseRate || 0,
+      btlRate: selectedRow.btlRate || 0,
+      gro: selectedRow.gro || 0,
+      sp: selectedRow.sp || 0,
+      amount: selectedRow.amount || 0,
     });
   };
 
-  const handleRemoveRow = (index) => {
+  const handleRemoveSearchTableRow = (index) => {
     const updatedResults = [...searchResults];
     updatedResults.splice(index, 1);
     setSearchResults(updatedResults);
   };
-  
+
+  const handleRemovePurchasesTableRow = (index) => {
+    const updatedPurchases = [...purchases];
+    updatedPurchases.splice(index, 1);
+    setPurchases(updatedPurchases);
+  };
+
+  const handleEnterKey = (event, nextInputRef) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      nextInputRef.current.focus();
+    }
+  };
+
+  const handleSubmitIntoDataTable = () => {
+    setPurchases([...purchases, formData]);
+    setFormData({
+      supplierName: "",
+      passNo: "",
+      passDate: "mm/dd/yyyy",
+      address: "",
+      billNo: "",
+      billDate: "mm/dd/yyyy",
+      stockIn: "",
+      entryNo: "",
+      itemCode: "",
+      itemName: "",
+      mrp: "",
+      batch: "",
+      caseValue: "",
+      pcs: "",
+      brk: "",
+      purchaseRate: "",
+      btlRate: "",
+      gro: "",
+      sp: "",
+      amount: "",
+      action: false,
+    });
+    setSearchMode(false);
+  };
 
   return (
     <form>
@@ -328,23 +393,29 @@ const PurchaseEntry = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, itemCode: e.target.value })
                 }
+                onKeyDown={(e) => handleEnterKey(e, itemNameRef)}
               />
             </Grid>
             <Grid item xs={1.8}>
               <InputLabel className="input-label-2">Item Name</InputLabel>
               <TextField
+                inputRef={itemNameRef}
                 variant="outlined"
                 type="text"
                 size="small"
                 className="input-field"
                 fullWidth
                 value={formData.itemName}
-                onChange={handleItemNameChange}
+                onChange={(e) => {
+                  handleItemNameChange(e);
+                }}
+                onKeyDown={(e) => handleEnterKey(e, mrpRef)}
               />
             </Grid>
             <Grid item xs={0.8}>
               <InputLabel className="input-label-2">MRP</InputLabel>
               <TextField
+                inputRef={mrpRef}
                 variant="outlined"
                 type="text"
                 size="small"
@@ -354,11 +425,13 @@ const PurchaseEntry = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, mrp: e.target.value })
                 }
+                onKeyDown={(e) => handleEnterKey(e, batchRef)}
               />
             </Grid>
             <Grid item xs={1}>
               <InputLabel className="input-label-2">Batch</InputLabel>
               <TextField
+                inputRef={batchRef}
                 variant="outlined"
                 type="text"
                 size="small"
@@ -368,25 +441,29 @@ const PurchaseEntry = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, batch: e.target.value })
                 }
+                onKeyDown={(e) => handleEnterKey(e, caseRef)}
               />
             </Grid>
             <Grid item xs={0.8}>
               <InputLabel className="input-label-2">Case</InputLabel>
               <TextField
+                inputRef={caseRef}
                 variant="outlined"
                 type="text"
                 size="small"
                 className="input-field"
                 fullWidth
-                value={formData.case}
+                value={formData.caseValue}
                 onChange={(e) =>
-                  setFormData({ ...formData, case: e.target.value })
+                  setFormData({ ...formData, caseValue: e.target.value })
                 }
+                onKeyDown={(e) => handleEnterKey(e, pcsRef)}
               />
             </Grid>
             <Grid item xs={0.8}>
-              <InputLabel className="input-label-2">Pcs.</InputLabel>
+              <InputLabel className="input-label-2">Pcs</InputLabel>
               <TextField
+                inputRef={pcsRef}
                 variant="outlined"
                 type="text"
                 size="small"
@@ -396,11 +473,13 @@ const PurchaseEntry = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, pcs: e.target.value })
                 }
+                onKeyDown={(e) => handleEnterKey(e, brkRef)}
               />
             </Grid>
             <Grid item xs={0.8}>
-              <InputLabel className="input-label-2">Brk.</InputLabel>
+              <InputLabel className="input-label-2">Brk</InputLabel>
               <TextField
+                inputRef={brkRef}
                 variant="outlined"
                 type="text"
                 size="small"
@@ -410,26 +489,29 @@ const PurchaseEntry = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, brk: e.target.value })
                 }
+                onKeyDown={(e) => handleEnterKey(e, purRateRef)}
               />
             </Grid>
-
             <Grid item xs={0.9}>
               <InputLabel className="input-label-2">Pur. Rate</InputLabel>
               <TextField
+                inputRef={purRateRef}
                 variant="outlined"
                 type="text"
                 size="small"
                 className="input-field"
                 fullWidth
-                value={formData.purRate}
+                value={formData.purchaseRate}
                 onChange={(e) =>
-                  setFormData({ ...formData, purRate: e.target.value })
+                  setFormData({ ...formData, purchaseRate: e.target.value })
                 }
+                onKeyDown={(e) => handleEnterKey(e, btlRateRef)}
               />
             </Grid>
             <Grid item xs={0.9}>
               <InputLabel className="input-label-2">Btl. Rate</InputLabel>
               <TextField
+                inputRef={btlRateRef}
                 variant="outlined"
                 type="text"
                 size="small"
@@ -439,11 +521,13 @@ const PurchaseEntry = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, btlRate: e.target.value })
                 }
+                onKeyDown={(e) => handleEnterKey(e, groRef)}
               />
             </Grid>
             <Grid item xs={0.8}>
               <InputLabel className="input-label-2">GRO</InputLabel>
               <TextField
+                inputRef={groRef}
                 variant="outlined"
                 type="text"
                 size="small"
@@ -453,11 +537,13 @@ const PurchaseEntry = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, gro: e.target.value })
                 }
+                onKeyDown={(e) => handleEnterKey(e, spRef)}
               />
             </Grid>
             <Grid item xs={0.8}>
               <InputLabel className="input-label-2">SP</InputLabel>
               <TextField
+                inputRef={spRef}
                 variant="outlined"
                 type="text"
                 size="small"
@@ -467,11 +553,13 @@ const PurchaseEntry = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, sp: e.target.value })
                 }
+                onKeyDown={(e) => handleEnterKey(e, amountRef)}
               />
             </Grid>
             <Grid item xs={1}>
               <InputLabel className="input-label-2">Amt(₹)</InputLabel>
               <TextField
+                inputRef={amountRef}
                 variant="outlined"
                 type="text"
                 size="small"
@@ -481,107 +569,197 @@ const PurchaseEntry = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, amount: e.target.value })
                 }
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleSubmitIntoDataTable();
+                  } else {
+                    handleEnterKey(e, amountRef);
+                  }
+                }}
               />
             </Grid>
           </Grid>
 
-          <TableContainer
-            component={Paper}
-            sx={{
-              marginTop: 1,
-              height: 200,
-              overflowY: "auto",
-              "&::-webkit-scrollbar": {
-                width: 10,
-              },
-              "&::-webkit-scrollbar-track": {
-                backgroundColor: "#fff",
-              },
-              "&::-webkit-scrollbar-thumb": {
-                backgroundColor: "#d5d8df",
-                borderRadius: 2,
-              },
-            }}
-          >
-            <Table>
-              <TableHead className="table-head">
-                <TableRow>
-                  <TableCell>S. No.</TableCell>
-                  <TableCell>Item Code</TableCell>
-                  <TableCell>Item Name</TableCell>
-                  <TableCell>MRP</TableCell>
-                  <TableCell>Batch</TableCell>
-                  <TableCell>Case</TableCell>
-                  <TableCell>Pcs</TableCell>
-                  <TableCell>Brk</TableCell>
-                  <TableCell>Pur Rate</TableCell>
-                  <TableCell>Btl Rate</TableCell>
-                  <TableCell>GRO</TableCell>
-                  <TableCell>SP</TableCell>
-                  <TableCell>Amt(₹)</TableCell>
-                  <TableCell>Action</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {searchResults
-                  ? searchResults.map((row, index) => (
-                      <TableRow
-                        key={index}
-                        onClick={() => handleRowClick(index)}
-                        sx={{
-                          cursor: "pointer",
-                          backgroundColor:
-                            formData.itemName === row.name ? "#fff" : "inherit",
-                        }}
-                      >
-                        <TableCell sx={{ padding: "14px", paddingLeft: 3 }}>
-                          {index + 1}
-                        </TableCell>
-                        <TableCell sx={{ padding: "14px" }}>
-                          {row?.details[0]?.itemCode || "No Data"}
-                        </TableCell>
-                        <TableCell sx={{ padding: "14px" }}>
-                          {row?.name || "No Data"}
-                        </TableCell>
-                        <TableCell sx={{ padding: "14px" }}>
-                          {row?.details[0].mrp || 0.0}
-                        </TableCell>
-                        <TableCell sx={{ padding: "14px" }}>
-                          {row.batch || 0}
-                        </TableCell>
-                        <TableCell sx={{ padding: "14px" }}>
-                          {row.caseValue || 0.0}
-                        </TableCell>
-                        <TableCell sx={{ padding: "14px" }}>
-                          {row.pcs || 0}
-                        </TableCell>
-                        <TableCell sx={{ padding: "14px" }}>
-                          {row.brk || 0}
-                        </TableCell>
-                        <TableCell sx={{ padding: "14px" }}>
-                          {row.purRate || 0.0}
-                        </TableCell>
-                        <TableCell sx={{ padding: "14px" }}>
-                          {row.btlRate || 0.0}
-                        </TableCell>
-                        <TableCell sx={{ padding: "14px" }}>
-                          {row.gro || 0.0}
-                        </TableCell>
-                        <TableCell sx={{ padding: "14px" }}>
-                          {row.sp || 0}
-                        </TableCell>
-                        <TableCell sx={{ padding: "14px" }}>
-                          {row.amount || 0.0}
-                        </TableCell>
-                        <TableCell>
-                          <CloseIcon onClick={() => handleRemoveRow(index)} />
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  : "No Data"}
-              </TableBody>
-            </Table>
-          </TableContainer>
+          {searchMode ? (
+            <TableContainer
+              component={Paper}
+              sx={{
+                marginTop: 1,
+                height: 200,
+                width: 800,
+                overflowY: "scroll",
+                overflowX: "auto",
+                "&::-webkit-scrollbar": {
+                  width: 10,
+                  height: 10,
+                },
+                "&::-webkit-scrollbar-track": {
+                  backgroundColor: "#fff",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  backgroundColor: "#d5d8df",
+                  borderRadius: 2,
+                },
+              }}
+            >
+              <Table>
+                <TableHead className="table-head">
+                  <TableRow>
+                    <TableCell align="center">S. No.</TableCell>
+                    <TableCell align="center">Item Code</TableCell>
+                    <TableCell align="center">Item Name</TableCell>
+                    <TableCell align="center">MRP</TableCell>
+                    <TableCell align="center">Batch</TableCell>
+                    <TableCell align="center">Case</TableCell>
+                    <TableCell align="center">Pcs</TableCell>
+                    <TableCell align="center">Brk</TableCell>
+                    <TableCell align="center">Pur Rate</TableCell>
+                    <TableCell align="center">Btl Rate</TableCell>
+                    <TableCell align="center">GRO</TableCell>
+                    <TableCell align="center">SP</TableCell>
+                    <TableCell align="center">Amt(₹)</TableCell>
+                    {/* <TableCell>Action</TableCell> */}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {searchResults
+                    ? searchResults.map((row, index) => (
+                        <TableRow
+                          key={index}
+                          onClick={() => {
+                            handleRowClick(index);
+                            setSearchMode(false);
+                          }}
+                          sx={{
+                            cursor: "pointer",
+                            backgroundColor:
+                              formData.itemName === row.name
+                                ? "#fff"
+                                : "inherit",
+                          }}
+                        >
+                          <TableCell
+                            align="center"
+                            sx={{ padding: "14px", paddingLeft: 2 }}
+                          >
+                            {index + 1}
+                          </TableCell>
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row?.details[0]?.itemCode || "No Data"}
+                          </TableCell>
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row?.name || "No Data"}
+                          </TableCell>
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row?.details[0]?.mrp || 0.0}
+                          </TableCell>
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row.batch || 0}
+                          </TableCell>
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row.caseValue || 0.0}
+                          </TableCell>
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row.pcs || 0}
+                          </TableCell>
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row.brk || 0}
+                          </TableCell>
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row?.details[0]?.purchaseRate || 0.0}
+                          </TableCell>
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row.btlRate || 0.0}
+                          </TableCell>
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row.gro || 0.0}
+                          </TableCell>
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row.sp || 0}
+                          </TableCell>
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row.amount || 0.0}
+                          </TableCell>
+                          {/* <TableCell>
+                          <CloseIcon
+                            sx={{ color: "red" }}
+                            onClick={() => handleRemoveSearchTableRow(index)}
+                          />
+                        </TableCell> */}
+                        </TableRow>
+                      ))
+                    : "No Data"}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          ) : (
+            <TableContainer
+              component={Paper}
+              sx={{
+                marginTop: 1,
+                height: 200,
+                overflowY: "auto",
+                "&::-webkit-scrollbar": {
+                  width: 10,
+                  height: "auto",
+                },
+                "&::-webkit-scrollbar-track": {
+                  backgroundColor: "#fff",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  backgroundColor: "#d5d8df",
+                  borderRadius: 2,
+                },
+              }}
+            >
+              <Table>
+                <TableHead className="table-head">
+                  <TableRow>
+                    <TableCell align="center">S. No.</TableCell>
+                    <TableCell align="center">Item Code</TableCell>
+                    <TableCell align="center">Item Name</TableCell>
+                    <TableCell align="center">MRP</TableCell>
+                    <TableCell align="center">Batch</TableCell>
+                    <TableCell align="center">Case</TableCell>
+                    <TableCell align="center">Pcs</TableCell>
+                    <TableCell align="center">Brk</TableCell>
+                    <TableCell align="center">Pur Rate</TableCell>
+                    <TableCell align="center">Btl Rate</TableCell>
+                    <TableCell align="center">GRO</TableCell>
+                    <TableCell align="center">SP</TableCell>
+                    <TableCell align="center">Amt(₹)</TableCell>
+                    <TableCell align="center">Action</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {purchases.map((row, index) => (
+                    <TableRow key={index}>
+                      <TableCell align="center">{index + 1}</TableCell>
+                      <TableCell align="center">{row.itemCode}</TableCell>
+                      <TableCell align="center">{row.itemName}</TableCell>
+                      <TableCell align="center">{row.mrp}</TableCell>
+                      <TableCell align="center">{row.batch}</TableCell>
+                      <TableCell align="center">{row.caseValue}</TableCell>
+                      <TableCell align="center">{row.pcs}</TableCell>
+                      <TableCell align="center">{row.brk}</TableCell>
+                      <TableCell align="center">{row.purchaseRate}</TableCell>
+                      <TableCell align="center">{row.btlRate}</TableCell>
+                      <TableCell align="center">{row.gro}</TableCell>
+                      <TableCell align="center">{row.sp}</TableCell>
+                      <TableCell align="center">{row.amount}</TableCell>
+                      <TableCell align="center">
+                        <CloseIcon
+                          sx={{ cursor: "pointer", color: "red" }}
+                          onClick={() => handleRemovePurchasesTableRow(index)}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
         </Box>
 
         <Box
@@ -610,7 +788,6 @@ const PurchaseEntry = () => {
             <Grid item xs={1}>
               <InputLabel className="input-label-2">S. Discount</InputLabel>
               <TextField
-                // label="Special Discount"
                 variant="outlined"
                 type="text"
                 size="small"
@@ -623,7 +800,6 @@ const PurchaseEntry = () => {
             <Grid item xs={1}>
               <InputLabel className="input-label-2">Govt. Rate Off</InputLabel>
               <TextField
-                // label="Govt. Rate Off"
                 variant="outlined"
                 type="text"
                 size="small"
