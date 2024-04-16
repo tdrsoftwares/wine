@@ -26,7 +26,7 @@ import { getAllSuppliers } from "../../../services/supplierService";
 import { getAllStores } from "../../../services/storeService";
 import { searchAllPurchases } from "../../../services/purchaseService";
 import debounce from "lodash.debounce";
-import { CheckBox } from "@mui/icons-material";
+import CloseIcon from '@mui/icons-material/Close';
 
 const PurchaseEntry = () => {
   const { loginResponse } = useLoginContext();
@@ -36,7 +36,6 @@ const PurchaseEntry = () => {
   const [allStores, setAllStores] = useState([]);
 
   const [searchResults, setSearchResults] = useState([]);
-  const [tableData, setTableData] = useState([]);
   const [formData, setFormData] = useState({
     supplierName: "",
     passNo: "",
@@ -58,32 +57,15 @@ const PurchaseEntry = () => {
     gro: "",
     sp: "",
     amount: "",
+    action: false,
   });
 
-  const [anchorEl, setAnchorEl] = React.useState(null);
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const open = Boolean(anchorEl);
-  const id = open ? "simple-popover" : undefined;
-  const label = { inputProps: { "aria-label": "select" } };
 
   const handleItemNameChange = (event) => {
     const itemName = event.target.value;
     console.log("itemName: ", itemName);
     debouncedSearch(itemName);
     setFormData({ ...formData, itemName });
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleItemCodeChange = (event, index, field) => {
-    setFormData({ ...formData, [field]: event.target.value });
   };
 
   const calculateMRPValue = (rowData) => {
@@ -171,6 +153,12 @@ const PurchaseEntry = () => {
       sp: selectedRow.sp || "",
       amount: selectedRow.amount || "",
     });
+  };
+
+  const handleRemoveRow = (index) => {
+    const updatedResults = [...searchResults];
+    updatedResults.splice(index, 1);
+    setSearchResults(updatedResults);
   };
   
 
@@ -335,7 +323,7 @@ const PurchaseEntry = () => {
                 type="text"
                 size="small"
                 fullWidth
-                value={formData.itemCode || 0}
+                value={formData.itemCode}
                 onChange={(e) =>
                   setFormData({ ...formData, itemCode: e.target.value })
                 }
@@ -487,7 +475,21 @@ const PurchaseEntry = () => {
 
           <TableContainer
             component={Paper}
-            sx={{ marginTop: 1, maxHeight: 300, overflowY: "auto" }}
+            sx={{
+              marginTop: 1,
+              height: 200,
+              overflowY: "auto",
+              "&::-webkit-scrollbar": {
+                width: 10,
+              },
+              "&::-webkit-scrollbar-track": {
+                backgroundColor: "#fff",
+              },
+              "&::-webkit-scrollbar-thumb": {
+                backgroundColor: "#d5d8df",
+                borderRadius: 2,
+              },
+            }}
           >
             <Table>
               <TableHead>
@@ -505,6 +507,7 @@ const PurchaseEntry = () => {
                   <TableCell>GRO</TableCell>
                   <TableCell>SP</TableCell>
                   <TableCell>Amt(₹)</TableCell>
+                  <TableCell>Action</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -523,7 +526,7 @@ const PurchaseEntry = () => {
                           {index + 1}
                         </TableCell>
                         <TableCell sx={{ padding: "14px" }}>
-                          {row?.details[0].itemCode || 0}
+                          {row?.details[0]?.itemCode || "No Data"}
                         </TableCell>
                         <TableCell sx={{ padding: "14px" }}>
                           {row?.name || "No Data"}
@@ -557,6 +560,9 @@ const PurchaseEntry = () => {
                         </TableCell>
                         <TableCell sx={{ padding: "14px" }}>
                           {row.amount || 0.0}
+                        </TableCell>
+                        <TableCell>
+                          <CloseIcon onClick={() => handleRemoveRow(index)} />
                         </TableCell>
                       </TableRow>
                     ))
