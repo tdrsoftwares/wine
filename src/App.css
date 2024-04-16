@@ -100,17 +100,17 @@ body {
   background-color: #daedf19e;
 }
 
-.css-md26zr-MuiInputBase-root-MuiOutlinedInput-root {
+/* .css-md26zr-MuiInputBase-root-MuiOutlinedInput-root {
   background-color: #fdfbc8 !important;
-}
+} */
 
-.css-9ddj71-MuiInputBase-root-MuiOutlinedInput-root {
+/* .css-9ddj71-MuiInputBase-root-MuiOutlinedInput-root {
   background-color: #fdfbc8 !important;
-}
+} */
 
-.css-9npbnl-MuiFormLabel-root-MuiInputLabel-root {
+/* .css-9npbnl-MuiFormLabel-root-MuiInputLabel-root {
   color: #000 !important;
-}
+} */
 
 .col-md-3 {
   flex: 0 0 15%;
@@ -207,15 +207,25 @@ body {
   font-size: 14px !important;
 }
 
+.input-label{
+  color: #000 !important;
+}
+
 .input-label-2 {
   margin-bottom: 8px;
   font-size: 13px !important;
+  color: #000 !important;
 }
 
 .input-wrapper .input-field {
   flex: 1;
   background: #fdfbc8;
   border-radius: 4px;
+}
+
+.input-field {
+  background: #fdfbc8 !important;
+  border-radius: 4px !important;
 }
 
 .input-wrapper .supplier-adjustment{
@@ -235,7 +245,7 @@ body {
   background-color: #91cbff;
 }
 
-.css-15wwp11-MuiTableHead-root {
+.table-head {
   background-color: #d5d8df;
 }
 

@@ -322,6 +322,7 @@ const PurchaseEntry = () => {
                 variant="outlined"
                 type="text"
                 size="small"
+                className="input-field"
                 fullWidth
                 value={formData.itemCode}
                 onChange={(e) =>
@@ -335,6 +336,7 @@ const PurchaseEntry = () => {
                 variant="outlined"
                 type="text"
                 size="small"
+                className="input-field"
                 fullWidth
                 value={formData.itemName}
                 onChange={handleItemNameChange}
@@ -346,6 +348,7 @@ const PurchaseEntry = () => {
                 variant="outlined"
                 type="text"
                 size="small"
+                className="input-field"
                 fullWidth
                 value={formData.mrp}
                 onChange={(e) =>
@@ -359,6 +362,7 @@ const PurchaseEntry = () => {
                 variant="outlined"
                 type="text"
                 size="small"
+                className="input-field"
                 fullWidth
                 value={formData.batch}
                 onChange={(e) =>
@@ -372,6 +376,7 @@ const PurchaseEntry = () => {
                 variant="outlined"
                 type="text"
                 size="small"
+                className="input-field"
                 fullWidth
                 value={formData.case}
                 onChange={(e) =>
@@ -385,6 +390,7 @@ const PurchaseEntry = () => {
                 variant="outlined"
                 type="text"
                 size="small"
+                className="input-field"
                 fullWidth
                 value={formData.pcs}
                 onChange={(e) =>
@@ -398,6 +404,7 @@ const PurchaseEntry = () => {
                 variant="outlined"
                 type="text"
                 size="small"
+                className="input-field"
                 fullWidth
                 value={formData.brk}
                 onChange={(e) =>
@@ -412,6 +419,7 @@ const PurchaseEntry = () => {
                 variant="outlined"
                 type="text"
                 size="small"
+                className="input-field"
                 fullWidth
                 value={formData.purRate}
                 onChange={(e) =>
@@ -425,6 +433,7 @@ const PurchaseEntry = () => {
                 variant="outlined"
                 type="text"
                 size="small"
+                className="input-field"
                 fullWidth
                 value={formData.btlRate}
                 onChange={(e) =>
@@ -438,6 +447,7 @@ const PurchaseEntry = () => {
                 variant="outlined"
                 type="text"
                 size="small"
+                className="input-field"
                 fullWidth
                 value={formData.gro}
                 onChange={(e) =>
@@ -451,6 +461,7 @@ const PurchaseEntry = () => {
                 variant="outlined"
                 type="text"
                 size="small"
+                className="input-field"
                 fullWidth
                 value={formData.sp}
                 onChange={(e) =>
@@ -464,6 +475,7 @@ const PurchaseEntry = () => {
                 variant="outlined"
                 type="text"
                 size="small"
+                className="input-field"
                 fullWidth
                 value={formData.amount}
                 onChange={(e) =>
@@ -492,7 +504,7 @@ const PurchaseEntry = () => {
             }}
           >
             <Table>
-              <TableHead>
+              <TableHead className="table-head">
                 <TableRow>
                   <TableCell>S. No.</TableCell>
                   <TableCell>Item Code</TableCell>
@@ -589,6 +601,7 @@ const PurchaseEntry = () => {
                 variant="outlined"
                 type="text"
                 size="small"
+                className="input-field"
                 fullWidth
                 value={""}
                 InputProps={{ readOnly: true }}
@@ -601,6 +614,7 @@ const PurchaseEntry = () => {
                 variant="outlined"
                 type="text"
                 size="small"
+                className="input-field"
                 fullWidth
                 value={""}
                 InputProps={{ readOnly: true }}
@@ -613,6 +627,7 @@ const PurchaseEntry = () => {
                 variant="outlined"
                 type="text"
                 size="small"
+                className="input-field"
                 fullWidth
                 value={""}
                 InputProps={{ readOnly: true }}
@@ -626,6 +641,7 @@ const PurchaseEntry = () => {
                 variant="outlined"
                 type="text"
                 size="small"
+                className="input-field"
                 fullWidth
                 value={""}
                 InputProps={{ readOnly: true }}
@@ -637,6 +653,7 @@ const PurchaseEntry = () => {
                 variant="outlined"
                 type="text"
                 size="small"
+                className="input-field"
                 fullWidth
                 value={""}
                 InputProps={{ readOnly: true }}
@@ -648,6 +665,7 @@ const PurchaseEntry = () => {
                 variant="outlined"
                 type="text"
                 size="small"
+                className="input-field"
                 fullWidth
                 value={""}
                 InputProps={{ readOnly: true }}
@@ -659,6 +677,7 @@ const PurchaseEntry = () => {
                 variant="outlined"
                 type="text"
                 size="small"
+                className="input-field"
                 fullWidth
                 value={""}
                 InputProps={{ readOnly: true }}
@@ -670,6 +689,7 @@ const PurchaseEntry = () => {
                 variant="outlined"
                 type="text"
                 size="small"
+                className="input-field"
                 fullWidth
                 value={""}
                 InputProps={{ readOnly: true }}
@@ -681,6 +701,7 @@ const PurchaseEntry = () => {
                 variant="outlined"
                 type="text"
                 size="small"
+                className="input-field"
                 fullWidth
                 value={""}
                 InputProps={{ readOnly: true }}
@@ -692,6 +713,7 @@ const PurchaseEntry = () => {
                 variant="outlined"
                 type="text"
                 size="small"
+                className="input-field"
                 fullWidth
                 value={""}
                 InputProps={{ readOnly: true }}
@@ -703,6 +725,7 @@ const PurchaseEntry = () => {
                 variant="outlined"
                 type="text"
                 size="small"
+                className="input-field"
                 fullWidth
                 value={""}
                 InputProps={{ readOnly: true }}
@@ -714,6 +737,7 @@ const PurchaseEntry = () => {
                 variant="outlined"
                 type="text"
                 size="small"
+                className="input-field"
                 fullWidth
                 value={""}
                 InputProps={{ readOnly: true }}
