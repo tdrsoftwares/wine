@@ -20,10 +20,10 @@ import { NotificationManager } from "react-notifications";
 import { getAllSuppliers } from "../../../services/supplierService";
 import { getAllStores } from "../../../services/storeService";
 import { searchAllPurchases } from "../../../services/purchaseService";
-import debounce from "lodash.debounce";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
+import debounce from "lodash.debounce";
 
 const PurchaseEntry = () => {
   const { loginResponse } = useLoginContext();
@@ -60,9 +60,9 @@ const PurchaseEntry = () => {
   });
 
   const [editableIndex, setEditableIndex] = useState(-1);
-  console.log("editableIndex: ", editableIndex);
+  // console.log("editableIndex: ", editableIndex);
   const [editedRow, setEditedRow] = useState({});
-  console.log("editedRow: ", editedRow);
+  // console.log("editedRow: ", editedRow);
 
   const itemNameRef = useRef(null);
   const mrpRef = useRef(null);
@@ -102,9 +102,13 @@ const PurchaseEntry = () => {
     setEditableIndex(-1);
   };
 
+  const isValidNumber = (value) => {
+    return !isNaN(value) && parseFloat(value) >= 0;
+  };
+
   const handleEdit = (index, field, value) => {
     const newEditedRow = { ...editedRow };
-    newEditedRow[field] = value;
+    newEditedRow[field] = isValidNumber(value) ? value : editedRow[field];
     setEditedRow(newEditedRow);
     if (index !== editableIndex) {
       setEditableIndex(index);
@@ -206,12 +210,6 @@ const PurchaseEntry = () => {
     });
   };
 
-  const handleRemoveSearchTableRow = (index) => {
-    const updatedResults = [...searchResults];
-    updatedResults.splice(index, 1);
-    setSearchResults(updatedResults);
-  };
-
   const handleRemovePurchasesTableRow = (index) => {
     const updatedPurchases = [...purchases];
     updatedPurchases.splice(index, 1);
@@ -252,6 +250,67 @@ const PurchaseEntry = () => {
     });
     setSearchMode(false);
   };
+
+  const calculateAmount = () => {
+    const purRate = parseFloat(formData.purchaseRate) || 0;
+    const pcs = parseInt(formData.pcs) || 0;
+    return (purRate * pcs).toFixed(2);
+  };
+
+  const handlePurRatePcsChange = () => {
+    const amount = calculateAmount();
+    setFormData({ ...formData, amount });
+  };
+
+  useEffect(() => {
+    handlePurRatePcsChange();
+  }, [formData.purchaseRate, formData.pcs]);
+
+  const handleAmountChange = (event) => {
+    const newAmountValue = parseFloat(event.target.value) || 0;
+    const pcs = parseInt(formData.pcs) || 1;
+    const newSPValue = (newAmountValue / pcs).toFixed(2);
+    setFormData({
+      ...formData,
+      sp: newSPValue.toString(),
+      amount: newAmountValue.toString(),
+    });
+  };
+
+  const handleAmountFieldChange = (e) => {
+    const newAmount = e.target.value;
+    setFormData({ ...formData, amount: newAmount });
+    handleAmountChange();
+  };
+
+  
+
+  const handleCaseChange = (event) => {
+    const newCaseValue = parseInt(event.target.value) || 1;
+    const newPcsValue = newCaseValue * parseInt(formData.pcs) || "";
+    setFormData({
+      ...formData,
+      caseValue: newCaseValue,
+      pcs: newPcsValue.toString(),
+    });
+  };
+
+  const handleGROChange = (event) => {
+    const newGROValue = parseFloat(event.target.value) || 0;
+    const currentAmt = parseFloat(formData.amount) || 0;
+    const updatedAmtValue = (currentAmt - parseFloat(formData.gro) + newGROValue).toFixed(2);
+  
+    setFormData({ ...formData, gro: newGROValue, amount: updatedAmtValue });
+  };
+  
+  const handleSPChange = (event) => {
+    const newSPValue = parseFloat(event.target.value) || 0;
+    const currentAmt = parseFloat(formData.amount) || 0;
+    const updatedAmtValue = (currentAmt - parseFloat(formData.sp) + newSPValue).toFixed(2);
+  
+    setFormData({ ...formData, sp: newSPValue, amount: updatedAmtValue });
+  };
+
 
   return (
     <form>
@@ -480,9 +539,7 @@ const PurchaseEntry = () => {
                 className="input-field"
                 fullWidth
                 value={formData.caseValue}
-                onChange={(e) =>
-                  setFormData({ ...formData, caseValue: e.target.value })
-                }
+                onChange={handleCaseChange}
                 onKeyDown={(e) => handleEnterKey(e, pcsRef)}
               />
             </Grid>
@@ -560,9 +617,7 @@ const PurchaseEntry = () => {
                 className="input-field"
                 fullWidth
                 value={formData.gro}
-                onChange={(e) =>
-                  setFormData({ ...formData, gro: e.target.value })
-                }
+                onChange={handleGROChange}
                 onKeyDown={(e) => handleEnterKey(e, spRef)}
               />
             </Grid>
@@ -576,9 +631,7 @@ const PurchaseEntry = () => {
                 className="input-field"
                 fullWidth
                 value={formData.sp}
-                onChange={(e) =>
-                  setFormData({ ...formData, sp: e.target.value })
-                }
+                onChange={handleSPChange}
                 onKeyDown={(e) => handleEnterKey(e, amountRef)}
               />
             </Grid>
@@ -592,9 +645,7 @@ const PurchaseEntry = () => {
                 className="input-field"
                 fullWidth
                 value={formData.amount}
-                onChange={(e) =>
-                  setFormData({ ...formData, amount: e.target.value })
-                }
+                onChange={handleAmountFieldChange}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
@@ -612,9 +663,9 @@ const PurchaseEntry = () => {
               component={Paper}
               sx={{
                 marginTop: 1,
-                height: 200,
-                width: 800,
-                overflowY: "scroll",
+                height: 300,
+                width: 850,
+                overflowY: "unset",
                 overflowX: "auto",
                 "&::-webkit-scrollbar": {
                   width: 10,
@@ -645,7 +696,6 @@ const PurchaseEntry = () => {
                     <TableCell align="center">GRO</TableCell>
                     <TableCell align="center">SP</TableCell>
                     <TableCell align="center">Amt(₹)</TableCell>
-                    {/* <TableCell>Action</TableCell> */}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -707,12 +757,6 @@ const PurchaseEntry = () => {
                           <TableCell align="center" sx={{ padding: "14px" }}>
                             {row.amount || 0.0}
                           </TableCell>
-                          {/* <TableCell>
-                          <CloseIcon
-                            sx={{ color: "red" }}
-                            onClick={() => handleRemoveSearchTableRow(index)}
-                          />
-                        </TableCell> */}
                         </TableRow>
                       ))
                     : "No Data"}
@@ -729,7 +773,7 @@ const PurchaseEntry = () => {
                 overflowY: "auto",
                 "&::-webkit-scrollbar": {
                   width: 10,
-                  height: "auto",
+                  height: 10,
                 },
                 "&::-webkit-scrollbar-track": {
                   backgroundColor: "#fff",
@@ -759,7 +803,7 @@ const PurchaseEntry = () => {
                     <TableCell align="center">Action</TableCell>
                   </TableRow>
                 </TableHead>
-                <TableBody>
+                <TableBody className="purchase-data-table">
                   {purchases.map((row, index) => (
                     <TableRow key={index}>
                       <TableCell align="center">{index + 1}</TableCell>
@@ -792,7 +836,6 @@ const PurchaseEntry = () => {
                       <TableCell align="center">
                         {editableIndex === index ? (
                           <Input
-                            type="text"
                             value={editedRow.mrp || row.mrp}
                             onChange={(e) =>
                               handleEdit(index, "mrp", e.target.value)
@@ -820,7 +863,6 @@ const PurchaseEntry = () => {
                       <TableCell align="center">
                         {editableIndex === index ? (
                           <Input
-                            type="text"
                             value={editedRow.caseValue || row.caseValue}
                             onChange={(e) =>
                               handleEdit(index, "caseValue", e.target.value)
@@ -834,7 +876,6 @@ const PurchaseEntry = () => {
                       <TableCell align="center">
                         {editableIndex === index ? (
                           <Input
-                            type="text"
                             value={editedRow.pcs || row.pcs}
                             onChange={(e) =>
                               handleEdit(index, "pcs", e.target.value)
@@ -848,7 +889,6 @@ const PurchaseEntry = () => {
                       <TableCell align="center">
                         {editableIndex === index ? (
                           <Input
-                            type="text"
                             value={editedRow.brk || row.brk}
                             onChange={(e) =>
                               handleEdit(index, "brk", e.target.value)
@@ -862,7 +902,6 @@ const PurchaseEntry = () => {
                       <TableCell align="center">
                         {editableIndex === index ? (
                           <Input
-                            type="text"
                             value={editedRow.purchaseRate || row.purchaseRate}
                             onChange={(e) =>
                               handleEdit(index, "purchaseRate", e.target.value)
@@ -876,7 +915,6 @@ const PurchaseEntry = () => {
                       <TableCell align="center">
                         {editableIndex === index ? (
                           <Input
-                            type="text"
                             value={editedRow.btlRate || row.btlRate}
                             onChange={(e) =>
                               handleEdit(index, "btlRate", e.target.value)
@@ -890,7 +928,6 @@ const PurchaseEntry = () => {
                       <TableCell align="center">
                         {editableIndex === index ? (
                           <Input
-                            type="text"
                             value={editedRow.gro || row.gro}
                             onChange={(e) =>
                               handleEdit(index, "gro", e.target.value)
@@ -904,7 +941,6 @@ const PurchaseEntry = () => {
                       <TableCell align="center">
                         {editableIndex === index ? (
                           <Input
-                            type="text"
                             value={editedRow.sp || row.sp}
                             onChange={(e) =>
                               handleEdit(index, "sp", e.target.value)
@@ -918,7 +954,7 @@ const PurchaseEntry = () => {
                       <TableCell align="center">
                         {editableIndex === index ? (
                           <Input
-                            type="text"
+                            size="medium"
                             value={editedRow.amount || row.amount}
                             onChange={(e) =>
                               handleEdit(index, "amount", e.target.value)
@@ -929,15 +965,7 @@ const PurchaseEntry = () => {
                         )}
                       </TableCell>
 
-                      <TableCell
-                        align="center"
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: 1,
-                        }}
-                      >
+                      <TableCell align="center">
                         {editableIndex !== index ? (
                           <EditIcon
                             sx={{ cursor: "pointer", color: "blue" }}

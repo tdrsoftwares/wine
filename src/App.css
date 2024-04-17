@@ -255,10 +255,21 @@ body {
 
 .table-header {
   background-color: #91cbff;
+  text-wrap: nowrap;
 }
 
 .table-head {
   background-color: #d5d8df;
+  text-wrap: nowrap;
+}
+
+.table-head tr th{
+  font-size: 13.5px;
+  text-wrap: nowrap;
+}
+
+.purchase-data-table tr td input{
+  font-size: 12.5px;
 }
 
 @media (max-width: 768px) {
