@@ -258,8 +258,10 @@ const PurchaseEntry = () => {
   };
 
   const handlePurRatePcsChange = () => {
-    const amount = calculateAmount();
-    setFormData({ ...formData, amount });
+    if (!formData.purchaseRate) {
+      const amount = calculateAmount();
+      setFormData({ ...formData, amount });
+    }
   };
 
   useEffect(() => {
@@ -269,10 +271,10 @@ const PurchaseEntry = () => {
   const handleAmountChange = (event) => {
     const newAmountValue = parseFloat(event.target.value) || 0;
     const pcs = parseInt(formData.pcs) || 1;
-    const newSPValue = (newAmountValue / pcs).toFixed(2);
+    const purchaseRateValue = (newAmountValue / pcs).toFixed(2);
     setFormData({
       ...formData,
-      sp: newSPValue.toString(),
+      purchaseRate: purchaseRateValue.toString(),
       amount: newAmountValue.toString(),
     });
   };
@@ -280,7 +282,7 @@ const PurchaseEntry = () => {
   const handleAmountFieldChange = (e) => {
     const newAmount = e.target.value;
     setFormData({ ...formData, amount: newAmount });
-    handleAmountChange();
+    handleAmountChange(e);
   };
 
   
