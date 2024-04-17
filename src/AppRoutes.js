@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Home from "./components/Home/Home";
 import LoginForm from "./components/LoginComponents/LoginForm";
 import SignUpForm from "./components/LoginComponents/SignupForm";
@@ -72,171 +72,363 @@ import BrandRegister from "./components/Sidebar_old/BrandRegister";
 import CompanyRegister from "./components/Sidebar_old/CompanyRegister";
 import ItemRegister from "./components/Navbar_old/MasterFile/StockRegister";
 import NotFound from "./components/Others/NotFound";
+import UnAuthorized from "./components/Others/UnAuthorized";
 
+const PrivateRoute = ({ element, authenticatedUser }) => {
+  return authenticatedUser ? element : <Navigate to="/login" />;
+};
 
-const AppRoutes = ({
-  authenticatedUser,
-  handleLogin,
-  handleSignUp,
-}) => {
-  const { loginResponse, setLoginResponse } = useLoginContext();
+const PublicRoute = ({ element, authenticatedUser }) => {
+  return authenticatedUser ? <Navigate to="/" /> : element;
+};
+
+const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp }) => {
+  const { setLoginResponse } = useLoginContext();
   return (
     <Routes>
       <Route
         path="/"
         element={
-          authenticatedUser ? (
-            <Home />
-          ) : (
-            <LoginForm
-              handleLogin={handleLogin}
-              setLoginResponse={setLoginResponse}
-            />
-          )
-        }
-      />
-
-      <Route
-        path={"/login"}
-        element={
-          <LoginForm
-            handleLogin={handleLogin}
-            setLoginResponse={setLoginResponse}
+          <PrivateRoute
+            element={<Home />}
+            authenticatedUser={authenticatedUser}
           />
         }
       />
-
-      {!authenticatedUser && (
-        <Route
-          path="/signup"
-          element={<SignUpForm handleSignUp={handleSignUp} />}
-        />
-      )}
-
-      {!authenticatedUser && <Route path="*" element={<NotFound />} />}
+      <Route
+        path="/login"
+        element={
+          <PublicRoute
+            element={
+              <LoginForm
+                handleLogin={handleLogin}
+                setLoginResponse={setLoginResponse}
+              />
+            }
+            authenticatedUser={authenticatedUser}
+          />
+        }
+      />
+      <Route
+        path="/signup"
+        element={
+          <PublicRoute
+            element={<SignUpForm handleSignUp={handleSignUp} />}
+            authenticatedUser={authenticatedUser}
+          />
+        }
+      />
+      <Route path="*" element={<NotFound />} />
 
       {/* Navbar items */}
-      <Route path="/inventory-report" element={<InventoryReport />} />
-      <Route path="/excise-report" element={<ExciseReport />} />
-      <Route path="/audit-accounts" element={<AuditAndAccounts />} />
-      <Route path="/utilities" element={<Utilities />} />
+      <Route
+        path="/inventory-report"
+        element={authenticatedUser ? <InventoryReport /> : <UnAuthorized />}
+      />
+      <Route
+        path="/excise-report"
+        element={authenticatedUser ? <ExciseReport /> : <UnAuthorized />}
+      />
+      <Route
+        path="/audit-accounts"
+        element={authenticatedUser ? <AuditAndAccounts /> : <UnAuthorized />}
+      />
+      <Route
+        path="/utilities"
+        element={authenticatedUser ? <Utilities /> : <UnAuthorized />}
+      />
 
       {/* Master File Submenu items */}
-      <Route path="/customer-register" element={<CustomerRegister />} />
-      <Route path="/suppliers-register" element={<SuppliersRegister />} />
-      <Route path="/lpl-setup" element={<LPLSetup />} />
-      <Route path="/stock-register" element={<ItemRegister />} />
-      <Route path="/item-category-register" element={<ItemCatRegister />} />
+      <Route
+        path="/customer-register"
+        element={authenticatedUser ? <CustomerRegister /> : <UnAuthorized />}
+      />
+      <Route
+        path="/suppliers-register"
+        element={authenticatedUser ? <SuppliersRegister /> : <UnAuthorized />}
+      />
+      <Route
+        path="/lpl-setup"
+        element={authenticatedUser ? <LPLSetup /> : <UnAuthorized />}
+      />
+      <Route
+        path="/stock-register"
+        element={authenticatedUser ? <ItemRegister /> : <UnAuthorized />}
+      />
+      <Route
+        path="/item-category-register"
+        element={authenticatedUser ? <ItemCatRegister /> : <UnAuthorized />}
+      />
       <Route
         path="/item-discount-register"
-        element={<ItemDiscountRegister />}
+        element={
+          authenticatedUser ? <ItemDiscountRegister /> : <UnAuthorized />
+        }
       />
       <Route
         path="/dealer-category-discount-register"
-        element={<DealerCatDiscRegister />}
+        element={
+          authenticatedUser ? <DealerCatDiscRegister /> : <UnAuthorized />
+        }
       />
-      <Route path="/minimum-stock-register" element={<MinStockRegister />} />
-      <Route path="/scheme-register" element={<SchemeRegister />} />
-      <Route path="/ledger-creation" element={<LedgerCreation />} />
-      <Route path="/store-info" element={<StoreInfo />} />
-      <Route path="/licensee-info" element={<LicenseeInfo />} />
+      <Route
+        path="/minimum-stock-register"
+        element={authenticatedUser ? <MinStockRegister /> : <UnAuthorized />}
+      />
+      <Route
+        path="/scheme-register"
+        element={authenticatedUser ? <SchemeRegister /> : <UnAuthorized />}
+      />
+      <Route
+        path="/ledger-creation"
+        element={authenticatedUser ? <LedgerCreation /> : <UnAuthorized />}
+      />
+      <Route
+        path="/store-info"
+        element={authenticatedUser ? <StoreInfo /> : <UnAuthorized />}
+      />
+      <Route
+        path="/licensee-info"
+        element={authenticatedUser ? <LicenseeInfo /> : <UnAuthorized />}
+      />
 
       {/* Data Entry Submenu items */}
-      <Route path="/sale-bill" element={<SaleBill />} />
-      <Route path="/purchase-entry" element={<PurchaseEntry />} />
-      <Route path="/stock-transfer" element={<StockTransfer />} />
-      <Route path="/party-payment" element={<PartyPayment />} />
-      <Route path="/general-payment" element={<GeneralPayment />} />
-      <Route path="/customer-receipt" element={<CustomerReceipt />} />
-      <Route path="/general-receipt" element={<GeneralReceipt />} />
-      <Route path="/cash-deposit" element={<CashDeposit />} />
-      <Route path="/cash-withdrawn" element={<CashWithdrawn />} />
-      <Route path="/journal-entry" element={<JournalEntry />} />
+      <Route
+        path="/sale-bill"
+        element={authenticatedUser ? <SaleBill /> : <UnAuthorized />}
+      />
+      <Route
+        path="/purchase-entry"
+        element={authenticatedUser ? <PurchaseEntry /> : <UnAuthorized />}
+      />
+      <Route
+        path="/stock-transfer"
+        element={authenticatedUser ? <StockTransfer /> : <UnAuthorized />}
+      />
+      <Route
+        path="/party-payment"
+        element={authenticatedUser ? <PartyPayment /> : <UnAuthorized />}
+      />
+      <Route
+        path="/general-payment"
+        element={authenticatedUser ? <GeneralPayment /> : <UnAuthorized />}
+      />
+      <Route
+        path="/customer-receipt"
+        element={authenticatedUser ? <CustomerReceipt /> : <UnAuthorized />}
+      />
+      <Route
+        path="/general-receipt"
+        element={authenticatedUser ? <GeneralReceipt /> : <UnAuthorized />}
+      />
+      <Route
+        path="/cash-deposit"
+        element={authenticatedUser ? <CashDeposit /> : <UnAuthorized />}
+      />
+      <Route
+        path="/cash-withdrawn"
+        element={authenticatedUser ? <CashWithdrawn /> : <UnAuthorized />}
+      />
+      <Route
+        path="/journal-entry"
+        element={authenticatedUser ? <JournalEntry /> : <UnAuthorized />}
+      />
 
       {/* Sale Report Submenu items */}
-      <Route path="/sale-report-summary" element={<SaleReportSummary />} />
-      <Route path="/item-wise-sale-report" element={<ItemWiseSaleReport />} />
-      <Route path="/daily-sale-report" element={<DailySaleReport />} />
-      <Route path="/daily-profit-report" element={<DailyProfitReport />} />
+      <Route
+        path="/sale-report-summary"
+        element={authenticatedUser ? <SaleReportSummary /> : <UnAuthorized />}
+      />
+      <Route
+        path="/item-wise-sale-report"
+        element={authenticatedUser ? <ItemWiseSaleReport /> : <UnAuthorized />}
+      />
+      <Route
+        path="/daily-sale-report"
+        element={authenticatedUser ? <DailySaleReport /> : <UnAuthorized />}
+      />
+      <Route
+        path="/daily-profit-report"
+        element={authenticatedUser ? <DailyProfitReport /> : <UnAuthorized />}
+      />
 
       {/* Sale Status Report Submenu items */}
       <Route
         path="/brand-wise-sale-status"
-        element={<BrandSaleStatusReport />}
+        element={
+          authenticatedUser ? <BrandSaleStatusReport /> : <UnAuthorized />
+        }
       />
       <Route
         path="/item-category-wise-sale-status"
-        element={<ItemCateSaleStatusReport />}
+        element={
+          authenticatedUser ? <ItemCateSaleStatusReport /> : <UnAuthorized />
+        }
       />
-      <Route path="/brand-sale-status" element={<BrandSaleStatus />} />
-      <Route path="/category-sale-status" element={<CateSaleStatus />} />
+      <Route
+        path="/brand-sale-status"
+        element={authenticatedUser ? <BrandSaleStatus /> : <UnAuthorized />}
+      />
+      <Route
+        path="/category-sale-status"
+        element={authenticatedUser ? <CateSaleStatus /> : <UnAuthorized />}
+      />
       <Route
         path="/daily-item-sale-category"
-        element={<DailyItemSaleCategory />}
+        element={
+          authenticatedUser ? <DailyItemSaleCategory /> : <UnAuthorized />
+        }
       />
-      <Route path="/daily-item-sale-brand" element={<DailyItemSaleBrand />} />
-      <Route path="/daily-item-status" element={<DailyItemStatus />} />
-      <Route path="/customer-due-report" element={<CustomerDueReport />} />
-      <Route path="/salesman-report" element={<SalesmanReport />} />
-      <Route path="/receipt-report" element={<ReceiptReport />} />
+      <Route
+        path="/daily-item-sale-brand"
+        element={authenticatedUser ? <DailyItemSaleBrand /> : <UnAuthorized />}
+      />
+      <Route
+        path="/daily-item-status"
+        element={authenticatedUser ? <DailyItemStatus /> : <UnAuthorized />}
+      />
+      <Route
+        path="/customer-due-report"
+        element={authenticatedUser ? <CustomerDueReport /> : <UnAuthorized />}
+      />
+      <Route
+        path="/salesman-report"
+        element={authenticatedUser ? <SalesmanReport /> : <UnAuthorized />}
+      />
+      <Route
+        path="/receipt-report"
+        element={authenticatedUser ? <ReceiptReport /> : <UnAuthorized />}
+      />
       <Route
         path="/bill-wise-collection-report"
-        element={<BillWiseCollectionReport />}
+        element={
+          authenticatedUser ? <BillWiseCollectionReport /> : <UnAuthorized />
+        }
       />
       <Route
         path="/dealer-sale-discount-chart"
-        element={<DealerSaleDiscountChart />}
+        element={
+          authenticatedUser ? <DealerSaleDiscountChart /> : <UnAuthorized />
+        }
       />
       <Route
         path="/customer-transaction-details"
-        element={<CustomerTransactionDetails />}
+        element={
+          authenticatedUser ? <CustomerTransactionDetails /> : <UnAuthorized />
+        }
       />
-      <Route path="/profit-on-sale" element={<ProfitOnSale />} />
+      <Route
+        path="/profit-on-sale"
+        element={authenticatedUser ? <ProfitOnSale /> : <UnAuthorized />}
+      />
 
       {/* Purchase Report Submenu items */}
       <Route
         path="/purchase-report-summary"
-        element={<PurchaseReportSummary />}
+        element={
+          authenticatedUser ? <PurchaseReportSummary /> : <UnAuthorized />
+        }
       />
       <Route
         path="/item-wise-purchase-report"
-        element={<ItemWisePurchaseReport />}
+        element={
+          authenticatedUser ? <ItemWisePurchaseReport /> : <UnAuthorized />
+        }
       />
-      <Route path="/daily-purchase-report" element={<DailyPurchaseReport />} />
+      <Route
+        path="/daily-purchase-report"
+        element={authenticatedUser ? <DailyPurchaseReport /> : <UnAuthorized />}
+      />
       <Route
         path="/suppliers-balance-report"
-        element={<SuppliersBalanceReport />}
+        element={
+          authenticatedUser ? <SuppliersBalanceReport /> : <UnAuthorized />
+        }
       />
-      <Route path="/payment-report" element={<PaymentReport />} />
+      <Route
+        path="/payment-report"
+        element={authenticatedUser ? <PaymentReport /> : <UnAuthorized />}
+      />
       <Route
         path="/bill-wise-payment-report"
-        element={<BillWisePaymentReport />}
+        element={
+          authenticatedUser ? <BillWisePaymentReport /> : <UnAuthorized />
+        }
       />
 
       {/* Sidebar items */}
-      <Route path="/daily-status" element={<DailyStatus />} />
-      <Route path="/brand-register" element={<BrandRegister />} />
-      <Route path="/company-register" element={<CompanyRegister />} />
-      <Route path="/previous-year-dsr" element={<PreviousYearDSR />} />
+      <Route
+        path="/daily-status"
+        element={authenticatedUser ? <DailyStatus /> : <UnAuthorized />}
+      />
+      <Route
+        path="/brand-register"
+        element={authenticatedUser ? <BrandRegister /> : <UnAuthorized />}
+      />
+      <Route
+        path="/company-register"
+        element={authenticatedUser ? <CompanyRegister /> : <UnAuthorized />}
+      />
+      <Route
+        path="/previous-year-dsr"
+        element={authenticatedUser ? <PreviousYearDSR /> : <UnAuthorized />}
+      />
       <Route
         path="/fl-beer-cs/ledger-summary"
-        element={<FLBeerCSLedgerSummary />}
+        element={
+          authenticatedUser ? <FLBeerCSLedgerSummary /> : <UnAuthorized />
+        }
       />
-      <Route path="/fl-beer-cs/ledger" element={<FLBeerCSLedger />} />
-      <Route path="/category/brand-stock" element={<CatBrandStock />} />
+      <Route
+        path="/fl-beer-cs/ledger"
+        element={authenticatedUser ? <FLBeerCSLedger /> : <UnAuthorized />}
+      />
+      <Route
+        path="/category/brand-stock"
+        element={authenticatedUser ? <CatBrandStock /> : <UnAuthorized />}
+      />
       <Route
         path="/item/batch-mrp-stock-report"
-        element={<ItemBatchMRPStockReport />}
+        element={
+          authenticatedUser ? <ItemBatchMRPStockReport /> : <UnAuthorized />
+        }
       />
-      <Route path="/category-sale-status" element={<CategorySaleStatus />} />
-      <Route path="/category-dsr" element={<CategoryDsr />} />
-      <Route path="/cate-brand-size" element={<CatBrandSize />} />
-      <Route path="/daily-sale-order" element={<DailySaleOrder />} />
-      <Route path="/stock-status" element={<StockStatus />} />
-      <Route path="/dsr-opst" element={<DsrOpst />} />
-      <Route path="/dsr-brand-stock" element={<DsrBrandStock />} />
-      <Route path="/category-ledger-pack" element={<CatLedgerPack />} />
-      <Route path="/gtin-stock" element={<GtinStock />} />
+      <Route
+        path="/category-sale-status"
+        element={authenticatedUser ? <CategorySaleStatus /> : <UnAuthorized />}
+      />
+      <Route
+        path="/category-dsr"
+        element={authenticatedUser ? <CategoryDsr /> : <UnAuthorized />}
+      />
+      <Route
+        path="/cate-brand-size"
+        element={authenticatedUser ? <CatBrandSize /> : <UnAuthorized />}
+      />
+      <Route
+        path="/daily-sale-order"
+        element={authenticatedUser ? <DailySaleOrder /> : <UnAuthorized />}
+      />
+      <Route
+        path="/stock-status"
+        element={authenticatedUser ? <StockStatus /> : <UnAuthorized />}
+      />
+      <Route
+        path="/dsr-opst"
+        element={authenticatedUser ? <DsrOpst /> : <UnAuthorized />}
+      />
+      <Route
+        path="/dsr-brand-stock"
+        element={authenticatedUser ? <DsrBrandStock /> : <UnAuthorized />}
+      />
+      <Route
+        path="/category-ledger-pack"
+        element={authenticatedUser ? <CatLedgerPack /> : <UnAuthorized />}
+      />
+      <Route
+        path="/gtin-stock"
+        element={authenticatedUser ? <GtinStock /> : <UnAuthorized />}
+      />
     </Routes>
   );
 };

@@ -162,7 +162,8 @@ body {
   text-align: center;
 }
 
-.not-found-container {
+.not-found-container,
+.unauthorized-container {
   width: 100%;
   max-width: 500px;
   margin: 10rem auto;
@@ -175,16 +176,19 @@ body {
   flex-direction: column;
 }
 
-.not-found-heading {
+.not-found-heading,
+.unauthorized-heading {
   font-size: 24px;
   margin-bottom: 10px;
 }
 
-.not-found-message {
+.not-found-message,
+.unauthorized-message {
   font-size: 18px;
 }
 
-.not-found-message a {
+.not-found-message a,
+.unauthorized-message a {
   font-weight: 500;
   color: #000;
 }
