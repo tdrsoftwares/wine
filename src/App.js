@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
-import Navbar from "./components/Navbar/Navbar";
-import Sidebar from "./components/Sidebar/Sidebar";
+import NavbarOld from "./components/Navbar_old/NavbarOld";
+import SidebarOld from "./components/Sidebar_old/SidebarOld";
 import AppRoutes from "./AppRoutes";
 import { LoginProvider } from "./utils/loginContext";
 import { NotificationContainer } from "react-notifications";
@@ -24,11 +24,11 @@ function App() {
     <LoginProvider>
       <Router>
         <div className="container">
-          {authenticatedUser && <Navbar />}
+          {authenticatedUser && <NavbarOld />}
           <div className="row">
             {authenticatedUser && (
               <div className="col-md-3">
-                <Sidebar />
+                <SidebarOld />
               </div>
             )}
             <div className={authenticatedUser ? "col-md-9" : "col-md-12"}>

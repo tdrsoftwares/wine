@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import "./navbar.css";
 
-const Navbar = () => {
+const NavbarOld = () => {
   const [isMasterFileDropdownOpen, setIsMasterFileDropdownOpen] =
     useState(false);
   const [isDataEntryDropdownOpen, setIsDataEntryDropdownOpen] = useState(false);
@@ -271,4 +271,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default NavbarOld;

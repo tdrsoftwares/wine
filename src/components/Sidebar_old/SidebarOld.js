@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const Sidebar = () => {
+const SidebarOld = () => {
   return (
     <div className="sidebar">
       <div className="sidebar-column">
@@ -118,4 +118,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+export default SidebarOld;
