@@ -13,8 +13,8 @@ import {
   Paper,
   MenuItem,
   InputLabel,
+  Input,
 } from "@mui/material";
-import { getAllItems } from "../../../services/itemService";
 import { useLoginContext } from "../../../utils/loginContext";
 import { NotificationManager } from "react-notifications";
 import { getAllSuppliers } from "../../../services/supplierService";
@@ -22,10 +22,11 @@ import { getAllStores } from "../../../services/storeService";
 import { searchAllPurchases } from "../../../services/purchaseService";
 import debounce from "lodash.debounce";
 import CloseIcon from "@mui/icons-material/Close";
+import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
 
 const PurchaseEntry = () => {
   const { loginResponse } = useLoginContext();
-  const [allItems, setAllItems] = useState([]);
   const [allSuppliers, setAllSuppliers] = useState([]);
   const [allStores, setAllStores] = useState([]);
 
@@ -57,6 +58,11 @@ const PurchaseEntry = () => {
     amount: "",
     action: false,
   });
+
+  const [editableIndex, setEditableIndex] = useState(-1);
+  console.log("editableIndex: ", editableIndex);
+  const [editedRow, setEditedRow] = useState({});
+  console.log("editedRow: ", editedRow);
 
   const itemNameRef = useRef(null);
   const mrpRef = useRef(null);
@@ -91,6 +97,40 @@ const PurchaseEntry = () => {
     });
     setSearchMode(true);
     if (!itemName) setSearchMode(false);
+
+    setEditedRow({});
+    setEditableIndex(-1);
+  };
+
+  const handleEdit = (index, field, value) => {
+    const newEditedRow = { ...editedRow };
+    newEditedRow[field] = value;
+    setEditedRow(newEditedRow);
+    if (index !== editableIndex) {
+      setEditableIndex(index);
+    }
+  };
+
+  const handleEditClick = (index) => {
+    setEditableIndex(index);
+  };
+
+  const handleSaveClick = (index) => {
+    const updatedPurchases = [...purchases];
+    const updatedRow = { ...updatedPurchases[index] };
+
+    // Merge the changes from editedRow with the original row data
+    for (const key in editedRow) {
+      if (editedRow.hasOwnProperty(key)) {
+        updatedRow[key] = editedRow[key];
+      }
+    }
+
+    updatedPurchases[index] = updatedRow;
+    setPurchases(updatedPurchases);
+
+    setEditedRow({});
+    setEditableIndex(-1);
   };
 
   // const calculateMRPValue = (rowData) => {
@@ -98,19 +138,6 @@ const PurchaseEntry = () => {
   //   const mrp = parseFloat(rowData.mrp) || 0;
   //   return (pcs * mrp).toFixed(2);
   // };
-
-  const fetchAllItems = async () => {
-    try {
-      const allItemsResponse = await getAllItems(loginResponse);
-      console.log("allItemsResponse ---> ", allItemsResponse);
-      setAllItems(allItemsResponse?.data?.data);
-    } catch (error) {
-      NotificationManager.error(
-        "Error fetching items. Please try again later.",
-        "Error"
-      );
-    }
-  };
 
   const fetchAllSuppliers = async () => {
     try {
@@ -140,7 +167,6 @@ const PurchaseEntry = () => {
   };
 
   useEffect(() => {
-    fetchAllItems();
     fetchAllSuppliers();
     fetchAllStores();
   }, []);
@@ -698,7 +724,8 @@ const PurchaseEntry = () => {
               component={Paper}
               sx={{
                 marginTop: 1,
-                height: 200,
+                height: 300,
+                width: "100%",
                 overflowY: "auto",
                 "&::-webkit-scrollbar": {
                   width: 10,
@@ -736,19 +763,192 @@ const PurchaseEntry = () => {
                   {purchases.map((row, index) => (
                     <TableRow key={index}>
                       <TableCell align="center">{index + 1}</TableCell>
-                      <TableCell align="center">{row.itemCode}</TableCell>
-                      <TableCell align="center">{row.itemName}</TableCell>
-                      <TableCell align="center">{row.mrp}</TableCell>
-                      <TableCell align="center">{row.batch}</TableCell>
-                      <TableCell align="center">{row.caseValue}</TableCell>
-                      <TableCell align="center">{row.pcs}</TableCell>
-                      <TableCell align="center">{row.brk}</TableCell>
-                      <TableCell align="center">{row.purchaseRate}</TableCell>
-                      <TableCell align="center">{row.btlRate}</TableCell>
-                      <TableCell align="center">{row.gro}</TableCell>
-                      <TableCell align="center">{row.sp}</TableCell>
-                      <TableCell align="center">{row.amount}</TableCell>
                       <TableCell align="center">
+                        {editableIndex === index ? (
+                          <Input
+                            type="text"
+                            value={editedRow.itemCode || row.itemCode}
+                            onChange={(e) =>
+                              handleEdit(index, "itemCode", e.target.value)
+                            }
+                          />
+                        ) : (
+                          row.itemCode
+                        )}
+                      </TableCell>
+                      <TableCell align="center">
+                        {editableIndex === index ? (
+                          <Input
+                            type="text"
+                            value={editedRow.itemName || row.itemName}
+                            onChange={(e) =>
+                              handleEdit(index, "itemName", e.target.value)
+                            }
+                          />
+                        ) : (
+                          row.itemName
+                        )}
+                      </TableCell>
+                      <TableCell align="center">
+                        {editableIndex === index ? (
+                          <Input
+                            type="text"
+                            value={editedRow.mrp || row.mrp}
+                            onChange={(e) =>
+                              handleEdit(index, "mrp", e.target.value)
+                            }
+                          />
+                        ) : (
+                          row.mrp
+                        )}
+                      </TableCell>
+
+                      <TableCell align="center">
+                        {editableIndex === index ? (
+                          <Input
+                            type="text"
+                            value={editedRow.batch || row.batch}
+                            onChange={(e) =>
+                              handleEdit(index, "batch", e.target.value)
+                            }
+                          />
+                        ) : (
+                          row.batch
+                        )}
+                      </TableCell>
+
+                      <TableCell align="center">
+                        {editableIndex === index ? (
+                          <Input
+                            type="text"
+                            value={editedRow.caseValue || row.caseValue}
+                            onChange={(e) =>
+                              handleEdit(index, "caseValue", e.target.value)
+                            }
+                          />
+                        ) : (
+                          row.caseValue
+                        )}
+                      </TableCell>
+
+                      <TableCell align="center">
+                        {editableIndex === index ? (
+                          <Input
+                            type="text"
+                            value={editedRow.pcs || row.pcs}
+                            onChange={(e) =>
+                              handleEdit(index, "pcs", e.target.value)
+                            }
+                          />
+                        ) : (
+                          row.pcs
+                        )}
+                      </TableCell>
+
+                      <TableCell align="center">
+                        {editableIndex === index ? (
+                          <Input
+                            type="text"
+                            value={editedRow.brk || row.brk}
+                            onChange={(e) =>
+                              handleEdit(index, "brk", e.target.value)
+                            }
+                          />
+                        ) : (
+                          row.brk
+                        )}
+                      </TableCell>
+
+                      <TableCell align="center">
+                        {editableIndex === index ? (
+                          <Input
+                            type="text"
+                            value={editedRow.purchaseRate || row.purchaseRate}
+                            onChange={(e) =>
+                              handleEdit(index, "purchaseRate", e.target.value)
+                            }
+                          />
+                        ) : (
+                          row.purchaseRate
+                        )}
+                      </TableCell>
+
+                      <TableCell align="center">
+                        {editableIndex === index ? (
+                          <Input
+                            type="text"
+                            value={editedRow.btlRate || row.btlRate}
+                            onChange={(e) =>
+                              handleEdit(index, "btlRate", e.target.value)
+                            }
+                          />
+                        ) : (
+                          row.btlRate
+                        )}
+                      </TableCell>
+
+                      <TableCell align="center">
+                        {editableIndex === index ? (
+                          <Input
+                            type="text"
+                            value={editedRow.gro || row.gro}
+                            onChange={(e) =>
+                              handleEdit(index, "gro", e.target.value)
+                            }
+                          />
+                        ) : (
+                          row.gro
+                        )}
+                      </TableCell>
+
+                      <TableCell align="center">
+                        {editableIndex === index ? (
+                          <Input
+                            type="text"
+                            value={editedRow.sp || row.sp}
+                            onChange={(e) =>
+                              handleEdit(index, "sp", e.target.value)
+                            }
+                          />
+                        ) : (
+                          row.sp
+                        )}
+                      </TableCell>
+
+                      <TableCell align="center">
+                        {editableIndex === index ? (
+                          <Input
+                            type="text"
+                            value={editedRow.amount || row.amount}
+                            onChange={(e) =>
+                              handleEdit(index, "amount", e.target.value)
+                            }
+                          />
+                        ) : (
+                          row.amount
+                        )}
+                      </TableCell>
+
+                      <TableCell
+                        align="center"
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 1,
+                        }}
+                      >
+                        {editableIndex !== index ? (
+                          <EditIcon
+                            sx={{ cursor: "pointer", color: "blue" }}
+                            onClick={() => handleEditClick(index)}
+                          />
+                        ) : (
+                          <SaveIcon
+                            sx={{ cursor: "pointer", color: "green" }}
+                            onClick={() => handleSaveClick(index)}
+                          />
+                        )}
                         <CloseIcon
                           sx={{ cursor: "pointer", color: "red" }}
                           onClick={() => handleRemovePurchasesTableRow(index)}
