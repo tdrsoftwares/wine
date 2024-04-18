@@ -48,6 +48,7 @@ const PurchaseEntry = () => {
     itemName: "",
     mrp: "",
     batch: "",
+    case: "",
     caseValue: "",
     pcs: "",
     brk: "",
@@ -56,8 +57,9 @@ const PurchaseEntry = () => {
     gro: "",
     sp: "",
     amount: "",
-    action: false,
   });
+
+  console.log("formData amt: ", formData.amount);
 
   const [editableIndex, setEditableIndex] = useState(-1);
   // console.log("editableIndex: ", editableIndex);
@@ -86,6 +88,7 @@ const PurchaseEntry = () => {
       itemCode: "",
       mrp: "",
       batch: "",
+      case: "",
       caseValue: "",
       pcs: "",
       brk: "",
@@ -113,6 +116,10 @@ const PurchaseEntry = () => {
     if (index !== editableIndex) {
       setEditableIndex(index);
     }
+    
+    if (field === 'purchaseRate') {
+      handlePurRatePcsChange();
+    }
   };
 
   const handleEditClick = (index) => {
@@ -137,11 +144,12 @@ const PurchaseEntry = () => {
     setEditableIndex(-1);
   };
 
-  // const calculateMRPValue = (rowData) => {
-  //   const pcs = parseInt(rowData.pcs) || 0;
-  //   const mrp = parseFloat(rowData.mrp) || 0;
-  //   return (pcs * mrp).toFixed(2);
-  // };
+  const calculateMRPValue = (rowData) => {
+    console.log("rowData: ", rowData);
+    // const pcs = parseInt(rowData.pcs) || 0;
+    // const mrp = parseFloat(rowData.mrp) || 0;
+    // return (pcs * mrp).toFixed(2);
+  };
 
   const fetchAllSuppliers = async () => {
     try {
@@ -181,7 +189,7 @@ const PurchaseEntry = () => {
       console.log("debouncedSearch response: ", response);
       if (response?.data?.data) {
         setSearchResults(response?.data?.data);
-        console.log("ami serc res ", searchResults);
+        // console.log("ami serc res ", searchResults);
       } else {
         setSearchResults([]);
       }
@@ -189,7 +197,7 @@ const PurchaseEntry = () => {
       console.error("Error searching items:", error);
       setSearchResults([]);
     }
-  }, 1000);
+  }, 500);
 
   const handleRowClick = (index) => {
     const selectedRow = searchResults[index];
@@ -199,8 +207,9 @@ const PurchaseEntry = () => {
       itemName: selectedRow.name || 0,
       mrp: selectedRow.details[0]?.mrp || 0,
       batch: selectedRow.batch || 0,
+      case: selectedRow.case || null,
       caseValue: selectedRow.caseValue || 0,
-      pcs: selectedRow.pcs || 0,
+      pcs: selectedRow.pcs || null,
       brk: selectedRow.brk || 0,
       purchaseRate: selectedRow.details[0]?.purchaseRate || 0,
       btlRate: selectedRow.btlRate || 0,
@@ -208,6 +217,7 @@ const PurchaseEntry = () => {
       sp: selectedRow.sp || 0,
       amount: selectedRow.amount || 0,
     });
+    calculateMRPValue(formData);
   };
 
   const handleRemovePurchasesTableRow = (index) => {
@@ -220,6 +230,28 @@ const PurchaseEntry = () => {
     if (event.key === "Enter") {
       event.preventDefault();
       nextInputRef.current.focus();
+
+      switch (nextInputRef.current) {
+        case itemNameRef:
+          handleItemNameChange(event);
+          break;
+        case mrpRef:
+        case batchRef:
+        case caseRef:
+        case pcsRef:
+        case brkRef:
+        case purRateRef:
+        case btlRateRef:
+        case groRef:
+        case spRef:
+          handlePurRatePcsChange();
+          break;
+        case amountRef:
+          handleSubmitIntoDataTable();
+          break;
+        default:
+          break;
+      }
     }
   };
 
@@ -238,6 +270,7 @@ const PurchaseEntry = () => {
       itemName: "",
       mrp: "",
       batch: "",
+      case: "",
       caseValue: "",
       pcs: "",
       brk: "",
@@ -246,7 +279,6 @@ const PurchaseEntry = () => {
       gro: "",
       sp: "",
       amount: "",
-      action: false,
     });
     setSearchMode(false);
   };
@@ -254,33 +286,42 @@ const PurchaseEntry = () => {
   const calculateAmount = () => {
     const purRate = parseFloat(formData.purchaseRate) || 0;
     const pcs = parseInt(formData.pcs) || 0;
-    return (purRate * pcs).toFixed(2);
+    return parseInt((purRate * pcs).toFixed(2));
   };
 
   const handlePurRatePcsChange = () => {
-    if (!formData.purchaseRate) {
-      const amount = calculateAmount();
-      setFormData({ ...formData, amount });
-    }
-  };
+    const purRate = parseFloat(formData.purchaseRate) || 0;
+    const pcs = parseInt(formData.pcs) || 0;
+    const amount = (purRate * pcs).toFixed(2);
+    setFormData({ ...formData, amount });
+  };  
 
   useEffect(() => {
     handlePurRatePcsChange();
   }, [formData.purchaseRate, formData.pcs]);
 
+
   const handleAmountChange = (event) => {
     const newAmountValue = parseFloat(event.target.value) || 0;
     const pcs = parseInt(formData.pcs) || 1;
-    const purchaseRateValue = (newAmountValue / pcs).toFixed(2);
+    const newSPValue = (newAmountValue / pcs).toFixed(2);
+    let newPurchaseRate = 0;
+
+    if (pcs !== 0) {
+      newPurchaseRate = (newAmountValue / pcs).toFixed(2);
+    }
+
     setFormData({
       ...formData,
-      purchaseRate: purchaseRateValue.toString(),
+      sp: newSPValue.toString(),
       amount: newAmountValue.toString(),
+      purchaseRate: newPurchaseRate.toString(),
     });
   };
+  
 
   const handleAmountFieldChange = (e) => {
-    const newAmount = e.target.value;
+    const newAmount = parseInt(e.target.value);
     setFormData({ ...formData, amount: newAmount });
     handleAmountChange(e);
   };
@@ -288,12 +329,14 @@ const PurchaseEntry = () => {
   
 
   const handleCaseChange = (event) => {
-    const newCaseValue = parseInt(event.target.value) || 1;
-    const newPcsValue = newCaseValue * parseInt(formData.pcs) || "";
+    const newCase = parseInt(event.target.value) || "";
+    console.log("newCase: ", newCase)
+    const newPcsValue = newCase * parseInt(formData.caseValue) || "";
+    console.log("newPcsValue: ", newPcsValue);
     setFormData({
       ...formData,
-      caseValue: newCaseValue,
-      pcs: newPcsValue.toString(),
+      case: newCase,
+      pcs: newPcsValue,
     });
   };
 
@@ -540,8 +583,8 @@ const PurchaseEntry = () => {
                 size="small"
                 className="input-field"
                 fullWidth
-                value={formData.caseValue}
-                onChange={handleCaseChange}
+                value={formData.case}
+                onChange={(e) => handleCaseChange(e)}
                 onKeyDown={(e) => handleEnterKey(e, pcsRef)}
               />
             </Grid>
@@ -690,14 +733,14 @@ const PurchaseEntry = () => {
                     <TableCell align="center">Item Name</TableCell>
                     <TableCell align="center">MRP</TableCell>
                     <TableCell align="center">Batch</TableCell>
-                    <TableCell align="center">Case</TableCell>
-                    <TableCell align="center">Pcs</TableCell>
-                    <TableCell align="center">Brk</TableCell>
+                    <TableCell align="center">Case Value</TableCell>
+                    {/* <TableCell align="center">Pcs</TableCell> */}
+                    {/* <TableCell align="center">Brk</TableCell> */}
                     <TableCell align="center">Pur Rate</TableCell>
                     <TableCell align="center">Btl Rate</TableCell>
                     <TableCell align="center">GRO</TableCell>
                     <TableCell align="center">SP</TableCell>
-                    <TableCell align="center">Amt(₹)</TableCell>
+                    {/* <TableCell align="center">Amt(₹)</TableCell> */}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -736,14 +779,14 @@ const PurchaseEntry = () => {
                             {row.batch || 0}
                           </TableCell>
                           <TableCell align="center" sx={{ padding: "14px" }}>
-                            {row.caseValue || 0.0}
+                            {row.caseValue || 0}
                           </TableCell>
-                          <TableCell align="center" sx={{ padding: "14px" }}>
+                          {/* <TableCell align="center" sx={{ padding: "14px" }}>
                             {row.pcs || 0}
-                          </TableCell>
-                          <TableCell align="center" sx={{ padding: "14px" }}>
+                          </TableCell> */}
+                          {/* <TableCell align="center" sx={{ padding: "14px" }}>
                             {row.brk || 0}
-                          </TableCell>
+                          </TableCell> */}
                           <TableCell align="center" sx={{ padding: "14px" }}>
                             {row?.details[0]?.purchaseRate || 0.0}
                           </TableCell>
@@ -756,9 +799,9 @@ const PurchaseEntry = () => {
                           <TableCell align="center" sx={{ padding: "14px" }}>
                             {row.sp || 0}
                           </TableCell>
-                          <TableCell align="center" sx={{ padding: "14px" }}>
+                          {/* <TableCell align="center" sx={{ padding: "14px" }}>
                             {row.amount || 0.0}
-                          </TableCell>
+                          </TableCell> */}
                         </TableRow>
                       ))
                     : "No Data"}
@@ -865,13 +908,13 @@ const PurchaseEntry = () => {
                       <TableCell align="center">
                         {editableIndex === index ? (
                           <Input
-                            value={editedRow.caseValue || row.caseValue}
+                            value={editedRow.case || row.case}
                             onChange={(e) =>
-                              handleEdit(index, "caseValue", e.target.value)
+                              handleEdit(index, "case", e.target.value)
                             }
                           />
                         ) : (
-                          row.caseValue
+                          row.case
                         )}
                       </TableCell>
 
