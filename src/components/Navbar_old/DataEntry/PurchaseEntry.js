@@ -59,6 +59,21 @@ const PurchaseEntry = () => {
     amount: "",
   });
 
+  const [totalValues, setTotalValues] = useState({
+    totalMrp: "",
+    totalSDiscount: "",
+    govtRate: "",
+    spcPurchases: "",
+    sTax: "",
+    tcs: "",
+    tcsAmt: "",
+    grossAmt: "",
+    discount: "",
+    tax: "",
+    adjustment: "",
+    netAmt: "",
+  });
+
   console.log("formData amt: ", formData.amount);
 
   const [editableIndex, setEditableIndex] = useState(-1);
@@ -116,8 +131,8 @@ const PurchaseEntry = () => {
     if (index !== editableIndex) {
       setEditableIndex(index);
     }
-    
-    if (field === 'purchaseRate') {
+
+    if (field === "purchaseRate") {
       handlePurRatePcsChange();
     }
   };
@@ -217,7 +232,7 @@ const PurchaseEntry = () => {
       sp: selectedRow.sp || 0,
       amount: selectedRow.amount || 0,
     });
-    calculateMRPValue(formData);
+    // calculateMRPValue(formData);
   };
 
   const handleRemovePurchasesTableRow = (index) => {
@@ -255,32 +270,42 @@ const PurchaseEntry = () => {
     }
   };
 
+  console.log("purchases: ", purchases);
+
   const handleSubmitIntoDataTable = () => {
-    setPurchases([...purchases, formData]);
-    setFormData({
-      supplierName: "",
-      passNo: "",
-      passDate: "mm/dd/yyyy",
-      address: "",
-      billNo: "",
-      billDate: "mm/dd/yyyy",
-      stockIn: "",
-      entryNo: "",
-      itemCode: "",
-      itemName: "",
-      mrp: "",
-      batch: "",
-      case: "",
-      caseValue: "",
-      pcs: "",
-      brk: "",
-      purchaseRate: "",
-      btlRate: "",
-      gro: "",
-      sp: "",
-      amount: "",
-    });
-    setSearchMode(false);
+    if (
+      formData.itemName &&
+      formData.mrp &&
+      formData.pcs &&
+      formData.purchaseRate &&
+      formData.amount
+    ) {
+      setPurchases([...purchases, formData]);
+      setFormData({
+        supplierName: "",
+        passNo: "",
+        passDate: "mm/dd/yyyy",
+        address: "",
+        billNo: "",
+        billDate: "mm/dd/yyyy",
+        stockIn: "",
+        entryNo: "",
+        itemCode: "",
+        itemName: "",
+        mrp: "",
+        batch: "",
+        case: "",
+        caseValue: "",
+        pcs: "",
+        brk: "",
+        purchaseRate: "",
+        btlRate: "",
+        gro: "",
+        sp: "",
+        amount: "",
+      });
+      setSearchMode(false);
+    }
   };
 
   const calculateAmount = () => {
@@ -294,43 +319,35 @@ const PurchaseEntry = () => {
     const pcs = parseInt(formData.pcs) || 0;
     const amount = (purRate * pcs).toFixed(2);
     setFormData({ ...formData, amount });
-  };  
+  };
 
   useEffect(() => {
     handlePurRatePcsChange();
   }, [formData.purchaseRate, formData.pcs]);
 
-
   const handleAmountChange = (event) => {
-    const newAmountValue = parseFloat(event.target.value) || 0;
-    const pcs = parseInt(formData.pcs) || 1;
-    const newSPValue = (newAmountValue / pcs).toFixed(2);
+    const newAmountValue = parseInt(event.target.value) || 0;
+    console.log("newAmountValue: ", newAmountValue);
+    const pcs = parseInt(formData.caseValue) || 0;
+    console.log("pcs: ", pcs);
     let newPurchaseRate = 0;
 
     if (pcs !== 0) {
-      newPurchaseRate = (newAmountValue / pcs).toFixed(2);
+      newPurchaseRate = parseInt(newAmountValue / pcs);
+      console.log("newPurchaseRate: ", newPurchaseRate);
     }
 
     setFormData({
       ...formData,
-      sp: newSPValue.toString(),
       amount: newAmountValue.toString(),
       purchaseRate: newPurchaseRate.toString(),
     });
+    console.log("amout formData: ", formData);
   };
-  
-
-  const handleAmountFieldChange = (e) => {
-    const newAmount = parseInt(e.target.value);
-    setFormData({ ...formData, amount: newAmount });
-    handleAmountChange(e);
-  };
-
-  
 
   const handleCaseChange = (event) => {
     const newCase = parseInt(event.target.value) || "";
-    console.log("newCase: ", newCase)
+    console.log("newCase: ", newCase);
     const newPcsValue = newCase * parseInt(formData.caseValue) || "";
     console.log("newPcsValue: ", newPcsValue);
     setFormData({
@@ -343,17 +360,144 @@ const PurchaseEntry = () => {
   const handleGROChange = (event) => {
     const newGROValue = parseFloat(event.target.value) || 0;
     const currentAmt = parseFloat(formData.amount) || 0;
-    const updatedAmtValue = (currentAmt - parseFloat(formData.gro) + newGROValue).toFixed(2);
-  
+    const updatedAmtValue = (
+      currentAmt -
+      parseFloat(formData.gro) +
+      newGROValue
+    ).toFixed(2);
+
     setFormData({ ...formData, gro: newGROValue, amount: updatedAmtValue });
   };
-  
+
   const handleSPChange = (event) => {
     const newSPValue = parseFloat(event.target.value) || 0;
     const currentAmt = parseFloat(formData.amount) || 0;
-    const updatedAmtValue = (currentAmt - parseFloat(formData.sp) + newSPValue).toFixed(2);
-  
+    const updatedAmtValue = (
+      currentAmt -
+      parseFloat(formData.sp) +
+      newSPValue
+    ).toFixed(2);
+
     setFormData({ ...formData, sp: newSPValue, amount: updatedAmtValue });
+  };
+
+
+  useEffect(() => {
+    const totalMrpValue = purchases.reduce((total, purchase) => {
+      return total + parseInt(purchase.mrp) * parseInt(purchase.pcs);
+    }, 0);
+    setTotalValues((prevValues) => ({
+      ...prevValues,
+      totalMrp: totalMrpValue,
+    }));
+    console.log("totalMrpValue: ", totalMrpValue);
+  }, [formData.amount, purchases]);
+
+  useEffect(() => {
+    // Calculate gross amount
+    const grossAmount = purchases.reduce(
+      (total, purchase) => total + parseFloat(purchase.amount),
+      0
+    );
+    const sDiscount = parseInt(totalValues.totalSDiscount) || 0;
+    const grossAmt = grossAmount - sDiscount;
+
+    // Calculate net amount
+    const govtRate = parseFloat(totalValues.govtRate) || 0;
+    const spcPurchases = parseFloat(totalValues.spcPurchases) || 0;
+    const netAmt = grossAmt + govtRate + spcPurchases;
+
+    setTotalValues((prevValues) => ({ ...prevValues, grossAmt, netAmt }));
+  }, [
+    purchases,
+    totalValues.totalSDiscount,
+    totalValues.govtRate,
+    totalValues.spcPurchases,
+  ]);
+
+  useEffect(() => {
+    // Calculate Tcs amount
+    const tcsPercentage = parseFloat(totalValues.tcs) || 1;
+    const grossAmt = parseFloat(totalValues.grossAmt) || 0;
+    const tcsAmt = (grossAmt * tcsPercentage) / 100;
+
+    // Calculate discount amount
+    const discount = parseFloat(totalValues.discount) || 0;
+    const discountAmt = (grossAmt * discount) / 100;
+
+    // Calculate netAmt based on the new tcsAmt and discountAmt
+    const netAmt = grossAmt + tcsAmt - discountAmt;
+
+    setTotalValues((prevValues) => ({
+      ...prevValues,
+      tcsAmt,
+      discountAmt,
+      netAmt,
+    }));
+  }, [totalValues.tcs, totalValues.grossAmt, totalValues.discount]);
+
+  useEffect(() => {
+    // Calculate Net Amount based on the new Govt. Round and Special Purpose
+    const grossAmt = parseFloat(totalValues.grossAmt) || 0;
+    const govtRound = parseFloat(totalValues.govtRate) || 0;
+    const specialPurpose = parseFloat(totalValues.spcPurchases) || 0;
+
+    let netAmt = grossAmt + govtRound + specialPurpose;
+
+    // Calculate Tcs amount
+    const tcsPercentage = parseFloat(totalValues.tcs) || 1;
+    const tcsAmt = (grossAmt * tcsPercentage) / 100;
+
+    // Add Tcs from Net Amt
+    netAmt += tcsAmt;
+
+    setTotalValues((prevValues) => ({
+      ...prevValues,
+      netAmt,
+      tcsAmt,
+    }));
+  }, [
+    totalValues.grossAmt,
+    totalValues.govtRate,
+    totalValues.spcPurchases,
+    totalValues.tcs,
+  ]);
+  
+  
+  
+  
+
+  const handleDiscountChange = (event) => {
+    const discount = parseFloat(event.target.value) || 0;
+    setTotalValues((prevValues) => ({ ...prevValues, discount }));
+  };
+
+  const handleTcsChange = (event) => {
+    const tcs = parseFloat(event.target.value) || 1;
+    setTotalValues((prevValues) => ({ ...prevValues, tcs }));
+  };
+
+  const handleTotalMRPChanges = (event) => {
+    const newTotalMRPValue = parseInt(event.target.value);
+    // setTotalValues((prevValues) => ({
+    //     ...prevValues,
+    //     totalMrp: newTotalMRPValue
+    // }));
+  };
+
+  const handleSDiscountChange = (event) => {
+    const sDiscount = parseInt(event.target.value) || 0;
+    setTotalValues({ ...totalValues, totalSDiscount: sDiscount });
+  };
+
+  const handleGovtRateChange = (event) => {
+    const govtRate = parseFloat(event.target.value) || 0;
+    setTotalValues((prevValues) => ({ ...prevValues, govtRate }));
+  };
+
+  const handleSpcPurchasesChange = (event) => {
+    const spcPurchases = parseFloat(event.target.value) || 0;
+    setTotalValues((prevValues) => ({ ...prevValues, spcPurchases }));
   };
 
 
@@ -690,7 +834,7 @@ const PurchaseEntry = () => {
                 className="input-field"
                 fullWidth
                 value={formData.amount}
-                onChange={handleAmountFieldChange}
+                onChange={(e) => handleAmountChange(e)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
@@ -773,7 +917,7 @@ const PurchaseEntry = () => {
                             {row?.name || "No Data"}
                           </TableCell>
                           <TableCell align="center" sx={{ padding: "14px" }}>
-                            {row?.details[0]?.mrp || 0.0}
+                            {row?.details[0]?.mrp || 0}
                           </TableCell>
                           <TableCell align="center" sx={{ padding: "14px" }}>
                             {row.batch || 0}
@@ -788,13 +932,13 @@ const PurchaseEntry = () => {
                             {row.brk || 0}
                           </TableCell> */}
                           <TableCell align="center" sx={{ padding: "14px" }}>
-                            {row?.details[0]?.purchaseRate || 0.0}
+                            {row?.details[0]?.purchaseRate || 0}
                           </TableCell>
                           <TableCell align="center" sx={{ padding: "14px" }}>
-                            {row.btlRate || 0.0}
+                            {row.btlRate || 0}
                           </TableCell>
                           <TableCell align="center" sx={{ padding: "14px" }}>
-                            {row.gro || 0.0}
+                            {row.gro || 0}
                           </TableCell>
                           <TableCell align="center" sx={{ padding: "14px" }}>
                             {row.sp || 0}
@@ -1054,8 +1198,8 @@ const PurchaseEntry = () => {
                 size="small"
                 className="input-field"
                 fullWidth
-                value={""}
-                InputProps={{ readOnly: true }}
+                value={totalValues.totalMrp}
+                onChange={handleTotalMRPChanges}
               />
             </Grid>
             <Grid item xs={1}>
@@ -1066,8 +1210,8 @@ const PurchaseEntry = () => {
                 size="small"
                 className="input-field"
                 fullWidth
-                value={""}
-                InputProps={{ readOnly: true }}
+                value={totalValues.totalSDiscount}
+                onChange={handleSDiscountChange}
               />
             </Grid>
             <Grid item xs={1}>
@@ -1078,8 +1222,8 @@ const PurchaseEntry = () => {
                 size="small"
                 className="input-field"
                 fullWidth
-                value={""}
-                InputProps={{ readOnly: true }}
+                value={totalValues.govtRate}
+                onChange={handleGovtRateChange}
               />
             </Grid>
             <Grid item xs={1}>
@@ -1092,8 +1236,8 @@ const PurchaseEntry = () => {
                 size="small"
                 className="input-field"
                 fullWidth
-                value={""}
-                InputProps={{ readOnly: true }}
+                value={totalValues.spcPurchases}
+                onChange={handleSpcPurchasesChange}
               />
             </Grid>
             <Grid item xs={1}>
@@ -1104,7 +1248,7 @@ const PurchaseEntry = () => {
                 size="small"
                 className="input-field"
                 fullWidth
-                value={""}
+                value={totalValues.sTax}
                 InputProps={{ readOnly: true }}
               />
             </Grid>
@@ -1116,8 +1260,8 @@ const PurchaseEntry = () => {
                 size="small"
                 className="input-field"
                 fullWidth
-                value={""}
-                InputProps={{ readOnly: true }}
+                value={totalValues.tcs}
+                onChange={handleTcsChange}
               />
             </Grid>
             <Grid item xs={1}>
@@ -1128,7 +1272,7 @@ const PurchaseEntry = () => {
                 size="small"
                 className="input-field"
                 fullWidth
-                value={""}
+                value={totalValues.tcsAmt}
                 InputProps={{ readOnly: true }}
               />
             </Grid>
@@ -1140,20 +1284,20 @@ const PurchaseEntry = () => {
                 size="small"
                 className="input-field"
                 fullWidth
-                value={""}
+                value={totalValues.grossAmt}
                 InputProps={{ readOnly: true }}
               />
             </Grid>
             <Grid item xs={1}>
-              <InputLabel className="input-label-2">Discount</InputLabel>
+              <InputLabel className="input-label-2">Discount(%)</InputLabel>
               <TextField
                 variant="outlined"
                 type="text"
                 size="small"
                 className="input-field"
                 fullWidth
-                value={""}
-                InputProps={{ readOnly: true }}
+                value={totalValues.discount}
+                onChange={handleDiscountChange}
               />
             </Grid>
             <Grid item xs={1}>
@@ -1164,7 +1308,7 @@ const PurchaseEntry = () => {
                 size="small"
                 className="input-field"
                 fullWidth
-                value={""}
+                value={totalValues.tax}
                 InputProps={{ readOnly: true }}
               />
             </Grid>
@@ -1176,8 +1320,9 @@ const PurchaseEntry = () => {
                 size="small"
                 className="input-field"
                 fullWidth
-                value={""}
+                value={totalValues.adjustment}
                 InputProps={{ readOnly: true }}
+                // onChange={handleAdjustmentChange}
               />
             </Grid>
             <Grid item xs={1}>
@@ -1188,7 +1333,7 @@ const PurchaseEntry = () => {
                 size="small"
                 className="input-field"
                 fullWidth
-                value={""}
+                value={totalValues.netAmt}
                 InputProps={{ readOnly: true }}
               />
             </Grid>

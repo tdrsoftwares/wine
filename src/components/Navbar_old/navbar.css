@@ -12,6 +12,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    text-wrap: nowrap;
+    font-size: 15px;
 }
 
 .navbar ul li.nav-item {
