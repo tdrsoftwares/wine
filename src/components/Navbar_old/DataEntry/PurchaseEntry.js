@@ -286,21 +286,49 @@ const PurchaseEntry = () => {
   };
 
   const handleCreatePurchase = async () => {
-    const mandatoryFields = [
-      formData.supplierName,
-      formData.stockIn,
-      formData.passNo,
-      formData.passDate,
-      formData.billNo,
-      formData.billDate,
-      formData.entryNo,
-      totalValues.netAmt,
-      totalValues.grossAmt,
-    ];
-    if (mandatoryFields.some((field) => !field)) {
-      NotificationManager.warning("Please fill in necessary details.", "Error");
+    const missingFields = [];
+
+    if (!formData.supplierName) {
+      missingFields.push("Supplier Name");
+    }
+
+    if (!formData.stockIn) {
+      missingFields.push("Stock In");
+    }
+
+    if (!formData.passNo) {
+      missingFields.push("Pass Number");
+    }
+
+    if (!formData.passDate) {
+      missingFields.push("Pass Date");
+    }
+
+    if (!formData.billNo) {
+      missingFields.push("Bill Number");
+    }
+
+    if (!formData.billDate) {
+      missingFields.push("Bill Date");
+    }
+
+    if (!totalValues.netAmt) {
+      missingFields.push("Net Amount");
+    }
+
+    if (!totalValues.grossAmt) {
+      missingFields.push("Gross Amount");
+    }
+
+    if (missingFields.length > 0) {
+      const missingFieldsMessage = missingFields.join(", ");
+      NotificationManager.warning(
+        `Please fill in the necessary details for: ${missingFieldsMessage}.`,
+        "Error"
+      );
       return;
     }
+
     const payload = {
       supplierName: formData.supplierName,
       storeName: formData.stockIn,
@@ -314,7 +342,7 @@ const PurchaseEntry = () => {
       govtROff: totalValues.govtRate,
       specialPurpose: totalValues.spcPurchases,
       sTaxP: totalValues.sTax,
-      sTaxAmount: "", 
+      sTaxAmount: "",
       tcsP: totalValues.tcs,
       tcsAmount: totalValues.tcsAmt,
       grossAmount: totalValues.grossAmt,
@@ -324,19 +352,19 @@ const PurchaseEntry = () => {
       netAmount: totalValues.netAmt,
       purchaseItems: purchases.map((item) => ({
         itemCode: item.itemCode,
-        itemId: "No Data", 
+        itemId: "No Data",
         mrp: item.mrp,
         batch: item.batch,
         caseNo: item.case,
         pcs: item.pcs,
         brokenNo: item.brk,
         purchaseRate: item.purchaseRate,
-        saleRate: item.btlRate, 
+        saleRate: item.btlRate,
         gro: item.gro,
         sp: item.sp,
         itemAmount: item.amount,
-      }))
-    }
+      })),
+    };
     try {
       const response = await createPurchase(payload, loginResponse);
       console.log("Purchase created successfully:", response);
@@ -351,7 +379,7 @@ const PurchaseEntry = () => {
 
       NotificationManager.error("Failed to create purchase", "Error");
     }
-  }
+  };
 
   const calculateAmount = () => {
     const purRate = parseFloat(formData.purchaseRate) || 0;
