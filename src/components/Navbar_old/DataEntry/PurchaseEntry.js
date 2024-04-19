@@ -352,9 +352,9 @@ const PurchaseEntry = () => {
   };
 
   const handleCaseChange = (event) => {
-    const newCase = parseInt(event.target.value);
+    const newCase = parseInt(event.target.value) || 0;
     console.log("newCase: ", newCase);
-    const newPcsValue = newCase * parseInt(formData.caseValue) || "";
+    const newPcsValue = newCase * parseInt(formData.caseValue) || 0;
     console.log("newPcsValue: ", newPcsValue);
     setFormData({
       ...formData,
