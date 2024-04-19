@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Grid,
+  InputLabel,
   MenuItem,
   TextField,
   Typography,
@@ -22,7 +23,7 @@ import { getAllCompanies } from "../../../services/companyService";
 
 const ItemRegister = () => {
   const { loginResponse } = useLoginContext();
-  const [name, setName] = useState("");
+  const [itemName, setItemName] = useState("");
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [allCategory, setAllCategory] = useState([]);
@@ -36,11 +37,10 @@ const ItemRegister = () => {
   const [caseValue, setCaseValue] = useState("");
   const [allItems, setAllItems] = useState([]);
   const [existingItemUpdate, setExistingItemUpdate] = useState("");
-  const [newItemName, setNewItemName] = useState("");
   const [existingItemDelete, setExistingItemDelete] = useState("");
 
   const [newFormData, setNewFormData] = useState({
-    name: "",
+    itemName: "",
     description: "",
     categoryId: "",
     subCategory: "",
@@ -52,7 +52,7 @@ const ItemRegister = () => {
   });
 
   const clearForm = () => {
-    setName("");
+    setItemName("");
     setDescription("");
     setCategoryId("");
     setSubCategory("");
@@ -65,7 +65,7 @@ const ItemRegister = () => {
 
   const handleCreateItem = async () => {
     const mandatoryFields = [
-      name,
+      itemName,
       description,
       categoryId,
       subCategory,
@@ -81,7 +81,7 @@ const ItemRegister = () => {
     }
 
     const payload = {
-      name,
+      name: itemName,
       description,
       categoryId,
       subCategory,
@@ -113,13 +113,13 @@ const ItemRegister = () => {
   };
 
   const handleUpdateItem = async () => {
-    if (!newFormData.name) {
+    if (!newFormData.itemName) {
       NotificationManager.warning("Please fill New Item Name.", "Error");
       return;
     }
 
     const payload = {
-      name: newFormData.name,
+      name: newFormData.itemName,
       description: newFormData.description,
       categoryId: newFormData.categoryId,
       subCategory: newFormData.subCategory,
@@ -139,7 +139,7 @@ const ItemRegister = () => {
       if (updateItemResponse.status === 200) {
         NotificationManager.success("Item updated successfully", "Success");
         setExistingItemUpdate("");
-        setNewFormData({})
+        setNewFormData({});
         fetchAllItems();
       } else {
         NotificationManager.error(
@@ -248,462 +248,611 @@ const ItemRegister = () => {
   return (
     <form>
       <Box sx={{ p: 2, width: "900px" }}>
-        <Typography variant="h5" component="div" gutterBottom>
-          Stock Register
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          Item Details
+        <Typography variant="subtitle1" sx={{ marginBottom: 2 }}>
+          Create Item:
         </Typography>
 
-        <Grid container spacing={2}>
-          <Grid item xs={2.4}>
-            <TextField
-              fullWidth
-              type="text"
-              name="name"
-              label="Name"
-              variant="outlined"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
+        <Grid container spacing={1}>
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="itemName" className="input-label">
+                Name :
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                type="text"
+                name="itemName"
+                className="input-field"
+                variant="outlined"
+                value={itemName}
+                onChange={(e) => setItemName(e.target.value)}
+              />
+            </div>
           </Grid>
 
-          <Grid item xs={2.4}>
-            <TextField
-              fullWidth
-              type="text"
-              name="description"
-              label="Description"
-              variant="outlined"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="description" className="input-label">
+                Description :
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                type="text"
+                name="description"
+                className="input-field"
+                variant="outlined"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </div>
           </Grid>
 
-          <Grid item xs={2.4}>
-            <TextField
-              select
-              fullWidth
-              type="text"
-              name="categoryId"
-              label="Category ID"
-              variant="outlined"
-              value={categoryId}
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="categoryId" className="input-label">
+                Category ID :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                type="text"
+                name="categoryId"
+                className="input-field"
+                variant="outlined"
+                value={categoryId}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
                     },
                   },
-                },
-              }}
-              onChange={(e) => setCategoryId(e.target.value)}
-            >
-              {allCategory?.map((item) => (
-                <MenuItem key={item._id} value={item._id}>
-                  {item.categoryName}
-                </MenuItem>
-              ))}
-            </TextField>
+                }}
+                onChange={(e) => setCategoryId(e.target.value)}
+              >
+                {allCategory?.map((item) => (
+                  <MenuItem key={item._id} value={item._id}>
+                    {item.categoryName}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
           </Grid>
 
-          <Grid item xs={2.4}>
-            <TextField
-              select
-              fullWidth
-              type="text"
-              name="subCategory"
-              label="Sub Category"
-              variant="outlined"
-              value={subCategory}
-              onChange={(e) => setSubCategory(e.target.value)}
-            >
-              {["A", "B", "C", "D"].map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
-                </MenuItem>
-              ))}
-            </TextField>
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="subCategory" className="input-label">
+                Sub Category :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                type="text"
+                name="subCategory"
+                className="input-field"
+                variant="outlined"
+                value={subCategory}
+                onChange={(e) => setSubCategory(e.target.value)}
+              >
+                {["A", "B", "C", "D"].map((item, id) => (
+                  <MenuItem key={id} value={item}>
+                    {item}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
           </Grid>
 
-          <Grid item xs={2.4}>
-            <TextField
-              select
-              fullWidth
-              type="text"
-              name="companyId"
-              label="Company ID"
-              variant="outlined"
-              value={companyId}
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="companyId" className="input-label">
+                Company ID :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                type="text"
+                name="companyId"
+                className="input-field"
+                variant="outlined"
+                value={companyId}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
                     },
                   },
-                },
-              }}
-              onChange={(e) => setCompanyId(e.target.value)}
-            >
-              {allCompanies?.map((item) => (
-                <MenuItem key={item._id} value={item._id}>
-                  {item.name}
-                </MenuItem>
-              ))}
-            </TextField>
+                }}
+                onChange={(e) => setCompanyId(e.target.value)}
+              >
+                {allCompanies?.map((item) => (
+                  <MenuItem key={item._id} value={item._id}>
+                    {item.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
           </Grid>
 
-          <Grid item xs={2.4}>
-            <TextField
-              select
-              fullWidth
-              type="text"
-              name="brandId"
-              label="Brand ID"
-              variant="outlined"
-              value={brandId}
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="brandId" className="input-label">
+                Brand ID :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="brandId"
+                className="input-field"
+                variant="outlined"
+                value={brandId}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
                     },
                   },
-                },
-              }}
-              onChange={(e) => setBrandId(e.target.value)}
-            >
-              {allBrands?.map((item) => (
-                <MenuItem key={item._id} value={item._id}>
-                  {item.name}
-                </MenuItem>
-              ))}
-            </TextField>
+                }}
+                onChange={(e) => setBrandId(e.target.value)}
+              >
+                {allBrands?.map((item) => (
+                  <MenuItem key={item._id} value={item._id}>
+                    {item.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
           </Grid>
 
-          <Grid item xs={2.4}>
-            <TextField
-              fullWidth
-              type="number"
-              name="volume"
-              label="Volume"
-              variant="outlined"
-              value={volume}
-              onChange={(e) => setVolume(e.target.value)}
-            />
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="volume" className="input-label">
+                Volume :
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                type="number"
+                name="volume"
+                className="input-field"
+                variant="outlined"
+                value={volume}
+                onChange={(e) => setVolume(e.target.value)}
+              />
+            </div>
           </Grid>
 
-          <Grid item xs={2.4}>
-            <TextField
-              fullWidth
-              type="text"
-              name="group"
-              label="Group"
-              variant="outlined"
-              value={group}
-              onChange={(e) => setGroup(e.target.value)}
-            />
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="group" className="input-label">
+                Group :
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                type="text"
+                name="group"
+                className="input-field"
+                variant="outlined"
+                value={group}
+                onChange={(e) => setGroup(e.target.value)}
+              />
+            </div>
           </Grid>
 
-          <Grid item xs={2.4}>
-            <TextField
-              fullWidth
-              type="number"
-              name="caseValue"
-              label="Case Value"
-              variant="outlined"
-              value={caseValue}
-              onChange={(e) => setCaseValue(e.target.value)}
-            />
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="caseValue" className="input-label">
+                Case Value :
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                type="number"
+                name="caseValue"
+                className="input-field"
+                variant="outlined"
+                value={caseValue}
+                onChange={(e) => setCaseValue(e.target.value)}
+              />
+            </div>
           </Grid>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              "& button": { marginTop: 2, marginLeft: 2 },
-            }}
-          >
-            <Button
-              color="primary"
-              size="large"
-              variant="outlined"
-              onClick={handleCreateItem}
-            >
-              Create
-            </Button>
-            <Button
-              color="warning"
-              size="large"
-              variant="outlined"
-              onClick={clearForm}
-            >
-              Clear
-            </Button>
-          </Box>
         </Grid>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
 
-        <Typography variant="subtitle1" gutterBottom sx={{ marginTop: 2 }}>
-          Update Item
+            "& button": { marginTop: 2, marginLeft: 2 },
+          }}
+        >
+          <Button
+            color="primary"
+            size="medium"
+            variant="contained"
+            onClick={handleCreateItem}
+            sx={{ borderRadius: 8 }}
+          >
+            Create
+          </Button>
+          <Button
+            color="warning"
+            size="medium"
+            variant="outlined"
+            onClick={clearForm}
+            sx={{ borderRadius: 8 }}
+          >
+            Clear
+          </Button>
+        </Box>
+
+        <Typography variant="subtitle1" sx={{ marginTop: 2, marginBottom: 2 }}>
+          Update Item:
         </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={3}>
-            <TextField
-              select
-              fullWidth
-              name="existingItemUpdate"
-              label="Existing Item"
-              value={existingItemUpdate}
-              variant="outlined"
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
+
+        <Grid container spacing={1}>
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="existingItemUpdate" className="input-label">
+                Existing Item :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="existingItemUpdate"
+                className="input-field"
+                value={existingItemUpdate}
+                variant="outlined"
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
                     },
                   },
-                },
-              }}
-              onChange={(e) => handleUpdateChange(e)}
-            >
-              {allItems?.map((item) => (
-                <MenuItem key={item._id} value={item._id}>
-                  {item.name}
-                </MenuItem>
-              ))}
-            </TextField>
+                }}
+                onChange={(e) => handleUpdateChange(e)}
+              >
+                {allItems?.map((item) => (
+                  <MenuItem key={item._id} value={item._id}>
+                    {item.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
           </Grid>
           {existingItemUpdate && (
             <>
-              <Grid item xs={3}>
-                <TextField
-                  fullWidth
-                  type="text"
-                  name="newItemName"
-                  label="Item Name"
-                  value={newFormData.name}
-                  variant="outlined"
-                  onChange={(e) =>
-                    setNewFormData({
-                      ...newFormData,
-                      name: e.target.value,
-                    })
-                  }
-                  
-                />
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel htmlFor="newItemName" className="input-label">
+                    Item Name :
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    type="text"
+                    name="newItemName"
+                    className="input-field"
+                    value={newFormData.name}
+                    variant="outlined"
+                    onChange={(e) =>
+                      setNewFormData({
+                        ...newFormData,
+                        name: e.target.value,
+                      })
+                    }
+                  />
+                </div>
               </Grid>
-              <Grid item xs={3}>
-                <TextField
-                  fullWidth
-                  type="text"
-                  name="description"
-                  label="Description"
-                  value={newFormData.description}
-                  variant="outlined"
-                  onChange={(e) =>
-                    setNewFormData({
-                      ...newFormData,
-                      description: e.target.value,
-                    })
-                  }
-                />
+
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel
+                    htmlFor="newItemDescription"
+                    className="input-label"
+                  >
+                    Description :
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    type="text"
+                    name="newItemDescription"
+                    className="input-field"
+                    value={newFormData.description}
+                    variant="outlined"
+                    onChange={(e) =>
+                      setNewFormData({
+                        ...newFormData,
+                        description: e.target.value,
+                      })
+                    }
+                  />
+                </div>
               </Grid>
-              <Grid item xs={3}>
-                <TextField
-                  fullWidth
-                  type="text"
-                  name="categoryId"
-                  label="Category Id"
-                  value={newFormData.categoryId}
-                  variant="outlined"
-                  onChange={(e) =>
-                    setNewFormData({
-                      ...newFormData,
-                      categoryId: e.target.value,
-                    })
-                  }
-                />
+
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel
+                    htmlFor="newItemCategoryId"
+                    className="input-label"
+                  >
+                    Category Id :
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    type="text"
+                    name="newItemCategoryId"
+                    className="input-field"
+                    value={newFormData.categoryId}
+                    variant="outlined"
+                    onChange={(e) =>
+                      setNewFormData({
+                        ...newFormData,
+                        categoryId: e.target.value,
+                      })
+                    }
+                  />
+                </div>
               </Grid>
-              <Grid item xs={3}>
-                <TextField
-                  fullWidth
-                  type="text"
-                  name="subCategory"
-                  label="Sub Category"
-                  value={newFormData.subCategory}
-                  variant="outlined"
-                  onChange={(e) =>
-                    setNewFormData({
-                      ...newFormData,
-                      subCategory: e.target.value,
-                    })
-                  }
-                />
+
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel
+                    htmlFor="newItemSubCategory"
+                    className="input-label"
+                  >
+                    Sub Category :
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    type="text"
+                    name="newItemSubCategory"
+                    className="input-field"
+                    value={newFormData.subCategory}
+                    variant="outlined"
+                    onChange={(e) =>
+                      setNewFormData({
+                        ...newFormData,
+                        subCategory: e.target.value,
+                      })
+                    }
+                  />
+                </div>
               </Grid>
-              <Grid item xs={3}>
-                <TextField
-                  fullWidth
-                  type="text"
-                  name="companyId"
-                  label="Company Id"
-                  value={newFormData.companyId}
-                  variant="outlined"
-                  onChange={(e) =>
-                    setNewFormData({
-                      ...newFormData,
-                      companyId: e.target.value,
-                    })
-                  }
-                />
+
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel
+                    htmlFor="newItemCompanyId"
+                    className="input-label"
+                  >
+                    Company Id :
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    type="text"
+                    name="newItemCompanyId"
+                    className="input-field"
+                    value={newFormData.companyId}
+                    variant="outlined"
+                    onChange={(e) =>
+                      setNewFormData({
+                        ...newFormData,
+                        companyId: e.target.value,
+                      })
+                    }
+                  />
+                </div>
               </Grid>
-              <Grid item xs={3}>
-                <TextField
-                  fullWidth
-                  type="text"
-                  name="brandId"
-                  label="Brand Id"
-                  value={newFormData.brandId}
-                  variant="outlined"
-                  onChange={(e) =>
-                    setNewFormData({ ...newFormData, brandId: e.target.value })
-                  }
-                />
+
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel htmlFor="newItemBrandId" className="input-label">
+                    Brand Id :
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    type="text"
+                    name="newItemBrandId"
+                    className="input-field"
+                    value={newFormData.brandId}
+                    variant="outlined"
+                    onChange={(e) =>
+                      setNewFormData({
+                        ...newFormData,
+                        brandId: e.target.value,
+                      })
+                    }
+                  />
+                </div>
               </Grid>
-              <Grid item xs={3}>
-                <TextField
-                  fullWidth
-                  type="number"
-                  name="volume"
-                  label="Volume"
-                  value={newFormData.volume}
-                  variant="outlined"
-                  onChange={(e) =>
-                    setNewFormData({
-                      ...newFormData,
-                      volume: e.target.value,
-                    })
-                  }
-                />
+
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel htmlFor="newItemVolume" className="input-label">
+                    Volume :
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    type="number"
+                    name="newItemVolume"
+                    className="input-field"
+                    value={newFormData.volume}
+                    variant="outlined"
+                    onChange={(e) =>
+                      setNewFormData({
+                        ...newFormData,
+                        volume: e.target.value,
+                      })
+                    }
+                  />
+                </div>
               </Grid>
-              <Grid item xs={3}>
-                <TextField
-                  fullWidth
-                  name="group"
-                  label="Group"
-                  value={newFormData.group}
-                  variant="outlined"
-                  onChange={(e) =>
-                    setNewFormData({
-                      ...newFormData,
-                      group: e.target.value,
-                    })
-                  }
-                />
+
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel htmlFor="newItemGroup" className="input-label">
+                    Group :
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    type="text"
+                    name="newItemGroup"
+                    className="input-field"
+                    value={newFormData.group}
+                    variant="outlined"
+                    onChange={(e) =>
+                      setNewFormData({
+                        ...newFormData,
+                        group: e.target.value,
+                      })
+                    }
+                  />
+                </div>
               </Grid>
-              <Grid item xs={3}>
-                <TextField
-                  fullWidth
-                  type="number"
-                  name="caseValue"
-                  label="Case Value"
-                  value={newFormData.caseValue}
-                  variant="outlined"
-                  onChange={(e) =>
-                    setNewFormData({
-                      ...newFormData,
-                      caseValue: e.target.value,
-                    })
-                  }
-                />
+
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel
+                    htmlFor="newItemCaseValue"
+                    className="input-label"
+                  >
+                    Case Value :
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    type="number"
+                    name="newItemCaseValue"
+                    className="input-field"
+                    value={newFormData.caseValue}
+                    variant="outlined"
+                    onChange={(e) =>
+                      setNewFormData({
+                        ...newFormData,
+                        caseValue: e.target.value,
+                      })
+                    }
+                  />
+                </div>
               </Grid>
             </>
           )}
-
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              "& button": { marginTop: 2, marginLeft: 2 },
+        </Grid>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            "& button": { marginTop: 2, marginLeft: 2 },
+          }}
+        >
+          <Button
+            color="primary"
+            size="medium"
+            variant="contained"
+            onClick={handleUpdateItem}
+            sx={{ borderRadius: 8 }}
+          >
+            Change
+          </Button>
+          <Button
+            color="warning"
+            size="medium"
+            variant="outlined"
+            sx={{ borderRadius: 8 }}
+            onClick={() => {
+              setExistingItemUpdate("");
+              setNewFormData({});
             }}
           >
-            <Button
-              color="primary"
-              size="large"
-              variant="outlined"
-              onClick={handleUpdateItem}
-            >
-              Change
-            </Button>
-            <Button
-              color="warning"
-              size="large"
-              variant="outlined"
-              onClick={() => {
-                setExistingItemUpdate("");
-                setNewFormData({});
-              }}
-            >
-              Clear
-            </Button>
-          </Box>
-        </Grid>
+            Clear
+          </Button>
+        </Box>
 
-        <Typography variant="subtitle1" gutterBottom sx={{ marginTop: 2 }}>
-          Delete Item
+        <Typography variant="subtitle1" sx={{ marginTop: 2, marginBottom: 2 }}>
+          Delete Item:
         </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={3}>
-            <TextField
-              select
-              fullWidth
-              name="existingItemDelete"
-              label="Existing Item"
-              value={existingItemDelete}
-              variant="outlined"
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
+        <Grid container spacing={1}>
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="existingItemDelete" className="input-label">
+                Existing Item :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                name="existingItemDelete"
+                size="small"
+                className="input-field"
+                value={existingItemDelete}
+                variant="outlined"
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
                     },
                   },
-                },
-              }}
-              onChange={(e) => setExistingItemDelete(e.target.value)}
-            >
-              {allItems?.map((item) => (
-                <MenuItem key={item._id} value={item._id}>
-                  {item.name}
-                </MenuItem>
-              ))}
-            </TextField>
+                }}
+                onChange={(e) => setExistingItemDelete(e.target.value)}
+              >
+                {allItems?.map((item) => (
+                  <MenuItem key={item._id} value={item._id}>
+                    {item.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
           </Grid>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              "& button": { marginTop: 2, marginLeft: 2 },
-            }}
-          >
-            <Button
-              color="primary"
-              size="large"
-              variant="outlined"
-              onClick={handleDeleteItem}
-            >
-              Delete
-            </Button>
-            <Button
-              color="warning"
-              size="large"
-              variant="outlined"
-              onClick={() => setExistingItemDelete("")}
-            >
-              Clear
-            </Button>
-          </Box>
         </Grid>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            "& button": { marginTop: 2, marginLeft: 2 },
+          }}
+        >
+          <Button
+            color="primary"
+            size="medium"
+            variant="contained"
+            sx={{ borderRadius: 8 }}
+            onClick={handleDeleteItem}
+          >
+            Delete
+          </Button>
+          <Button
+            color="warning"
+            size="medium"
+            variant="outlined"
+            sx={{ borderRadius: 8 }}
+            onClick={() => setExistingItemDelete("")}
+          >
+            Clear
+          </Button>
+        </Box>
       </Box>
     </form>
   );
