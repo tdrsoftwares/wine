@@ -145,7 +145,6 @@ const PurchaseEntry = () => {
     const updatedPurchases = [...purchases];
     const updatedRow = { ...updatedPurchases[index] };
 
-    // Merge the changes from editedRow with the original row data
     for (const key in editedRow) {
       if (editedRow.hasOwnProperty(key)) {
         updatedRow[key] = editedRow[key];
@@ -317,7 +316,14 @@ const PurchaseEntry = () => {
   const handlePurRatePcsChange = () => {
     const purRate = parseFloat(formData.purchaseRate) || 0;
     const pcs = parseInt(formData.pcs) || 0;
-    const amount = (purRate * pcs).toFixed(2);
+    let amount = 0;
+
+    if (parseInt(formData.case) === 0) {
+      amount = (purRate * pcs).toFixed(2);
+    } else if (parseInt(formData.case) > 0) {
+      amount = (purRate * parseInt(formData.case)).toFixed(2);
+    }
+
     setFormData({ ...formData, amount });
   };
 
@@ -346,7 +352,7 @@ const PurchaseEntry = () => {
   };
 
   const handleCaseChange = (event) => {
-    const newCase = parseInt(event.target.value) || "";
+    const newCase = parseInt(event.target.value);
     console.log("newCase: ", newCase);
     const newPcsValue = newCase * parseInt(formData.caseValue) || "";
     console.log("newPcsValue: ", newPcsValue);
@@ -394,7 +400,6 @@ const PurchaseEntry = () => {
   }, [formData.amount, purchases]);
 
   useEffect(() => {
-    // Calculate gross amount
     const grossAmount = purchases.reduce(
       (total, purchase) => total + parseFloat(purchase.amount),
       0
@@ -402,7 +407,6 @@ const PurchaseEntry = () => {
     const sDiscount = parseInt(totalValues.totalSDiscount) || 0;
     const grossAmt = grossAmount - sDiscount;
 
-    // Calculate net amount
     const govtRate = parseFloat(totalValues.govtRate) || 0;
     const spcPurchases = parseFloat(totalValues.spcPurchases) || 0;
     const netAmt = grossAmt + govtRate + spcPurchases;
@@ -416,16 +420,13 @@ const PurchaseEntry = () => {
   ]);
 
   useEffect(() => {
-    // Calculate Tcs amount
     const tcsPercentage = parseFloat(totalValues.tcs) || 1;
     const grossAmt = parseFloat(totalValues.grossAmt) || 0;
     const tcsAmt = (grossAmt * tcsPercentage) / 100;
 
-    // Calculate discount amount
     const discount = parseFloat(totalValues.discount) || 0;
     const discountAmt = (grossAmt * discount) / 100;
 
-    // Calculate netAmt based on the new tcsAmt and discountAmt
     const netAmt = grossAmt + tcsAmt - discountAmt;
 
     setTotalValues((prevValues) => ({
@@ -437,18 +438,15 @@ const PurchaseEntry = () => {
   }, [totalValues.tcs, totalValues.grossAmt, totalValues.discount]);
 
   useEffect(() => {
-    // Calculate Net Amount based on the new Govt. Round and Special Purpose
     const grossAmt = parseFloat(totalValues.grossAmt) || 0;
     const govtRound = parseFloat(totalValues.govtRate) || 0;
     const specialPurpose = parseFloat(totalValues.spcPurchases) || 0;
 
     let netAmt = grossAmt + govtRound + specialPurpose;
 
-    // Calculate Tcs amount
     const tcsPercentage = parseFloat(totalValues.tcs) || 1;
     const tcsAmt = (grossAmt * tcsPercentage) / 100;
 
-    // Add Tcs from Net Amt
     netAmt += tcsAmt;
 
     setTotalValues((prevValues) => ({
@@ -462,9 +460,6 @@ const PurchaseEntry = () => {
     totalValues.spcPurchases,
     totalValues.tcs,
   ]);
-  
-  
-  
   
 
   const handleDiscountChange = (event) => {
