@@ -19,7 +19,7 @@ import { useLoginContext } from "../../../utils/loginContext";
 import { NotificationManager } from "react-notifications";
 import { getAllSuppliers } from "../../../services/supplierService";
 import { getAllStores } from "../../../services/storeService";
-import { searchAllPurchases } from "../../../services/purchaseService";
+import { createPurchase, searchAllPurchases } from "../../../services/purchaseService";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
@@ -74,13 +74,10 @@ const PurchaseEntry = () => {
     netAmt: "",
   });
 
-  console.log("formData amt: ", formData.amount);
-
   const [editableIndex, setEditableIndex] = useState(-1);
-  // console.log("editableIndex: ", editableIndex);
   const [editedRow, setEditedRow] = useState({});
-  // console.log("editedRow: ", editedRow);
 
+  const itemCodeRef = useRef(null);
   const itemNameRef = useRef(null);
   const mrpRef = useRef(null);
   const batchRef = useRef(null);
@@ -158,13 +155,6 @@ const PurchaseEntry = () => {
     setEditableIndex(-1);
   };
 
-  const calculateMRPValue = (rowData) => {
-    console.log("rowData: ", rowData);
-    // const pcs = parseInt(rowData.pcs) || 0;
-    // const mrp = parseFloat(rowData.mrp) || 0;
-    // return (pcs * mrp).toFixed(2);
-  };
-
   const fetchAllSuppliers = async () => {
     try {
       const allItemsResponse = await getAllSuppliers(loginResponse);
@@ -191,11 +181,6 @@ const PurchaseEntry = () => {
       console.error("Error fetching stores:", error);
     }
   };
-
-  useEffect(() => {
-    fetchAllSuppliers();
-    fetchAllStores();
-  }, []);
 
   const debouncedSearch = debounce(async (itemName) => {
     try {
@@ -246,6 +231,7 @@ const PurchaseEntry = () => {
       nextInputRef.current.focus();
 
       switch (nextInputRef.current) {
+        case itemCodeRef:
         case itemNameRef:
           handleItemNameChange(event);
           break;
@@ -281,14 +267,6 @@ const PurchaseEntry = () => {
     ) {
       setPurchases([...purchases, formData]);
       setFormData({
-        supplierName: "",
-        passNo: "",
-        passDate: "mm/dd/yyyy",
-        address: "",
-        billNo: "",
-        billDate: "mm/dd/yyyy",
-        stockIn: "",
-        entryNo: "",
         itemCode: "",
         itemName: "",
         mrp: "",
@@ -306,6 +284,74 @@ const PurchaseEntry = () => {
       setSearchMode(false);
     }
   };
+
+  const handleCreatePurchase = async () => {
+    const mandatoryFields = [
+      formData.supplierName,
+      formData.stockIn,
+      formData.passNo,
+      formData.passDate,
+      formData.billNo,
+      formData.billDate,
+      formData.entryNo,
+      totalValues.netAmt,
+      totalValues.grossAmt,
+    ];
+    if (mandatoryFields.some((field) => !field)) {
+      NotificationManager.warning("Please fill in necessary details.", "Error");
+      return;
+    }
+    const payload = {
+      supplierName: formData.supplierName,
+      storeName: formData.stockIn,
+      passNo: formData.passNo,
+      passDate: formData.passDate,
+      billNo: formData.billNo,
+      billDate: formData.billDate,
+      entryNo: formData.entryNo,
+      mrpValue: totalValues.totalMrp,
+      splDisc: totalValues.totalSDiscount,
+      govtROff: totalValues.govtRate,
+      specialPurpose: totalValues.spcPurchases,
+      sTaxP: totalValues.sTax,
+      sTaxAmount: "", 
+      tcsP: totalValues.tcs,
+      tcsAmount: totalValues.tcsAmt,
+      grossAmount: totalValues.grossAmt,
+      discountAmount: totalValues.discount,
+      taxAmount: totalValues.tax,
+      adjustment: totalValues.adjustment,
+      netAmount: totalValues.netAmt,
+      purchaseItems: purchases.map((item) => ({
+        itemCode: item.itemCode,
+        itemId: "No Data", 
+        mrp: item.mrp,
+        batch: item.batch,
+        caseNo: item.case,
+        pcs: item.pcs,
+        brokenNo: item.brk,
+        purchaseRate: item.purchaseRate,
+        saleRate: item.btlRate, 
+        gro: item.gro,
+        sp: item.sp,
+        itemAmount: item.amount,
+      }))
+    }
+    try {
+      const response = await createPurchase(payload, loginResponse);
+      console.log("Purchase created successfully:", response);
+
+      NotificationManager.success("Purchase created successfully", "Success");
+      setFormData({});
+      setTotalValues({});
+      setPurchases([]);
+      searchMode(false);
+    } catch (error) {
+      console.error("Error creating purchase:", error);
+
+      NotificationManager.error("Failed to create purchase", "Error");
+    }
+  }
 
   const calculateAmount = () => {
     const purRate = parseFloat(formData.purchaseRate) || 0;
@@ -327,14 +373,10 @@ const PurchaseEntry = () => {
     setFormData({ ...formData, amount });
   };
 
-  useEffect(() => {
-    handlePurRatePcsChange();
-  }, [formData.purchaseRate, formData.pcs]);
-
   const handleAmountChange = (event) => {
     const newAmountValue = parseInt(event.target.value) || 0;
     console.log("newAmountValue: ", newAmountValue);
-    const pcs = parseInt(formData.caseValue) || 0;
+    const pcs = parseInt(formData.caseValue) || 1;
     console.log("pcs: ", pcs);
     let newPurchaseRate = 0;
 
@@ -348,7 +390,7 @@ const PurchaseEntry = () => {
       amount: newAmountValue.toString(),
       purchaseRate: newPurchaseRate.toString(),
     });
-    console.log("amout formData: ", formData);
+    console.log("amount formData: ", formData);
   };
 
   const handleCaseChange = (event) => {
@@ -387,6 +429,47 @@ const PurchaseEntry = () => {
     setFormData({ ...formData, sp: newSPValue, amount: updatedAmtValue });
   };
 
+  const handleDiscountChange = (event) => {
+    const discount = parseFloat(event.target.value) || 0;
+    setTotalValues((prevValues) => ({ ...prevValues, discount }));
+  };
+
+  const handleTcsChange = (event) => {
+    const tcs = parseFloat(event.target.value) || 1;
+    setTotalValues((prevValues) => ({ ...prevValues, tcs }));
+  };
+
+  const handleTotalMRPChanges = (event) => {
+    const newTotalMRPValue = parseInt(event.target.value);
+    // setTotalValues((prevValues) => ({
+    //     ...prevValues,
+    //     totalMrp: newTotalMRPValue
+    // }));
+  };
+
+  const handleSDiscountChange = (event) => {
+    const sDiscount = parseInt(event.target.value) || 0;
+    setTotalValues({ ...totalValues, totalSDiscount: sDiscount });
+  };
+
+  const handleGovtRateChange = (event) => {
+    const govtRate = parseFloat(event.target.value) || 0;
+    setTotalValues((prevValues) => ({ ...prevValues, govtRate }));
+  };
+
+  const handleSpcPurchasesChange = (event) => {
+    const spcPurchases = parseFloat(event.target.value) || 0;
+    setTotalValues((prevValues) => ({ ...prevValues, spcPurchases }));
+  };
+
+  useEffect(() => {
+    fetchAllSuppliers();
+    fetchAllStores();
+  }, []);
+
+  useEffect(() => {
+    handlePurRatePcsChange();
+  }, [formData.purchaseRate, formData.pcs]);
 
   useEffect(() => {
     const totalMrpValue = purchases.reduce((total, purchase) => {
@@ -460,40 +543,6 @@ const PurchaseEntry = () => {
     totalValues.spcPurchases,
     totalValues.tcs,
   ]);
-  
-
-  const handleDiscountChange = (event) => {
-    const discount = parseFloat(event.target.value) || 0;
-    setTotalValues((prevValues) => ({ ...prevValues, discount }));
-  };
-
-  const handleTcsChange = (event) => {
-    const tcs = parseFloat(event.target.value) || 1;
-    setTotalValues((prevValues) => ({ ...prevValues, tcs }));
-  };
-
-  const handleTotalMRPChanges = (event) => {
-    const newTotalMRPValue = parseInt(event.target.value);
-    // setTotalValues((prevValues) => ({
-    //     ...prevValues,
-    //     totalMrp: newTotalMRPValue
-    // }));
-  };
-
-  const handleSDiscountChange = (event) => {
-    const sDiscount = parseInt(event.target.value) || 0;
-    setTotalValues({ ...totalValues, totalSDiscount: sDiscount });
-  };
-
-  const handleGovtRateChange = (event) => {
-    const govtRate = parseFloat(event.target.value) || 0;
-    setTotalValues((prevValues) => ({ ...prevValues, govtRate }));
-  };
-
-  const handleSpcPurchasesChange = (event) => {
-    const spcPurchases = parseFloat(event.target.value) || 0;
-    setTotalValues((prevValues) => ({ ...prevValues, spcPurchases }));
-  };
 
 
   return (
@@ -653,6 +702,7 @@ const PurchaseEntry = () => {
             <Grid item xs={1.5}>
               <InputLabel className="input-label-2">Item Code</InputLabel>
               <TextField
+                inputRef={itemCodeRef}
                 variant="outlined"
                 type="text"
                 size="small"
@@ -829,11 +879,13 @@ const PurchaseEntry = () => {
                 className="input-field"
                 fullWidth
                 value={formData.amount}
+                aria-readonly
                 onChange={(e) => handleAmountChange(e)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
                     handleSubmitIntoDataTable();
+                    handleEnterKey(e, itemCodeRef);
                   } else {
                     handleEnterKey(e, amountRef);
                   }
@@ -1390,7 +1442,7 @@ const PurchaseEntry = () => {
             color="success"
             size="medium"
             variant="contained"
-            onClick={() => {}}
+            onClick={handleCreatePurchase}
             sx={{ marginTop: 3 }}
           >
             SAVE
