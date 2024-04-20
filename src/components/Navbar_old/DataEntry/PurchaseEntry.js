@@ -19,7 +19,10 @@ import { useLoginContext } from "../../../utils/loginContext";
 import { NotificationManager } from "react-notifications";
 import { getAllSuppliers } from "../../../services/supplierService";
 import { getAllStores } from "../../../services/storeService";
-import { createPurchase, searchAllPurchases } from "../../../services/purchaseService";
+import {
+  createPurchase,
+  searchAllPurchases,
+} from "../../../services/purchaseService";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
@@ -35,6 +38,7 @@ const PurchaseEntry = () => {
   const [searchMode, setSearchMode] = useState(false);
 
   console.log("purchases: ", purchases);
+  const [entryNumber, setEntryNumber] = useState("");
   const [formData, setFormData] = useState({
     supplierName: "",
     passNo: "",
@@ -44,6 +48,7 @@ const PurchaseEntry = () => {
     billDate: "mm/dd/yyyy",
     stockIn: "",
     entryNo: "",
+    itemId: "",
     itemCode: "",
     itemName: "",
     mrp: "",
@@ -61,9 +66,9 @@ const PurchaseEntry = () => {
 
   const [totalValues, setTotalValues] = useState({
     totalMrp: "",
-    totalSDiscount: "",
-    govtRate: "",
-    spcPurchases: "",
+    totalSDiscount: 0,
+    govtRate: 0,
+    spcPurpose: 0,
     sTax: "",
     tcs: "",
     tcsAmt: "",
@@ -97,24 +102,21 @@ const PurchaseEntry = () => {
     setFormData({
       ...formData,
       itemName,
-      itemCode: "",
-      mrp: "",
-      batch: "",
-      case: "",
-      caseValue: "",
-      pcs: "",
-      brk: "",
-      purchaseRate: "",
-      btlRate: "",
-      gro: "",
-      sp: "",
-      amount: "",
     });
     setSearchMode(true);
     if (!itemName) setSearchMode(false);
 
     setEditedRow({});
     setEditableIndex(-1);
+    console.log("handleItemNameChange formData: ", formData);
+  };
+
+  const handleSupplierNameChange = (e) => {
+    setFormData({ ...formData, supplierName: e.target.value });
+  };
+
+  const handleStockInChange = (e) => {
+    setFormData({ ...formData, stockIn: e.target.value });
   };
 
   const isValidNumber = (value) => {
@@ -188,7 +190,7 @@ const PurchaseEntry = () => {
       console.log("debouncedSearch response: ", response);
       if (response?.data?.data) {
         setSearchResults(response?.data?.data);
-        // console.log("ami serc res ", searchResults);
+        console.log("ami serc res ", searchResults);
       } else {
         setSearchResults([]);
       }
@@ -202,6 +204,7 @@ const PurchaseEntry = () => {
     const selectedRow = searchResults[index];
     setFormData({
       ...formData,
+      itemId: selectedRow._id,
       itemCode: selectedRow.details[0]?.itemCode || 0,
       itemName: selectedRow.name || 0,
       mrp: selectedRow.details[0]?.mrp || 0,
@@ -247,45 +250,74 @@ const PurchaseEntry = () => {
           handlePurRatePcsChange();
           break;
         case amountRef:
-          handleSubmitIntoDataTable();
+          handleSubmitIntoDataTable(event);
           break;
         default:
           break;
       }
     }
+    console.log("handleEnterKey formData: ", formData);
   };
 
   console.log("purchases: ", purchases);
 
-  const handleSubmitIntoDataTable = () => {
-    if (
-      formData.itemName &&
-      formData.mrp &&
-      formData.pcs &&
-      formData.purchaseRate &&
-      formData.amount
-    ) {
-      setPurchases([...purchases, formData]);
-      setFormData({
-        itemCode: "",
-        itemName: "",
-        mrp: "",
-        batch: "",
-        case: "",
-        caseValue: "",
-        pcs: "",
-        brk: "",
-        purchaseRate: "",
-        btlRate: "",
-        gro: "",
-        sp: "",
-        amount: "",
-      });
-      setSearchMode(false);
+  const handleSubmitIntoDataTable = (e) => {
+    console.log("handleSubmitIntoDataTable formData: ", formData);
+    e.preventDefault();
+
+    if (!formData.itemName) {
+      NotificationManager.warning(`Please fill the Item Name`);
+      handleEnterKey(e, itemNameRef);
+      return;
     }
+    if (!formData.mrp) {
+      NotificationManager.warning(`Please fill the MRP`);
+      handleEnterKey(e, mrpRef);
+      return;
+    }
+    if (!formData.pcs) {
+      NotificationManager.warning(`Please fill the Pcs`);
+      handleEnterKey(e, pcsRef);
+      return;
+    }
+    if (!formData.purchaseRate) {
+      NotificationManager.warning(`Please fill the Purchase Rate`);
+      handleEnterKey(e, purRateRef);
+      return;
+    }
+    if (!formData.amount) {
+      NotificationManager.warning(`Please fill the Amount`);
+      handleEnterKey(e, amountRef);
+      return;
+    }
+
+    setPurchases([...purchases, formData]);
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      itemId: "",
+      itemCode: "",
+      itemName: "",
+      mrp: "",
+      batch: "",
+      case: "",
+      caseValue: "",
+      pcs: "",
+      brk: "",
+      purchaseRate: "",
+      btlRate: "",
+      gro: "",
+      sp: "",
+      amount: "",
+    }));
+    handleEnterKey(e, itemCodeRef);
+    setSearchMode(false);
   };
+  console.log("1 formData outside --> ", formData);
+  console.log("2 totalValues --> ", totalValues);
 
   const handleCreatePurchase = async () => {
+    console.log("handleCreatePurchase formData --> ", formData);
+
     const missingFields = [];
 
     if (!formData.supplierName) {
@@ -312,12 +344,8 @@ const PurchaseEntry = () => {
       missingFields.push("Bill Date");
     }
 
-    if (!totalValues.netAmt) {
-      missingFields.push("Net Amount");
-    }
-
-    if (!totalValues.grossAmt) {
-      missingFields.push("Gross Amount");
+    if (purchases.length === 0) {
+      missingFields.push("Item Purchase");
     }
 
     if (missingFields.length > 0) {
@@ -329,87 +357,90 @@ const PurchaseEntry = () => {
       return;
     }
 
+    const convertedPassDate = new Date(formData.passDate);
+    const convertedBillDate = new Date(formData.billDate);
+
     const payload = {
       supplierName: formData.supplierName,
       storeName: formData.stockIn,
       passNo: formData.passNo,
-      passDate: formData.passDate,
+      passDate:
+        convertedPassDate.toISOString().substring(0, 10) + "T00:00:00.000Z",
       billNo: formData.billNo,
-      billDate: formData.billDate,
-      entryNo: formData.entryNo,
-      mrpValue: totalValues.totalMrp,
-      splDisc: totalValues.totalSDiscount,
-      govtROff: totalValues.govtRate,
-      specialPurpose: totalValues.spcPurchases,
-      sTaxP: totalValues.sTax,
-      sTaxAmount: "",
-      tcsP: totalValues.tcs,
-      tcsAmount: totalValues.tcsAmt,
-      grossAmount: totalValues.grossAmt,
-      discountAmount: totalValues.discount,
-      taxAmount: totalValues.tax,
-      adjustment: totalValues.adjustment,
-      netAmount: totalValues.netAmt,
+      billDate:
+        convertedBillDate.toISOString().substring(0, 10) + "T00:00:00.000Z",
+      // entryNo: formData.entryNo,
+      mrpValue: parseFloat(totalValues.totalMrp) || 0,
+      splDisc: parseFloat(totalValues.totalSDiscount) || 0,
+      govtROff: parseFloat(totalValues.govtRate) || 0,
+      specialPurpose: parseFloat(totalValues.spcPurpose) || 0,
+      sTaxP: parseFloat(totalValues.sTax) || 0,
+      sTaxAmount: 0,
+      tcsP: parseFloat(totalValues.tcs) || 0,
+      tcsAmount: parseFloat(totalValues.tcsAmt) || 0,
+      grossAmount: parseFloat(totalValues.grossAmt) || 0,
+      discountAmount: parseFloat(totalValues.discountAmt) || 0,
+      taxAmount: parseFloat(totalValues.taxAmt) || 0,
+      adjustment: parseFloat(totalValues.adjustment) || 0,
+      netAmount: parseFloat(totalValues.netAmt) || 0,
       purchaseItems: purchases.map((item) => ({
-        itemCode: item.itemCode,
-        itemId: "No Data",
-        mrp: item.mrp,
-        batch: item.batch,
-        caseNo: item.case,
-        pcs: item.pcs,
-        brokenNo: item.brk,
-        purchaseRate: item.purchaseRate,
-        saleRate: item.btlRate,
-        gro: item.gro,
-        sp: item.sp,
-        itemAmount: item.amount,
+        itemCode: item.itemCode.toString(),
+        itemId: item.itemId.toString(),
+        mrp: parseFloat(item.mrp) || 0,
+        batchNo: item.batch.toString(),
+        caseNo: parseFloat(item.case) || 0,
+        pcs: parseFloat(item.pcs) || 0,
+        brokenNo: parseFloat(item.brk) || 0,
+        purchaseRate: parseFloat(item.purchaseRate) || 0,
+        saleRate: parseFloat(item.btlRate) || 0,
+        gro: parseFloat(item.gro) || 0,
+        sp: parseFloat(item.sp) || 0,
+        itemAmount: parseFloat(item.amount) || 0,
       })),
     };
+
     try {
       const response = await createPurchase(payload, loginResponse);
-      console.log("Purchase created successfully:", response);
 
-      NotificationManager.success("Purchase created successfully", "Success");
-      setFormData({});
-      setTotalValues({});
-      setPurchases([]);
-      searchMode(false);
+      if (response.status === 200) {
+        console.log("Purchase created successfully:", response);
+        NotificationManager.success("Purchase created successfully", "Success");
+        setEntryNumber(response?.data?.data?.purchase?.entryNo);
+        searchMode(false);
+      } else {
+        NotificationManager.error(
+          "Error creating Purchase. Please try again later.",
+          "Error"
+        );
+      }
     } catch (error) {
       console.error("Error creating purchase:", error);
-
-      NotificationManager.error("Failed to create purchase", "Error");
     }
-  };
-
-  const calculateAmount = () => {
-    const purRate = parseFloat(formData.purchaseRate) || 0;
-    const pcs = parseInt(formData.pcs) || 0;
-    return parseInt((purRate * pcs).toFixed(2));
   };
 
   const handlePurRatePcsChange = () => {
     const purRate = parseFloat(formData.purchaseRate) || 0;
-    const pcs = parseInt(formData.pcs) || 0;
+    const pcs = parseFloat(formData.pcs) || 0;
     let amount = 0;
 
-    if (parseInt(formData.case) === 0) {
+    if (parseFloat(formData.case) === 0) {
       amount = (purRate * pcs).toFixed(2);
-    } else if (parseInt(formData.case) > 0) {
-      amount = (purRate * parseInt(formData.case)).toFixed(2);
+    } else if (parseFloat(formData.case) > 0) {
+      amount = (purRate * parseFloat(formData.case)).toFixed(2);
     }
 
     setFormData({ ...formData, amount });
   };
 
   const handleAmountChange = (event) => {
-    const newAmountValue = parseInt(event.target.value) || 0;
+    const newAmountValue = parseFloat(event.target.value) || 0;
     console.log("newAmountValue: ", newAmountValue);
-    const pcs = parseInt(formData.caseValue) || 1;
+    const pcs = parseFloat(formData.caseValue) || 1;
     console.log("pcs: ", pcs);
     let newPurchaseRate = 0;
 
     if (pcs !== 0) {
-      newPurchaseRate = parseInt(newAmountValue / pcs);
+      newPurchaseRate = parseFloat(newAmountValue / pcs);
       console.log("newPurchaseRate: ", newPurchaseRate);
     }
 
@@ -422,9 +453,9 @@ const PurchaseEntry = () => {
   };
 
   const handleCaseChange = (event) => {
-    const newCase = parseInt(event.target.value) || 0;
+    const newCase = parseFloat(event.target.value) || 0;
     console.log("newCase: ", newCase);
-    const newPcsValue = newCase * parseInt(formData.caseValue) || 0;
+    const newPcsValue = newCase * parseFloat(formData.caseValue) || 0;
     console.log("newPcsValue: ", newPcsValue);
     setFormData({
       ...formData,
@@ -476,7 +507,7 @@ const PurchaseEntry = () => {
   };
 
   const handleSDiscountChange = (event) => {
-    const sDiscount = parseInt(event.target.value) || 0;
+    const sDiscount = parseFloat(event.target.value) || 0;
     setTotalValues({ ...totalValues, totalSDiscount: sDiscount });
   };
 
@@ -486,8 +517,8 @@ const PurchaseEntry = () => {
   };
 
   const handleSpcPurchasesChange = (event) => {
-    const spcPurchases = parseFloat(event.target.value) || 0;
-    setTotalValues((prevValues) => ({ ...prevValues, spcPurchases }));
+    const spcPurpose = parseFloat(event.target.value) || 0;
+    setTotalValues((prevValues) => ({ ...prevValues, spcPurpose }));
   };
 
   useEffect(() => {
@@ -501,7 +532,7 @@ const PurchaseEntry = () => {
 
   useEffect(() => {
     const totalMrpValue = purchases.reduce((total, purchase) => {
-      return total + parseInt(purchase.mrp) * parseInt(purchase.pcs);
+      return total + parseFloat(purchase.mrp) * parseFloat(purchase.pcs);
     }, 0);
     setTotalValues((prevValues) => ({
       ...prevValues,
@@ -515,19 +546,19 @@ const PurchaseEntry = () => {
       (total, purchase) => total + parseFloat(purchase.amount),
       0
     );
-    const sDiscount = parseInt(totalValues.totalSDiscount) || 0;
+    const sDiscount = parseFloat(totalValues.totalSDiscount) || 0;
     const grossAmt = grossAmount - sDiscount;
 
     const govtRate = parseFloat(totalValues.govtRate) || 0;
-    const spcPurchases = parseFloat(totalValues.spcPurchases) || 0;
-    const netAmt = grossAmt + govtRate + spcPurchases;
+    const spcPurpose = parseFloat(totalValues.spcPurpose) || 0;
+    const netAmt = grossAmt + govtRate + spcPurpose;
 
     setTotalValues((prevValues) => ({ ...prevValues, grossAmt, netAmt }));
   }, [
     purchases,
     totalValues.totalSDiscount,
     totalValues.govtRate,
-    totalValues.spcPurchases,
+    totalValues.spcPurpose,
   ]);
 
   useEffect(() => {
@@ -551,7 +582,7 @@ const PurchaseEntry = () => {
   useEffect(() => {
     const grossAmt = parseFloat(totalValues.grossAmt) || 0;
     const govtRound = parseFloat(totalValues.govtRate) || 0;
-    const specialPurpose = parseFloat(totalValues.spcPurchases) || 0;
+    const specialPurpose = parseFloat(totalValues.spcPurpose) || 0;
 
     let netAmt = grossAmt + govtRound + specialPurpose;
 
@@ -568,10 +599,9 @@ const PurchaseEntry = () => {
   }, [
     totalValues.grossAmt,
     totalValues.govtRate,
-    totalValues.spcPurchases,
+    totalValues.spcPurpose,
     totalValues.tcs,
   ]);
-
 
   return (
     <form>
@@ -594,12 +624,10 @@ const PurchaseEntry = () => {
                 type="text"
                 className="input-field"
                 value={formData.supplierName}
-                onChange={(e) =>
-                  setFormData({ ...formData, supplierName: e.target.value })
-                }
+                onChange={handleSupplierNameChange}
               >
                 {allSuppliers?.map((item) => (
-                  <MenuItem key={item._id} value={item._id}>
+                  <MenuItem key={item._id} value={item.name}>
                     {item.name}
                   </MenuItem>
                 ))}
@@ -654,12 +682,10 @@ const PurchaseEntry = () => {
                 size="small"
                 className="input-field"
                 value={formData.stockIn}
-                onChange={(e) =>
-                  setFormData({ ...formData, stockIn: e.target.value })
-                }
+                onChange={handleStockInChange}
               >
                 {allStores?.map((store) => (
-                  <MenuItem key={store._id} value={store._id}>
+                  <MenuItem key={store._id} value={store.name}>
                     {store.name}
                   </MenuItem>
                 ))}
@@ -678,11 +704,9 @@ const PurchaseEntry = () => {
                 id="entryNo"
                 size="small"
                 type="number"
-                className="input-field"
-                value={formData.entryNo}
-                onChange={(e) =>
-                  setFormData({ ...formData, entryNo: e.target.value })
-                }
+                className="input-field entryNo-adjustment"
+                value={entryNumber}
+                onChange={(e) => setEntryNumber(e.target.value)}
               />
             </div>
           </Grid>
@@ -912,8 +936,7 @@ const PurchaseEntry = () => {
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
-                    handleSubmitIntoDataTable();
-                    handleEnterKey(e, itemCodeRef);
+                    handleSubmitIntoDataTable(e);
                   } else {
                     handleEnterKey(e, amountRef);
                   }
@@ -1311,7 +1334,7 @@ const PurchaseEntry = () => {
                 size="small"
                 className="input-field"
                 fullWidth
-                value={totalValues.spcPurchases}
+                value={totalValues.spcPurpose}
                 onChange={handleSpcPurchasesChange}
               />
             </Grid>

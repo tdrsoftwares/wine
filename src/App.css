@@ -232,6 +232,10 @@ body {
   background: #fdfbc8 !important;
   border-radius: 4px !important;
 }
+/* .input-field div{
+  width: 170px;
+  height: 31px;
+} */
 
 .input-wrapper .label-adjustment {
   flex: 0 0 40% !important;
@@ -252,6 +256,10 @@ body {
 .input-wrapper .entryno-adjustment{
   flex: 0 0 30% !important;
   margin-left: 20px;
+}
+
+.input-wrapper .entryNo-adjustment input {
+  color: red !important;
 }
 
 .table-header {
