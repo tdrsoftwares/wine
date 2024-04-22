@@ -59,12 +59,13 @@ const BrandRegister = () => {
     setBrandName("");
     setType("");
     setIndexNo("");
+    setCompanyName("");
   };
 
   const handleCreateBrand = async () => {
     const payload = {
       name: brandName,
-      companyName: companyName,
+      companyId: companyName,
       type: type,
       indexNo: indexNo,
     };
@@ -94,6 +95,7 @@ const BrandRegister = () => {
     const payload = {
       name: editedRow.name,
       type: editedRow.type,
+      companyId: editedRow.companyName,
       indexNo: editedRow.indexNo,
     };
     try {
@@ -180,6 +182,7 @@ const BrandRegister = () => {
   const handleEditClick = (index, brandId) => {
     setEditableIndex(index);
     const selectedBrand = allBrands.find((brand) => brand._id === brandId);
+    console.log("selectedBrand", selectedBrand);
     setEditedRow(selectedBrand);
   };
 
@@ -201,7 +204,7 @@ const BrandRegister = () => {
         <Grid item xs={4}>
           <div className="input-wrapper">
             <InputLabel htmlFor="brandName" className="input-label">
-              Brand Name:
+              Brand Name :
             </InputLabel>
             <TextField
               fullWidth
@@ -218,7 +221,7 @@ const BrandRegister = () => {
         <Grid item xs={4}>
           <div className="input-wrapper">
             <InputLabel htmlFor="companyName" className="input-label">
-              Company Name:
+              Company Name :
             </InputLabel>
             <TextField
               select
@@ -239,7 +242,7 @@ const BrandRegister = () => {
               onChange={(e) => setCompanyName(e.target.value)}
             >
               {allCompanies?.map((item) => (
-                <MenuItem key={item._id} value={item.name}>
+                <MenuItem key={item._id} value={item._id}>
                   {item.name}
                 </MenuItem>
               ))}
@@ -250,7 +253,7 @@ const BrandRegister = () => {
         <Grid item xs={4}>
           <div className="input-wrapper">
             <InputLabel htmlFor="type" className="input-label">
-              Type:
+              Type :
             </InputLabel>
             <TextField
               select
@@ -273,7 +276,7 @@ const BrandRegister = () => {
         <Grid item xs={4}>
           <div className="input-wrapper">
             <InputLabel htmlFor="indexNo" className="input-label">
-              Index Number:
+              Index Number :
             </InputLabel>
             <TextField
               fullWidth
@@ -374,13 +377,13 @@ const BrandRegister = () => {
                     <TableCell align="center">
                       {editableIndex === index ? (
                         <Input
-                          value={editedRow.companyName}
+                          value={editedRow?.companyName}
                           onChange={(e) =>
                             setEditedRow({ ...editedRow, companyName: e.target.value })
                           }
                         />
                       ) : (
-                        brand.companyName
+                        brand?.companyId?.name
                       )}
                     </TableCell>
 

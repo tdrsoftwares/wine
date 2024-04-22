@@ -4,6 +4,7 @@ import {
   Box,
   Button,
   Grid,
+  InputLabel,
   MenuItem,
   TextField,
   Typography,
@@ -64,7 +65,7 @@ const CompanyRegister = () => {
   const handleUpdateCompany = async () => {
     const payload = {
       name: newCompanyName,
-      type: newCompanyType
+      type: newCompanyType,
     };
     try {
       const updateCompanyResponse = await updateCompany(
@@ -152,210 +153,248 @@ const CompanyRegister = () => {
   return (
     <form>
       <Box sx={{ p: 2, width: "900px" }}>
-        <Typography variant="h5" component="div" gutterBottom>
-          Company Information
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          Company Details
+        <Typography variant="subtitle1" sx={{ marginBottom: 2 }}>
+          Create Company:
         </Typography>
 
         <Grid container spacing={2}>
-          <Grid item xs={3}>
-            <TextField
-              fullWidth
-              type="text"
-              name="companyName"
-              label="Name of Company"
-              variant="outlined"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-            />
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="companyName" className="input-label">
+                Company Name :
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                type="text"
+                name="companyName"
+                className="input-field"
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+              />
+            </div>
           </Grid>
 
-          <Grid item xs={3}>
-            <TextField
-              select
-              fullWidth
-              name="companyType"
-              label="Type"
-              variant="outlined"
-              value={companyType}
-              onChange={(e) => setCompanyType(e.target.value)}
-            >
-              <MenuItem value="Type1">Type1</MenuItem>
-              <MenuItem value="Type2">Type2</MenuItem>
-              <MenuItem value="Type3">Type3</MenuItem>
-            </TextField>
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="companyType" className="input-label">
+                Company Type :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="companyType"
+                className="input-field"
+                value={companyType}
+                onChange={(e) => setCompanyType(e.target.value)}
+              >
+                <MenuItem value="Manufacturers">Manufacturers</MenuItem>
+                <MenuItem value="Traders">Traders</MenuItem>
+                <MenuItem value="Dealers">Dealers</MenuItem>
+                <MenuItem value="Distribution">Distribution</MenuItem>
+              </TextField>
+            </div>
           </Grid>
-
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              "& button": { marginTop: 2, marginLeft: 2 },
-            }}
-          >
-            <Button
-              color="primary"
-              size="large"
-              variant="outlined"
-              onClick={handleCreateCompany}
-            >
-              Create
-            </Button>
-            <Button
-              color="warning"
-              size="large"
-              variant="outlined"
-              onClick={clearForm}
-            >
-              Clear
-            </Button>
-          </Box>
         </Grid>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            "& button": { marginTop: 2, marginLeft: 2 },
+          }}
+        >
+          <Button
+            color="primary"
+            size="medium"
+            variant="contained"
+            sx={{ borderRadius: 8 }}
+            onClick={handleCreateCompany}
+          >
+            Create
+          </Button>
+          <Button
+            color="warning"
+            size="medium"
+            variant="outlined"
+            sx={{ borderRadius: 8 }}
+            onClick={clearForm}
+          >
+            Clear
+          </Button>
+        </Box>
 
-        <Typography variant="subtitle1" gutterBottom sx={{ marginTop: 2 }}>
-          Update Company
+        <Typography variant="subtitle1" sx={{ marginBottom: 2, marginTop: 4 }}>
+          Update Company:
         </Typography>
         <Grid container spacing={2}>
-          <Grid item xs={3}>
-            <TextField
-              select
-              fullWidth
-              name="existingCompanyUpdate"
-              label="Existing Company"
-              value={existingCompanyUpdate}
-              variant="outlined"
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="indexNo" className="input-label">
+                Index Number :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                name="existingCompanyUpdate"
+                size="small"
+                className="input-field"
+                value={existingCompanyUpdate}
+                variant="outlined"
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
                     },
                   },
-                },
-              }}
-              onChange={(e) => handleUpdateCompanyChange(e)}
-            >
-              {allCompanies?.map((company) => (
-                <MenuItem key={company._id} value={company._id}>
-                  {company.name}
-                </MenuItem>
-              ))}
-            </TextField>
+                }}
+                onChange={(e) => handleUpdateCompanyChange(e)}
+              >
+                {allCompanies?.map((company) => (
+                  <MenuItem key={company._id} value={company._id}>
+                    {company.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
           </Grid>
 
           {existingCompanyUpdate && (
             <>
-              <Grid item xs={3}>
-                <TextField
-                  fullWidth
-                  type="text"
-                  name="newCompanyName"
-                  label="Company Name"
-                  value={newCompanyName}
-                  variant="outlined"
-                  onChange={(e) => setNewCompanyName(e.target.value)}
-                />
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel htmlFor="newCompanyName" className="input-label">
+                    Company Name :
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    type="text"
+                    name="newCompanyName"
+                    size="small"
+                    className="input-field"
+                    value={newCompanyName}
+                    variant="outlined"
+                    onChange={(e) => setNewCompanyName(e.target.value)}
+                  />
+                </div>
               </Grid>
-              <Grid item xs={3}>
-                <TextField
-                  fullWidth
-                  type="text"
-                  name="newCompanyType"
-                  label="New Company Type"
-                  value={newCompanyType}
-                  variant="outlined"
-                  onChange={(e) => setNewCompanyType(e.target.value)}
-                />
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel htmlFor="newCompanyType" className="input-label">
+                    Company Type :
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    type="text"
+                    size="small"
+                    className="input-field"
+                    name="newCompanyType"
+                    value={newCompanyType}
+                    variant="outlined"
+                    onChange={(e) => setNewCompanyType(e.target.value)}
+                  />
+                </div>
               </Grid>
             </>
           )}
-
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              "& button": { marginTop: 2, marginLeft: 2 },
+        </Grid>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            "& button": { marginTop: 2, marginLeft: 2 },
+          }}
+        >
+          <Button
+            color="info"
+            size="medium"
+            variant="contained"
+            onClick={handleUpdateCompany}
+            sx={{ borderRadius: 8 }}
+          >
+            Change
+          </Button>
+          <Button
+            color="warning"
+            size="medium"
+            variant="outlined"
+            sx={{ borderRadius: 8 }}
+            onClick={() => {
+              setExistingCompanyUpdate("");
+              setNewCompanyName("");
             }}
           >
-            <Button
-              color="primary"
-              size="large"
-              variant="outlined"
-              onClick={handleUpdateCompany}
-            >
-              Change
-            </Button>
-            <Button
-              color="warning"
-              size="large"
-              variant="outlined"
-              onClick={() => {
-                setExistingCompanyUpdate("");
-                setNewCompanyName("");
-              }}
-            >
-              Clear
-            </Button>
-          </Box>
-        </Grid>
+            Clear
+          </Button>
+        </Box>
 
-        <Typography variant="subtitle1" gutterBottom sx={{ marginTop: 2 }}>
+        <Typography variant="subtitle1" sx={{ marginBottom: 2, marginTop: 2 }}>
           Delete Company
         </Typography>
         <Grid container spacing={2}>
-          <Grid item xs={3}>
-            <TextField
-              select
-              fullWidth
-              name="existingCompanyDelete"
-              label="Existing Company"
-              value={existingCompanyDelete}
-              variant="outlined"
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel
+                htmlFor="existingCompanyDelete"
+                className="input-label"
+              >
+                Select Company :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                name="existingCompanyDelete"
+                value={existingCompanyDelete}
+                size="small"
+                className="input-field"
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
                     },
                   },
-                },
-              }}
-              onChange={(e) => setExistingCompanyDelete(e.target.value)}
-            >
-              {allCompanies?.map((company) => (
-                <MenuItem key={company._id} value={company._id}>
-                  {company.name}
-                </MenuItem>
-              ))}
-            </TextField>
+                }}
+                onChange={(e) => setExistingCompanyDelete(e.target.value)}
+              >
+                {allCompanies?.map((company) => (
+                  <MenuItem key={company._id} value={company._id}>
+                    {company.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
           </Grid>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              "& button": { marginTop: 2, marginLeft: 2 },
-            }}
-          >
-            <Button
-              color="primary"
-              size="large"
-              variant="outlined"
-              onClick={handleDeleteCompany}
-            >
-              Delete
-            </Button>
-            <Button
-              color="warning"
-              size="large"
-              variant="outlined"
-              onClick={() => setExistingCompanyDelete("")}
-            >
-              Clear
-            </Button>
-          </Box>
         </Grid>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            "& button": { marginTop: 2, marginLeft: 2 },
+          }}
+        >
+          <Button
+            color="warning"
+            size="medium"
+            variant="contained"
+            sx={{ borderRadius: 8 }}
+            onClick={handleDeleteCompany}
+          >
+            Delete
+          </Button>
+          <Button
+            color="warning"
+            size="medium"
+            variant="outlined"
+            sx={{ borderRadius: 8 }}
+            onClick={() => setExistingCompanyDelete("")}
+          >
+            Clear
+          </Button>
+        </Box>
       </Box>
     </form>
   );
