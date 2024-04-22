@@ -27,6 +27,7 @@ import { useLoginContext } from "../../utils/loginContext";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
+import { getAllCompanies } from "../../services/companyService";
 
 const BrandRegister = () => {
   const { loginResponse } = useLoginContext();
@@ -34,6 +35,8 @@ const BrandRegister = () => {
   const [type, setType] = useState("");
   const [indexNo, setIndexNo] = useState("");
   const [allBrands, setAllBrands] = useState([]);
+  const [allCompanies, setAllCompanies] = useState([]);
+  const [companyName, setCompanyName] = useState("");
   const [editableIndex, setEditableIndex] = useState(null);
   const [editedRow, setEditedRow] = useState({});
   const tableRef = useRef(null);
@@ -61,6 +64,7 @@ const BrandRegister = () => {
   const handleCreateBrand = async () => {
     const payload = {
       name: brandName,
+      companyName: companyName,
       type: type,
       indexNo: indexNo,
     };
@@ -154,8 +158,23 @@ const BrandRegister = () => {
     }
   };
 
+  const fetchAllCompanies = async () => {
+    try {
+      const allCompaniesResponse = await getAllCompanies(loginResponse);
+      // console.log("allCompaniesResponse ---> ", allCompaniesResponse);
+      setAllCompanies(allCompaniesResponse?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching companies. Please try again later.",
+        "Error"
+      );
+      console.error("Error fetching companies:", error);
+    }
+  };
+
   useEffect(() => {
     fetchAllBrands();
+    fetchAllCompanies();
   }, []);
 
   const handleEditClick = (index, brandId) => {
@@ -182,7 +201,7 @@ const BrandRegister = () => {
         <Grid item xs={4}>
           <div className="input-wrapper">
             <InputLabel htmlFor="brandName" className="input-label">
-              Name of Brand:
+              Brand Name:
             </InputLabel>
             <TextField
               fullWidth
@@ -193,6 +212,38 @@ const BrandRegister = () => {
               value={brandName}
               onChange={(e) => setBrandName(e.target.value)}
             />
+          </div>
+        </Grid>
+
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="companyName" className="input-label">
+              Company Name:
+            </InputLabel>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              name="companyName"
+              className="input-field"
+              value={companyName}
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200,
+                    },
+                  },
+                },
+              }}
+              onChange={(e) => setCompanyName(e.target.value)}
+            >
+              {allCompanies?.map((item) => (
+                <MenuItem key={item._id} value={item.name}>
+                  {item.name}
+                </MenuItem>
+              ))}
+            </TextField>
           </div>
         </Grid>
 
@@ -217,6 +268,8 @@ const BrandRegister = () => {
           </div>
         </Grid>
 
+        
+
         <Grid item xs={4}>
           <div className="input-wrapper">
             <InputLabel htmlFor="indexNo" className="input-label">
@@ -224,8 +277,8 @@ const BrandRegister = () => {
             </InputLabel>
             <TextField
               fullWidth
-              type="number"
               size="small"
+              type="number"
               name="indexNo"
               className="input-field"
               value={indexNo}
@@ -289,6 +342,7 @@ const BrandRegister = () => {
               <TableRow>
                 <TableCell align="center">S. No.</TableCell>
                 <TableCell align="center">Brand Name</TableCell>
+                <TableCell align="center">Company Name</TableCell>
                 <TableCell align="center">Brand Type</TableCell>
                 <TableCell align="center">Index No.</TableCell>
                 <TableCell align="center">Action</TableCell>
@@ -314,6 +368,19 @@ const BrandRegister = () => {
                         />
                       ) : (
                         brand.name
+                      )}
+                    </TableCell>
+
+                    <TableCell align="center">
+                      {editableIndex === index ? (
+                        <Input
+                          value={editedRow.companyName}
+                          onChange={(e) =>
+                            setEditedRow({ ...editedRow, companyName: e.target.value })
+                          }
+                        />
+                      ) : (
+                        brand.companyName
                       )}
                     </TableCell>
 
