@@ -252,7 +252,7 @@ const ItemRegister = () => {
           Create Item:
         </Typography>
 
-        <Grid container spacing={1}>
+        <Grid container spacing={2}>
           <Grid item xs={4}>
             <div className="input-wrapper">
               <InputLabel htmlFor="itemName" className="input-label">
@@ -501,7 +501,7 @@ const ItemRegister = () => {
           Update Item:
         </Typography>
 
-        <Grid container spacing={1}>
+        <Grid container spacing={2}>
           <Grid item xs={4}>
             <div className="input-wrapper">
               <InputLabel htmlFor="existingItemUpdate" className="input-label">
@@ -514,7 +514,6 @@ const ItemRegister = () => {
                 name="existingItemUpdate"
                 className="input-field"
                 value={existingItemUpdate}
-                variant="outlined"
                 SelectProps={{
                   MenuProps: {
                     PaperProps: {
@@ -538,17 +537,16 @@ const ItemRegister = () => {
             <>
               <Grid item xs={4}>
                 <div className="input-wrapper">
-                  <InputLabel htmlFor="newItemName" className="input-label">
+                  <InputLabel htmlFor="itemName" className="input-label">
                     Item Name :
                   </InputLabel>
                   <TextField
                     fullWidth
-                    size="small"
                     type="text"
-                    name="newItemName"
+                    size="small"
+                    name="itemName"
                     className="input-field"
                     value={newFormData.name}
-                    variant="outlined"
                     onChange={(e) =>
                       setNewFormData({
                         ...newFormData,
@@ -793,7 +791,7 @@ const ItemRegister = () => {
         <Typography variant="subtitle1" sx={{ marginTop: 2, marginBottom: 2 }}>
           Delete Item:
         </Typography>
-        <Grid container spacing={1}>
+        <Grid container spacing={2}>
           <Grid item xs={4}>
             <div className="input-wrapper">
               <InputLabel htmlFor="existingItemDelete" className="input-label">
@@ -806,7 +804,6 @@ const ItemRegister = () => {
                 size="small"
                 className="input-field"
                 value={existingItemDelete}
-                variant="outlined"
                 SelectProps={{
                   MenuProps: {
                     PaperProps: {

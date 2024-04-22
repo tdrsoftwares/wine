@@ -3,7 +3,15 @@ import {
   Box,
   Button,
   Grid,
+  InputLabel,
   MenuItem,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   TextField,
   Typography,
 } from "@mui/material";
@@ -24,6 +32,8 @@ const StoreInfo = () => {
   const [allStores, setAllStores] = useState([]);
   const [existingStoreUpdate, setExistingStoreUpdate] = useState("");
   const [newStoreName, setNewStoreName] = useState("");
+  const [newStoreType, setNewStoreType] = useState("");
+  const [newIndexNo, setNewIndexNo] = useState("");
   const [existingStoreDelete, setExistingStoreDelete] = useState("");
 
   const clearForm = () => {
@@ -114,94 +124,122 @@ const StoreInfo = () => {
     fetchAllStores();
   }, []);
 
-  return (
-    <form>
-      <Box sx={{ p: 2, width: "900px" }}>
-        <Typography variant="h5" component="div" gutterBottom>
-          Store Information
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          Store Details
-        </Typography>
+  const handleUpdateChange = (e) => {
+    setExistingStoreUpdate(e.target.value);
+    const selectedItem = allStores.find((item) => item._id === e.target.value);
+    console.log("selectedItem: ", selectedItem);
+    setNewStoreName(selectedItem?.name);
+    setNewStoreType(selectedItem?.type);
+    setNewIndexNo(selectedItem?.indexNo);
+  };
 
-        <Grid container spacing={2}>
-          <Grid item xs={3}>
+  return (
+    <Box sx={{ p: 2, width: "900px" }}>
+      <Typography variant="subtitle1" sx={{ marginBottom: 2 }}>
+        Create Store:
+      </Typography>
+
+      <Grid container spacing={2}>
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="storeName" className="input-label">
+              Name of Store :
+            </InputLabel>
             <TextField
               fullWidth
+              size="small"
               type="text"
               name="storeName"
-              label="Name of Store"
-              variant="outlined"
+              className="input-field"
               value={storeName}
               onChange={(e) => setStoreName(e.target.value)}
             />
-          </Grid>
+          </div>
+        </Grid>
 
-          <Grid item xs={3}>
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="type" className="input-label">
+              Type :
+            </InputLabel>
             <TextField
               select
               fullWidth
+              size="small"
               name="type"
-              label="Type"
-              variant="outlined"
+              className="input-field"
               value={type}
               onChange={(e) => setType(e.target.value)}
             >
-              <MenuItem value="Seller">Seller</MenuItem>
-              <MenuItem value="Buyer">Buyer</MenuItem>
-              <MenuItem value="Distributor">Distributor</MenuItem>
+              <MenuItem value="sale-counter">Sale Counter</MenuItem>
+              <MenuItem value="godown">Godown</MenuItem>
             </TextField>
-          </Grid>
+          </div>
+        </Grid>
 
-          <Grid item xs={3}>
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="indexNo" className="input-label">
+              Index Number :
+            </InputLabel>
             <TextField
               fullWidth
               type="number"
+              size="small"
               name="indexNo"
-              label="Index Number"
-              variant="outlined"
+              className="input-field"
               value={indexNo}
               onChange={(e) => setIndexNo(e.target.value)}
             />
-          </Grid>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              "& button": { marginTop: 2, marginLeft: 2 },
-            }}
-          >
-            <Button
-              color="primary"
-              size="large"
-              variant="outlined"
-              onClick={handleCreateStore}
-            >
-              Create
-            </Button>
-            <Button
-              color="warning"
-              size="large"
-              variant="outlined"
-              onClick={clearForm}
-            >
-              Clear
-            </Button>
-          </Box>
+          </div>
         </Grid>
+      </Grid>
 
-        <Typography variant="subtitle1" gutterBottom sx={{ marginTop: 2 }}>
-          Update Store
-        </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={3}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+
+          "& button": { marginTop: 2, marginLeft: 2 },
+        }}
+      >
+        <Button
+          color="primary"
+          size="medium"
+          variant="contained"
+          onClick={handleCreateStore}
+          sx={{ borderRadius: 8 }}
+        >
+          Create
+        </Button>
+        <Button
+          color="warning"
+          size="medium"
+          variant="outlined"
+          onClick={clearForm}
+          sx={{ borderRadius: 8 }}
+        >
+          Clear
+        </Button>
+      </Box>
+
+      <Typography variant="subtitle1" sx={{ marginBottom: 2, marginTop: 2 }}>
+        Update Store:
+      </Typography>
+
+      <Grid container spacing={2}>
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="existingStoreUpdate" className="input-label">
+              Existing Store :
+            </InputLabel>
             <TextField
               select
               fullWidth
+              size="small"
               name="existingStoreUpdate"
-              label="Existing Store"
+              className="input-field"
               value={existingStoreUpdate}
-              variant="outlined"
               SelectProps={{
                 MenuProps: {
                   PaperProps: {
@@ -211,7 +249,7 @@ const StoreInfo = () => {
                   },
                 },
               }}
-              onChange={(e) => setExistingStoreUpdate(e.target.value)}
+              onChange={(e) => handleUpdateChange(e)}
             >
               {allStores?.map((store) => (
                 <MenuItem key={store._id} value={store._id}>
@@ -219,60 +257,114 @@ const StoreInfo = () => {
                 </MenuItem>
               ))}
             </TextField>
-          </Grid>
-
-          <Grid item xs={3}>
-            <TextField
-              fullWidth
-              type="text"
-              name="newStoreName"
-              label="New Store Name"
-              value={newStoreName}
-              variant="outlined"
-              onChange={(e) => setNewStoreName(e.target.value)}
-            />
-          </Grid>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              "& button": { marginTop: 2, marginLeft: 2 },
-            }}
-          >
-            <Button
-              color="primary"
-              size="large"
-              variant="outlined"
-              onClick={handleUpdateStore}
-            >
-              Change
-            </Button>
-            <Button
-              color="warning"
-              size="large"
-              variant="outlined"
-              onClick={() => {
-                setExistingStoreUpdate("");
-                setNewStoreName("");
-              }}
-            >
-              Clear
-            </Button>
-          </Box>
+          </div>
         </Grid>
 
-        <Typography variant="subtitle1" gutterBottom sx={{ marginTop: 2 }}>
-          Delete Store
-        </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={3}>
+        {existingStoreUpdate && (
+          <>
+            <Grid item xs={4}>
+              <div className="input-wrapper">
+                <InputLabel htmlFor="storeName" className="input-label">
+                  Store Name :
+                </InputLabel>
+                <TextField
+                  fullWidth
+                  type="text"
+                  size="small"
+                  name="storeName"
+                  className="input-field"
+                  value={newStoreName}
+                  onChange={(e) => setNewStoreName(e.target.value)}
+                />
+              </div>
+            </Grid>
+
+            <Grid item xs={4}>
+              <div className="input-wrapper">
+                <InputLabel htmlFor="newStoreType" className="input-label">
+                  Type :
+                </InputLabel>
+                <TextField
+                  select
+                  fullWidth
+                  size="small"
+                  name="newStoreType"
+                  className="input-field"
+                  value={newStoreType}
+                  onChange={(e) => setNewStoreType(e.target.value)}
+                >
+                  <MenuItem value="sale-counter">Sale Counter</MenuItem>
+                  <MenuItem value="godown">Godown</MenuItem>
+                </TextField>
+              </div>
+            </Grid>
+
+            <Grid item xs={4}>
+              <div className="input-wrapper">
+                <InputLabel htmlFor="newIndexNo" className="input-label">
+                  Index No. :
+                </InputLabel>
+                <TextField
+                  fullWidth
+                  type="number"
+                  size="small"
+                  name="newIndexNo"
+                  className="input-field"
+                  value={newIndexNo}
+                  onChange={(e) => setNewIndexNo(e.target.value)}
+                />
+              </div>
+            </Grid>
+          </>
+        )}
+      </Grid>
+
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          "& button": { marginTop: 2, marginLeft: 2 },
+        }}
+      >
+        <Button
+          color="primary"
+          size="medium"
+          variant="contained"
+          onClick={handleUpdateStore}
+          sx={{ borderRadius: 8 }}
+        >
+          Change
+        </Button>
+        <Button
+          color="warning"
+          size="medium"
+          variant="outlined"
+          sx={{ borderRadius: 8 }}
+          onClick={() => {
+            setExistingStoreUpdate("");
+            setNewStoreName("");
+          }}
+        >
+          Clear
+        </Button>
+      </Box>
+
+      <Typography variant="subtitle1" sx={{ marginBottom: 2, marginTop: 2 }}>
+        Delete Store:
+      </Typography>
+      <Grid container spacing={2}>
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="existingStoreDelete" className="input-label">
+              Existing Store :
+            </InputLabel>
             <TextField
               select
               fullWidth
               name="existingStoreDelete"
-              label="Existing Store"
+              size="small"
+              className="input-field"
               value={existingStoreDelete}
-              variant="outlined"
               SelectProps={{
                 MenuProps: {
                   PaperProps: {
@@ -290,34 +382,81 @@ const StoreInfo = () => {
                 </MenuItem>
               ))}
             </TextField>
-          </Grid>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              "& button": { marginTop: 2, marginLeft: 2 },
-            }}
-          >
-            <Button
-              color="primary"
-              size="large"
-              variant="outlined"
-              onClick={handleDeleteStore}
-            >
-              Delete
-            </Button>
-            <Button
-              color="warning"
-              size="large"
-              variant="outlined"
-              onClick={() => setExistingStoreDelete("")}
-            >
-              Clear
-            </Button>
-          </Box>
+          </div>
         </Grid>
+      </Grid>
+
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          "& button": { marginTop: 2, marginLeft: 2 },
+        }}
+      >
+        <Button
+          color="primary"
+          size="medium"
+          variant="contained"
+          sx={{ borderRadius: 8 }}
+          onClick={handleDeleteStore}
+        >
+          Delete
+        </Button>
+        <Button
+          color="warning"
+          size="medium"
+          variant="outlined"
+          sx={{ borderRadius: 8 }}
+          onClick={() => setExistingStoreDelete("")}
+        >
+          Clear
+        </Button>
       </Box>
-    </form>
+
+      <Box sx={{ boxShadow: 2, borderRadius: 1, marginTop: 4 }}>
+        <TableContainer
+          component={Paper}
+          sx={{
+            marginTop: 1,
+            // height: 300,
+            width: "100%",
+            overflowY: "auto",
+            "&::-webkit-scrollbar": {
+              width: 10,
+              height: 10,
+            },
+            "&::-webkit-scrollbar-track": {
+              backgroundColor: "#fff",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "#d5d8df",
+              borderRadius: 2,
+            },
+          }}
+        >
+          <Table>
+            <TableHead className="table-head">
+              <TableRow>
+                <TableCell align="center">S. No.</TableCell>
+                <TableCell align="center">Store Name</TableCell>
+                <TableCell align="center">Store Type</TableCell>
+                <TableCell align="center">Index No.</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {allStores.map((row, index) => (
+                <TableRow key={index}>
+                  <TableCell align="center">{index + 1}</TableCell>
+                  <TableCell align="center">{row.name}</TableCell>
+                  <TableCell align="center">{row.type}</TableCell>
+                  <TableCell align="center">{row.indexNo}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+    </Box>
   );
 };
 
