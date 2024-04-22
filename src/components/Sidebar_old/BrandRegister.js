@@ -1,9 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
   Grid,
+  Input,
+  InputLabel,
   MenuItem,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   TextField,
   Typography,
 } from "@mui/material";
@@ -15,6 +24,9 @@ import {
   updateBrand,
 } from "../../services/brandService";
 import { useLoginContext } from "../../utils/loginContext";
+import CloseIcon from "@mui/icons-material/Close";
+import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
 
 const BrandRegister = () => {
   const { loginResponse } = useLoginContext();
@@ -22,11 +34,23 @@ const BrandRegister = () => {
   const [type, setType] = useState("");
   const [indexNo, setIndexNo] = useState("");
   const [allBrands, setAllBrands] = useState([]);
-  const [existingBrandUpdate, setExistingBrandUpdate] = useState("");
-  const [newBrandName, setNewBrandName] = useState("");
-  const [newBrandType, setNewBrandType] = useState("");
-  const [newIndexNo, setNewIndexNo] = useState("");
-  const [existingBrandDelete, setExistingBrandDelete] = useState("");
+  const [editableIndex, setEditableIndex] = useState(null);
+  const [editedRow, setEditedRow] = useState({});
+  const tableRef = useRef(null);
+
+  const handleClickOutside = (event) => {
+    if (tableRef.current && !tableRef.current.contains(event.target)) {
+      setEditableIndex(null);
+      setEditedRow({});
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const clearForm = () => {
     setBrandName("");
@@ -44,7 +68,6 @@ const BrandRegister = () => {
       const createBrandResponse = await createBrand(payload, loginResponse);
       if (createBrandResponse.status === 200) {
         NotificationManager.success("Brand created successfully", "Success");
-        // console.log("Brand created successfully:", createBrandResponse);
         clearForm();
         fetchAllBrands();
       } else {
@@ -63,25 +86,22 @@ const BrandRegister = () => {
     }
   };
 
-  const handleUpdateBrand = async () => {
+  const handleUpdateBrand = async (brandId) => {
     const payload = {
-      name: newBrandName,
-      type: newBrandType,
-      indexNo: newIndexNo
+      name: editedRow.name,
+      type: editedRow.type,
+      indexNo: editedRow.indexNo,
     };
     try {
       const updateBrandResponse = await updateBrand(
         payload,
-        existingBrandUpdate,
+        brandId,
         loginResponse
       );
       if (updateBrandResponse.status === 200) {
         NotificationManager.success("Brand updated successfully", "Success");
-        // console.log("Brand updated successfully:", updateBrandResponse);
-        setExistingBrandUpdate("");
-        setNewBrandName("");
-        setNewBrandType("");
-        setIndexNo("");
+        setEditableIndex(null);
+        setEditedRow({});
         fetchAllBrands();
       } else {
         NotificationManager.error(
@@ -99,25 +119,11 @@ const BrandRegister = () => {
     }
   };
 
-  const handleBrandUpdateChange = (e) => {
-    setExistingBrandUpdate(e.target.value);
-    const selectedBrand = allBrands.find(brand => brand._id === e.target.value);
-
-    setNewBrandName(selectedBrand.name);
-    setNewBrandType(selectedBrand.type);
-    setNewIndexNo(selectedBrand.indexNo);
-  }
-
-  const handleDeleteBrand = async () => {
+  const handleDeleteBrand = async (brandId) => {
     try {
-      const deleteBrandResponse = await deleteBrand(
-        existingBrandDelete,
-        loginResponse
-      );
+      const deleteBrandResponse = await deleteBrand(brandId, loginResponse);
       if (deleteBrandResponse.status === 200) {
         NotificationManager.success("Brand deleted successfully", "Success");
-        // console.log("Brand deleted successfully:", deleteBrandResponse);
-        setExistingBrandDelete("");
         fetchAllBrands();
       } else {
         NotificationManager.error(
@@ -138,7 +144,6 @@ const BrandRegister = () => {
   const fetchAllBrands = async () => {
     try {
       const allBrandsResponse = await getAllBrands(loginResponse);
-      // console.log("allBrandsResponse ---> ", allBrandsResponse);
       setAllBrands(allBrandsResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
@@ -153,237 +158,228 @@ const BrandRegister = () => {
     fetchAllBrands();
   }, []);
 
-  return (
-    <form>
-      <Box sx={{ p: 2, width: "900px" }}>
-        <Typography variant="h5" component="div" gutterBottom>
-          Brand Information
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          Brand Details
-        </Typography>
+  const handleEditClick = (index, brandId) => {
+    setEditableIndex(index);
+    const selectedBrand = allBrands.find((brand) => brand._id === brandId);
+    setEditedRow(selectedBrand);
+  };
 
-        <Grid container spacing={2}>
-          <Grid item xs={3}>
+  const handleSaveClick = (brandId) => {
+    handleUpdateBrand(brandId);
+  };
+
+  const handleRemoveBrand = (brandId) => {
+    handleDeleteBrand(brandId);
+  };
+
+  return (
+    <Box sx={{ p: 2, width: "900px" }}>
+      <Typography variant="subtitle1" sx={{ marginBottom: 2 }}>
+        Create Brand:
+      </Typography>
+
+      <Grid container spacing={2}>
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="brandName" className="input-label">
+              Name of Brand:
+            </InputLabel>
             <TextField
               fullWidth
+              size="small"
               type="text"
               name="brandName"
-              label="Name of Brand"
-              variant="outlined"
+              className="input-field"
               value={brandName}
               onChange={(e) => setBrandName(e.target.value)}
             />
-          </Grid>
+          </div>
+        </Grid>
 
-          <Grid item xs={3}>
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="type" className="input-label">
+              Type:
+            </InputLabel>
             <TextField
               select
               fullWidth
+              size="small"
               name="type"
-              label="Type"
-              variant="outlined"
+              className="input-field"
               value={type}
               onChange={(e) => setType(e.target.value)}
             >
-              <MenuItem value="Type1">Type1</MenuItem>
-              <MenuItem value="Type2">Type2</MenuItem>
-              <MenuItem value="Type3">Type3</MenuItem>
+              <MenuItem value="FL">FL</MenuItem>
+              <MenuItem value="BEER">BEER</MenuItem>
+              <MenuItem value="IML">IML</MenuItem>
             </TextField>
-          </Grid>
+          </div>
+        </Grid>
 
-          <Grid item xs={3}>
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="indexNo" className="input-label">
+              Index Number:
+            </InputLabel>
             <TextField
               fullWidth
               type="number"
+              size="small"
               name="indexNo"
-              label="Index Number"
-              variant="outlined"
+              className="input-field"
               value={indexNo}
               onChange={(e) => setIndexNo(e.target.value)}
             />
-          </Grid>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              "& button": { marginTop: 2, marginLeft: 2 },
-            }}
-          >
-            <Button
-              color="primary"
-              size="large"
-              variant="outlined"
-              onClick={handleCreateBrand}
-            >
-              Create
-            </Button>
-            <Button
-              color="warning"
-              size="large"
-              variant="outlined"
-              onClick={clearForm}
-            >
-              Clear
-            </Button>
-          </Box>
+          </div>
         </Grid>
+      </Grid>
 
-        <Typography variant="subtitle1" gutterBottom sx={{ marginTop: 2 }}>
-          Update Brand
-        </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={2.4}>
-            <TextField
-              select
-              fullWidth
-              name="existingBrandUpdate"
-              label="Existing Brand"
-              value={existingBrandUpdate}
-              variant="outlined"
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
-                    },
-                  },
-                },
-              }}
-              onChange={(e) => handleBrandUpdateChange(e)}
-            >
-              {allBrands?.map((brand) => (
-                <MenuItem key={brand._id} value={brand._id}>
-                  {brand.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
 
-          {existingBrandUpdate && (
-            <>
-              <Grid item xs={2.4}>
-                <TextField
-                  fullWidth
-                  type="text"
-                  name="newBrandName"
-                  label="Brand Name"
-                  value={newBrandName}
-                  variant="outlined"
-                  onChange={(e) => setNewBrandName(e.target.value)}
-                />
-              </Grid>
-              <Grid item xs={2.4}>
-                <TextField
-                  fullWidth
-                  name="newBrandType"
-                  label="Brand Type"
-                  value={newBrandType}
-                  variant="outlined"
-                  onChange={(e) => setNewBrandType(e.target.value)}
-                />
-              </Grid>
-              <Grid item xs={2.4}>
-                <TextField
-                  fullWidth
-                  type="number"
-                  name="newIndexNo"
-                  label="Index No."
-                  value={newIndexNo}
-                  variant="outlined"
-                  onChange={(e) => setNewIndexNo(e.target.value)}
-                />
-              </Grid>
-            </>
-          )}
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              "& button": { marginTop: 2, marginLeft: 2 },
-            }}
-          >
-            <Button
-              color="primary"
-              size="large"
-              variant="outlined"
-              onClick={handleUpdateBrand}
-            >
-              Change
-            </Button>
-            <Button
-              color="warning"
-              size="large"
-              variant="outlined"
-              onClick={() => {
-                setExistingBrandUpdate("");
-                setNewBrandName("");
-                setNewBrandType("");
-                setIndexNo("");
-              }}
-            >
-              Clear
-            </Button>
-          </Box>
-        </Grid>
-
-        <Typography variant="subtitle1" gutterBottom sx={{ marginTop: 2 }}>
-          Delete Brand
-        </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={3}>
-            <TextField
-              select
-              fullWidth
-              name="existingBrandDelete"
-              label="Existing Brand"
-              value={existingBrandDelete}
-              variant="outlined"
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
-                    },
-                  },
-                },
-              }}
-              onChange={(e) => setExistingBrandDelete(e.target.value)}
-            >
-              {allBrands?.map((brand) => (
-                <MenuItem key={brand._id} value={brand._id}>
-                  {brand.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              "& button": { marginTop: 2, marginLeft: 2 },
-            }}
-          >
-            <Button
-              color="primary"
-              size="large"
-              variant="outlined"
-              onClick={handleDeleteBrand}
-            >
-              Delete
-            </Button>
-            <Button
-              color="warning"
-              size="large"
-              variant="outlined"
-              onClick={() => setExistingBrandDelete("")}
-            >
-              Clear
-            </Button>
-          </Box>
-        </Grid>
+          "& button": { marginTop: 2, marginLeft: 2 },
+        }}
+      >
+        <Button
+          color="primary"
+          size="medium"
+          variant="contained"
+          onClick={handleCreateBrand}
+          sx={{ borderRadius: 8 }}
+        >
+          Create
+        </Button>
+        <Button
+          color="warning"
+          size="medium"
+          variant="outlined"
+          onClick={clearForm}
+          sx={{ borderRadius: 8 }}
+        >
+          Clear
+        </Button>
       </Box>
-    </form>
+
+      <Box sx={{ boxShadow: 2, borderRadius: 1, marginTop: 2 }}>
+        <TableContainer
+          ref={tableRef}
+          component={Paper}
+          sx={{
+            height: 300,
+            width: "100%",
+            overflowY: "auto",
+            "&::-webkit-scrollbar": {
+              width: 10,
+              height: 10,
+            },
+            "&::-webkit-scrollbar-track": {
+              backgroundColor: "#fff",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "#d5d8df",
+              borderRadius: 2,
+            },
+          }}
+        >
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell align="center">S. No.</TableCell>
+                <TableCell align="center">Brand Name</TableCell>
+                <TableCell align="center">Brand Type</TableCell>
+                <TableCell align="center">Index No.</TableCell>
+                <TableCell align="center">Action</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {allBrands ? (
+                allBrands.map((brand, index) => (
+                  <TableRow
+                    key={index}
+                    sx={{
+                      backgroundColor: "#fff",
+                    }}
+                  >
+                    <TableCell align="center">{index + 1}</TableCell>
+                    <TableCell align="center">
+                      {editableIndex === index ? (
+                        <Input
+                          value={editedRow.name}
+                          onChange={(e) =>
+                            setEditedRow({ ...editedRow, name: e.target.value })
+                          }
+                        />
+                      ) : (
+                        brand.name
+                      )}
+                    </TableCell>
+
+                    <TableCell align="center">
+                      {editableIndex === index ? (
+                        <Input
+                          value={editedRow.type}
+                          onChange={(e) =>
+                            setEditedRow({ ...editedRow, type: e.target.value })
+                          }
+                        />
+                      ) : (
+                        <span>{brand.type}</span>
+                      )}
+                    </TableCell>
+
+                    <TableCell align="center">
+                      {editableIndex === index ? (
+                        <Input
+                          value={editedRow.indexNo}
+                          onChange={(e) =>
+                            setEditedRow({
+                              ...editedRow,
+                              indexNo: e.target.value,
+                            })
+                          }
+                        />
+                      ) : (
+                        brand.indexNo
+                      )}
+                    </TableCell>
+                    <TableCell align="center">
+                      {editableIndex !== index ? (
+                        <EditIcon
+                          sx={{ cursor: "pointer", color: "blue" }}
+                          onClick={() => handleEditClick(index, brand._id)}
+                        />
+                      ) : (
+                        <SaveIcon
+                          sx={{ cursor: "pointer", color: "green" }}
+                          onClick={() => handleSaveClick(brand._id)}
+                        />
+                      )}
+                      <CloseIcon
+                        sx={{ cursor: "pointer", color: "red" }}
+                        onClick={() => handleRemoveBrand(brand._id)}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow
+                  sx={{
+                    backgroundColor: "#fff",
+                  }}
+                >
+                  <TableCell colSpan={5} align="center">
+                    No Data
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+    </Box>
   );
 };
 
