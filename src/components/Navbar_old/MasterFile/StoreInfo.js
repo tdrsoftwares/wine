@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
   Grid,
+  Input,
   InputLabel,
   MenuItem,
   Paper,
@@ -23,6 +24,9 @@ import {
   deleteStore,
 } from "../../../services/storeService";
 import { useLoginContext } from "../../../utils/loginContext";
+import CloseIcon from "@mui/icons-material/Close";
+import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
 
 const StoreInfo = () => {
   const { loginResponse } = useLoginContext();
@@ -30,11 +34,24 @@ const StoreInfo = () => {
   const [type, setType] = useState("");
   const [indexNo, setIndexNo] = useState("");
   const [allStores, setAllStores] = useState([]);
-  const [existingStoreUpdate, setExistingStoreUpdate] = useState("");
-  const [newStoreName, setNewStoreName] = useState("");
-  const [newStoreType, setNewStoreType] = useState("");
-  const [newIndexNo, setNewIndexNo] = useState("");
-  const [existingStoreDelete, setExistingStoreDelete] = useState("");
+  const [editableIndex, setEditableIndex] = useState(null);
+  const [editedRow, setEditedRow] = useState({});
+
+  const tableRef = useRef(null);
+
+  const handleClickOutside = (event) => {
+    if (tableRef.current && !tableRef.current.contains(event.target)) {
+      setEditableIndex(null);
+      setEditedRow({});
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const clearForm = () => {
     setStoreName("");
@@ -63,20 +80,22 @@ const StoreInfo = () => {
     }
   };
 
-  const handleUpdateStore = async () => {
+  const handleUpdateStore = async (storeId) => {
     const payload = {
-      name: newStoreName,
+      name: editedRow.name,
+      type: editedRow.type,
+      indexNo: editedRow.indexNo,
     };
     try {
       const updateStoreResponse = await updateStore(
         payload,
-        existingStoreUpdate,
+        storeId,
         loginResponse
       );
       NotificationManager.success("Store updated successfully", "Success");
       console.log("Store updated successfully:", updateStoreResponse);
-      setExistingStoreUpdate("");
-      setNewStoreName("");
+      setEditableIndex(null);
+      setEditedRow({});
       fetchAllStores();
     } catch (error) {
       NotificationManager.error(
@@ -87,15 +106,11 @@ const StoreInfo = () => {
     }
   };
 
-  const handleDeleteStore = async () => {
+  const handleDeleteStore = async (storeId) => {
     try {
-      const deleteStoreResponse = await deleteStore(
-        existingStoreDelete,
-        loginResponse
-      );
+      const deleteStoreResponse = await deleteStore(storeId, loginResponse);
       NotificationManager.success("Store deleted successfully", "Success");
       console.log("Store deleted successfully:", deleteStoreResponse);
-      setExistingStoreDelete("");
       fetchAllStores();
     } catch (error) {
       NotificationManager.error(
@@ -124,13 +139,18 @@ const StoreInfo = () => {
     fetchAllStores();
   }, []);
 
-  const handleUpdateChange = (e) => {
-    setExistingStoreUpdate(e.target.value);
-    const selectedItem = allStores.find((item) => item._id === e.target.value);
-    console.log("selectedItem: ", selectedItem);
-    setNewStoreName(selectedItem?.name);
-    setNewStoreType(selectedItem?.type);
-    setNewIndexNo(selectedItem?.indexNo);
+  const handleEditClick = (index, storeId) => {
+    setEditableIndex(index);
+    const selectedStore = allStores.find((store) => store._id === storeId);
+    setEditedRow(selectedStore);
+  };
+
+  const handleSaveClick = (storeId) => {
+    handleUpdateStore(storeId);
+  };
+
+  const handleRemoveStore = (storeId) => {
+    handleDeleteStore(storeId);
   };
 
   return (
@@ -171,8 +191,8 @@ const StoreInfo = () => {
               value={type}
               onChange={(e) => setType(e.target.value)}
             >
-              <MenuItem value="sale-counter">Sale Counter</MenuItem>
-              <MenuItem value="godown">Godown</MenuItem>
+              <MenuItem value="Sale Counter">Sale Counter</MenuItem>
+              <MenuItem value="Godown">Godown</MenuItem>
             </TextField>
           </div>
         </Grid>
@@ -223,202 +243,13 @@ const StoreInfo = () => {
         </Button>
       </Box>
 
-      <Typography variant="subtitle1" sx={{ marginBottom: 2, marginTop: 2 }}>
-        Update Store:
-      </Typography>
-
-      <Grid container spacing={2}>
-        <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="existingStoreUpdate" className="input-label">
-              Existing Store :
-            </InputLabel>
-            <TextField
-              select
-              fullWidth
-              size="small"
-              name="existingStoreUpdate"
-              className="input-field"
-              value={existingStoreUpdate}
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
-                    },
-                  },
-                },
-              }}
-              onChange={(e) => handleUpdateChange(e)}
-            >
-              {allStores?.map((store) => (
-                <MenuItem key={store._id} value={store._id}>
-                  {store.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
-        </Grid>
-
-        {existingStoreUpdate && (
-          <>
-            <Grid item xs={4}>
-              <div className="input-wrapper">
-                <InputLabel htmlFor="storeName" className="input-label">
-                  Store Name :
-                </InputLabel>
-                <TextField
-                  fullWidth
-                  type="text"
-                  size="small"
-                  name="storeName"
-                  className="input-field"
-                  value={newStoreName}
-                  onChange={(e) => setNewStoreName(e.target.value)}
-                />
-              </div>
-            </Grid>
-
-            <Grid item xs={4}>
-              <div className="input-wrapper">
-                <InputLabel htmlFor="newStoreType" className="input-label">
-                  Type :
-                </InputLabel>
-                <TextField
-                  select
-                  fullWidth
-                  size="small"
-                  name="newStoreType"
-                  className="input-field"
-                  value={newStoreType}
-                  onChange={(e) => setNewStoreType(e.target.value)}
-                >
-                  <MenuItem value="sale-counter">Sale Counter</MenuItem>
-                  <MenuItem value="godown">Godown</MenuItem>
-                </TextField>
-              </div>
-            </Grid>
-
-            <Grid item xs={4}>
-              <div className="input-wrapper">
-                <InputLabel htmlFor="newIndexNo" className="input-label">
-                  Index No. :
-                </InputLabel>
-                <TextField
-                  fullWidth
-                  type="number"
-                  size="small"
-                  name="newIndexNo"
-                  className="input-field"
-                  value={newIndexNo}
-                  onChange={(e) => setNewIndexNo(e.target.value)}
-                />
-              </div>
-            </Grid>
-          </>
-        )}
-      </Grid>
-
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "flex-end",
-          "& button": { marginTop: 2, marginLeft: 2 },
-        }}
-      >
-        <Button
-          color="primary"
-          size="medium"
-          variant="contained"
-          onClick={handleUpdateStore}
-          sx={{ borderRadius: 8 }}
-        >
-          Change
-        </Button>
-        <Button
-          color="warning"
-          size="medium"
-          variant="outlined"
-          sx={{ borderRadius: 8 }}
-          onClick={() => {
-            setExistingStoreUpdate("");
-            setNewStoreName("");
-          }}
-        >
-          Clear
-        </Button>
-      </Box>
-
-      <Typography variant="subtitle1" sx={{ marginBottom: 2, marginTop: 2 }}>
-        Delete Store:
-      </Typography>
-      <Grid container spacing={2}>
-        <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="existingStoreDelete" className="input-label">
-              Existing Store :
-            </InputLabel>
-            <TextField
-              select
-              fullWidth
-              name="existingStoreDelete"
-              size="small"
-              className="input-field"
-              value={existingStoreDelete}
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
-                    },
-                  },
-                },
-              }}
-              onChange={(e) => setExistingStoreDelete(e.target.value)}
-            >
-              {allStores?.map((store) => (
-                <MenuItem key={store._id} value={store._id}>
-                  {store.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
-        </Grid>
-      </Grid>
-
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "flex-end",
-          "& button": { marginTop: 2, marginLeft: 2 },
-        }}
-      >
-        <Button
-          color="primary"
-          size="medium"
-          variant="contained"
-          sx={{ borderRadius: 8 }}
-          onClick={handleDeleteStore}
-        >
-          Delete
-        </Button>
-        <Button
-          color="warning"
-          size="medium"
-          variant="outlined"
-          sx={{ borderRadius: 8 }}
-          onClick={() => setExistingStoreDelete("")}
-        >
-          Clear
-        </Button>
-      </Box>
-
       <Box sx={{ boxShadow: 2, borderRadius: 1, marginTop: 4 }}>
         <TableContainer
+          ref={tableRef}
           component={Paper}
           sx={{
             marginTop: 1,
-            // height: 300,
+            height: 300,
             width: "100%",
             overflowY: "auto",
             "&::-webkit-scrollbar": {
@@ -435,23 +266,91 @@ const StoreInfo = () => {
           }}
         >
           <Table>
-            <TableHead className="table-head">
+            <TableHead>
               <TableRow>
                 <TableCell align="center">S. No.</TableCell>
                 <TableCell align="center">Store Name</TableCell>
                 <TableCell align="center">Store Type</TableCell>
                 <TableCell align="center">Index No.</TableCell>
+                <TableCell align="center">Action</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {allStores.map((row, index) => (
-                <TableRow key={index}>
-                  <TableCell align="center">{index + 1}</TableCell>
-                  <TableCell align="center">{row.name}</TableCell>
-                  <TableCell align="center">{row.type}</TableCell>
-                  <TableCell align="center">{row.indexNo}</TableCell>
+              {!allStores ? (
+                <TableRow sx={{
+                  backgroundColor: "#fff",
+                }}>
+                  <TableCell colSpan={5} align="center">
+                    No Data
+                  </TableCell>
                 </TableRow>
-              ))}
+              ) : (allStores?.map((store, index) => (
+                <TableRow
+                  key={index}
+                  sx={{
+                    backgroundColor: "#fff",
+                  }}
+                >
+                  <TableCell align="center">{index + 1}</TableCell>
+                  <TableCell align="center">
+                    {editableIndex === index ? (
+                      <Input
+                        value={editedRow.name}
+                        onChange={(e) =>
+                          setEditedRow({ ...editedRow, name: e.target.value })
+                        }
+                      />
+                    ) : (
+                      store.name
+                    )}
+                  </TableCell>
+                  <TableCell align="center">
+                    {editableIndex === index ? (
+                      <Input
+                        value={editedRow.type}
+                        onChange={(e) =>
+                          setEditedRow({ ...editedRow, type: e.target.value })
+                        }
+                      />
+                    ) : (
+                      store.type
+                    )}
+                  </TableCell>
+                  <TableCell align="center">
+                    {editableIndex === index ? (
+                      <Input
+                        value={editedRow.indexNo}
+                        onChange={(e) =>
+                          setEditedRow({
+                            ...editedRow,
+                            indexNo: e.target.value,
+                          })
+                        }
+                      />
+                    ) : (
+                      store.indexNo
+                    )}
+                  </TableCell>
+                  <TableCell align="center">
+                    {editableIndex !== index ? (
+                      <EditIcon
+                        sx={{ cursor: "pointer", color: "blue" }}
+                        onClick={() => handleEditClick(index, store._id)}
+                      />
+                    ) : (
+                      <SaveIcon
+                        sx={{ cursor: "pointer", color: "green" }}
+                        onClick={() => handleSaveClick(store._id)}
+                      />
+                    )}
+                    <CloseIcon
+                      sx={{ cursor: "pointer", color: "red" }}
+                      onClick={() => handleRemoveStore(store._id)}
+                    />
+                  </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </TableContainer>
