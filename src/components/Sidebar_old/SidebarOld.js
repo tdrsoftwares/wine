@@ -12,8 +12,8 @@ const SidebarOld = () => {
         </div>
         <hr />
         <div className="sidebar-item">
-          <Link to="/stock-register" className="nav-link">
-            Stock Register
+          <Link to="/item-register" className="nav-link">
+            Item Register
           </Link>
         </div>
         <hr />

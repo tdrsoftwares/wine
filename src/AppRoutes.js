@@ -70,7 +70,7 @@ import GtinStock from "./components/Sidebar_old/GtinStock";
 import { useLoginContext } from "./utils/loginContext";
 import BrandRegister from "./components/Sidebar_old/BrandRegister";
 import CompanyRegister from "./components/Sidebar_old/CompanyRegister";
-import ItemRegister from "./components/Navbar_old/MasterFile/StockRegister";
+import ItemRegister from "./components/Navbar_old/MasterFile/ItemRegister";
 import NotFound from "./components/Others/NotFound";
 import UnAuthorized from "./components/Others/UnAuthorized";
 
@@ -152,7 +152,7 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp }) => {
         element={authenticatedUser ? <LPLSetup /> : <UnAuthorized />}
       />
       <Route
-        path="/stock-register"
+        path="/item-register"
         element={authenticatedUser ? <ItemRegister /> : <UnAuthorized />}
       />
       <Route

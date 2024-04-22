@@ -113,7 +113,7 @@ const NavbarOld = () => {
               <Link to="/customer-register">Customer Register</Link>
               <Link to="/suppliers-register">Suppliers Register</Link>
               <Link to="/lpl-setup">LPL Setup</Link>
-              <Link to="/stock-register">Stock Register</Link>
+              <Link to="/item-register">Item Register</Link>
               <Link to="/item-category-register">Item Category Register</Link>
               <Link to="/item-discount-register">Item Discount Register</Link>
               <Link to="/dealer-category-discount-register">
