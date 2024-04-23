@@ -12,6 +12,7 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
   TextField,
   Typography,
@@ -27,10 +28,11 @@ import { useLoginContext } from "../../../utils/loginContext";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
+import TableSortLabel from "@mui/material/TableSortLabel";
 
 const ItemCatRegister = () => {
   const { loginResponse } = useLoginContext();
-  const [category, setCategory] = useState("");
+  const [categoryName, setCategoryName] = useState("");
   const [allCategory, setAllCategory] = useState([]);
   const [indexNo, setIndexNo] = useState("");
   const [groupName, setGroupName] = useState("");
@@ -38,6 +40,8 @@ const ItemCatRegister = () => {
 
   const [editableIndex, setEditableIndex] = useState(null);
   const [editedRow, setEditedRow] = useState({});
+  const [sortBy, setSortBy] = useState(null);
+  const [sortOrder, setSortOrder] = useState("asc");
 
   const groupOptions = [
     "All",
@@ -48,6 +52,8 @@ const ItemCatRegister = () => {
   ];
 
   const tableRef = useRef(null);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const handleClickOutside = (event) => {
     if (tableRef.current && !tableRef.current.contains(event.target)) {
@@ -64,15 +70,24 @@ const ItemCatRegister = () => {
   }, []);
 
   const handleClear = () => {
-    setCategory("");
+    setCategoryName("");
     setIndexNo("");
     setGroupName("");
     setGroupNo("");
   };
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   const handleCreateCategory = async () => {
     const payload = {
-      categoryName: category,
+      categoryName: categoryName,
       mainGroup: groupName,
       indexNo: indexNo,
       groupNo: groupNo,
@@ -98,7 +113,9 @@ const ItemCatRegister = () => {
 
   const handleEditCategory = (index, id) => {
     setEditableIndex(index);
-    const editedCategory = allCategory.find((supplier) => supplier._id === id);
+    const editedCategory = allCategory.find(
+      (categoryName) => categoryName._id === id
+    );
     setEditedRow({ ...editedCategory });
   };
 
@@ -116,7 +133,7 @@ const ItemCatRegister = () => {
         fetchAllCategory();
       } else {
         NotificationManager.error(
-          "Error updating category. Please try again later.",
+          "Error updating categoryName. Please try again later.",
           "Error"
         );
       }
@@ -147,6 +164,35 @@ const ItemCatRegister = () => {
     }
   };
 
+  const handleSort = (column) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(column);
+      setSortOrder("asc");
+    }
+  };
+
+  const sortedData = () => {
+    let sorted = [...allCategory];
+    if (sortBy) {
+      sorted.sort((a, b) => {
+        const firstValue =
+          typeof a[sortBy] === "string" ? a[sortBy].toLowerCase() : a[sortBy];
+        const secondValue =
+          typeof b[sortBy] === "string" ? b[sortBy].toLowerCase() : b[sortBy];
+        if (firstValue < secondValue) {
+          return sortOrder === "asc" ? -1 : 1;
+        }
+        if (firstValue > secondValue) {
+          return sortOrder === "asc" ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sorted;
+  };
+
   const fetchAllCategory = async () => {
     try {
       const getAllCategoryResponse = await getAllItemCategory(loginResponse);
@@ -159,8 +205,6 @@ const ItemCatRegister = () => {
       );
     }
   };
-
-  console.log("allCategory: ", allCategory);
 
   useEffect(() => {
     fetchAllCategory();
@@ -184,8 +228,8 @@ const ItemCatRegister = () => {
               type="text"
               name="categoryName"
               className="input-field"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              value={categoryName}
+              onChange={(e) => setCategoryName(e.target.value)}
             />
           </div>
         </Grid>
@@ -281,7 +325,7 @@ const ItemCatRegister = () => {
         </Button>
       </Box>
 
-      <Box sx={{ boxShadow: 2, borderRadius: 1, marginTop: 2 }}>
+      <Box sx={{ borderRadius: 1, marginTop: 2 }}>
         <TableContainer
           ref={tableRef}
           component={Paper}
@@ -305,124 +349,163 @@ const ItemCatRegister = () => {
           <Table>
             <TableHead>
               <TableRow className="table-head-2">
-                <TableCell align="center" style={{ minWidth: "80px" }}>
+                <TableCell align="center" sx={{ minWidth: "80px" }}>
                   S. No.
                 </TableCell>
-                <TableCell align="center" style={{ minWidth: "200px" }}>
-                  Category Name
+                <TableCell align="center" sx={{ minWidth: "200px" }}>
+                  <TableSortLabel
+                    active={sortBy === "categoryName"}
+                    direction={sortOrder}
+                    onClick={() => handleSort("categoryName")}
+                  >
+                    Category Name
+                  </TableSortLabel>
                 </TableCell>
-                <TableCell align="center" style={{ minWidth: "200px" }}>
-                  Main Group
+                <TableCell align="center" sx={{ minWidth: "200px" }}>
+                  <TableSortLabel
+                    active={sortBy === "mainGroup"}
+                    direction={sortOrder}
+                    onClick={() => handleSort("mainGroup")}
+                  >
+                    Main Group
+                  </TableSortLabel>
                 </TableCell>
-                <TableCell align="center" style={{ minWidth: "120px" }}>
-                  Index Number
+                <TableCell align="center" sx={{ minWidth: "200px" }}>
+                  <TableSortLabel
+                    active={sortBy === "indexNo"}
+                    direction={sortOrder}
+                    onClick={() => handleSort("indexNo")}
+                  >
+                    Index Number
+                  </TableSortLabel>
                 </TableCell>
-                <TableCell align="center" style={{ minWidth: "120px" }}>
-                  Group Number
+                <TableCell align="center" sx={{ minWidth: "200px" }}>
+                  <TableSortLabel
+                    active={sortBy === "groupNo"}
+                    direction={sortOrder}
+                    onClick={() => handleSort("groupNo")}
+                  >
+                    Group Number
+                  </TableSortLabel>
                 </TableCell>
-
-                <TableCell align="center" style={{ minWidth: "150px" }}>
-                  Action
-                </TableCell>
+                <TableCell align="center" sx={{ minWidth: "200px" }}>Action</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {allCategory.map((supplier, index) => (
-                <TableRow
-                  key={supplier._id}
-                  sx={{
-                    backgroundColor: "#fff",
-                  }}
-                >
-                  <TableCell align="center">{index + 1}</TableCell>
-                  <TableCell align="center">
-                    {editableIndex === index ? (
-                      <Input
-                        value={editedRow.categoryName || supplier.categoryName}
-                        onChange={(e) =>
-                          setEditedRow({
-                            ...editedRow,
-                            categoryName: e.target.value,
-                          })
-                        }
-                      />
-                    ) : (
-                      supplier.categoryName
-                    )}
-                  </TableCell>
-                  <TableCell align="center">
-                    {editableIndex === index ? (
-                      <Input
-                        value={editedRow.mainGroup || supplier.mainGroup}
-                        onChange={(e) =>
-                          setEditedRow({
-                            ...editedRow,
-                            mainGroup: e.target.value,
-                          })
-                        }
-                      />
-                    ) : (
-                      supplier.mainGroup
-                    )}
-                  </TableCell>
-                  <TableCell align="center">
-                    {editableIndex === index ? (
-                      <Input
-                        value={editedRow.indexNo || supplier.indexNo}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          if (!isNaN(value)) {
+              {sortedData()
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((categoryName, index) => (
+                  <TableRow
+                    key={categoryName._id}
+                    sx={{
+                      backgroundColor: "#fff",
+                    }}
+                  >
+                    <TableCell align="center" sx={{ minWidth: "80px" }}>
+                      {page * rowsPerPage + index + 1}
+                    </TableCell>
+                    <TableCell align="center" sx={{ minWidth: "200px" }}>
+                      {editableIndex === index ? (
+                        <Input
+                          value={
+                            editedRow.categoryName || categoryName.categoryName
+                          }
+                          onChange={(e) =>
                             setEditedRow({
                               ...editedRow,
-                              indexNo: value,
-                            });
+                              categoryName: e.target.value,
+                            })
                           }
-                        }}
-                      />
-                    ) : (
-                      supplier.indexNo
-                    )}
-                  </TableCell>
-                  <TableCell align="center">
-                    {editableIndex === index ? (
-                      <Input
-                        value={editedRow.groupNo || supplier.groupNo}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          if (!isNaN(value)) {
+                        />
+                      ) : (
+                        categoryName.categoryName
+                      )}
+                    </TableCell>
+                    <TableCell align="center" sx={{ minWidth: "200px" }}>
+                      {editableIndex === index ? (
+                        <Input
+                          value={editedRow.mainGroup || categoryName.mainGroup}
+                          onChange={(e) =>
                             setEditedRow({
                               ...editedRow,
-                              groupNo: value,
-                            });
+                              mainGroup: e.target.value,
+                            })
                           }
-                        }}
+                        />
+                      ) : (
+                        categoryName.mainGroup
+                      )}
+                    </TableCell>
+                    <TableCell align="center" sx={{ minWidth: "200px" }}>
+                      {editableIndex === index ? (
+                        <Input
+                          value={editedRow.indexNo || categoryName.indexNo}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (!isNaN(value)) {
+                              setEditedRow({
+                                ...editedRow,
+                                indexNo: value,
+                              });
+                            }
+                          }}
+                        />
+                      ) : (
+                        categoryName.indexNo
+                      )}
+                    </TableCell>
+                    <TableCell align="center" sx={{ minWidth: "200px" }}>
+                      {editableIndex === index ? (
+                        <Input
+                          value={editedRow.groupNo || categoryName.groupNo}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (!isNaN(value)) {
+                              setEditedRow({
+                                ...editedRow,
+                                groupNo: value,
+                              });
+                            }
+                          }}
+                        />
+                      ) : (
+                        categoryName.groupNo
+                      )}
+                    </TableCell>
+                    <TableCell align="center" sx={{ minWidth: "200px" }}>
+                      {editableIndex === index ? (
+                        <SaveIcon
+                          sx={{ cursor: "pointer", color: "green" }}
+                          onClick={() => handleSaveCategory(categoryName._id)}
+                        />
+                      ) : (
+                        <EditIcon
+                          sx={{ cursor: "pointer", color: "blue" }}
+                          onClick={() =>
+                            handleEditCategory(index, categoryName._id)
+                          }
+                        />
+                      )}
+                      <CloseIcon
+                        sx={{ cursor: "pointer", color: "red" }}
+                        onClick={() => handleRemoveCategory(categoryName._id)}
                       />
-                    ) : (
-                      supplier.groupNo
-                    )}
-                  </TableCell>
-                  <TableCell align="center">
-                    {editableIndex === index ? (
-                      <SaveIcon
-                        sx={{ cursor: "pointer", color: "green" }}
-                        onClick={() => handleSaveCategory(supplier._id)}
-                      />
-                    ) : (
-                      <EditIcon
-                        sx={{ cursor: "pointer", color: "blue" }}
-                        onClick={() => handleEditCategory(index, supplier._id)}
-                      />
-                    )}
-                    <CloseIcon
-                      sx={{ cursor: "pointer", color: "red" }}
-                      onClick={() => handleRemoveCategory(supplier._id)}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </TableContainer>
+
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={allCategory.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
       </Box>
     </Box>
   );

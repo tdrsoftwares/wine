@@ -14,6 +14,8 @@ import {
   TableCell,
   TableBody,
   Input,
+  TablePagination,
+  TableSortLabel,
 } from "@mui/material";
 import {
   getAllSuppliers,
@@ -44,6 +46,10 @@ const SuppliersRegister = () => {
   const [editableIndex, setEditableIndex] = useState(null);
   const [editedRow, setEditedRow] = useState({});
   const tableRef = useRef(null);
+  const [sortBy, setSortBy] = useState(null);
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   useEffect(() => {
     fetchAllSuppliers();
@@ -59,6 +65,15 @@ const SuppliersRegister = () => {
       cinNo: "",
       openingBlance: "",
     });
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
   const handleSupplierChange = (e) => {
@@ -156,6 +171,35 @@ const SuppliersRegister = () => {
     }
   };
 
+  const handleSort = (column) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(column);
+      setSortOrder("asc");
+    }
+  };
+
+  const sortedData = () => {
+    let sorted = [...allSuppliers];
+    if (sortBy) {
+      sorted.sort((a, b) => {
+        const firstValue =
+          typeof a[sortBy] === "string" ? a[sortBy].toLowerCase() : a[sortBy];
+        const secondValue =
+          typeof b[sortBy] === "string" ? b[sortBy].toLowerCase() : b[sortBy];
+        if (firstValue < secondValue) {
+          return sortOrder === "asc" ? -1 : 1;
+        }
+        if (firstValue > secondValue) {
+          return sortOrder === "asc" ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sorted;
+  };
+
   const fetchAllSuppliers = async () => {
     try {
       const allItemsResponse = await getAllSuppliers(loginResponse);
@@ -175,7 +219,6 @@ const SuppliersRegister = () => {
   };
 
   const handleSaveClick = async (id) => {
-
     try {
       const updateItemResponse = await updateSupplier(
         editedRow,
@@ -202,7 +245,6 @@ const SuppliersRegister = () => {
   };
 
   const handleRemoveSupplier = async (id) => {
-
     try {
       const deleteItemResponse = await deleteSupplier(id, loginResponse);
       if (deleteItemResponse.status === 200) {
@@ -365,7 +407,7 @@ const SuppliersRegister = () => {
         </Button>
       </Box>
 
-      <Box sx={{ boxShadow: 2, borderRadius: 1, marginTop: 2 }}>
+      <Box sx={{ borderRadius: 1, marginTop: 2 }}>
         <TableContainer
           ref={tableRef}
           component={Paper}
@@ -373,6 +415,7 @@ const SuppliersRegister = () => {
             height: 300,
             width: "100%",
             overflowY: "auto",
+
             "&::-webkit-scrollbar": {
               width: 10,
               height: 10,
@@ -389,164 +432,227 @@ const SuppliersRegister = () => {
           <Table>
             <TableHead>
               <TableRow className="table-head-2">
-                <TableCell align="center" style={{ minWidth: "80px" }}>
+                <TableCell align="center" sx={{ minWidth: "80px" }}>
                   S. No.
                 </TableCell>
-                <TableCell align="center" style={{ minWidth: "200px" }}>
-                  Supplier Name
+                <TableCell sx={{ minWidth: "200px" }}>
+                  <TableSortLabel
+                    active={sortBy === "name"}
+                    direction={sortOrder}
+                    onClick={() => handleSort("name")}
+                  >
+                    Supplier Name
+                  </TableSortLabel>
                 </TableCell>
-                <TableCell align="center" style={{ minWidth: "200px" }}>
-                  Address
+                <TableCell sx={{ minWidth: "200px" }}>
+                  <TableSortLabel
+                    active={sortBy === "address"}
+                    direction={sortOrder}
+                    onClick={() => handleSort("address")}
+                  >
+                    Address
+                  </TableSortLabel>
                 </TableCell>
-                <TableCell align="center" style={{ minWidth: "150px" }}>
-                  Mobile Number
+                <TableCell sx={{ minWidth: "200px" }}>
+                  <TableSortLabel
+                    active={sortBy === "contactNo"}
+                    direction={sortOrder}
+                    onClick={() => handleSort("contactNo")}
+                  >
+                    Mobile Number
+                  </TableSortLabel>
                 </TableCell>
-                <TableCell align="center" style={{ minWidth: "150px" }}>
-                  GSTIN Number
+                <TableCell sx={{ minWidth: "200px" }}>
+                  <TableSortLabel
+                    active={sortBy === "gstinNo"}
+                    direction={sortOrder}
+                    onClick={() => handleSort("gstinNo")}
+                  >
+                    GSTIN Number
+                  </TableSortLabel>
                 </TableCell>
-                <TableCell align="center" style={{ minWidth: "150px" }}>
-                  PAN Number
+                <TableCell sx={{ minWidth: "180px" }}>
+                  <TableSortLabel
+                    active={sortBy === "panNo"}
+                    direction={sortOrder}
+                    onClick={() => handleSort("panNo")}
+                  >
+                    PAN Number
+                  </TableSortLabel>
                 </TableCell>
-                <TableCell align="center" style={{ minWidth: "150px" }}>
-                  CIN Number
+                <TableCell sx={{ minWidth: "180px" }}>
+                  <TableSortLabel
+                    active={sortBy === "cinNo"}
+                    direction={sortOrder}
+                    onClick={() => handleSort("cinNo")}
+                  >
+                    CIN Number
+                  </TableSortLabel>
                 </TableCell>
-                <TableCell align="center" style={{ minWidth: "150px" }}>
-                  Opening Balance
+                <TableCell sx={{ minWidth: "180px" }}>
+                  <TableSortLabel
+                    active={sortBy === "openingBlance"}
+                    direction={sortOrder}
+                    onClick={() => handleSort("openingBlance")}
+                  >
+                    Opening Balance
+                  </TableSortLabel>
                 </TableCell>
-                <TableCell align="center" style={{ minWidth: "120px" }}>
-                  Action
-                </TableCell>
+                <TableCell sx={{ minWidth: "120px" }}>Action</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {allSuppliers.map((supplier, index) => (
-                <TableRow key={supplier._id} sx={{
-                  backgroundColor: "#fff",
-                }}>
-                  <TableCell align="center">{index + 1}</TableCell>
-                  <TableCell align="center">
-                    {editableIndex === index ? (
-                      <Input
-                        value={editedRow.name || supplier.name}
-                        onChange={(e) =>
-                          setEditedRow({
-                            ...editedRow,
-                            name: e.target.value,
-                          })
-                        }
+              {sortedData()
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((supplier, index) => (
+                  <TableRow
+                    key={supplier._id}
+                    sx={{
+                      backgroundColor: "#fff",
+                    }}
+                  >
+                    <TableCell align="center" sx={{ minWidth: "80px" }}>
+                      {page * rowsPerPage + index + 1}
+                    </TableCell>
+                    <TableCell>
+                      {editableIndex === index ? (
+                        <Input
+                          value={editedRow.name || supplier.name}
+                          onChange={(e) =>
+                            setEditedRow({
+                              ...editedRow,
+                              name: e.target.value,
+                            })
+                          }
+                        />
+                      ) : (
+                        supplier.name
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {editableIndex === index ? (
+                        <Input
+                          value={editedRow.address || supplier.address}
+                          onChange={(e) =>
+                            setEditedRow({
+                              ...editedRow,
+                              address: e.target.value,
+                            })
+                          }
+                        />
+                      ) : (
+                        supplier.address
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {editableIndex === index ? (
+                        <Input
+                          value={editedRow.contactNo || supplier.contactNo}
+                          onChange={(e) =>
+                            setEditedRow({
+                              ...editedRow,
+                              contactNo: e.target.value,
+                            })
+                          }
+                        />
+                      ) : (
+                        supplier.contactNo
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {editableIndex === index ? (
+                        <Input
+                          value={editedRow.gstinNo || supplier.gstinNo}
+                          onChange={(e) =>
+                            setEditedRow({
+                              ...editedRow,
+                              gstinNo: e.target.value,
+                            })
+                          }
+                        />
+                      ) : (
+                        supplier.gstinNo
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {editableIndex === index ? (
+                        <Input
+                          value={editedRow.panNo || supplier.panNo}
+                          onChange={(e) =>
+                            setEditedRow({
+                              ...editedRow,
+                              panNo: e.target.value,
+                            })
+                          }
+                        />
+                      ) : (
+                        supplier.panNo
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {editableIndex === index ? (
+                        <Input
+                          value={editedRow.cinNo || supplier.cinNo}
+                          onChange={(e) =>
+                            setEditedRow({
+                              ...editedRow,
+                              cinNo: e.target.value,
+                            })
+                          }
+                        />
+                      ) : (
+                        supplier.cinNo
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {editableIndex === index ? (
+                        <Input
+                          value={
+                            editedRow.openingBlance || supplier.openingBlance
+                          }
+                          onChange={(e) =>
+                            setEditedRow({
+                              ...editedRow,
+                              openingBlance: e.target.value,
+                            })
+                          }
+                        />
+                      ) : (
+                        supplier.openingBlance
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {editableIndex === index ? (
+                        <SaveIcon
+                          sx={{ cursor: "pointer", color: "green" }}
+                          onClick={() => handleSaveClick(supplier._id)}
+                        />
+                      ) : (
+                        <EditIcon
+                          sx={{ cursor: "pointer", color: "blue" }}
+                          onClick={() => handleEditClick(index, supplier._id)}
+                        />
+                      )}
+                      <CloseIcon
+                        sx={{ cursor: "pointer", color: "red" }}
+                        onClick={() => handleRemoveSupplier(supplier._id)}
                       />
-                    ) : (
-                      supplier.name
-                    )}
-                  </TableCell>
-                  <TableCell align="center">
-                    {editableIndex === index ? (
-                      <Input
-                        value={editedRow.address || supplier.address}
-                        onChange={(e) =>
-                          setEditedRow({
-                            ...editedRow,
-                            address: e.target.value,
-                          })
-                        }
-                      />
-                    ) : (
-                      supplier.address
-                    )}
-                  </TableCell>
-                  <TableCell align="center">
-                    {editableIndex === index ? (
-                      <Input
-                        value={editedRow.contactNo || supplier.contactNo}
-                        onChange={(e) =>
-                          setEditedRow({
-                            ...editedRow,
-                            contactNo: e.target.value,
-                          })
-                        }
-                      />
-                    ) : (
-                      supplier.contactNo
-                    )}
-                  </TableCell>
-                  <TableCell align="center">
-                    {editableIndex === index ? (
-                      <Input
-                        value={editedRow.gstinNo || supplier.gstinNo}
-                        onChange={(e) =>
-                          setEditedRow({
-                            ...editedRow,
-                            gstinNo: e.target.value,
-                          })
-                        }
-                      />
-                    ) : (
-                      supplier.gstinNo
-                    )}
-                  </TableCell>
-                  <TableCell align="center">
-                    {editableIndex === index ? (
-                      <Input
-                        value={editedRow.panNo || supplier.panNo}
-                        onChange={(e) =>
-                          setEditedRow({ ...editedRow, panNo: e.target.value })
-                        }
-                      />
-                    ) : (
-                      supplier.panNo
-                    )}
-                  </TableCell>
-                  <TableCell align="center">
-                    {editableIndex === index ? (
-                      <Input
-                        value={editedRow.cinNo || supplier.cinNo}
-                        onChange={(e) =>
-                          setEditedRow({ ...editedRow, cinNo: e.target.value })
-                        }
-                      />
-                    ) : (
-                      supplier.cinNo
-                    )}
-                  </TableCell>
-                  <TableCell align="center">
-                    {editableIndex === index ? (
-                      <Input
-                        value={
-                          editedRow.openingBlance || supplier.openingBlance
-                        }
-                        onChange={(e) =>
-                          setEditedRow({
-                            ...editedRow,
-                            openingBlance: e.target.value,
-                          })
-                        }
-                      />
-                    ) : (
-                      supplier.openingBlance
-                    )}
-                  </TableCell>
-                  <TableCell align="center">
-                    {editableIndex === index ? (
-                      <SaveIcon
-                        sx={{ cursor: "pointer", color: "green" }}
-                        onClick={() => handleSaveClick(supplier._id)}
-                      />
-                    ) : (
-                      <EditIcon
-                        sx={{ cursor: "pointer", color: "blue" }}
-                        onClick={() => handleEditClick(index, supplier._id)}
-                      />
-                    )}
-                    <CloseIcon
-                      sx={{ cursor: "pointer", color: "red" }}
-                      onClick={() => handleRemoveSupplier(supplier._id)}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </TableContainer>
+
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={allSuppliers.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
       </Box>
     </Box>
   );
