@@ -1,9 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
   Grid,
+  Input,
+  InputLabel,
   MenuItem,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   TextField,
   Typography,
 } from "@mui/material";
@@ -15,6 +24,9 @@ import {
   updateItemCategory,
 } from "../../../services/categoryService";
 import { useLoginContext } from "../../../utils/loginContext";
+import CloseIcon from "@mui/icons-material/Close";
+import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
 
 const ItemCatRegister = () => {
   const { loginResponse } = useLoginContext();
@@ -23,12 +35,9 @@ const ItemCatRegister = () => {
   const [indexNo, setIndexNo] = useState("");
   const [groupName, setGroupName] = useState("");
   const [groupNo, setGroupNo] = useState("");
-  const [existingCategoryUpdate, setExistingCategoryUpdate] = useState("");
-  const [existingCategoryDelete, setExistingCategoryDelete] = useState("");
-  const [newCategory, setNewCategory] = useState("");
-  const [newGroupName, setNewGroupName] = useState("");
-  const [newIndexNo, setNewIndexNo] = useState("");
-  const [newGroupNo, setNewGroupNo] = useState("");
+
+  const [editableIndex, setEditableIndex] = useState(null);
+  const [editedRow, setEditedRow] = useState({});
 
   const groupOptions = [
     "All",
@@ -38,29 +47,27 @@ const ItemCatRegister = () => {
     "India Made Liquor",
   ];
 
-  console.log("existingCategoryUpdate : ", existingCategoryUpdate);
+  const tableRef = useRef(null);
 
-  const handleClear = (action) => {
-    switch (action) {
-      case "create":
-        setCategory("");
-        setIndexNo("");
-        setGroupName("");
-        setGroupNo("");
-        break;
-      case "update":
-        setExistingCategoryUpdate("");
-        setNewCategory("");
-        setNewGroupName("");
-        setNewIndexNo("");
-        setNewGroupNo("");
-        break;
-      case "delete":
-        setExistingCategoryDelete("");
-        break;
-      default:
-        break;
+  const handleClickOutside = (event) => {
+    if (tableRef.current && !tableRef.current.contains(event.target)) {
+      setEditableIndex(null);
+      setEditedRow({});
     }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleClear = () => {
+    setCategory("");
+    setIndexNo("");
+    setGroupName("");
+    setGroupNo("");
   };
 
   const handleCreateCategory = async () => {
@@ -78,7 +85,7 @@ const ItemCatRegister = () => {
       );
       if (createCategoryResponse.status === 200) {
         NotificationManager.success("Category created successfully", "Success");
-        handleClear("create");
+        handleClear();
         fetchAllCategory();
       }
     } catch (err) {
@@ -89,62 +96,47 @@ const ItemCatRegister = () => {
     }
   };
 
-  const updatedCategory = async () => {
-    const payload = {
-      categoryName: newCategory,
-      mainGroup: newGroupName,
-      indexNo: newIndexNo,
-      groupNo: newGroupNo,
-    };
+  const handleEditCategory = (index, id) => {
+    setEditableIndex(index);
+    const editedCategory = allCategory.find((supplier) => supplier._id === id);
+    setEditedRow({ ...editedCategory });
+  };
 
+  const handleSaveCategory = async (id) => {
     try {
-      const updatedCategoryResponse = await updateItemCategory(
-        payload,
-        existingCategoryUpdate,
+      const updateCategoryResponse = await updateItemCategory(
+        editedRow,
+        id,
         loginResponse
       );
-      if (updatedCategoryResponse.status === 200) {
+      if (updateCategoryResponse.status === 200) {
         NotificationManager.success("Category updated successfully", "Success");
-        handleClear("update");
+        setEditableIndex(null);
+        setEditedRow({});
         fetchAllCategory();
+      } else {
+        NotificationManager.error(
+          "Error updating category. Please try again later.",
+          "Error"
+        );
       }
-    } catch (err) {
+    } catch (error) {
       NotificationManager.error(
         "Something went Wrong, Please try again later.",
         "Error"
       );
     }
   };
-  const handleUpdateChange = (e) => {
-    const selectedCategoryId = e.target.value;
-    setExistingCategoryUpdate(selectedCategoryId);
-    const selectedCategory = allCategory.find((item) => item._id === selectedCategoryId);
-    if (selectedCategory) {
-      setNewCategory(selectedCategory.categoryName);
-      setNewGroupName(selectedCategory.mainGroup);
-      setNewIndexNo(selectedCategory.indexNo);
-      setNewGroupNo(selectedCategory.groupNo);
-    }
-  };
-  
 
-  const deleteCategory = async () => {
+  const handleRemoveCategory = async (id) => {
     try {
-      if (!existingCategoryDelete) {
-        NotificationManager.error(
-          "Please select a category to delete.",
-          "Error"
-        );
-        return;
-      }
       const deleteCategoryResponse = await deleteItemCategory(
-        existingCategoryDelete,
+        id,
         loginResponse
       );
 
       if (deleteCategoryResponse.status === 200) {
         NotificationManager.success("Category deleted successfully", "Success");
-        handleClear("delete");
         fetchAllCategory();
       }
     } catch (err) {
@@ -175,37 +167,42 @@ const ItemCatRegister = () => {
   }, []);
 
   return (
-    <form>
-      <Box sx={{ p: 2, width: "900px" }}>
-        <Typography variant="h5" component="div" gutterBottom>
-          Item Category Information
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          Item Category Details
-        </Typography>
+    <Box sx={{ p: 2, width: "900px" }}>
+      <Typography variant="subtitle1" sx={{ marginBottom: 2 }}>
+        Create Category:
+      </Typography>
 
-        <Grid container spacing={2}>
-          <Grid item xs={2.4}>
+      <Grid container spacing={2}>
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="categoryName" className="input-label">
+              Category Name :
+            </InputLabel>
             <TextField
               fullWidth
+              size="small"
               type="text"
-              name="selectedCategory"
-              label="Item Category"
+              name="categoryName"
+              className="input-field"
               value={category}
-              variant="outlined"
               onChange={(e) => setCategory(e.target.value)}
             />
-          </Grid>
+          </div>
+        </Grid>
 
-          <Grid item xs={2.4}>
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="groupName" className="input-label">
+              Group Name :
+            </InputLabel>
             <TextField
               select
               fullWidth
+              size="small"
               type="number"
               name="groupName"
-              label="Main Group Name"
+              className="input-field"
               value={groupName}
-              variant="outlined"
               onChange={(e) => setGroupName(e.target.value)}
             >
               {groupOptions.map((item, id) => (
@@ -214,204 +211,224 @@ const ItemCatRegister = () => {
                 </MenuItem>
               ))}
             </TextField>
-          </Grid>
+          </div>
+        </Grid>
 
-          <Grid item xs={2.4}>
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="indexNo" className="input-label">
+              Index No. :
+            </InputLabel>
             <TextField
               fullWidth
+              size="small"
               type="number"
               name="indexNo"
-              label="Index No."
+              className="input-field"
               value={indexNo}
-              variant="outlined"
               onChange={(e) => setIndexNo(e.target.value)}
+              InputProps={{
+                inputProps: { type: "number", inputMode: "numeric", min: 0 },
+              }}
             />
-          </Grid>
+          </div>
+        </Grid>
 
-          <Grid item xs={2.4}>
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="groupNo" className="input-label">
+              Group No. :
+            </InputLabel>
             <TextField
               fullWidth
+              size="small"
               type="number"
               name="groupNo"
-              label="Group No."
+              className="input-field"
               value={groupNo}
-              variant="outlined"
               onChange={(e) => setGroupNo(e.target.value)}
+              InputProps={{
+                inputProps: { type: "number", inputMode: "numeric", min: 0 },
+              }}
             />
-          </Grid>
-
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              "& button": { marginTop: 2, marginLeft: 2 },
-            }}
-          >
-            <Button
-              color="primary"
-              size="large"
-              variant="outlined"
-              onClick={handleCreateCategory}
-            >
-              Create
-            </Button>
-            <Button
-              color="warning"
-              size="large"
-              variant="outlined"
-              onClick={() => handleClear("create")}
-            >
-              Clear
-            </Button>
-          </Box>
+          </div>
         </Grid>
-
-        <Typography variant="subtitle1" gutterBottom sx={{ marginTop: 2 }}>
-          Update Category
-        </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={2.4}>
-            <TextField
-              select
-              fullWidth
-              name="existingCategoryUpdate"
-              label="Existing Category"
-              value={existingCategoryUpdate}
-              variant="outlined"
-              onChange={(e) => handleUpdateChange(e)}
-            >
-              {allCategory?.map((item) => (
-                <MenuItem key={item._id} value={item._id}>
-                  {item.categoryName}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-
-          {existingCategoryUpdate && (
-            <>
-              <Grid item xs={2.4}>
-                <TextField
-                  fullWidth
-                  type="text"
-                  name="newCategory"
-                  label="Category Name"
-                  value={newCategory}
-                  variant="outlined"
-                  onChange={(e) => setNewCategory(e.target.value)}
-                />
-              </Grid>
-              <Grid item xs={2.4}>
-                <TextField
-                  fullWidth
-                  type="text"
-                  name="newGroupName"
-                  label="Group Name"
-                  value={newGroupName}
-                  variant="outlined"
-                  onChange={(e) => setNewGroupName(e.target.value)}
-                />
-              </Grid>
-              <Grid item xs={1.2}>
-                <TextField
-                  fullWidth
-                  type="text"
-                  name="indexNo"
-                  label="Index No"
-                  value={newIndexNo}
-                  variant="outlined"
-                  onChange={(e) => setNewIndexNo(e.target.value)}
-                />
-              </Grid>
-              <Grid item xs={1.2}>
-                <TextField
-                  fullWidth
-                  type="text"
-                  name="groupNo"
-                  label="Group No"
-                  value={newGroupNo}
-                  variant="outlined"
-                  onChange={(e) => setNewGroupNo(e.target.value)}
-                />
-              </Grid>
-            </>
-          )}
-
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              "& button": { marginTop: 2, marginLeft: 2 },
-            }}
-          >
-            <Button
-              color="primary"
-              size="large"
-              variant="outlined"
-              onClick={updatedCategory}
-            >
-              Change
-            </Button>
-            <Button
-              color="warning"
-              size="large"
-              variant="outlined"
-              onClick={() => handleClear("update")}
-            >
-              Clear
-            </Button>
-          </Box>
-        </Grid>
-
-        <Typography variant="subtitle1" gutterBottom sx={{ marginTop: 2 }}>
-          Delete Category
-        </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={3}>
-            <TextField
-              select
-              fullWidth
-              name="existingCategoryDelete"
-              label="Existing Category"
-              value={existingCategoryDelete}
-              variant="outlined"
-              onChange={(e) => setExistingCategoryDelete(e.target.value)}
-            >
-              {allCategory?.map((item) => (
-                <MenuItem key={item._id} value={item._id}>
-                  {item.categoryName}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              "& button": { marginTop: 2, marginLeft: 2 },
-            }}
-          >
-            <Button
-              color="primary"
-              size="large"
-              variant="outlined"
-              onClick={deleteCategory}
-            >
-              Delete
-            </Button>
-            <Button
-              color="warning"
-              size="large"
-              variant="outlined"
-              onClick={() => handleClear("delete")}
-            >
-              Clear
-            </Button>
-          </Box>
-        </Grid>
+      </Grid>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          "& button": { marginTop: 2, marginLeft: 2 },
+        }}
+      >
+        <Button
+          color="primary"
+          size="medium"
+          variant="contained"
+          onClick={handleCreateCategory}
+          sx={{ borderRadius: 8 }}
+        >
+          Create
+        </Button>
+        <Button
+          color="warning"
+          size="medium"
+          variant="outlined"
+          onClick={() => handleClear()}
+          sx={{ borderRadius: 8 }}
+        >
+          Clear
+        </Button>
       </Box>
-    </form>
+
+      <Box sx={{ boxShadow: 2, borderRadius: 1, marginTop: 2 }}>
+        <TableContainer
+          ref={tableRef}
+          component={Paper}
+          sx={{
+            height: 300,
+            width: "100%",
+            overflowY: "auto",
+            "&::-webkit-scrollbar": {
+              width: 10,
+              height: 10,
+            },
+            "&::-webkit-scrollbar-track": {
+              backgroundColor: "#fff",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "#d5d8df",
+              borderRadius: 2,
+            },
+          }}
+        >
+          <Table>
+            <TableHead>
+              <TableRow
+                sx={{
+                  backgroundColor: "inherit",
+                }}
+              >
+                <TableCell align="center" style={{ minWidth: "80px" }}>
+                  S. No.
+                </TableCell>
+                <TableCell align="center" style={{ minWidth: "200px" }}>
+                  Category Name
+                </TableCell>
+                <TableCell align="center" style={{ minWidth: "200px" }}>
+                  Main Group
+                </TableCell>
+                <TableCell align="center" style={{ minWidth: "120px" }}>
+                  Index Number
+                </TableCell>
+                <TableCell align="center" style={{ minWidth: "120px" }}>
+                  Group Number
+                </TableCell>
+
+                <TableCell align="center" style={{ minWidth: "150px" }}>
+                  Action
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {allCategory.map((supplier, index) => (
+                <TableRow
+                  key={supplier._id}
+                  sx={{
+                    backgroundColor: "#fff",
+                  }}
+                >
+                  <TableCell align="center">{index + 1}</TableCell>
+                  <TableCell align="center">
+                    {editableIndex === index ? (
+                      <Input
+                        value={editedRow.categoryName || supplier.categoryName}
+                        onChange={(e) =>
+                          setEditedRow({
+                            ...editedRow,
+                            categoryName: e.target.value,
+                          })
+                        }
+                      />
+                    ) : (
+                      supplier.categoryName
+                    )}
+                  </TableCell>
+                  <TableCell align="center">
+                    {editableIndex === index ? (
+                      <Input
+                        value={editedRow.mainGroup || supplier.mainGroup}
+                        onChange={(e) =>
+                          setEditedRow({
+                            ...editedRow,
+                            mainGroup: e.target.value,
+                          })
+                        }
+                      />
+                    ) : (
+                      supplier.mainGroup
+                    )}
+                  </TableCell>
+                  <TableCell align="center">
+                    {editableIndex === index ? (
+                      <Input
+                        value={editedRow.indexNo || supplier.indexNo}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (!isNaN(value)) {
+                            setEditedRow({
+                              ...editedRow,
+                              indexNo: value,
+                            });
+                          }
+                        }}
+                      />
+                    ) : (
+                      supplier.indexNo
+                    )}
+                  </TableCell>
+                  <TableCell align="center">
+                    {editableIndex === index ? (
+                      <Input
+                        value={editedRow.groupNo || supplier.groupNo}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (!isNaN(value)) {
+                            setEditedRow({
+                              ...editedRow,
+                              groupNo: value,
+                            });
+                          }
+                        }}
+                      />
+                    ) : (
+                      supplier.groupNo
+                    )}
+                  </TableCell>
+                  <TableCell align="center">
+                    {editableIndex === index ? (
+                      <SaveIcon
+                        sx={{ cursor: "pointer", color: "green" }}
+                        onClick={() => handleSaveCategory(supplier._id)}
+                      />
+                    ) : (
+                      <EditIcon
+                        sx={{ cursor: "pointer", color: "blue" }}
+                        onClick={() => handleEditCategory(index, supplier._id)}
+                      />
+                    )}
+                    <CloseIcon
+                      sx={{ cursor: "pointer", color: "red" }}
+                      onClick={() => handleRemoveCategory(supplier._id)}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+    </Box>
   );
 };
 

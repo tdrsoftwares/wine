@@ -5,7 +5,6 @@ import {
   TextField,
   Typography,
   Grid,
-  MenuItem,
   InputLabel,
   TableContainer,
   Paper,
@@ -389,7 +388,9 @@ const SuppliersRegister = () => {
         >
           <Table>
             <TableHead>
-              <TableRow>
+              <TableRow sx={{
+                  backgroundColor: "inherit",
+                }}>
                 <TableCell align="center" style={{ minWidth: "80px" }}>
                   S. No.
                 </TableCell>

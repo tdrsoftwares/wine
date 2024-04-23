@@ -95,7 +95,7 @@ const BrandRegister = () => {
     const payload = {
       name: editedRow.name,
       type: editedRow.type,
-      companyId: editedRow.companyName,
+      companyId: editedRow.companyId,
       indexNo: editedRow.indexNo,
     };
     try {
@@ -163,7 +163,6 @@ const BrandRegister = () => {
   const fetchAllCompanies = async () => {
     try {
       const allCompaniesResponse = await getAllCompanies(loginResponse);
-      // console.log("allCompaniesResponse ---> ", allCompaniesResponse);
       setAllCompanies(allCompaniesResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
@@ -182,7 +181,6 @@ const BrandRegister = () => {
   const handleEditClick = (index, brandId) => {
     setEditableIndex(index);
     const selectedBrand = allBrands.find((brand) => brand._id === brandId);
-    console.log("selectedBrand", selectedBrand);
     setEditedRow(selectedBrand);
   };
 
@@ -241,9 +239,9 @@ const BrandRegister = () => {
               }}
               onChange={(e) => setCompanyName(e.target.value)}
             >
-              {allCompanies?.map((item) => (
-                <MenuItem key={item._id} value={item._id}>
-                  {item.name}
+              {allCompanies?.map((company) => (
+                <MenuItem key={company._id} value={company._id}>
+                  {company.name}
                 </MenuItem>
               ))}
             </TextField>
@@ -270,8 +268,6 @@ const BrandRegister = () => {
             </TextField>
           </div>
         </Grid>
-
-        
 
         <Grid item xs={4}>
           <div className="input-wrapper">
@@ -342,7 +338,11 @@ const BrandRegister = () => {
         >
           <Table>
             <TableHead>
-              <TableRow>
+              <TableRow
+                sx={{
+                  backgroundColor: "inherit",
+                }}
+              >
                 <TableCell align="center">S. No.</TableCell>
                 <TableCell align="center">Brand Name</TableCell>
                 <TableCell align="center">Company Name</TableCell>
@@ -352,99 +352,89 @@ const BrandRegister = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {allBrands ? (
-                allBrands.map((brand, index) => (
-                  <TableRow
-                    key={index}
-                    sx={{
-                      backgroundColor: "#fff",
-                    }}
-                  >
-                    <TableCell align="center">{index + 1}</TableCell>
-                    <TableCell align="center">
-                      {editableIndex === index ? (
-                        <Input
-                          value={editedRow.name}
-                          onChange={(e) =>
-                            setEditedRow({ ...editedRow, name: e.target.value })
-                          }
-                        />
-                      ) : (
-                        brand.name
-                      )}
-                    </TableCell>
-
-                    <TableCell align="center">
-                      {editableIndex === index ? (
-                        <Input
-                          value={editedRow?.companyName}
-                          onChange={(e) =>
-                            setEditedRow({ ...editedRow, companyName: e.target.value })
-                          }
-                        />
-                      ) : (
-                        brand?.companyId?.name
-                      )}
-                    </TableCell>
-
-                    <TableCell align="center">
-                      {editableIndex === index ? (
-                        <Input
-                          value={editedRow.type}
-                          onChange={(e) =>
-                            setEditedRow({ ...editedRow, type: e.target.value })
-                          }
-                        />
-                      ) : (
-                        <span>{brand.type}</span>
-                      )}
-                    </TableCell>
-
-                    <TableCell align="center">
-                      {editableIndex === index ? (
-                        <Input
-                          value={editedRow.indexNo}
-                          onChange={(e) =>
-                            setEditedRow({
-                              ...editedRow,
-                              indexNo: e.target.value,
-                            })
-                          }
-                        />
-                      ) : (
-                        brand.indexNo
-                      )}
-                    </TableCell>
-                    <TableCell align="center">
-                      {editableIndex !== index ? (
-                        <EditIcon
-                          sx={{ cursor: "pointer", color: "blue" }}
-                          onClick={() => handleEditClick(index, brand._id)}
-                        />
-                      ) : (
-                        <SaveIcon
-                          sx={{ cursor: "pointer", color: "green" }}
-                          onClick={() => handleSaveClick(brand._id)}
-                        />
-                      )}
-                      <CloseIcon
-                        sx={{ cursor: "pointer", color: "red" }}
-                        onClick={() => handleRemoveBrand(brand._id)}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
+              {allBrands.map((brand, index) => (
                 <TableRow
+                  key={brand._id}
                   sx={{
                     backgroundColor: "#fff",
                   }}
                 >
-                  <TableCell colSpan={5} align="center">
-                    No Data
+                  <TableCell align="center">{index + 1}</TableCell>
+                  <TableCell align="center">
+                    {editableIndex === index ? (
+                      <Input
+                        value={editedRow.name || brand.name}
+                        onChange={(e) =>
+                          setEditedRow({ ...editedRow, name: e.target.value })
+                        }
+                      />
+                    ) : (
+                      brand.name
+                    )}
+                  </TableCell>
+                  <TableCell align="center">
+                    {editableIndex === index ? (
+                      <Input
+                        value={
+                          editedRow.companyId?.name || brand.companyId?.name
+                        }
+                        onChange={(e) =>
+                          setEditedRow({
+                            ...editedRow,
+                            companyId: { name: e.target.value },
+                          })
+                        }
+                      />
+                    ) : (
+                      brand?.companyId?.name
+                    )}
+                  </TableCell>
+                  <TableCell align="center">
+                    {editableIndex === index ? (
+                      <Input
+                        value={editedRow.type || brand.type}
+                        onChange={(e) =>
+                          setEditedRow({ ...editedRow, type: e.target.value })
+                        }
+                      />
+                    ) : (
+                      brand.type
+                    )}
+                  </TableCell>
+                  <TableCell align="center">
+                    {editableIndex === index ? (
+                      <Input
+                        value={editedRow.indexNo || brand.indexNo}
+                        onChange={(e) =>
+                          setEditedRow({
+                            ...editedRow,
+                            indexNo: e.target.value,
+                          })
+                        }
+                      />
+                    ) : (
+                      brand.indexNo
+                    )}
+                  </TableCell>
+                  <TableCell align="center">
+                    {editableIndex === index ? (
+                      <SaveIcon
+                        sx={{ cursor: "pointer", color: "green" }}
+                        onClick={() => handleSaveClick(brand._id)}
+                      />
+                    ) : (
+                      <EditIcon
+                        sx={{ cursor: "pointer", color: "blue" }}
+                        onClick={() => handleEditClick(index, brand._id)}
+                      />
+                    )}
+                    <CloseIcon
+                      sx={{ cursor: "pointer", color: "red" }}
+                      onClick={() => handleRemoveBrand(brand._id)}
+                    />
                   </TableCell>
                 </TableRow>
-              )}
+              ))}
             </TableBody>
           </Table>
         </TableContainer>
