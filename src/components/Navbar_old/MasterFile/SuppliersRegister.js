@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   Button,
@@ -6,6 +6,15 @@ import {
   Typography,
   Grid,
   MenuItem,
+  InputLabel,
+  TableContainer,
+  Paper,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Input,
 } from "@mui/material";
 import {
   getAllSuppliers,
@@ -15,22 +24,15 @@ import {
 } from "../../../services/supplierService";
 import { NotificationManager } from "react-notifications";
 import { useLoginContext } from "../../../utils/loginContext";
+import CloseIcon from "@mui/icons-material/Close";
+import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
 
 const SuppliersRegister = () => {
   const { loginResponse } = useLoginContext();
 
   const [formData, setFormData] = useState({
-    supName: "",
-    address: "",
-    contactNo: "",
-    gstinNo: "",
-    panNo: "",
-    cinNo: "",
-    openingBlance: "",
-  });
-
-  const [newFormData, setNewFormData] = useState({
-    supName: "",
+    name: "",
     address: "",
     contactNo: "",
     gstinNo: "",
@@ -40,18 +42,17 @@ const SuppliersRegister = () => {
   });
 
   const [allSuppliers, setAllSuppliers] = useState([]);
-  const [existingSupplierUpdate, setExistingSupplierUpdate] = useState("");
-  const [existingSupplierDelete, setExistingSupplierDelete] = useState("");
+  const [editableIndex, setEditableIndex] = useState(null);
+  const [editedRow, setEditedRow] = useState({});
+  const tableRef = useRef(null);
 
-  console.log("newFormData: ", newFormData);
-  
   useEffect(() => {
     fetchAllSuppliers();
   }, []);
 
   const clearForm = () => {
     setFormData({
-      supName: "",
+      name: "",
       address: "",
       contactNo: "",
       gstinNo: "",
@@ -81,7 +82,7 @@ const SuppliersRegister = () => {
 
   const handleCreateSupplier = async () => {
     if (
-      !formData.supName ||
+      !formData.name ||
       !formData.address ||
       !formData.contactNo ||
       !formData.gstinNo ||
@@ -96,7 +97,7 @@ const SuppliersRegister = () => {
       return;
     }
 
-    if ((formData.contactNo).length < 10) {
+    if (formData.contactNo.length < 10) {
       NotificationManager.warning("Invalid Mobile Number.", "Validation Error");
       return;
     }
@@ -112,7 +113,7 @@ const SuppliersRegister = () => {
     }
 
     const payload = {
-      name: formData.supName,
+      name: formData.name,
       address: formData.address,
       contactNo: formData.contactNo,
       gstinNo: formData.gstinNo,
@@ -144,34 +145,48 @@ const SuppliersRegister = () => {
     }
   };
 
-  const handleUpdateSupplier = async () => {
-    if (!existingSupplierUpdate) {
-      NotificationManager.warning(
-        "Please select a supplier to update.",
+  const handleMobileChange = (event) => {
+    const regex = /^[0-9]{0,10}$/;
+    if (regex.test(event.target.value) || event.target.value === "") {
+      setFormData((prevState) => ({
+        ...prevState,
+        contactNo: event.target.value,
+      }));
+    } else {
+      NotificationManager.warning("Only 10 digits are allowed.", "", 500);
+    }
+  };
+
+  const fetchAllSuppliers = async () => {
+    try {
+      const allItemsResponse = await getAllSuppliers(loginResponse);
+      setAllSuppliers(allItemsResponse?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching suppliers. Please try again later.",
         "Error"
       );
-      return;
     }
+  };
 
-    const payload = {
-      name: newFormData.supName,
-      address: newFormData.address,
-      contactNo: newFormData.contactNo,
-      gstinNo: newFormData.gstinNo,
-      panNo: newFormData.panNo,
-      cinNo: newFormData.cinNo,
-      openingBlance: newFormData.openingBlance,
-    };
+  const handleEditClick = (index, id) => {
+    setEditableIndex(index);
+    const editedSupplier = allSuppliers.find((supplier) => supplier._id === id);
+    setEditedRow({ ...editedSupplier });
+  };
+
+  const handleSaveClick = async (id) => {
 
     try {
       const updateItemResponse = await updateSupplier(
-        payload,
-        existingSupplierUpdate,
+        editedRow,
+        id,
         loginResponse
       );
       if (updateItemResponse.status === 200) {
         NotificationManager.success("Supplier updated successfully", "Success");
-        setExistingSupplierUpdate("");
+        setEditableIndex(null);
+        setEditedRow({});
         fetchAllSuppliers();
       } else {
         NotificationManager.error(
@@ -187,384 +202,354 @@ const SuppliersRegister = () => {
     }
   };
 
-  const handleDeleteSupplier = async () => {
+  const handleRemoveSupplier = async (id) => {
+
     try {
-      const deleteItemResponse = await deleteSupplier(
-        existingSupplierDelete,
-        loginResponse
-      );
+      const deleteItemResponse = await deleteSupplier(id, loginResponse);
       if (deleteItemResponse.status === 200) {
-        NotificationManager.success("Item deleted successfully", "Success");
-        setExistingSupplierDelete("");
+        NotificationManager.success("Supplier deleted successfully", "Success");
         fetchAllSuppliers();
       } else {
         NotificationManager.error(
-          "Error deleting item. Please try again later.",
+          "Error deleting supplier. Please try again later.",
           "Error"
         );
       }
     } catch (error) {
       NotificationManager.error(
-        "Error deleting item. Please try again later.",
-        "Error"
-      );
-    }
-  };
-
-  const fetchAllSuppliers = async () => {
-    try {
-      const allItemsResponse = await getAllSuppliers(loginResponse);
-      console.log("allItemsResponse: ", allItemsResponse);
-      setAllSuppliers(allItemsResponse?.data?.data);
-    } catch (error) {
-      NotificationManager.error(
-        "Error fetching suppliers. Please try again later.",
+        "Error deleting supplier. Please try again later.",
         "Error"
       );
     }
   };
 
   return (
-    <form>
-      <Box sx={{ p: 2, width: "900px" }}>
-        <Typography variant="h5" component="div" gutterBottom>
-          Suppliers Register
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          Suppliers Details
-        </Typography>
+    <Box sx={{ p: 2, width: "900px" }}>
+      <Typography variant="subtitle1" sx={{ marginBottom: 2 }}>
+        Create Supplier:
+      </Typography>
 
-        <Grid container spacing={2}>
-          <Grid item xs={3}>
+      <Grid container spacing={2}>
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="name" className="input-label">
+              Supplier Name :
+            </InputLabel>
             <TextField
-              name="supName"
-              label="Name of Supplier/Company"
-              variant="outlined"
               fullWidth
+              size="small"
+              name="name"
               className="input-field"
-              value={formData.supName}
+              value={formData.name}
               onChange={handleSupplierChange}
             />
-          </Grid>
+          </div>
+        </Grid>
 
-          <Grid item xs={3}>
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="address" className="input-label">
+              Address :
+            </InputLabel>
             <TextField
-              name="address"
-              label="Address"
-              variant="outlined"
               fullWidth
+              size="small"
+              name="address"
               className="input-field"
               value={formData.address}
               onChange={handleSupplierChange}
             />
-          </Grid>
-          <Grid item xs={3}>
+          </div>
+        </Grid>
+
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="contactNo" className="input-label">
+              Mobile Number :
+            </InputLabel>
             <TextField
-              type="number"
-              name="contactNo"
-              label="Mobile Number"
-              variant="outlined"
               fullWidth
+              size="small"
+              name="contactNo"
               className="input-field"
               value={formData.contactNo}
-              onChange={handleSupplierChange}
+              onChange={handleMobileChange}
             />
-          </Grid>
-          <Grid item xs={3}>
+          </div>
+        </Grid>
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="gstinNo" className="input-label">
+              GSTIN Number :
+            </InputLabel>
             <TextField
-              name="gstinNo"
-              label="GSTIN Number"
-              variant="outlined"
               fullWidth
+              size="small"
+              name="gstinNo"
               className="input-field"
               value={formData.gstinNo}
               onChange={handleSupplierChange}
             />
-          </Grid>
-          <Grid item xs={3}>
+          </div>
+        </Grid>
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="panNo" className="input-label">
+              PAN Number :
+            </InputLabel>
             <TextField
-              name="panNo"
-              label="PAN Number"
-              variant="outlined"
               fullWidth
+              size="small"
+              name="panNo"
               className="input-field"
               value={formData.panNo}
               onChange={handleSupplierChange}
             />
-          </Grid>
-          <Grid item xs={3}>
+          </div>
+        </Grid>
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="cinNo" className="input-label">
+              CIN Number :
+            </InputLabel>
             <TextField
-              name="cinNo"
-              label="CIN Number"
-              variant="outlined"
               fullWidth
+              size="small"
+              name="cinNo"
               className="input-field"
               value={formData.cinNo}
               onChange={handleSupplierChange}
             />
-          </Grid>
-          <Grid item xs={3}>
+          </div>
+        </Grid>
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="openingBlance" className="input-label">
+              Opening Balance :
+            </InputLabel>
             <TextField
+              fullWidth
+              size="small"
               type="number"
               name="openingBlance"
-              label="Opening Balance"
-              variant="outlined"
-              fullWidth
               className="input-field"
               value={formData.openingBlance}
               onChange={handleSupplierChange}
             />
-          </Grid>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              "& button": { marginTop: 2, marginLeft: 2 },
-            }}
-          >
-            <Button
-              color="primary"
-              size="large"
-              variant="outlined"
-              onClick={handleCreateSupplier}
-            >
-              Create
-            </Button>
-            <Button
-              color="warning"
-              size="large"
-              variant="outlined"
-              onClick={clearForm}
-            >
-              Clear
-            </Button>
-          </Box>
+          </div>
         </Grid>
+      </Grid>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          "& button": { marginTop: 2, marginLeft: 2 },
+        }}
+      >
+        <Button
+          color="primary"
+          size="medium"
+          variant="contained"
+          onClick={handleCreateSupplier}
+          sx={{ borderRadius: 8 }}
+        >
+          Create
+        </Button>
+        <Button
+          color="warning"
+          size="medium"
+          variant="outlined"
+          onClick={clearForm}
+          sx={{ borderRadius: 8 }}
+        >
+          Clear
+        </Button>
+      </Box>
 
-        <Typography variant="subtitle1" gutterBottom sx={{ marginTop: 2 }}>
-          Update Supplier
-        </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={3}>
-            <TextField
-              select
-              fullWidth
-              name="existingSupplierUpdate"
-              label="Existing Supplier"
-              value={existingSupplierUpdate}
-              variant="outlined"
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
-                    },
-                  },
-                },
-              }}
-              onChange={(e) => {
-                setExistingSupplierUpdate(e.target.value);
-                const selectedSupplier = allSuppliers.find(
-                  (supplier) => supplier._id === e.target.value
-                );
-                setNewFormData(selectedSupplier);
-              }}
-            >
-              {allSuppliers?.map((item) => (
-                <MenuItem key={item._id} value={item._id}>
-                  {item.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-
-          {existingSupplierUpdate && (
-            <>
-              <Grid item xs={3}>
-                <TextField
-                  fullWidth
-                  type="text"
-                  name="newSupplierName"
-                  label="New Supplier Name"
-                  value={newFormData.supName}
-                  variant="outlined"
-                  onChange={(e) =>
-                    setNewFormData({ ...newFormData, supName: e.target.value })
-                  }
-                />
-              </Grid>
-              <Grid item xs={3}>
-                <TextField
-                  fullWidth
-                  type="text"
-                  name="address"
-                  label="Address"
-                  value={newFormData.address}
-                  variant="outlined"
-                  onChange={(e) =>
-                    setNewFormData({ ...newFormData, address: e.target.value })
-                  }
-                />
-              </Grid>
-              <Grid item xs={3}>
-                <TextField
-                  fullWidth
-                  type="number"
-                  name="contactNo"
-                  label="Mobile Number"
-                  value={newFormData.contactNo}
-                  variant="outlined"
-                  onChange={(e) =>
-                    setNewFormData({
-                      ...newFormData,
-                      contactNo: e.target.value,
-                    })
-                  }
-                />
-              </Grid>
-              <Grid item xs={3}>
-                <TextField
-                  fullWidth
-                  type="text"
-                  name="gstinNo"
-                  label="GSTIN Number"
-                  value={newFormData.gstinNo}
-                  variant="outlined"
-                  onChange={(e) =>
-                    setNewFormData({ ...newFormData, gstinNo: e.target.value })
-                  }
-                />
-              </Grid>
-              <Grid item xs={3}>
-                <TextField
-                  fullWidth
-                  type="text"
-                  name="panNo"
-                  label="PAN Number"
-                  value={newFormData.panNo}
-                  variant="outlined"
-                  onChange={(e) =>
-                    setNewFormData({ ...newFormData, panNo: e.target.value })
-                  }
-                />
-              </Grid>
-              <Grid item xs={3}>
-                <TextField
-                  fullWidth
-                  type="text"
-                  name="cinNo"
-                  label="CIN Number"
-                  value={newFormData.cinNo}
-                  variant="outlined"
-                  onChange={(e) =>
-                    setNewFormData({ ...newFormData, cinNo: e.target.value })
-                  }
-                />
-              </Grid>
-              <Grid item xs={3}>
-                <TextField
-                  fullWidth
-                  type="number"
-                  name="openingBlance"
-                  label="Opening Balance"
-                  value={newFormData.openingBlance}
-                  variant="outlined"
-                  onChange={(e) =>
-                    setNewFormData({
-                      ...newFormData,
-                      openingBlance: e.target.value,
-                    })
-                  }
-                />
-              </Grid>
-            </>
-          )}
-        </Grid>
-
-        <Box
+      <Box sx={{ boxShadow: 2, borderRadius: 1, marginTop: 2 }}>
+        <TableContainer
+          ref={tableRef}
+          component={Paper}
           sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            "& button": { marginTop: 2, marginLeft: 2 },
+            height: 300,
+            width: "100%",
+            overflowY: "auto",
+            "&::-webkit-scrollbar": {
+              width: 10,
+              height: 10,
+            },
+            "&::-webkit-scrollbar-track": {
+              backgroundColor: "#fff",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "#d5d8df",
+              borderRadius: 2,
+            },
           }}
         >
-          <Button
-            color="primary"
-            size="large"
-            variant="outlined"
-            onClick={handleUpdateSupplier}
-          >
-            Change
-          </Button>
-          <Button
-            color="warning"
-            size="large"
-            variant="outlined"
-            onClick={() => {
-              setExistingSupplierUpdate("");
-            }}
-          >
-            Clear
-          </Button>
-        </Box>
-
-        <Typography variant="subtitle1" gutterBottom sx={{ marginTop: 2 }}>
-          Delete Supplier
-        </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={3}>
-            <TextField
-              select
-              fullWidth
-              name="existingSupplierDelete"
-              label="Existing Supplier"
-              value={existingSupplierDelete}
-              variant="outlined"
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
-                    },
-                  },
-                },
-              }}
-              onChange={(e) => setExistingSupplierDelete(e.target.value)}
-            >
-              {allSuppliers?.map((item) => (
-                <MenuItem key={item._id} value={item._id}>
-                  {item.name}
-                </MenuItem>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell align="center" style={{ minWidth: "80px" }}>
+                  S. No.
+                </TableCell>
+                <TableCell align="center" style={{ minWidth: "200px" }}>
+                  Supplier Name
+                </TableCell>
+                <TableCell align="center" style={{ minWidth: "200px" }}>
+                  Address
+                </TableCell>
+                <TableCell align="center" style={{ minWidth: "150px" }}>
+                  Mobile Number
+                </TableCell>
+                <TableCell align="center" style={{ minWidth: "150px" }}>
+                  GSTIN Number
+                </TableCell>
+                <TableCell align="center" style={{ minWidth: "150px" }}>
+                  PAN Number
+                </TableCell>
+                <TableCell align="center" style={{ minWidth: "150px" }}>
+                  CIN Number
+                </TableCell>
+                <TableCell align="center" style={{ minWidth: "150px" }}>
+                  Opening Balance
+                </TableCell>
+                <TableCell align="center" style={{ minWidth: "120px" }}>
+                  Action
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {allSuppliers.map((supplier, index) => (
+                <TableRow key={supplier._id} sx={{
+                  backgroundColor: "#fff",
+                }}>
+                  <TableCell align="center">{index + 1}</TableCell>
+                  <TableCell align="center">
+                    {editableIndex === index ? (
+                      <Input
+                        value={editedRow.name || supplier.name}
+                        onChange={(e) =>
+                          setEditedRow({
+                            ...editedRow,
+                            name: e.target.value,
+                          })
+                        }
+                      />
+                    ) : (
+                      supplier.name
+                    )}
+                  </TableCell>
+                  <TableCell align="center">
+                    {editableIndex === index ? (
+                      <Input
+                        value={editedRow.address || supplier.address}
+                        onChange={(e) =>
+                          setEditedRow({
+                            ...editedRow,
+                            address: e.target.value,
+                          })
+                        }
+                      />
+                    ) : (
+                      supplier.address
+                    )}
+                  </TableCell>
+                  <TableCell align="center">
+                    {editableIndex === index ? (
+                      <Input
+                        value={editedRow.contactNo || supplier.contactNo}
+                        onChange={(e) =>
+                          setEditedRow({
+                            ...editedRow,
+                            contactNo: e.target.value,
+                          })
+                        }
+                      />
+                    ) : (
+                      supplier.contactNo
+                    )}
+                  </TableCell>
+                  <TableCell align="center">
+                    {editableIndex === index ? (
+                      <Input
+                        value={editedRow.gstinNo || supplier.gstinNo}
+                        onChange={(e) =>
+                          setEditedRow({
+                            ...editedRow,
+                            gstinNo: e.target.value,
+                          })
+                        }
+                      />
+                    ) : (
+                      supplier.gstinNo
+                    )}
+                  </TableCell>
+                  <TableCell align="center">
+                    {editableIndex === index ? (
+                      <Input
+                        value={editedRow.panNo || supplier.panNo}
+                        onChange={(e) =>
+                          setEditedRow({ ...editedRow, panNo: e.target.value })
+                        }
+                      />
+                    ) : (
+                      supplier.panNo
+                    )}
+                  </TableCell>
+                  <TableCell align="center">
+                    {editableIndex === index ? (
+                      <Input
+                        value={editedRow.cinNo || supplier.cinNo}
+                        onChange={(e) =>
+                          setEditedRow({ ...editedRow, cinNo: e.target.value })
+                        }
+                      />
+                    ) : (
+                      supplier.cinNo
+                    )}
+                  </TableCell>
+                  <TableCell align="center">
+                    {editableIndex === index ? (
+                      <Input
+                        value={
+                          editedRow.openingBlance || supplier.openingBlance
+                        }
+                        onChange={(e) =>
+                          setEditedRow({
+                            ...editedRow,
+                            openingBlance: e.target.value,
+                          })
+                        }
+                      />
+                    ) : (
+                      supplier.openingBlance
+                    )}
+                  </TableCell>
+                  <TableCell align="center">
+                    {editableIndex === index ? (
+                      <SaveIcon
+                        sx={{ cursor: "pointer", color: "green" }}
+                        onClick={() => handleSaveClick(supplier._id)}
+                      />
+                    ) : (
+                      <EditIcon
+                        sx={{ cursor: "pointer", color: "blue" }}
+                        onClick={() => handleEditClick(index, supplier._id)}
+                      />
+                    )}
+                    <CloseIcon
+                      sx={{ cursor: "pointer", color: "red" }}
+                      onClick={() => handleRemoveSupplier(supplier._id)}
+                    />
+                  </TableCell>
+                </TableRow>
               ))}
-            </TextField>
-          </Grid>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              "& button": { marginTop: 2, marginLeft: 2 },
-            }}
-          >
-            <Button
-              color="primary"
-              size="large"
-              variant="outlined"
-              onClick={handleDeleteSupplier}
-            >
-              Delete
-            </Button>
-            <Button
-              color="warning"
-              size="large"
-              variant="outlined"
-              onClick={() => setExistingSupplierDelete("")}
-            >
-              Clear
-            </Button>
-          </Box>
-        </Grid>
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Box>
-    </form>
+    </Box>
   );
 };
 
