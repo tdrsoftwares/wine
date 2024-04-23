@@ -338,11 +338,7 @@ const BrandRegister = () => {
         >
           <Table>
             <TableHead>
-              <TableRow
-                sx={{
-                  backgroundColor: "inherit",
-                }}
-              >
+              <TableRow className="table-head-2">
                 <TableCell align="center">S. No.</TableCell>
                 <TableCell align="center">Brand Name</TableCell>
                 <TableCell align="center">Company Name</TableCell>

@@ -267,7 +267,7 @@ const StoreInfo = () => {
         >
           <Table>
             <TableHead>
-              <TableRow>
+              <TableRow className="table-head-2">
                 <TableCell align="center">S. No.</TableCell>
                 <TableCell align="center">Store Name</TableCell>
                 <TableCell align="center">Store Type</TableCell>

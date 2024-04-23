@@ -388,9 +388,7 @@ const SuppliersRegister = () => {
         >
           <Table>
             <TableHead>
-              <TableRow sx={{
-                  backgroundColor: "inherit",
-                }}>
+              <TableRow className="table-head-2">
                 <TableCell align="center" style={{ minWidth: "80px" }}>
                   S. No.
                 </TableCell>

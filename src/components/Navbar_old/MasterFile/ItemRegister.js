@@ -513,7 +513,7 @@ const ItemRegister = () => {
           >
             <Table>
               <TableHead>
-                <TableRow>
+                <TableRow className="table-head-2">
                   <TableCell align="center" style={{ minWidth: "80px" }}>
                     S. No.
                   </TableCell>
