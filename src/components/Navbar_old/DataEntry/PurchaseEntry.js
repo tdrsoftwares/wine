@@ -27,6 +27,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import debounce from "lodash.debounce";
+import ItemRegisterModal from "./ItemRegisterModal";
 
 const PurchaseEntry = () => {
   const { loginResponse } = useLoginContext();
@@ -37,7 +38,8 @@ const PurchaseEntry = () => {
   const [purchases, setPurchases] = useState([]);
   const [searchMode, setSearchMode] = useState(false);
 
-  console.log("purchases: ", purchases);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [entryNumber, setEntryNumber] = useState("");
   const [entryNoEditable, setEntryNoEditable] = useState(true);
   const [formData, setFormData] = useState({
@@ -1473,6 +1475,7 @@ const PurchaseEntry = () => {
             />
           </Grid>
         </Grid>
+        
       </Box>
       <Box
         sx={{
@@ -1480,6 +1483,16 @@ const PurchaseEntry = () => {
           justifyContent: "flex-end",
         }}
       >
+        <ItemRegisterModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+        <Button
+          color="inherit"
+          size="medium"
+          variant="outlined"
+          onClick={() => setIsModalOpen(true)}
+          sx={{ marginTop: 3, marginRight: 2 }}
+        >
+          CREATE ITEM
+        </Button>
         <Button
           color="success"
           size="medium"
