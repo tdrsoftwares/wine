@@ -272,9 +272,13 @@ body {
   text-wrap: nowrap;
 }
 
-.table-head tr th{
+.table-head tr th, .table-head-2 tr th{
   font-size: 13.5px;
   text-wrap: nowrap;
+}
+
+.table-head-2 {
+  background-color: #91ccff21 !important;
 }
 
 .purchase-data-table tr td input{
