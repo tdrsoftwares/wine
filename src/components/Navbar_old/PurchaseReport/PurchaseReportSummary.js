@@ -364,33 +364,33 @@ const PurchaseReportSummary = () => {
         sx={{
           display: "flex",
           justifyContent: "flex-end",
-          marginTop: 2,
+          "& button": { marginTop: 2, marginLeft: 2 },
         }}
       >
         <Button
           color="primary"
-          size="large"
-          variant="outlined"
+          size="medium"
+          variant="contained"
           onClick={() => {}}
-          sx={{ marginTop: 2, marginRight: 2 }}
+          sx={{ borderRadius: 8 }}
         >
           Display
         </Button>
         <Button
           color="secondary"
-          size="large"
-          variant="outlined"
+          size="medium"
+          variant="contained"
           onClick={() => {}}
-          sx={{ marginTop: 2, marginRight: 2 }}
+          sx={{ borderRadius: 8 }}
         >
           Print
         </Button>
         <Button
           color="error"
-          size="large"
+          size="medium"
           variant="outlined"
           onClick={() => {}}
-          sx={{ marginTop: 2 }}
+          sx={{ borderRadius: 8 }}
         >
           Clear
         </Button>
