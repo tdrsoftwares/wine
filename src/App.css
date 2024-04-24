@@ -278,11 +278,19 @@ body {
 }
 
 .table-head-2 {
-  background-color: #91ccff21 !important;
+  background-color: #dae4ed !important;
 }
 
 .purchase-data-table tr td input{
   font-size: 12.5px;
+}
+
+.custom-datagrid {
+  background-color: #fff !important;
+}
+
+.custom-datagrid .css-yrdy0g-MuiDataGrid-columnHeaderRow{
+  background: #dae4ed !important;
 }
 
 @media (max-width: 768px) {
