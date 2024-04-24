@@ -25,9 +25,22 @@ export const updatePurchase = async (payload, id, loginResponse) => {
   }
 };
 
+// export const getAllPurchases = async (loginResponse, filterOptions) => {
+//   try {
+//     const { page, limit, supplierName, fromDate, toDate } = filterOptions;
+//     const apiURL = `${url}/purchases/reports?page=${page}&limit=${limit}&supplierName=${supplierName}&fromDate=${fromDate}&toDate=${toDate}`;
+//     const allPurchasesData = await axios.get(apiURL, {
+//       headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
+//     });
+//     return allPurchasesData;
+//   } catch (error) {
+//     return error;
+//   }
+// };
+
 export const getAllPurchases = async (loginResponse) => {
   try {
-    const apiURL = `${url}/purchases/get-all/`;
+    const apiURL = `${url}/purchases/reports`;
     const allPurchasesData = await axios.get(apiURL, {
       headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
     });
