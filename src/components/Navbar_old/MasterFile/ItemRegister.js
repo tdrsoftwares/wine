@@ -12,7 +12,9 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
+  TableSortLabel,
   TextField,
   Typography,
 } from "@mui/material";
@@ -50,6 +52,10 @@ const ItemRegister = () => {
   const [editableIndex, setEditableIndex] = useState(null);
   const [editedRow, setEditedRow] = useState({});
 
+  const [sortBy, setSortBy] = useState(null);
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const tableRef = useRef(null);
 
   const clearForm = () => {
@@ -236,6 +242,45 @@ const ItemRegister = () => {
     setEditableIndex(index);
     const selectedItem = allItems.find((item) => item._id === itemId);
     setEditedRow(selectedItem);
+  };
+
+  const handleSort = (column) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(column);
+      setSortOrder("asc");
+    }
+  };
+
+  const sortedData = () => {
+    let sorted = [...allItems];
+    if (sortBy) {
+      sorted.sort((a, b) => {
+        const firstValue =
+          typeof a[sortBy] === "string" ? a[sortBy].toLowerCase() : a[sortBy];
+        const secondValue =
+          typeof b[sortBy] === "string" ? b[sortBy].toLowerCase() : b[sortBy];
+        if (firstValue < secondValue) {
+          return sortOrder === "asc" ? -1 : 1;
+        }
+        if (firstValue > secondValue) {
+          return sortOrder === "asc" ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sorted;
+  };
+
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
   return (
@@ -490,7 +535,7 @@ const ItemRegister = () => {
           </Button>
         </Box>
 
-        <Box sx={{ boxShadow: 2, borderRadius: 1, marginTop: 2 }}>
+        <Box sx={{ borderRadius: 1, marginTop: 2 }}>
           <TableContainer
             ref={tableRef}
             component={Paper}
@@ -517,211 +562,265 @@ const ItemRegister = () => {
                   <TableCell align="center" style={{ minWidth: "80px" }}>
                     S. No.
                   </TableCell>
-                  <TableCell align="center" style={{ minWidth: "150px" }}>
-                    Item Name
+                  <TableCell style={{ minWidth: "150px" }}>
+                    <TableSortLabel
+                      active={sortBy === "name"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("name")}
+                    >
+                      Item Name
+                    </TableSortLabel>
                   </TableCell>
-                  <TableCell align="center" style={{ minWidth: "200px" }}>
-                    Description
+                  <TableCell style={{ minWidth: "200px" }}>
+                    <TableSortLabel
+                      active={sortBy === "description"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("description")}
+                    >
+                      Description
+                    </TableSortLabel>
                   </TableCell>
-                  <TableCell align="center" style={{ minWidth: "100px" }}>
-                    Category
+                  <TableCell style={{ minWidth: "100px" }}>
+                    <TableSortLabel
+                      active={sortBy === "categoryId"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("categoryId")}
+                    >
+                      Category
+                    </TableSortLabel>
                   </TableCell>
-                  <TableCell align="center" style={{ minWidth: "120px" }}>
-                    Sub Category
+                  <TableCell style={{ minWidth: "150px" }}>
+                    <TableSortLabel
+                      active={sortBy === "subCategory"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("subCategory")}
+                    >
+                      Sub Category
+                    </TableSortLabel>
                   </TableCell>
-                  <TableCell align="center" style={{ minWidth: "150px" }}>
-                    Company
+                  <TableCell style={{ minWidth: "150px" }}>
+                    <TableSortLabel
+                      active={sortBy === "companyId"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("companyId")}
+                    >
+                      Company
+                    </TableSortLabel>
                   </TableCell>
-                  <TableCell align="center" style={{ minWidth: "150px" }}>
-                    Brand
+                  <TableCell style={{ minWidth: "150px" }}>
+                    <TableSortLabel
+                      active={sortBy === "brandId"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("brandId")}
+                    >
+                      Brand
+                    </TableSortLabel>
                   </TableCell>
-                  <TableCell align="center" style={{ minWidth: "100px" }}>
-                    Volume
+                  <TableCell style={{ minWidth: "100px" }}>
+                    <TableSortLabel
+                      active={sortBy === "volume"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("volume")}
+                    >
+                      Volume
+                    </TableSortLabel>
                   </TableCell>
-                  <TableCell align="center" style={{ minWidth: "100px" }}>
-                    Group
+                  <TableCell style={{ minWidth: "100px" }}>
+                    <TableSortLabel
+                      active={sortBy === "group"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("group")}
+                    >
+                      Group
+                    </TableSortLabel>
                   </TableCell>
-                  <TableCell align="center" style={{ minWidth: "150px" }}>
-                    Case Value
+                  <TableCell style={{ minWidth: "150px" }}>
+                    <TableSortLabel
+                      active={sortBy === "caseValue"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("caseValue")}
+                    >
+                      Case Value
+                    </TableSortLabel>
                   </TableCell>
-                  <TableCell align="center" style={{ minWidth: "100px" }}>
-                    Action
-                  </TableCell>
+                  <TableCell style={{ minWidth: "100px" }}>Action</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {allItems ? (
-                  allItems.map((item, index) => (
-                    <TableRow
-                      key={index}
-                      sx={{
-                        backgroundColor: "#fff",
-                      }}
-                    >
-                      <TableCell align="center">{index + 1}</TableCell>
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.name}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                name: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          item.name
-                        )}
-                      </TableCell>
+                  sortedData()
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((item, index) => (
+                      <TableRow
+                        key={index}
+                        sx={{
+                          backgroundColor: "#fff",
+                        }}
+                      >
+                        <TableCell align="center">{page * rowsPerPage + index + 1}</TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.name}
+                              onChange={(e) =>
+                                setEditedRow({
+                                  ...editedRow,
+                                  name: e.target.value,
+                                })
+                              }
+                            />
+                          ) : (
+                            item.name
+                          )}
+                        </TableCell>
 
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.description}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                description: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          item.description
-                        )}
-                      </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.description}
+                              onChange={(e) =>
+                                setEditedRow({
+                                  ...editedRow,
+                                  description: e.target.value,
+                                })
+                              }
+                            />
+                          ) : (
+                            item.description
+                          )}
+                        </TableCell>
 
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.categoryId}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                categoryId: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          item.categoryId
-                        )}
-                      </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.categoryId}
+                              onChange={(e) =>
+                                setEditedRow({
+                                  ...editedRow,
+                                  categoryId: e.target.value,
+                                })
+                              }
+                            />
+                          ) : (
+                            item.categoryId
+                          )}
+                        </TableCell>
 
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.subCategory}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                subCategory: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          item.subCategory
-                        )}
-                      </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.subCategory}
+                              onChange={(e) =>
+                                setEditedRow({
+                                  ...editedRow,
+                                  subCategory: e.target.value,
+                                })
+                              }
+                            />
+                          ) : (
+                            item.subCategory
+                          )}
+                        </TableCell>
 
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.companyId}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                companyId: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          item.companyId
-                        )}
-                      </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.companyId}
+                              onChange={(e) =>
+                                setEditedRow({
+                                  ...editedRow,
+                                  companyId: e.target.value,
+                                })
+                              }
+                            />
+                          ) : (
+                            item.companyId
+                          )}
+                        </TableCell>
 
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.brandId}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                brandId: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          item.brandId
-                        )}
-                      </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.brandId}
+                              onChange={(e) =>
+                                setEditedRow({
+                                  ...editedRow,
+                                  brandId: e.target.value,
+                                })
+                              }
+                            />
+                          ) : (
+                            item.brandId
+                          )}
+                        </TableCell>
 
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.volume}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                volume: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          item.volume
-                        )}
-                      </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.volume}
+                              onChange={(e) =>
+                                setEditedRow({
+                                  ...editedRow,
+                                  volume: e.target.value,
+                                })
+                              }
+                            />
+                          ) : (
+                            item.volume
+                          )}
+                        </TableCell>
 
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.group}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                group: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          item.group
-                        )}
-                      </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.group}
+                              onChange={(e) =>
+                                setEditedRow({
+                                  ...editedRow,
+                                  group: e.target.value,
+                                })
+                              }
+                            />
+                          ) : (
+                            item.group
+                          )}
+                        </TableCell>
 
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.caseValue}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                caseValue: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          item.caseValue
-                        )}
-                      </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.caseValue}
+                              onChange={(e) =>
+                                setEditedRow({
+                                  ...editedRow,
+                                  caseValue: e.target.value,
+                                })
+                              }
+                            />
+                          ) : (
+                            item.caseValue
+                          )}
+                        </TableCell>
 
-                      <TableCell align="center">
-                        {editableIndex !== index ? (
-                          <EditIcon
-                            sx={{ cursor: "pointer", color: "blue" }}
-                            onClick={() => handleEditClick(index, item._id)}
+                        <TableCell>
+                          {editableIndex !== index ? (
+                            <EditIcon
+                              sx={{ cursor: "pointer", color: "blue" }}
+                              onClick={() => handleEditClick(index, item._id)}
+                            />
+                          ) : (
+                            <SaveIcon
+                              sx={{ cursor: "pointer", color: "green" }}
+                              onClick={() => handleSaveClick(item._id)}
+                            />
+                          )}
+                          <CloseIcon
+                            sx={{ cursor: "pointer", color: "red" }}
+                            onClick={() => handleDeleteItem(item._id)}
                           />
-                        ) : (
-                          <SaveIcon
-                            sx={{ cursor: "pointer", color: "green" }}
-                            onClick={() => handleSaveClick(item._id)}
-                          />
-                        )}
-                        <CloseIcon
-                          sx={{ cursor: "pointer", color: "red" }}
-                          onClick={() => handleDeleteItem(item._id)}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))
+                        </TableCell>
+                      </TableRow>
+                    ))
                 ) : (
                   <TableRow
                     sx={{
@@ -736,6 +835,16 @@ const ItemRegister = () => {
               </TableBody>
             </Table>
           </TableContainer>
+
+          <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={allItems.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
         </Box>
       </Box>
     </form>
