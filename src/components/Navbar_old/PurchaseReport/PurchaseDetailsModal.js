@@ -1,14 +1,127 @@
-import React from "react";
-import {
-  Typography,
-  Grid,
-  TextField,
-  Modal,
-  Box,
-  Button,
-} from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Typography, Modal, Box, Button } from "@mui/material";
+import { useLoginContext } from "../../../utils/loginContext";
+import { getItemPurchaseDetails } from "../../../services/purchaseService";
+import { NotificationManager } from "react-notifications";
+import { DataGrid } from "@mui/x-data-grid";
 
 const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
+  const { loginResponse } = useLoginContext();
+  const [itemPurchaseDetails, setItemPurchaseDetails] = useState([]);
+
+  console.log("itemPurchaseDetails: ", itemPurchaseDetails);
+
+  const columns = [
+    {
+      field: "sNo",
+      headerName: "S. No.",
+      width: 90,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "itemId",
+      headerName: "Item Id",
+      width: 180,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "itemCode",
+      headerName: "Item Code",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+
+    {
+      field: "batchNo",
+      headerName: "Batch No.",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "brokenNo",
+      headerName: "Broken",
+      width: 120,
+
+      headerClassName: "custom-header",
+    },
+    {
+      field: "caseNo",
+      headerName: "Case",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "createdAt",
+      headerName: "Created Date",
+      width: 150,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "updatedAt",
+      headerName: "Updated Date",
+      width: 150,
+      headerClassName: "custom-header",
+    },
+
+    {
+      field: "mrp",
+      headerName: "MRP",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "pcs",
+      headerName: "Pcs.",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "purchaseRate",
+      headerName: "Purchase Rate",
+      width: 150,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "saleRate",
+      headerName: "Sale Rate",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "sp",
+      headerName: "S. Purposes",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "itemAmount",
+      headerName: "Amount",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+  ];
+
+  useEffect(() => {
+    const fetchAllItemPurchases = async () => {
+      try {
+        const allItemPurchasesResponse = await getItemPurchaseDetails(
+          rowData.entryNo,
+          loginResponse
+        );
+        console.log("allItemPurchasesResponse: ", allItemPurchasesResponse);
+        setItemPurchaseDetails(
+          allItemPurchasesResponse?.data?.data[0]?.purchaseItems
+        );
+      } catch (error) {
+        NotificationManager.error(
+          "Error fetching ItemPurchases. Please try again later.",
+          "Error"
+        );
+      }
+    };
+    fetchAllItemPurchases();
+  }, [rowData]);
+
   return (
     <Modal
       open={open}
@@ -22,10 +135,13 @@ const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: 1200,
+          width: 1400,
           bgcolor: "background.paper",
           boxShadow: 24,
           p: 4,
+          "& .custom-header": {
+            backgroundColor: "#dae4ed",
+          },
         }}
       >
         <Typography
@@ -35,184 +151,37 @@ const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
           align="center"
           sx={{ marginBottom: 3 }}
         >
-          Purchase Details
+          Purchased Items
         </Typography>
-        <Grid container spacing={3}>
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <Typography variant="body1" className="input-label">Bill Date:</Typography>
-              <TextField
-                fullWidth
-                size="small"
-                className="input-field"
-                disabled
-                value={rowData?.billDate}
-              />
-            </div>
-          </Grid>
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <Typography variant="body1" className="input-label">Bill No:</Typography>
-              <TextField
-                fullWidth
-                size="small"
-                className="input-field"
-                disabled
-                value={rowData?.billNo}
-              />
-            </div>
-          </Grid>
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <Typography variant="body1" className="input-label">Discount Amount:</Typography>
-              <TextField
-                fullWidth
-                size="small"
-                className="input-field"
-                disabled
-                value={rowData?.discountAmount}
-              />
-            </div>
-          </Grid>
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <Typography variant="body1" className="input-label">Entry No:</Typography>
-              <TextField
-                fullWidth
-                size="small"
-                className="input-field"
-                disabled
-                value={rowData?.entryNo}
-              />
-            </div>
-          </Grid>
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <Typography variant="body1" className="input-label">Govt. Round Off:</Typography>
-              <TextField
-                fullWidth
-                size="small"
-                className="input-field"
-                disabled
-                value={rowData?.govtROff}
-              />
-            </div>
-          </Grid>
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <Typography variant="body1" className="input-label">Gross Amount:</Typography>
-              <TextField
-                fullWidth
-                size="small"
-                className="input-field"
-                disabled
-                value={rowData?.grossAmount}
-              />
-            </div>
-          </Grid>
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <Typography variant="body1" className="input-label">MRP Value:</Typography>
-              <TextField
-                fullWidth
-                size="small"
-                className="input-field"
-                disabled
-                value={rowData?.mrpValue}
-              />
-            </div>
-          </Grid>
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <Typography variant="body1" className="input-label">Net Amount:</Typography>
-              <TextField
-                fullWidth
-                size="small"
-                className="input-field"
-                disabled
-                value={rowData?.netAmount}
-              />
-            </div>
-          </Grid>
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <Typography variant="body1" className="input-label">Pass Date:</Typography>
-              <TextField
-                fullWidth
-                size="small"
-                className="input-field"
-                disabled
-                value={rowData?.passDate}
-              />
-            </div>
-          </Grid>
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <Typography variant="body1" className="input-label">Pass No:</Typography>
-              <TextField
-                fullWidth
-                size="small"
-                className="input-field"
-                disabled
-                value={rowData?.passNo}
-              />
-            </div>
-          </Grid>
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <Typography variant="body1" className="input-label">Service Tax Amount:</Typography>
-              <TextField
-                fullWidth
-                size="small"
-                className="input-field"
-                disabled
-                value={rowData?.sTaxAmount}
-              />
-            </div>
-          </Grid>
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <Typography variant="body1" className="input-label">Special Purposes:</Typography>
-              <TextField
-                fullWidth
-                size="small"
-                className="input-field"
-                disabled
-                value={rowData?.specialPurpose}
-              />
-            </div>
-          </Grid>
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <Typography variant="body1" className="input-label">Supplier Name:</Typography>
-              <TextField
-                fullWidth
-                size="small"
-                className="input-field"
-                disabled
-                value={rowData?.supplierName}
-              />
-            </div>
-          </Grid>
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <Typography variant="body1" className="input-label">Tcs Amount:</Typography>
-              <TextField
-                fullWidth
-                size="small"
-                className="input-field"
-                disabled
-                value={rowData?.tcsAmount}
-              />
-            </div>
-          </Grid>
-        </Grid>
+        <DataGrid
+          rows={itemPurchaseDetails?.map((item, index) => ({
+            id: index,
+            sNo: index + 1,
+            itemId: item.itemId,
+            itemCode: item.itemCode,
+            batchNo: item.batchNo,
+            brokenNo: item.brokenNo,
+            caseNo: item.caseNo,
+            createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
+            updatedAt: new Date(item.updatedAt).toLocaleDateString("en-GB"),
+            mrp: item.mrp,
+            pcs: item.pcs,
+            purchaseRate: item.purchaseRate,
+            saleRate: item.saleRate,
+            sp: item.sp,
+            itemAmount: item.itemAmount,
+          }))}
+          columns={columns}
+          pageSize={5}
+          rowsPerPageOptions={[10, 25, 50]}
+          sx={{ backgroundColor: "#fff" }}
+        />
 
         <Box
           sx={{
             display: "flex",
             justifyContent: "flex-end",
-            marginTop: 2,
+            marginTop: 3,
           }}
         >
           {/* <Button

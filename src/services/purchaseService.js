@@ -50,6 +50,18 @@ export const getAllPurchases = async (loginResponse) => {
   }
 };
 
+export const getItemPurchaseDetails = async (entryNo, loginResponse) => {
+  try {
+    const apiURL = `${url}/purchases/item-reports/${entryNo}`;
+    const getItemPurchaseData = await axios.get(apiURL, {
+      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
+    });
+    return getItemPurchaseData;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const searchAllPurchases = async (loginResponse, itemName) => {
   try {
     const apiURL = `${url}/purchases/item-search?name=${itemName}`;

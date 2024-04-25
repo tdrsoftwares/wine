@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
-import { getAllPurchases } from "../../../services/purchaseService";
+import { getAllPurchases, getItemPurchaseDetails } from "../../../services/purchaseService";
 import { useLoginContext } from "../../../utils/loginContext";
 import { NotificationManager } from "react-notifications";
 import { getAllSuppliers } from "../../../services/supplierService";
@@ -142,7 +142,6 @@ const PurchaseReportSummary = () => {
       width: 100,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
-      // sortable: false,
       renderCell: (params) => (
         <Button
           variant="contained"
@@ -171,7 +170,7 @@ const PurchaseReportSummary = () => {
     setIsModalOpen(true);
 
   };
-
+  
   const fetchAllPurchase = async () => {
     try {
       // const filterOptions = {
@@ -196,25 +195,28 @@ const PurchaseReportSummary = () => {
     }
   };
 
+  const fetchAllSuppliers = async () => {
+    try {
+      const allSuppliersResponse = await getAllSuppliers(loginResponse);
+      console.log("allSuppliersResponse: ", allSuppliersResponse);
+      setAllSuppliers(allSuppliersResponse?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching suppliers. Please try again later.",
+        "Error"
+      );
+    }
+  };
+  
   useEffect(() => {
-    const fetchAllSuppliers = async () => {
-      try {
-        const allSuppliersResponse = await getAllSuppliers(loginResponse);
-        console.log("allSuppliersResponse: ", allSuppliersResponse);
-        setAllSuppliers(allSuppliersResponse?.data?.data);
-      } catch (error) {
-        NotificationManager.error(
-          "Error fetching suppliers. Please try again later.",
-          "Error"
-        );
-      }
-    };
     fetchAllSuppliers();
-  }, [loginResponse]);
-
-  useEffect(() => {
     fetchAllPurchase();
-  }, [dateFrom, dateTo, selectedSupplier]);
+  }, [loginResponse]);
+  
+
+  // useEffect(() => {
+  //   fetchAllPurchase();
+  // }, [dateFrom, dateTo, selectedSupplier]);
 
   return (
     <Box sx={{ p: 2, width: "900px" }}>
