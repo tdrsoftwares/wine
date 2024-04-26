@@ -15,6 +15,8 @@ import {
   TableCell,
   TableBody,
   Input,
+  TableSortLabel,
+  TablePagination,
 } from "@mui/material";
 import { useLoginContext } from "../../../utils/loginContext";
 import { createCustomer, deleteCustomer, getAllCustomer, updateCustomer } from "../../../services/customerService";
@@ -34,16 +36,30 @@ const CustomerRegister = () => {
     contactPerson: "",
     address: "",
     whatsAppNo: "",
-    mobileNo: "",
+    contactNo: "",
     // openingBalance: "",
     discount: "",
     // validUpto: "mm/dd/yyyy",
     customerType: "",
     discountCategory: "",
-    additionalCharges: "",
+    additionalCharge: "",
   });
+  const [sortBy, setSortBy] = useState(null);
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   console.log("formData", formData);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+  
 
   const handleClear = () => {
     setFormData({
@@ -51,13 +67,13 @@ const CustomerRegister = () => {
       contactPerson: "",
       address: "",
       whatsAppNo: "",
-      mobileNo: "",
+      contactNo: "",
       // openingBalance: "",
       discount: "",
       // validUpto: "mm/dd/yyyy",
       customerType: "",
       discountCategory: "",
-      additionalCharges: "",
+      additionalCharge: "",
     });
   };
 
@@ -75,6 +91,35 @@ const CustomerRegister = () => {
       setEditableIndex(null);
       setEditedRow({});
     }
+  };
+
+  const handleSort = (column) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(column);
+      setSortOrder("asc");
+    }
+  };
+
+  const sortedData = () => {
+    let sorted = [...allCustomerData];
+    if (sortBy) {
+      sorted.sort((a, b) => {
+        const firstValue =
+          typeof a[sortBy] === "string" ? a[sortBy].toLowerCase() : a[sortBy];
+        const secondValue =
+          typeof b[sortBy] === "string" ? b[sortBy].toLowerCase() : b[sortBy];
+        if (firstValue < secondValue) {
+          return sortOrder === "asc" ? -1 : 1;
+        }
+        if (firstValue > secondValue) {
+          return sortOrder === "asc" ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sorted;
   };
 
   const fetchAllCustomers = async () => {
@@ -106,29 +151,37 @@ const CustomerRegister = () => {
     const mandatoryFields = [
       formData.customerName,
       formData.whatsAppNo,
-      formData.mobileNo,
+      formData.contactNo,
       formData.contactPerson,
       formData.address,
       formData.discount,
       formData.customerType,
       formData.discountCategory,
-      formData.additionalCharges,
+      formData.additionalCharge,
     ];
     if (mandatoryFields.some((field) => !field)) {
       NotificationManager.warning("Please fill in all fields.", "Error");
       return;
     }
 
+    if ((formData?.contactNo).length < 10) {
+      NotificationManager.warning(
+        "Invalid Mobile Number.",
+        "Validation Error"
+      );
+      return;
+    }
+
     const payload = {
       name: formData.customerName,
       whatsAppNo: formData.whatsAppNo,
-      contactNo: formData.mobileNo,
+      contactNo: formData.contactNo,
       contactPerson: formData.contactPerson,
       address: formData.address,
       discount: formData.discount,
       type: formData.customerType,
       discountCategory: formData.discountCategory,
-      additionalCharge: formData.additionalCharges,
+      additionalCharge: formData.additionalCharge,
     };
     console.log("payload: ", payload);
 
@@ -175,6 +228,18 @@ const CustomerRegister = () => {
         "Error updating item. Please try again later.",
         "Error"
       );
+    }
+  };
+
+  const handleMobileChange = (event) => {
+    const regex = /^[0-9]{0,10}$/;
+    if (regex.test(event.target.value) || event.target.value === "") {
+      setFormData((prevState) => ({
+        ...prevState,
+        contactNo: event.target.value,
+      }));
+    } else {
+      NotificationManager.warning("Only 10 digits are allowed.", "", 500);
     }
   };
 
@@ -273,7 +338,7 @@ const CustomerRegister = () => {
           <Grid item xs={4}>
             <div className="input-wrapper">
               <InputLabel
-                htmlFor="mobileNo"
+                htmlFor="contactNo"
                 className="input-label label-adjustment"
               >
                 Mobile No. :
@@ -281,12 +346,12 @@ const CustomerRegister = () => {
               <TextField
                 fullWidth
                 size="small"
-                name="mobileNo"
+                name="contactNo"
                 variant="outlined"
                 className="input-field field-adjustment"
                 type="number"
-                value={formData.mobileNo}
-                onChange={(e) => handleFormChange(e)}
+                value={formData.contactNo}
+                onChange={handleMobileChange}
               />
             </div>
           </Grid>
@@ -307,6 +372,9 @@ const CustomerRegister = () => {
                 type="number"
                 value={formData.whatsAppNo}
                 onChange={(e) => handleFormChange(e)}
+                InputProps={{
+                  inputProps: { type: "number", inputMode: "numeric", min: 0 },
+                }}
               />
             </div>
           </Grid>
@@ -348,6 +416,9 @@ const CustomerRegister = () => {
                 type="number"
                 value={formData.discount}
                 onChange={(e) => handleFormChange(e)}
+                InputProps={{
+                  inputProps: { type: "number", inputMode: "numeric", min: 0 },
+                }}
               />
             </div>
           </Grid>
@@ -420,7 +491,7 @@ const CustomerRegister = () => {
           <Grid item xs={4}>
             <div className="input-wrapper">
               <InputLabel
-                htmlFor="additionalCharges"
+                htmlFor="additionalCharge"
                 className="input-label label-adjustment"
               >
                 Additional Charges (%) :
@@ -428,12 +499,15 @@ const CustomerRegister = () => {
               <TextField
                 fullWidth
                 size="small"
-                name="additionalCharges"
+                name="additionalCharge"
                 variant="outlined"
                 className="input-field field-adjustment"
                 type="number"
-                value={formData.additionalCharges}
+                value={formData.additionalCharge}
                 onChange={(e) => handleFormChange(e)}
+                InputProps={{
+                  inputProps: { type: "number", inputMode: "numeric", min: 0 },
+                }}
               />
             </div>
           </Grid>
@@ -466,7 +540,7 @@ const CustomerRegister = () => {
           </Button>
         </Box>
 
-        <Box sx={{ boxShadow: 2, borderRadius: 1, marginTop: 2 }}>
+        <Box sx={{ borderRadius: 1, marginTop: 2 }}>
           <TableContainer
             ref={tableRef}
             component={Paper}
@@ -493,154 +567,216 @@ const CustomerRegister = () => {
                   <TableCell align="center" style={{ minWidth: "80px" }}>
                     S. No.
                   </TableCell>
-                  <TableCell align="center" style={{ minWidth: "180px" }}>
-                    Customer Name
+                  <TableCell style={{ minWidth: "180px" }}>
+                    <TableSortLabel
+                      active={sortBy === "name"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("name")}
+                    >
+                      Customer Name
+                    </TableSortLabel>
                   </TableCell>
-                  
-                  <TableCell align="center" style={{ minWidth: "180px" }}>
-                    Customer Type
+
+                  <TableCell style={{ minWidth: "180px" }}>
+                    <TableSortLabel
+                      active={sortBy === "type"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("type")}
+                    >
+                      Customer Type
+                    </TableSortLabel>
                   </TableCell>
-                  <TableCell align="center" style={{ minWidth: "150px" }}>
-                    Address
+                  <TableCell style={{ minWidth: "150px" }}>
+                    <TableSortLabel
+                      active={sortBy === "address"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("address")}
+                    >
+                      Address
+                    </TableSortLabel>
                   </TableCell>
-                  <TableCell align="center" style={{ minWidth: "180px" }}>
-                    Mobile No.
+                  <TableCell style={{ minWidth: "180px" }}>
+                    <TableSortLabel
+                      active={sortBy === "contactNo"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("contactNo")}
+                    >
+                      Mobile No.
+                    </TableSortLabel>
                   </TableCell>
-                  <TableCell align="center" style={{ minWidth: "180px" }}>
-                    Whats App No.
+                  <TableCell style={{ minWidth: "180px" }}>
+                    <TableSortLabel
+                      active={sortBy === "whatsAppNo"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("whatsAppNo")}
+                    >
+                      Whats App No.
+                    </TableSortLabel>
                   </TableCell>
-                  <TableCell align="center" style={{ minWidth: "180px" }}>
-                    Contact Person
+                  <TableCell style={{ minWidth: "180px" }}>
+                    <TableSortLabel
+                      active={sortBy === "contactPerson"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("contactPerson")}
+                    >
+                      Contact Person
+                    </TableSortLabel>
                   </TableCell>
-                  
-                  {/* <TableCell align="center" style={{ minWidth: "150px" }}>
+
+                  {/* <TableCell style={{ minWidth: "150px" }}>
                     Opening Bal.
                   </TableCell> */}
-                  <TableCell align="center" style={{ minWidth: "180px" }}>
-                    Discount(%)
+                  <TableCell style={{ minWidth: "180px" }}>
+                    <TableSortLabel
+                      active={sortBy === "discount"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("discount")}
+                    >
+                      Discount(%)
+                    </TableSortLabel>
                   </TableCell>
-                  {/* <TableCell align="center" style={{ minWidth: "180px" }}>
+                  {/* <TableCell style={{ minWidth: "180px" }}>
                     Valid Upto.
                   </TableCell> */}
-                  <TableCell align="center" style={{ minWidth: "180px" }}>
-                    Discount Category
+                  <TableCell style={{ minWidth: "180px" }}>
+                    <TableSortLabel
+                      active={sortBy === "discountCategory"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("discountCategory")}
+                    >
+                      Discount Category
+                    </TableSortLabel>
                   </TableCell>
-                  <TableCell align="center" style={{ minWidth: "150px" }}>
-                    Add. Charges
+                  <TableCell style={{ minWidth: "150px" }}>
+                    <TableSortLabel
+                      active={sortBy === "additionalCharge"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("additionalCharge")}
+                    >
+                      Add. Charges
+                    </TableSortLabel>
                   </TableCell>
-                  <TableCell align="center" style={{ minWidth: "100px" }}>
-                    Action
-                  </TableCell>
+                  <TableCell style={{ minWidth: "100px" }}>Action</TableCell>
                 </TableRow>
               </TableHead>
 
               <TableBody>
                 {allCustomerData ? (
-                  allCustomerData.map((item, index) => (
-                    <TableRow
-                      key={index}
-                      sx={{
-                        backgroundColor: "#fff",
-                      }}
-                    >
-                      <TableCell align="center">{index + 1}</TableCell>
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.name}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                name: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          item.name
-                        )}
-                      </TableCell>
+                  sortedData()
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((item, index) => (
+                      <TableRow
+                        key={index}
+                        sx={{
+                          backgroundColor: "#fff",
+                        }}
+                      >
+                        <TableCell align="center">
+                          {page * rowsPerPage + index + 1}
+                        </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.name}
+                              onChange={(e) =>
+                                setEditedRow({
+                                  ...editedRow,
+                                  name: e.target.value,
+                                })
+                              }
+                            />
+                          ) : (
+                            item.name
+                          )}
+                        </TableCell>
 
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.type}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                type: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          item.type
-                        )}
-                      </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.type}
+                              onChange={(e) =>
+                                setEditedRow({
+                                  ...editedRow,
+                                  type: e.target.value,
+                                })
+                              }
+                            />
+                          ) : (
+                            item.type
+                          )}
+                        </TableCell>
 
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.address}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                address: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          item.address
-                        )}
-                      </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.address}
+                              onChange={(e) =>
+                                setEditedRow({
+                                  ...editedRow,
+                                  address: e.target.value,
+                                })
+                              }
+                            />
+                          ) : (
+                            item.address
+                          )}
+                        </TableCell>
 
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.contactNo}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                contactNo: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          item.contactNo
-                        )}
-                      </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.contactNo}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (!isNaN(value)) {
+                                  setEditedRow({
+                                    ...editedRow,
+                                    contactNo: value,
+                                  });
+                                }
+                              }}
+                            />
+                          ) : (
+                            item.contactNo
+                          )}
+                        </TableCell>
 
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.whatsAppNo}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                whatsAppNo: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          item.whatsAppNo
-                        )}
-                      </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.whatsAppNo}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (!isNaN(value)) {
+                                  setEditedRow({
+                                    ...editedRow,
+                                    whatsAppNo: value,
+                                  });
+                                }
+                              }}
+                            />
+                          ) : (
+                            item.whatsAppNo
+                          )}
+                        </TableCell>
 
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.contactPerson}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                contactPerson: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          item.contactPerson
-                        )}
-                      </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.contactPerson}
+                              onChange={(e) =>
+                                setEditedRow({
+                                  ...editedRow,
+                                  contactPerson: e.target.value,
+                                })
+                              }
+                            />
+                          ) : (
+                            item.contactPerson
+                          )}
+                        </TableCell>
 
-                      {/* <TableCell align="center">
+                        {/* <TableCell>
                         {editableIndex === index ? (
                           <Input
                             value={editedRow.openingBalance}
@@ -656,23 +792,26 @@ const CustomerRegister = () => {
                         )}
                       </TableCell> */}
 
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.discount}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                discount: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          item.discount
-                        )}
-                      </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.discount}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (!isNaN(value)) {
+                                  setEditedRow({
+                                    ...editedRow,
+                                    discount: value,
+                                  });
+                                }
+                              }}
+                            />
+                          ) : (
+                            item.discount
+                          )}
+                        </TableCell>
 
-                      {/* <TableCell align="center">
+                        {/* <TableCell>
                         {editableIndex === index ? (
                           <Input
                             value={editedRow.validUpto}
@@ -688,57 +827,60 @@ const CustomerRegister = () => {
                         )}
                       </TableCell> */}
 
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.discountCategory}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                discountCategory: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          item.discountCategory
-                        )}
-                      </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.discountCategory}
+                              onChange={(e) =>
+                                setEditedRow({
+                                  ...editedRow,
+                                  discountCategory: e.target.value,
+                                })
+                              }
+                            />
+                          ) : (
+                            item.discountCategory
+                          )}
+                        </TableCell>
 
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.additionalCharge}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                additionalCharge: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          item.additionalCharge
-                        )}
-                      </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.additionalCharge}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (!isNaN(value)) {
+                                  setEditedRow({
+                                    ...editedRow,
+                                    additionalCharge: value,
+                                  });
+                                }
+                              }}
+                            />
+                          ) : (
+                            item.additionalCharge
+                          )}
+                        </TableCell>
 
-                      <TableCell align="center">
-                        {editableIndex !== index ? (
-                          <EditIcon
-                            sx={{ cursor: "pointer", color: "blue" }}
-                            onClick={() => handleEditClick(index, item._id)}
+                        <TableCell>
+                          {editableIndex !== index ? (
+                            <EditIcon
+                              sx={{ cursor: "pointer", color: "blue" }}
+                              onClick={() => handleEditClick(index, item._id)}
+                            />
+                          ) : (
+                            <SaveIcon
+                              sx={{ cursor: "pointer", color: "green" }}
+                              onClick={() => handleSaveClick(item._id)}
+                            />
+                          )}
+                          <CloseIcon
+                            sx={{ cursor: "pointer", color: "red" }}
+                            onClick={() => handleDeleteItem(item._id)}
                           />
-                        ) : (
-                          <SaveIcon
-                            sx={{ cursor: "pointer", color: "green" }}
-                            onClick={() => handleSaveClick(item._id)}
-                          />
-                        )}
-                        <CloseIcon
-                          sx={{ cursor: "pointer", color: "red" }}
-                          onClick={() => handleDeleteItem(item._id)}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))
+                        </TableCell>
+                      </TableRow>
+                    ))
                 ) : (
                   <TableRow
                     sx={{
@@ -753,6 +895,16 @@ const CustomerRegister = () => {
               </TableBody>
             </Table>
           </TableContainer>
+
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={allCustomerData?.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
         </Box>
       </Box>
     </form>
