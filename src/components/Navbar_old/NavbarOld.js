@@ -122,7 +122,7 @@ const NavbarOld = () => {
               <Link to="/minimum-stock-register">Minimum Stock Register</Link>
               <Link to="/scheme-register">Scheme Register</Link>
               <Link to="/ledger-creation">Ledger Creation</Link>
-              <Link to="/store-info">Store Info</Link>
+              <Link to="/store-register">Store Register</Link>
               <Link to="/licensee-info">Licensee Info</Link>
             </div>
           </li>

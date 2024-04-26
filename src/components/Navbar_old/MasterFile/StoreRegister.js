@@ -12,7 +12,9 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
+  TableSortLabel,
   TextField,
   Typography,
 } from "@mui/material";
@@ -28,7 +30,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 
-const StoreInfo = () => {
+const StoreRegister = () => {
   const { loginResponse } = useLoginContext();
   const [storeName, setStoreName] = useState("");
   const [type, setType] = useState("");
@@ -36,6 +38,10 @@ const StoreInfo = () => {
   const [allStores, setAllStores] = useState([]);
   const [editableIndex, setEditableIndex] = useState(null);
   const [editedRow, setEditedRow] = useState({});
+  const [sortBy, setSortBy] = useState(null);
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const tableRef = useRef(null);
 
@@ -44,6 +50,15 @@ const StoreInfo = () => {
       setEditableIndex(null);
       setEditedRow({});
     }
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
   useEffect(() => {
@@ -57,6 +72,35 @@ const StoreInfo = () => {
     setStoreName("");
     setType("");
     setIndexNo("");
+  };
+
+  const handleSort = (column) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(column);
+      setSortOrder("asc");
+    }
+  };
+
+  const sortedData = () => {
+    let sorted = [...allStores];
+    if (sortBy) {
+      sorted.sort((a, b) => {
+        const firstValue =
+          typeof a[sortBy] === "string" ? a[sortBy].toLowerCase() : a[sortBy];
+        const secondValue =
+          typeof b[sortBy] === "string" ? b[sortBy].toLowerCase() : b[sortBy];
+        if (firstValue < secondValue) {
+          return sortOrder === "asc" ? -1 : 1;
+        }
+        if (firstValue > secondValue) {
+          return sortOrder === "asc" ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sorted;
   };
 
   const handleCreateStore = async () => {
@@ -243,7 +287,7 @@ const StoreInfo = () => {
         </Button>
       </Box>
 
-      <Box sx={{ boxShadow: 2, borderRadius: 1, marginTop: 4 }}>
+      <Box sx={{ borderRadius: 1, marginTop: 4 }}>
         <TableContainer
           ref={tableRef}
           component={Paper}
@@ -268,95 +312,147 @@ const StoreInfo = () => {
           <Table>
             <TableHead>
               <TableRow className="table-head-2">
-                <TableCell align="center">S. No.</TableCell>
-                <TableCell align="center">Store Name</TableCell>
-                <TableCell align="center">Store Type</TableCell>
-                <TableCell align="center">Index No.</TableCell>
-                <TableCell align="center">Action</TableCell>
+                <TableCell align="center" sx={{ minWidth: "80px" }}>
+                  S. No.
+                </TableCell>
+                <TableCell sx={{ minWidth: "180px" }}>
+                  <TableSortLabel
+                    active={sortBy === "name"}
+                    direction={sortOrder}
+                    onClick={() => handleSort("name")}
+                  >
+                    Store Name
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell sx={{ minWidth: "180px" }}>
+                  <TableSortLabel
+                    active={sortBy === "type"}
+                    direction={sortOrder}
+                    onClick={() => handleSort("type")}
+                  >
+                    Store Type
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell sx={{ minWidth: "180px" }}>
+                  <TableSortLabel
+                    active={sortBy === "indexNo"}
+                    direction={sortOrder}
+                    onClick={() => handleSort("indexNo")}
+                  >
+                    Index No.
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell sx={{ minWidth: "180px" }}>Action</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {!allStores ? (
-                <TableRow sx={{
-                  backgroundColor: "#fff",
-                }}>
-                  <TableCell colSpan={5} align="center">
-                    No Data
-                  </TableCell>
-                </TableRow>
-              ) : (allStores?.map((store, index) => (
                 <TableRow
-                  key={index}
                   sx={{
                     backgroundColor: "#fff",
                   }}
                 >
-                  <TableCell align="center">{index + 1}</TableCell>
-                  <TableCell align="center">
-                    {editableIndex === index ? (
-                      <Input
-                        value={editedRow.name}
-                        onChange={(e) =>
-                          setEditedRow({ ...editedRow, name: e.target.value })
-                        }
-                      />
-                    ) : (
-                      store.name
-                    )}
+                  <TableCell colSpan={5} align="center">
+                    No Data
                   </TableCell>
-                  <TableCell align="center">
-                    {editableIndex === index ? (
-                      <Input
-                        value={editedRow.type}
-                        onChange={(e) =>
-                          setEditedRow({ ...editedRow, type: e.target.value })
-                        }
-                      />
-                    ) : (
-                      store.type
-                    )}
-                  </TableCell>
-                  <TableCell align="center">
-                    {editableIndex === index ? (
-                      <Input
-                        value={editedRow.indexNo}
-                        onChange={(e) =>
-                          setEditedRow({
-                            ...editedRow,
-                            indexNo: e.target.value,
-                          })
-                        }
-                      />
-                    ) : (
-                      store.indexNo
-                    )}
-                  </TableCell>
-                  <TableCell align="center">
-                    {editableIndex !== index ? (
-                      <EditIcon
-                        sx={{ cursor: "pointer", color: "blue" }}
-                        onClick={() => handleEditClick(index, store._id)}
-                      />
-                    ) : (
-                      <SaveIcon
-                        sx={{ cursor: "pointer", color: "green" }}
-                        onClick={() => handleSaveClick(store._id)}
-                      />
-                    )}
-                    <CloseIcon
-                      sx={{ cursor: "pointer", color: "red" }}
-                      onClick={() => handleRemoveStore(store._id)}
-                    />
-                  </TableCell>
-                  </TableRow>
-                ))
+                </TableRow>
+              ) : (
+                sortedData()
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((store, index) => (
+                    <TableRow
+                      key={index}
+                      sx={{
+                        backgroundColor: "#fff",
+                      }}
+                    >
+                      <TableCell align="center">
+                        {page * rowsPerPage + index + 1}
+                      </TableCell>
+                      <TableCell>
+                        {editableIndex === index ? (
+                          <Input
+                            value={editedRow.name}
+                            onChange={(e) =>
+                              setEditedRow({
+                                ...editedRow,
+                                name: e.target.value,
+                              })
+                            }
+                          />
+                        ) : (
+                          store.name
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {editableIndex === index ? (
+                          <Input
+                            value={editedRow.type}
+                            onChange={(e) =>
+                              setEditedRow({
+                                ...editedRow,
+                                type: e.target.value,
+                              })
+                            }
+                          />
+                        ) : (
+                          store.type
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {editableIndex === index ? (
+                          <Input
+                            value={editedRow.indexNo}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (!isNaN(value)) {
+                                setEditedRow({
+                                  ...editedRow,
+                                  indexNo: value,
+                                });
+                              }
+                            }}
+                          />
+                        ) : (
+                          store.indexNo
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {editableIndex !== index ? (
+                          <EditIcon
+                            sx={{ cursor: "pointer", color: "blue" }}
+                            onClick={() => handleEditClick(index, store._id)}
+                          />
+                        ) : (
+                          <SaveIcon
+                            sx={{ cursor: "pointer", color: "green" }}
+                            onClick={() => handleSaveClick(store._id)}
+                          />
+                        )}
+                        <CloseIcon
+                          sx={{ cursor: "pointer", color: "red" }}
+                          onClick={() => handleRemoveStore(store._id)}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))
               )}
             </TableBody>
           </Table>
         </TableContainer>
+
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={allStores?.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
       </Box>
     </Box>
   );
 };
 
-export default StoreInfo;
+export default StoreRegister;

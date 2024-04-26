@@ -16,7 +16,7 @@ import DealerCatDiscRegister from "./components/Navbar_old/MasterFile/DealerCatD
 import MinStockRegister from "./components/Navbar_old/MasterFile/MinStockRegister";
 import SchemeRegister from "./components/Navbar_old/MasterFile/SchemeRegister";
 import LedgerCreation from "./components/Navbar_old/MasterFile/LedgerCreation";
-import StoreInfo from "./components/Navbar_old/MasterFile/StoreInfo";
+import StoreRegister from "./components/Navbar_old/MasterFile/StoreRegister";
 import LicenseeInfo from "./components/Navbar_old/MasterFile/LicenseeInfo";
 import SaleBill from "./components/Navbar_old/DataEntry/SaleBill";
 import PurchaseEntry from "./components/Navbar_old/DataEntry/PurchaseEntry";
@@ -184,8 +184,8 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp }) => {
         element={authenticatedUser ? <LedgerCreation /> : <UnAuthorized />}
       />
       <Route
-        path="/store-info"
-        element={authenticatedUser ? <StoreInfo /> : <UnAuthorized />}
+        path="/store-register"
+        element={authenticatedUser ? <StoreRegister /> : <UnAuthorized />}
       />
       <Route
         path="/licensee-info"
