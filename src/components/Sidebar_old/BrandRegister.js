@@ -12,7 +12,9 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
+  TableSortLabel,
   TextField,
   Typography,
 } from "@mui/material";
@@ -39,6 +41,10 @@ const BrandRegister = () => {
   const [companyName, setCompanyName] = useState("");
   const [editableIndex, setEditableIndex] = useState(null);
   const [editedRow, setEditedRow] = useState({});
+  const [sortBy, setSortBy] = useState(null);
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const tableRef = useRef(null);
 
   const handleClickOutside = (event) => {
@@ -46,6 +52,15 @@ const BrandRegister = () => {
       setEditableIndex(null);
       setEditedRow({});
     }
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
   useEffect(() => {
@@ -192,6 +207,44 @@ const BrandRegister = () => {
     handleDeleteBrand(brandId);
   };
 
+  const handleSort = (column) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(column);
+      setSortOrder("asc");
+    }
+  };
+
+  const sortedData = () => {
+    let sorted = [...allBrands];
+    if (sortBy) {
+      sorted.sort((a, b) => {
+        let firstValue;
+        let secondValue;
+
+        if (sortBy === "companyId.name") {
+          firstValue = a.companyId ? a.companyId.name.toLowerCase() : "";
+          secondValue = b.companyId ? b.companyId.name.toLowerCase() : "";
+        } else {
+          firstValue =
+            typeof a[sortBy] === "string" ? a[sortBy].toLowerCase() : a[sortBy];
+          secondValue =
+            typeof b[sortBy] === "string" ? b[sortBy].toLowerCase() : b[sortBy];
+        }
+
+        if (firstValue < secondValue) {
+          return sortOrder === "asc" ? -1 : 1;
+        }
+        if (firstValue > secondValue) {
+          return sortOrder === "asc" ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sorted;
+  };
+
   return (
     <Box sx={{ p: 2, width: "900px" }}>
       <Typography variant="subtitle1" sx={{ marginBottom: 2 }}>
@@ -315,7 +368,7 @@ const BrandRegister = () => {
         </Button>
       </Box>
 
-      <Box sx={{ boxShadow: 2, borderRadius: 1, marginTop: 2 }}>
+      <Box sx={{ borderRadius: 1, marginTop: 2 }}>
         <TableContainer
           ref={tableRef}
           component={Paper}
@@ -339,101 +392,170 @@ const BrandRegister = () => {
           <Table>
             <TableHead>
               <TableRow className="table-head-2">
-                <TableCell align="center">S. No.</TableCell>
-                <TableCell align="center">Brand Name</TableCell>
-                <TableCell align="center">Company Name</TableCell>
-                <TableCell align="center">Brand Type</TableCell>
-                <TableCell align="center">Index No.</TableCell>
-                <TableCell align="center">Action</TableCell>
+                <TableCell align="center" sx={{ minWidth: "80px" }}>
+                  S. No.
+                </TableCell>
+                <TableCell sx={{ minWidth: "180px" }}>
+                  <TableSortLabel
+                    active={sortBy === "name"}
+                    direction={sortOrder}
+                    onClick={() => handleSort("name")}
+                  >
+                    Brand Name
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell sx={{ minWidth: "180px" }}>
+                  <TableSortLabel
+                    active={sortBy === "companyId.name"}
+                    direction={sortOrder}
+                    onClick={() => handleSort("companyId.name")}
+                  >
+                    Company Name
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell sx={{ minWidth: "180px" }}>
+                  <TableSortLabel
+                    active={sortBy === "type"}
+                    direction={sortOrder}
+                    onClick={() => handleSort("type")}
+                  >
+                    Brand Type
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell sx={{ minWidth: "180px" }}>
+                  <TableSortLabel
+                    active={sortBy === "indexNo"}
+                    direction={sortOrder}
+                    onClick={() => handleSort("indexNo")}
+                  >
+                    Index No.
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell sx={{ minWidth: "180px" }}>Action</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {allBrands.map((brand, index) => (
+              {allBrands ? (
+                sortedData()
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((brand, index) => (
+                    <TableRow
+                      key={brand._id}
+                      sx={{
+                        backgroundColor: "#fff",
+                      }}
+                    >
+                      <TableCell align="center">
+                        {page * rowsPerPage + index + 1}
+                      </TableCell>
+                      <TableCell>
+                        {editableIndex === index ? (
+                          <Input
+                            value={editedRow.name}
+                            onChange={(e) =>
+                              setEditedRow({
+                                ...editedRow,
+                                name: e.target.value,
+                              })
+                            }
+                          />
+                        ) : (
+                          brand.name
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {editableIndex === index ? (
+                          <Input
+                            value={
+                              editedRow.companyId?.name
+                            }
+                            onChange={(e) =>
+                              setEditedRow({
+                                ...editedRow,
+                                companyId: { name: e.target.value },
+                              })
+                            }
+                          />
+                        ) : (
+                          brand?.companyId?.name
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {editableIndex === index ? (
+                          <Input
+                            value={editedRow.type}
+                            onChange={(e) =>
+                              setEditedRow({
+                                ...editedRow,
+                                type: e.target.value,
+                              })
+                            }
+                          />
+                        ) : (
+                          brand.type
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {editableIndex === index ? (
+                          <Input
+                            value={editedRow.indexNo}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (!isNaN(value)) {
+                                setEditedRow({
+                                  ...editedRow,
+                                  indexNo: value,
+                                });
+                              }
+                            }}
+                          />
+                        ) : (
+                          brand.indexNo
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {editableIndex === index ? (
+                          <SaveIcon
+                            sx={{ cursor: "pointer", color: "green" }}
+                            onClick={() => handleSaveClick(brand._id)}
+                          />
+                        ) : (
+                          <EditIcon
+                            sx={{ cursor: "pointer", color: "blue" }}
+                            onClick={() => handleEditClick(index, brand._id)}
+                          />
+                        )}
+                        <CloseIcon
+                          sx={{ cursor: "pointer", color: "red" }}
+                          onClick={() => handleRemoveBrand(brand._id)}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))
+              ) : (
                 <TableRow
-                  key={brand._id}
                   sx={{
                     backgroundColor: "#fff",
                   }}
                 >
-                  <TableCell align="center">{index + 1}</TableCell>
-                  <TableCell align="center">
-                    {editableIndex === index ? (
-                      <Input
-                        value={editedRow.name || brand.name}
-                        onChange={(e) =>
-                          setEditedRow({ ...editedRow, name: e.target.value })
-                        }
-                      />
-                    ) : (
-                      brand.name
-                    )}
-                  </TableCell>
-                  <TableCell align="center">
-                    {editableIndex === index ? (
-                      <Input
-                        value={
-                          editedRow.companyId?.name || brand.companyId?.name
-                        }
-                        onChange={(e) =>
-                          setEditedRow({
-                            ...editedRow,
-                            companyId: { name: e.target.value },
-                          })
-                        }
-                      />
-                    ) : (
-                      brand?.companyId?.name
-                    )}
-                  </TableCell>
-                  <TableCell align="center">
-                    {editableIndex === index ? (
-                      <Input
-                        value={editedRow.type || brand.type}
-                        onChange={(e) =>
-                          setEditedRow({ ...editedRow, type: e.target.value })
-                        }
-                      />
-                    ) : (
-                      brand.type
-                    )}
-                  </TableCell>
-                  <TableCell align="center">
-                    {editableIndex === index ? (
-                      <Input
-                        value={editedRow.indexNo || brand.indexNo}
-                        onChange={(e) =>
-                          setEditedRow({
-                            ...editedRow,
-                            indexNo: e.target.value,
-                          })
-                        }
-                      />
-                    ) : (
-                      brand.indexNo
-                    )}
-                  </TableCell>
-                  <TableCell align="center">
-                    {editableIndex === index ? (
-                      <SaveIcon
-                        sx={{ cursor: "pointer", color: "green" }}
-                        onClick={() => handleSaveClick(brand._id)}
-                      />
-                    ) : (
-                      <EditIcon
-                        sx={{ cursor: "pointer", color: "blue" }}
-                        onClick={() => handleEditClick(index, brand._id)}
-                      />
-                    )}
-                    <CloseIcon
-                      sx={{ cursor: "pointer", color: "red" }}
-                      onClick={() => handleRemoveBrand(brand._id)}
-                    />
+                  <TableCell colSpan={11} align="center">
+                    No Data
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </TableContainer>
+
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={allBrands?.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
       </Box>
     </Box>
   );
