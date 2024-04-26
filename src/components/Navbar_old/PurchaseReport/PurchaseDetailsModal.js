@@ -18,12 +18,12 @@ const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
       width: 90,
       headerClassName: "custom-header",
     },
-    {
-      field: "itemId",
-      headerName: "Item Id",
-      width: 180,
-      headerClassName: "custom-header",
-    },
+    // {
+    //   field: "itemId",
+    //   headerName: "Item Id",
+    //   width: 180,
+    //   headerClassName: "custom-header",
+    // },
     {
       field: "itemCode",
       headerName: "Item Code",
@@ -135,7 +135,7 @@ const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: 1400,
+          width: 1000,
           bgcolor: "background.paper",
           boxShadow: 24,
           p: 4,
@@ -157,7 +157,7 @@ const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
           rows={itemPurchaseDetails?.map((item, index) => ({
             id: index,
             sNo: index + 1,
-            itemId: item.itemId,
+            // itemId: item.itemId,
             itemCode: item.itemCode,
             batchNo: item.batchNo,
             brokenNo: item.brokenNo,
