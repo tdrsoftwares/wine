@@ -23,9 +23,12 @@ import React, { useEffect, useState } from "react";
 import { getAllStocks } from "../../services/stockService";
 import { useLoginContext } from "../../utils/loginContext";
 import { NotificationManager } from "react-notifications";
+import { getAllItems } from "../../services/itemService";
+import { getAllBrands } from "../../services/brandService";
+import { getAllCompanies } from "../../services/companyService";
+import { getAllItemCategory } from "../../services/categoryService";
 
 const ItemBatchMRPStockReport = () => {
-  const [selectOptions, setselectOptions] = useState(null);
   const [allStocks, setAllStocks] = useState([]);
 
   const [filterData, setFilterData] = useState({
@@ -42,41 +45,13 @@ const ItemBatchMRPStockReport = () => {
   });
 
   const { loginResponse } = useLoginContext();
-  const [tableData, setTableData] = useState([
-    {
-      code: "",
-      desc: "",
-      category: "",
-      volume: "",
-      brand: "",
-      batch: "",
-      mrp: "",
-      saleRate: "",
-      btlPcs: "",
-      pRate: "",
-      mrpTotal: "",
-      vatAmt: "",
-      purTotal: "",
-      stockIn: "",
-    },
-  ]);
+  const [allItems, setAllItems] = useState([]);
+  const [allBrands, setAllBrands] = useState([]);
+  const [allCompanies, setAllCompanies] = useState([]);
+  const [allCategory, setAllCategory] = useState([]);
 
   const batchNoOptions = ["0", "00", "01", "516-1", "521-1", "526-1"];
-
-  const brandNameOptions = [
-    "100 Pipers",
-    "100 Pipers 12Yr",
-    "8Pm Black",
-    "Absolut",
-    "Absolut Citron",
-    "Absolut Raspberry",
-    "Amrut",
-    "Antiquity Blue",
-    "B Pride",
-  ];
-
   const stockInOptions = ["All", "Godown", "Showroom"];
-  const distributorOptions = ["AA", "BB", "CC", "DD"];
   
 
   const columns = [
@@ -183,9 +158,67 @@ const ItemBatchMRPStockReport = () => {
     }
   };
 
+
+  const fetchAllItems = async () => {
+    try {
+      const allItemsResponse = await getAllItems(loginResponse);
+      setAllItems(allItemsResponse?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching items. Please try again later.",
+        "Error"
+      );
+    }
+  };
+
+  const fetchAllBrands = async () => {
+    try {
+      const allBrandsResponse = await getAllBrands(loginResponse);
+      // console.log("allBrandsResponse ---> ", allBrandsResponse);
+      setAllBrands(allBrandsResponse?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching brands. Please try again later.",
+        "Error"
+      );
+      console.error("Error fetching brands:", error);
+    }
+  };
+
+
+  const fetchAllCompanies = async () => {
+    try {
+      const allCompaniesResponse = await getAllCompanies(loginResponse);
+      // console.log("allCompaniesResponse ---> ", allCompaniesResponse);
+      setAllCompanies(allCompaniesResponse?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching companies. Please try again later.",
+        "Error"
+      );
+      console.error("Error fetching companies:", error);
+    }
+  };
+
+  const fetchAllCategory = async () => {
+    try {
+      const getAllCategoryResponse = await getAllItemCategory(loginResponse);
+      setAllCategory(getAllCategoryResponse?.data?.data);
+    } catch (err) {
+      NotificationManager.error(
+        "Something went Wrong, Please try again later.",
+        "Error"
+      );
+    }
+  };
+
+
   useEffect(() => {
-    // fetchAllSuppliers();
+    fetchAllItems();
     fetchAllStocks();
+    fetchAllBrands();
+    fetchAllCompanies();
+    fetchAllCategory();
   }, [loginResponse]);
 
   return (
@@ -350,7 +383,6 @@ const ItemBatchMRPStockReport = () => {
                 select
                 fullWidth
                 size="small"
-                type="text"
                 name="itemName"
                 className="input-field"
                 value={filterData.itemName}
@@ -358,9 +390,9 @@ const ItemBatchMRPStockReport = () => {
                   setFilterData({ ...filterData, itemName: e.target.value })
                 }
               >
-                {batchNoOptions.map((option, i) => (
-                  <MenuItem key={i} value={option}>
-                    {option}
+                {allItems.map((item, i) => (
+                  <MenuItem key={i} value={item._id}>
+                    {item.name}
                   </MenuItem>
                 ))}
               </TextField>
@@ -384,9 +416,9 @@ const ItemBatchMRPStockReport = () => {
                   setFilterData({ ...filterData, category: e.target.value })
                 }
               >
-                {batchNoOptions.map((option, i) => (
-                  <MenuItem key={i} value={option}>
-                    {option}
+                {allCategory?.map((item) => (
+                  <MenuItem key={item._id} value={item._id}>
+                    {item.categoryName}
                   </MenuItem>
                 ))}
               </TextField>
@@ -410,7 +442,7 @@ const ItemBatchMRPStockReport = () => {
                   setFilterData({ ...filterData, volume: e.target.value })
                 }
               >
-                {batchNoOptions.map((option, i) => (
+                {[180, 200, 375, 750, 1000].map((option, i) => (
                   <MenuItem key={i} value={option}>
                     {option}
                   </MenuItem>
@@ -460,9 +492,9 @@ const ItemBatchMRPStockReport = () => {
                   setFilterData({ ...filterData, brandName: e.target.value })
                 }
               >
-                {brandNameOptions.map((option, i) => (
-                  <MenuItem key={i} value={option}>
-                    {option}
+                {allBrands?.map((item) => (
+                  <MenuItem key={item._id} value={item._id}>
+                    {item.name}
                   </MenuItem>
                 ))}
               </TextField>
@@ -510,9 +542,9 @@ const ItemBatchMRPStockReport = () => {
                   setFilterData({ ...filterData, company: e.target.value })
                 }
               >
-                {distributorOptions?.map((option, i) => (
-                  <MenuItem key={i} value={option}>
-                    {option}
+                {allCompanies?.map((item) => (
+                  <MenuItem key={item._id} value={item._id}>
+                    {item.name}
                   </MenuItem>
                 ))}
               </TextField>
