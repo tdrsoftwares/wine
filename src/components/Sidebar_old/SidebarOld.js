@@ -54,7 +54,7 @@ const SidebarOld = () => {
         </div>
         <hr />
         <div className="sidebar-item">
-          <Link to="/item/batch-mrp-stock-report" className="nav-link">
+          <Link to="/stock-report" className="nav-link">
             Item/batch/mrp Stock Report
           </Link>
         </div>

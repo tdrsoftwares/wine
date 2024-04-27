@@ -57,7 +57,7 @@ import PreviousYearDSR from "./components/Sidebar_old/PreviousYearDSR";
 import FLBeerCSLedgerSummary from "./components/Sidebar_old/FLBeerCSLedgerSummary";
 import CatBrandStock from "./components/Sidebar_old/CatBrandStock";
 import FLBeerCSLedger from "./components/Sidebar_old/FLBeerCSLedger";
-import ItemBatchMRPStockReport from "./components/Sidebar_old/ItemBatchMRPStockReport";
+import StockReport from "./components/Sidebar_old/StockReport";
 import CategorySaleStatus from "./components/Sidebar_old/CategorySaleStatus";
 import CategoryDsr from "./components/Sidebar_old/CategoryDsr";
 import CatBrandSize from "./components/Sidebar_old/CatBrandSize";
@@ -388,9 +388,9 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp }) => {
         element={authenticatedUser ? <CatBrandStock /> : <UnAuthorized />}
       />
       <Route
-        path="/item/batch-mrp-stock-report"
+        path="/stock-report"
         element={
-          authenticatedUser ? <ItemBatchMRPStockReport /> : <UnAuthorized />
+          authenticatedUser ? <StockReport /> : <UnAuthorized />
         }
       />
       <Route

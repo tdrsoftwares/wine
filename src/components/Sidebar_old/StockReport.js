@@ -28,7 +28,7 @@ import { getAllBrands } from "../../services/brandService";
 import { getAllCompanies } from "../../services/companyService";
 import { getAllItemCategory } from "../../services/categoryService";
 
-const ItemBatchMRPStockReport = () => {
+const StockReport = () => {
   const [allStocks, setAllStocks] = useState([]);
 
   const [filterData, setFilterData] = useState({
@@ -641,4 +641,4 @@ const ItemBatchMRPStockReport = () => {
   );
 };
 
-export default ItemBatchMRPStockReport;
+export default StockReport;
