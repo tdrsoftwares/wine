@@ -207,14 +207,20 @@ body {
 
 .input-wrapper .input-label {
   margin-right: 8px;
-  flex: 0 0 30%; 
+  flex: 0 0 40%; 
   font-size: 14px !important;
   text-wrap: balance;
-}
-
-.input-label{
   color: #000 !important;
 }
+
+.input-wrapper .input-label-3 {
+  margin-right: 8px;
+  flex: 0 0 50%; 
+  font-size: 14px !important;
+  text-wrap: balance;
+  color: #000 !important;
+}
+
 
 .input-label-2 {
   margin-bottom: 8px;
