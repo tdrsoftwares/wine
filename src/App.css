@@ -237,11 +237,11 @@ body {
 .input-field {
   background: #fdfbc8 !important;
   border-radius: 4px !important;
+  font-size: 14px !important;
 }
-/* .input-field div{
-  width: 170px;
-  height: 31px;
-} */
+.input-field input, .input-field div{
+  font-size: 14px !important;
+}
 
 .input-wrapper .label-adjustment {
   flex: 0 0 40% !important;
