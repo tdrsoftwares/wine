@@ -17,7 +17,6 @@ import {
   TableHead,
   TableRow,
   TextField,
-  Typography,
 } from "@mui/material";
 import { getAllCustomer } from "../../../services/customerService";
 import { useLoginContext } from "../../../utils/loginContext";
@@ -27,9 +26,11 @@ import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import debounce from "lodash.debounce";
 import {
+  createSale,
   searchAllSalesByItemCode,
   searchAllSalesByItemName,
 } from "../../../services/saleBillService";
+import { getAllLedgers } from "../../../services/ledgerService";
 
 const SaleBill = () => {
   const { loginResponse } = useLoginContext();
@@ -37,12 +38,13 @@ const SaleBill = () => {
 
   const [searchResults, setSearchResults] = useState([]);
   const [salesData, setSalesData] = useState([]);
+  const [allLedgers, setAllLedgers] = useState([]);
 
   console.log("salesData: ", salesData);
   const [searchMode, setSearchMode] = useState(false);
   const [formData, setFormData] = useState({
     barCode: "",
-    billType: "Cash Bill",
+    billType: "CASHBILL",
     customerName: "",
     balance: "",
     phoneNo: "",
@@ -51,7 +53,7 @@ const SaleBill = () => {
     newcode: "",
     series: "",
     billno: "",
-    billDate: "mm/dd/yyyy",
+    billDate: "",
     itemId: "",
     itemCode: "",
     itemName: "",
@@ -64,10 +66,13 @@ const SaleBill = () => {
     brk: "",
     split: "",
     volume: "",
+    currentStock: "",
+    group: "",
   });
 
   const [editableIndex, setEditableIndex] = useState(-1);
   const [editedRow, setEditedRow] = useState({});
+  const [selectedRowIndex, setSelectedRowIndex] = useState(null);
   const [totalValues, setTotalValues] = useState({
     totalVolume: "",
     totalPcs: "",
@@ -88,6 +93,7 @@ const SaleBill = () => {
 
   console.log("totalValues: ", totalValues);
 
+  const tableRef = useRef(null);
   const itemCodeRef = useRef(null);
   const itemNameRef = useRef(null);
   const mrpRef = useRef(null);
@@ -113,8 +119,28 @@ const SaleBill = () => {
     }
   };
 
+  const fetchAllLedger = async () => {
+    try {
+      const allLedgerResponse = await getAllLedgers(loginResponse);
+      setAllLedgers(allLedgerResponse?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching companies. Please try again later.",
+        "Error"
+      );
+      console.error("Error fetching companies:", error);
+    }
+  };
+
   const isValidNumber = (value) => {
     return !isNaN(value) && parseFloat(value) >= 0;
+  };
+
+  const handleClickOutside = (event) => {
+    if (tableRef.current && !tableRef.current.contains(event.target)) {
+      setEditableIndex(null);
+      setEditedRow({});
+    }
   };
 
   const resetTopFormData = () => {
@@ -187,9 +213,19 @@ const SaleBill = () => {
     try {
       const response = await searchAllSalesByItemCode(loginResponse, itemCode);
       console.log("itemCodeSearch response: ", response);
+      const searchedItem = response?.data?.data[0];
 
       if (response?.data?.data) {
-        setSearchResults(response?.data?.data);
+        setSearchResults(response?.data?.data[0]);
+        setFormData({
+          ...formData,
+          itemId: searchedItem?._id,
+          itemCode: searchedItem?.itemCode || 0,
+          itemName: searchedItem?.item[0]?.name || 0,
+          mrp: searchedItem?.mrp || 0,
+          batch: searchedItem?.batchNo || 0,
+          volume: searchedItem?.item[0]?.volume || 0,
+        });
       } else {
         setSearchResults([]);
       }
@@ -200,9 +236,20 @@ const SaleBill = () => {
   }, 1000);
 
   useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+
+
+
+
+  useEffect(() => {
     if (formData.customerName) {
       const selectedCustomer = allCustomerData.find(
-        (customer) => customer.name === formData.customerName
+        (customer) => customer._id === formData._id
       );
       if (selectedCustomer) {
         setFormData({
@@ -222,40 +269,65 @@ const SaleBill = () => {
     }
   }, [formData.customerName, allCustomerData]);
 
+
+
+
+
   useEffect(() => {
     fetchAllCustomers();
+    fetchAllLedger();
   }, [loginResponse]);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (searchMode) {
+        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+          event.preventDefault();
+          const currentIndex =
+            selectedRowIndex !== null ? selectedRowIndex : -1;
+          let nextIndex;
+          if (event.key === "ArrowDown") {
+            nextIndex =
+              currentIndex === searchResults.length - 1 ? 0 : currentIndex + 1;
+          } else {
+            nextIndex =
+              currentIndex === 0 ? searchResults.length - 1 : currentIndex - 1;
+          }
+          setSelectedRowIndex(nextIndex);
+          setFormData({
+            ...formData,
+            itemName: searchResults[nextIndex]?.itemName || "",
+          });
+        } else if (event.key === "Enter" && selectedRowIndex !== null) {
+          const selectedRow = searchResults[selectedRowIndex];
+          setFormData({
+            ...formData,
+            itemId: selectedRow?._id || "",
+            itemCode: selectedRow?.itemCode || "",
+            itemName: selectedRow?.item[0]?.name || "",
+            mrp: selectedRow?.mrp || "",
+            batch: selectedRow?.batchNo || "",
+            volume: selectedRow?.item[0]?.volume || "",
+          });
+          setSearchMode(false);
+          setSelectedRowIndex(null);
+          pcsRef.current.focus();
+        }
+      }
+    };
+
+    document.body.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [searchMode, formData.itemName, searchResults, selectedRowIndex]);
 
   useEffect(() => {
     resetTopFormData();
   }, [formData.billType]);
 
-  useEffect(() => {
-    const calculatedTotalPcs = salesData.reduce((total, item) => {
-      return total + parseInt(item.pcs || 1);
-    }, 0);
-
-    console.log("calculatedTotalPcs: ", calculatedTotalPcs);
-
-    const calculatedTotalVolume = salesData.reduce((total, item) => {
-      return total + parseInt(item.pcs || 1) * parseInt(item.volume || 0);
-    }, 0);
-
-    console.log("calculatedTotalVolume: ", calculatedTotalVolume);
-
-    const calculatedGrossAmt = salesData.reduce((total, item) => {
-      return total + parseInt(item.amount || 0) * parseInt(item.pcs || 1);
-    }, 0);
-
-    console.log("calculatedGrossAmt: ", calculatedGrossAmt);
-
-    setTotalValues({
-      ...totalValues,
-      totalPcs: calculatedTotalPcs,
-      totalVolume: calculatedTotalVolume,
-      grossAmt: calculatedGrossAmt,
-    });
-  }, [salesData]);
+  
 
   useEffect(() => {
     const totalAmount = salesData.reduce((total, item) => {
@@ -265,14 +337,18 @@ const SaleBill = () => {
     const specialDiscount = totalValues.splDiscount || 0;
     const specialDiscountAmount = (totalAmount * specialDiscount) / 100;
 
-    const grossAmount = totalAmount - specialDiscountAmount;
+    let netAmt = parseFloat(totalAmount - specialDiscountAmount) + parseFloat(totalValues.taxAmt)|| 0;
+
+
+    // const adjustmentAmt = netAmt + totalValues.adjustment || 0;
 
     setTotalValues({
       ...totalValues,
       splDiscAmount: specialDiscountAmount,
-      grossAmt: grossAmount,
+      // adjustment: adjustmentAmt,
+      netAmt: netAmt,
     });
-  }, [salesData, totalValues.splDiscount]);
+  }, [salesData, totalValues.splDiscount, totalValues.taxAmt]);
 
   const handleItemNameChange = (event) => {
     const itemName = event.target.value;
@@ -321,28 +397,39 @@ const SaleBill = () => {
   };
 
   const handleEdit = (index, field, value) => {
-    if (!isValidNumber(value)) {
-      return;
-    }
-    const editedRowCopy = { ...editedRow };
-    editedRowCopy[field] = value;
+    const updatedRow = { ...salesData[index] };
 
-    if (field === "pcs" || field === "rate") {
-      const pcs = field === "pcs" ? value : editedRowCopy["pcs"];
-      const rate = field === "rate" ? value : editedRowCopy["rate"];
-      const amount = pcs * rate;
-      editedRowCopy["amount"] = amount;
-    }
+    updatedRow[field] = value;
 
-    if (field === "discount") {
-      const amount = editedRowCopy["amount"] || 0;
-      let discount = value;
-      if (parseFloat(discount) > parseFloat(amount)) {
-        discount = amount;
+    if (
+      field === "rate" ||
+      field === "pcs" ||
+      field === "discount" ||
+      field === "amount"
+    ) {
+      if (field === "pcs") {
+        updatedRow.amount = parseFloat(updatedRow.rate) * parseFloat(value);
+      } else if (field === "rate") {
+        updatedRow.amount = parseFloat(updatedRow.pcs) * parseFloat(value);
+      } else if (field === "discount") {
+        const originalAmount =
+          parseFloat(updatedRow.rate) * parseFloat(updatedRow.pcs);
+        let newAmount = originalAmount - parseFloat(value);
+        if (newAmount < 0) {
+          newAmount = 0;
+        }
+        updatedRow.amount = newAmount;
+      } else if (field === "amount") {
+        if (parseFloat(updatedRow.pcs) !== 0) {
+          updatedRow.rate = parseFloat(value) / parseFloat(updatedRow.pcs);
+        }
       }
-      editedRowCopy["discount"] = discount;
     }
-    setEditedRow(editedRowCopy);
+
+    const updatedSalesData = [...salesData];
+    updatedSalesData[index] = updatedRow;
+
+    setSalesData(updatedSalesData);
   };
 
   const handleRowClick = (index) => {
@@ -357,6 +444,8 @@ const SaleBill = () => {
       mrp: selectedRow.mrp || 0,
       batch: selectedRow.batchNo || 0,
       volume: selectedRow.item[0].volume || 0,
+      currentStock: selectedRow.currentStock || 0,
+      group: selectedRow.item[0].group || "",
     });
   };
   console.log("formData after row click: ", formData);
@@ -380,7 +469,34 @@ const SaleBill = () => {
 
     setEditedRow({});
     setEditableIndex(-1);
+
+    const calculatedTotalVolume = updatedSales.reduce((total, item) => {
+      return total + parseFloat(item.volume || 0) * parseInt(item.pcs || 1);
+    }, 0);
+
+    const calculatedTotalPcs = updatedSales.reduce((total, item) => {
+      return total + parseInt(item.pcs || 0);
+    }, 0);
+
+    const calculatedGrossAmt = updatedSales.reduce((total, item) => {
+      return total + parseFloat(item.amount || 0) * parseInt(item.pcs || 1);
+    }, 0);
+
+    const netAmt =
+      parseFloat(calculatedGrossAmt || 0) -
+      parseFloat(totalValues.splDiscAmount || 0) -
+      parseFloat(totalValues.adjustment || 0) +
+      parseFloat(totalValues.taxAmt || 0);
+
+    setTotalValues({
+      ...totalValues,
+      totalVolume: calculatedTotalVolume.toFixed(0),
+      totalPcs: calculatedTotalPcs,
+      grossAmt: calculatedGrossAmt.toFixed(0),
+      netAmt: netAmt.toFixed(2),
+    });
   };
+  
 
   const handleRemoveClick = (index) => {
     const updatedSales = [...salesData];
@@ -413,47 +529,121 @@ const SaleBill = () => {
       handleEnterKey(e, pcsRef);
       return;
     }
+    if (formData.pcs > formData.currentStock) {
+      NotificationManager.warning(
+        `Out of Stock! Currently you have ${formData.currentStock || 0}pcs in stock.`
+      );
+      pcsRef.current.focus();
+      return;
+    }
     if (!formData.rate) {
       NotificationManager.warning(`Please fill the Rate`);
       handleEnterKey(e, rateRef);
       return;
     }
-    if (!formData.discount) {
-      NotificationManager.warning(`Please fill the Discount`);
-      handleEnterKey(e, discountRef);
-      return;
-    }
+
     if (!formData.amount) {
       NotificationManager.warning(`Please fill the Amount`);
       handleEnterKey(e, amountRef);
       return;
     }
-    if (!formData.brk) {
-      NotificationManager.warning(`Please fill the Brk Field`);
-      handleEnterKey(e, brkRef);
-      return;
-    }
-    if (!formData.split) {
-      NotificationManager.warning(`Please fill the Split`);
-      handleEnterKey(e, splitRef);
-      return;
-    }
 
-    setTotalValues({ ...totalValues, totalVolume: formData.volume });
+    setTotalValues({
+      ...totalValues,
+      totalVolume: formData.volume,
+      grossAmt: formData.amount,
+      receiptMode1: formData.amount,
+    });
 
-    setSalesData([...salesData, formData]);
+    setSalesData([
+      ...salesData,
+      {
+        ...formData,
+        discount: formData.discount || 0,
+        brk: formData.brk || 0,
+        split: formData.split || 0,
+      },
+    ]);
     resetMiddleFormData();
     handleEnterKey(e, itemCodeRef);
     setSearchMode(false);
   };
 
-  const handleItemCodeChange = (e) => {
+  const handleCreateSale = async () => {
+    let payload = [];
+    const billDateObj = new Date(formData.billDate);
+
+    if (salesData.length > 0) {
+      salesData.forEach((item) => {
+        let newPayload = {
+          billType: formData.billType,
+          customer: formData.customerName,
+          billSeries: item.group,
+          billDate: formData.billDate
+            ? `${billDateObj.getDate()}/${
+                billDateObj.getMonth() + 1
+              }/${billDateObj.getFullYear()}`
+            : "",
+          volume: totalValues.totalVolume,
+          totalPcs: totalValues.totalPcs,
+          splDisc: totalValues.splDiscount,
+          splDiscAmount: totalValues.splDiscAmount,
+          grossAmount: totalValues.grossAmt,
+          discAmount: "",
+          taxAmount: totalValues.taxAmt,
+          adjustment: totalValues.adjustment,
+          netAmount: totalValues.netAmt,
+          receiptAmount: totalValues.receiptAmt,
+          receiptMode1: totalValues.receiptMode1,
+          receiptMode2: totalValues.receiptMode2,
+          salesItem: [
+            {
+              itemCode: item.itemCode,
+              itemId: item.itemId,
+              batchNo: item.batch,
+              mrp: item.mrp,
+              pcs: item.pcs,
+              rate: item.rate,
+              discount: item.discount,
+              amount: item.amount,
+              split: item.split,
+              break: item.brk,
+            },
+          ],
+        };
+        payload.push(newPayload);
+      });
+    }
+    console.log("payload: --> ", payload);
+  
+    try {
+      const response = await createSale(payload, loginResponse);
+      console.log("response: ", response);
+  
+      if (response.status === 200) {
+        console.log("Sale created successfully:", response);
+        NotificationManager.success("Sale created successfully", "Success");
+        setFormData({...formData, billno: response.data.data.billno});
+        setSearchMode(false);
+      } else {
+        NotificationManager.error(
+          "Error creating Sale. Please try again later.",
+          "Error"
+        );
+      }
+    } catch (error) {
+      console.error("Error creating sale:", error);
+    }
+  };
+  
+
+  const handleItemCodeChange = async (e) => {
     const itemCode = e.target.value;
     setFormData({ ...formData, itemCode: itemCode });
-    itemCodeSearch(itemCode);
-    setSearchMode(true);
+    await itemCodeSearch(itemCode);
+    console.log("search result: ", searchResults);
+
     if (!itemCode) {
-      setSearchMode(false);
       resetMiddleFormData();
     }
 
@@ -467,21 +657,25 @@ const SaleBill = () => {
 
   console.log("formData: ", formData);
 
-  const handleBarCodeChange = (e) => {
-    setFormData({ ...formData, barCode: e.target.value });
-  };
-
   const handlePcsChange = (e) => {
     const pcs = parseFloat(e.target.value) || 1;
+    const stock = parseFloat(formData.currentStock) || 0;
+    if (pcs > stock) {
+      NotificationManager.warning(
+        `Out of Stock! Currently you have ${formData.currentStock || 0}pcs in stock.`
+      );
+      pcsRef.current.focus();
+    }
     const rate = parseFloat(formData.rate) || 1;
     const amount = pcs * rate;
     setFormData({ ...formData, pcs, amount });
-  };
+  }; 
+  
 
   const handleRateChange = (e) => {
     const rate = parseFloat(e.target.value) || 1;
     const pcs = parseFloat(formData.pcs) || 1;
-    const amount = pcs * rate;
+    const amount = (pcs * rate) || 0;
     setFormData({ ...formData, rate, amount });
   };
 
@@ -498,215 +692,279 @@ const SaleBill = () => {
   };
 
   const handleDiscountChange = (e) => {
-    setFormData({ ...formData, discount: e.target.value });
+    const discount = parseFloat(e.target.value) || 0;
+    setFormData({ ...formData, discount });
+
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const originalAmount =
+        parseFloat(formData.rate) * parseFloat(formData.pcs);
+      let newAmount = (originalAmount - discount) || 0;
+      if (newAmount < 0) {
+        newAmount = 0;
+      }
+      setFormData({ ...formData, amount: newAmount });
+      amountRef.current.focus();
+    }
   };
+
+  const handleDiscountKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleDiscountChange(e);
+    }
+  };
+  
+  const calculateTotalVolume = () => {
+    let totalVolume = 0;
+    salesData.forEach((row) => {
+      totalVolume += (parseFloat(row.volume) * parseFloat(row.pcs));
+    });
+    return totalVolume.toFixed(0);
+  };
+  
+  const calculateTotalPcs = () => {
+    let totalPcs = 0;
+    salesData.forEach((row) => {
+      totalPcs += parseInt(row.pcs);
+    });
+    return totalPcs;
+  };
+
+  const calculateGrossAmt = () => {
+    let grossAmt = 0;
+    salesData.forEach((row) => {
+      grossAmt += parseInt(row.amount);
+    });
+    return grossAmt;
+  };
+
+  const calculateTaxAmt = () => {
+    return parseFloat(totalValues.taxAmt || 0).toFixed(0);
+  };
+  
+  const calculateAdjustment = () => {
+    return parseFloat(totalValues.adjustment || 0).toFixed(0);
+  };
+
+  const calculateNetAmount = () => {
+    let netAmt =
+      parseFloat(totalValues.grossAmt || 0) - parseFloat(totalValues.splDiscAmount || 0) - parseFloat(totalValues.adjustment || 0) + parseFloat(totalValues.taxAmt || 0);
+    return netAmt;
+  };
+
+  
+  const updateTotalValues = () => {
+    setTotalValues({
+      ...totalValues,
+      totalVolume: calculateTotalVolume(),
+      totalPcs: calculateTotalPcs(),
+      taxAmt: calculateTaxAmt(),
+      adjustment: calculateAdjustment(),
+      netAmt: calculateNetAmount(),
+      grossAmt: calculateGrossAmt(),
+      receiptMode1: calculateGrossAmt()
+    });
+  };
+
+  
+  useEffect(() => {
+    updateTotalValues();
+  }, [salesData]);
+
+ 
+  
 
   return (
     <Box sx={{ p: 2, width: "900px" }}>
       <Grid container spacing={2}>
-        <Grid item xs={4}>
-          <InputLabel for="billType">Select Bill Type:</InputLabel>
-          <RadioGroup
-            row
-            aria-label="billType"
-            name="billType"
-            sx={{ gap: 3 }}
-            value={formData.billType}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                billType: e.target.value,
-              })
-            }
-          >
-            <FormControlLabel
-              value="Cash Bill"
-              control={<Radio />}
-              label="Cash Bill"
-            />
-            <FormControlLabel
-              value="Credit Bill"
-              control={<Radio />}
-              label="Credit Bill"
-            />
-          </RadioGroup>
-        </Grid>
-
-        <Grid item xs={4}>
-          {formData.billType === "Credit Bill" && (
-            <div className="input-wrapper">
-              <InputLabel htmlFor="type" className="input-label">
-                Customer Type :
-              </InputLabel>
-              <TextField
-                select
-                fullWidth
-                size="small"
-                name="type"
-                className="input-field"
-                value={formData.type}
-                onChange={(e) =>
-                  setFormData({ ...formData, type: e.target.value })
-                }
-              >
-                {["cash", "online"].map((item, id) => (
-                  <MenuItem key={id} value={item}>
-                    {item}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </div>
-          )}
+        <Grid item xs={12}>
+          <div className="radio-buttons-wrapper">
+            <InputLabel htmlFor="billType" sx={{ marginRight: "10px" }}>
+              Select Bill Type:
+            </InputLabel>
+            <RadioGroup
+              row
+              aria-label="billType"
+              name="billType"
+              value={formData.billType}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  billType: e.target.value,
+                })
+              }
+            >
+              <FormControlLabel
+                value="CASHBILL"
+                control={<Radio />}
+                label="Cash Bill"
+                style={{ marginRight: "20px" }}
+              />
+              <FormControlLabel
+                value="CREDITBILL"
+                control={<Radio />}
+                label="Credit Bill"
+              />
+            </RadioGroup>
+          </div>
         </Grid>
 
         <Grid item xs={4}>
           <div className="input-wrapper">
-            <InputLabel htmlFor="barCode" className="input-label">
-              Enter Barcode :
+            <InputLabel htmlFor="customerName" className="input-label">
+              Customer Name :
+            </InputLabel>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              type="text"
+              name="customerName"
+              className="input-field"
+              value={formData.customerName}
+              onChange={handleCustomerNameChange}
+              // disabled={formData.billType === "Cash Bill" ? true : false}
+            >
+              {allCustomerData.map((item) => (
+                <MenuItem key={item._id} value={item._id}>
+                  {item.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </div>
+        </Grid>
+
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="address" className="input-label">
+              Address :
             </InputLabel>
             <TextField
               fullWidth
               size="small"
-              type="text"
-              name="barCode"
+              name="address"
               className="input-field"
-              value={formData.barCode}
-              onChange={handleBarCodeChange}
+              value={formData.address}
+              onChange={(e) =>
+                setFormData({ ...formData, address: e.target.value })
+              }
+              // disabled={formData.billType === "Cash Bill" ? true : false}
             />
           </div>
         </Grid>
 
-        {formData.billType === "Credit Bill" && (
-          <>
-            <Grid item xs={4}>
-              <div className="input-wrapper">
-                <InputLabel htmlFor="customerName" className="input-label">
-                  Customer Name :
-                </InputLabel>
-                <TextField
-                  select
-                  fullWidth
-                  size="small"
-                  type="text"
-                  name="customerName"
-                  className="input-field"
-                  value={formData.customerName}
-                  onChange={handleCustomerNameChange}
-                >
-                  {allCustomerData.map((item) => (
-                    <MenuItem key={item._id} value={item.name}>
-                      {item.name}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </div>
-            </Grid>
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="phoneNo" className="input-label">
+              Phone Number :
+            </InputLabel>
+            <TextField
+              fullWidth
+              size="small"
+              type="number"
+              name="phoneNo"
+              className="input-field"
+              value={formData.phoneNo}
+              onChange={(e) =>
+                setFormData({ ...formData, phoneNo: e.target.value })
+              }
+              // disabled={formData.billType === "Cash Bill" ? true : false}
+            />
+          </div>
+        </Grid>
 
-            <Grid item xs={4}>
-              <div className="input-wrapper">
-                <InputLabel htmlFor="address" className="input-label">
-                  Address :
-                </InputLabel>
-                <TextField
-                  fullWidth
-                  size="small"
-                  name="address"
-                  className="input-field"
-                  value={formData.address}
-                  onChange={(e) =>
-                    setFormData({ ...formData, address: e.target.value })
-                  }
-                />
-              </div>
-            </Grid>
+        {/* <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="type" className="input-label">
+              Customer Type :
+            </InputLabel>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              name="type"
+              className="input-field"
+              value={formData.type}
+              onChange={(e) =>
+                setFormData({ ...formData, type: e.target.value })
+              }
+              disabled={formData.billType === "Cash Bill" ? true : false}
+            >
+              {["cash", "online"].map((item, id) => (
+                <MenuItem key={id} value={item}>
+                  {item}
+                </MenuItem>
+              ))}
+            </TextField>
+          </div>
+        </Grid> */}
 
-            <Grid item xs={4}>
-              <div className="input-wrapper">
-                <InputLabel htmlFor="phoneNo" className="input-label">
-                  Phone Number :
-                </InputLabel>
-                <TextField
-                  fullWidth
-                  size="small"
-                  type="number"
-                  name="phoneNo"
-                  className="input-field"
-                  value={formData.phoneNo}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phoneNo: e.target.value })
-                  }
-                />
-              </div>
-            </Grid>
-          </>
-        )}
+        {/* billType == "Cash Bill" */}
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="series" className="input-label">
+              Series :
+            </InputLabel>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              name="series"
+              className="input-field"
+              value={formData.series}
+              onChange={(e) =>
+                setFormData({ ...formData, series: e.target.value })
+              }
+              disabled={formData.billType === "CREDITBILL" ? true : false}
+            >
+              {["A", "C"].map((item, id) => (
+                <MenuItem key={id} value={item}>
+                  {item}
+                </MenuItem>
+              ))}
+            </TextField>
+          </div>
+        </Grid>
 
-        {formData.billType === "Cash Bill" && (
-          <>
-            <Grid item xs={4}>
-              <div className="input-wrapper">
-                <InputLabel htmlFor="series" className="input-label">
-                  Series :
-                </InputLabel>
-                <TextField
-                  select
-                  fullWidth
-                  size="small"
-                  name="series"
-                  className="input-field"
-                  value={formData.series}
-                  onChange={(e) =>
-                    setFormData({ ...formData, series: e.target.value })
-                  }
-                >
-                  {["A", "C"].map((item, id) => (
-                    <MenuItem key={id} value={item}>
-                      {item}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </div>
-            </Grid>
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="billno" className="input-label">
+              Bill No. :
+            </InputLabel>
+            <TextField
+              fullWidth
+              size="small"
+              type="number"
+              name="billno"
+              className="input-field"
+              value={formData.billno}
+              onChange={(e) =>
+                setFormData({ ...formData, billno: e.target.value })
+              }
+              disabled={formData.billType === "CREDITBILL" ? true : false}
+            />
+          </div>
+        </Grid>
 
-            <Grid item xs={4}>
-              <div className="input-wrapper">
-                <InputLabel htmlFor="billno" className="input-label">
-                  Bill No. :
-                </InputLabel>
-                <TextField
-                  fullWidth
-                  size="small"
-                  type="number"
-                  name="billno"
-                  className="input-field"
-                  value={formData.billno}
-                  onChange={(e) =>
-                    setFormData({ ...formData, billno: e.target.value })
-                  }
-                />
-              </div>
-            </Grid>
-
-            <Grid item xs={4}>
-              <div className="input-wrapper">
-                <InputLabel htmlFor="billDate" className="input-label">
-                  Bill Date :
-                </InputLabel>
-                <TextField
-                  fullWidth
-                  size="small"
-                  type="date"
-                  name="billDate"
-                  className="input-field"
-                  value={formData.billDate}
-                  onChange={(e) =>
-                    setFormData({ ...formData, billDate: e.target.value })
-                  }
-                />
-              </div>
-            </Grid>
-          </>
-        )}
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="billDate" className="input-label">
+              Bill Date :
+            </InputLabel>
+            <TextField
+              fullWidth
+              size="small"
+              type="date"
+              name="billDate"
+              className="input-field"
+              value={formData.billDate}
+              onChange={(e) =>
+                setFormData({ ...formData, billDate: e.target.value })
+              }
+              disabled={formData.billType === "CREDITBILL" ? true : false}
+            />
+          </div>
+        </Grid>
       </Grid>
 
       <Box
@@ -715,7 +973,7 @@ const SaleBill = () => {
       >
         <Grid container spacing={1}>
           <Grid item xs={1.7}>
-            <InputLabel className="input-label-2">Item Code</InputLabel>
+            <InputLabel className="input-label-2">Bar Code</InputLabel>
             <TextField
               inputRef={itemCodeRef}
               variant="outlined"
@@ -782,7 +1040,7 @@ const SaleBill = () => {
               variant="outlined"
               type="text"
               size="small"
-              className="input-field"
+              className={`input-field ${formData.pcs > formData.currentStock ? 'pcs-input' : ''}`}
               fullWidth
               value={formData.pcs}
               onChange={handlePcsChange}
@@ -816,7 +1074,7 @@ const SaleBill = () => {
               fullWidth
               value={formData.discount}
               onChange={handleDiscountChange}
-              onKeyDown={(e) => handleEnterKey(e, amountRef)}
+              onKeyDown={handleDiscountKeyDown}
             />
           </Grid>
           <Grid item xs={1.2}>
@@ -880,6 +1138,7 @@ const SaleBill = () => {
         {searchMode ? (
           <TableContainer
             component={Paper}
+            ref={tableRef}
             sx={{
               marginTop: 1,
               height: 300,
@@ -912,48 +1171,49 @@ const SaleBill = () => {
               </TableHead>
               <TableBody>
                 {searchResults
-                  ? searchResults.map((row, index) => (
-                    <TableRow
-                      key={index}
-                      onClick={() => {
-                        handleRowClick(index);
-                        setSearchMode(false);
-                      }}
-                      sx={{
-                        cursor: "pointer",
-                        backgroundColor:
-                          formData.itemName === row.name ? "inherit" : "#fff",
-                      }}
-                    >
-                      <TableCell
-                        align="center"
-                        sx={{ padding: "14px", paddingLeft: 2 }}
+                  ? searchResults?.map((row, index) => (
+                      <TableRow
+                        key={index}
+                        onClick={() => {
+                          handleRowClick(index);
+                          setSearchMode(false);
+                        }}
+                        sx={{
+                          cursor: "pointer",
+                          backgroundColor:
+                            index === selectedRowIndex ? "inherit" : "#fff",
+                        }}
                       >
-                        {index + 1}
-                      </TableCell>
-                      <TableCell align="center" sx={{ padding: "14px" }}>
-                        {row?.itemCode || "No Data"}
-                      </TableCell>
-                      <TableCell align="center" sx={{ padding: "14px" }}>
-                        {row?.item[0]?.name || "No Data"}
-                      </TableCell>
-                      <TableCell align="center" sx={{ padding: "14px" }}>
-                        {row?.mrp || 0}
-                      </TableCell>
-                      <TableCell align="center" sx={{ padding: "14px" }}>
-                        {row.batch || 0}
-                      </TableCell>
-                      <TableCell align="center" sx={{ padding: "14px" }}>
-                        {row.currentStock || 0}
-                      </TableCell>
-                    </TableRow>
-                  ))
+                        <TableCell
+                          align="center"
+                          sx={{ padding: "14px", paddingLeft: 2 }}
+                        >
+                          {index + 1}
+                        </TableCell>
+                        <TableCell align="center" sx={{ padding: "14px" }}>
+                          {row?.itemCode || "No Data"}
+                        </TableCell>
+                        <TableCell align="center" sx={{ padding: "14px" }}>
+                          {row?.item[0]?.name || "No Data"}
+                        </TableCell>
+                        <TableCell align="center" sx={{ padding: "14px" }}>
+                          {row?.mrp || 0}
+                        </TableCell>
+                        <TableCell align="center" sx={{ padding: "14px" }}>
+                          {row.batch || 0}
+                        </TableCell>
+                        <TableCell align="center" sx={{ padding: "14px" }}>
+                          {row.currentStock || 0}
+                        </TableCell>
+                      </TableRow>
+                    ))
                   : "No Data"}
               </TableBody>
             </Table>
           </TableContainer>
         ) : (
           <TableContainer
+            ref={tableRef}
             component={Paper}
             sx={{
               marginTop: 1,
@@ -1094,7 +1354,6 @@ const SaleBill = () => {
                     <TableCell>
                       {editableIndex === index ? (
                         <Input
-                          size="medium"
                           value={editedRow.amount || row.amount}
                           onChange={(e) =>
                             handleEdit(index, "amount", e.target.value)
@@ -1168,7 +1427,7 @@ const SaleBill = () => {
         }}
       >
         <Grid container spacing={1}>
-          <Grid item xs={1}>
+          <Grid item xs={0.8}>
             <InputLabel className="input-label-2">Vol (ml)</InputLabel>
             <TextField
               variant="outlined"
@@ -1179,7 +1438,7 @@ const SaleBill = () => {
               InputProps={{ readOnly: true }}
             />
           </Grid>
-          <Grid item xs={1}>
+          <Grid item xs={0.8}>
             <InputLabel className="input-label-2">Total Pcs.</InputLabel>
             <TextField
               variant="outlined"
@@ -1190,7 +1449,7 @@ const SaleBill = () => {
               InputProps={{ readOnly: true }}
             />
           </Grid>
-          <Grid item xs={1}>
+          <Grid item xs={1.1}>
             <InputLabel className="input-label-2">Gross Amt. (₹)</InputLabel>
             <TextField
               variant="outlined"
@@ -1201,7 +1460,7 @@ const SaleBill = () => {
               InputProps={{ readOnly: true }}
             />
           </Grid>
-          <Grid item xs={1}>
+          <Grid item xs={1.2}>
             <InputLabel className="input-label-2">Rect. Mode 1</InputLabel>
             <TextField
               variant="outlined"
@@ -1209,19 +1468,30 @@ const SaleBill = () => {
               size="small"
               fullWidth
               value={totalValues.receiptMode1}
-              InputProps={{ readOnly: true }}
+              onChange={(e) =>
+                setTotalValues({ ...totalValues, receiptMode1: e.target.value })
+              }
             />
           </Grid>
-          <Grid item xs={1}>
+          <Grid item xs={1.7}>
             <InputLabel className="input-label-2">Rect. Mode 2</InputLabel>
             <TextField
+              select
               variant="outlined"
               className="input-field"
               size="small"
               fullWidth
               value={totalValues.receiptMode2}
-              InputProps={{ readOnly: true }}
-            />
+              onChange={(e) =>
+                setTotalValues({ ...totalValues, receiptMode2: e.target.value })
+              }
+            >
+              {allLedgers?.map((item) => (
+                <MenuItem key={item._id} value={item._id}>
+                  {item.name}
+                </MenuItem>
+              ))}
+            </TextField>
           </Grid>
           <Grid item xs={1}>
             <InputLabel className="input-label-2">Receipt Amt</InputLabel>
@@ -1231,7 +1501,9 @@ const SaleBill = () => {
               size="small"
               fullWidth
               value={totalValues.receiptAmt}
-              InputProps={{ readOnly: true }}
+              onChange={(e) =>
+                setTotalValues({ ...totalValues, receiptAmt: e.target.value })
+              }
             />
           </Grid>
           <Grid item xs={1}>
@@ -1247,7 +1519,7 @@ const SaleBill = () => {
               }
             />
           </Grid>
-          <Grid item xs={1}>
+          <Grid item xs={1.1}>
             <InputLabel className="input-label-2">S Disc Amt.</InputLabel>
             <TextField
               variant="outlined"
@@ -1258,7 +1530,7 @@ const SaleBill = () => {
               InputProps={{ readOnly: true }}
             />
           </Grid>
-          <Grid item xs={1}>
+          <Grid item xs={1.1}>
             <InputLabel className="input-label-2">Tax Amt.</InputLabel>
             <TextField
               variant="outlined"
@@ -1270,7 +1542,7 @@ const SaleBill = () => {
             />
           </Grid>
 
-          <Grid item xs={1}>
+          <Grid item xs={1.1}>
             <InputLabel className="input-label-2">Adjustment</InputLabel>
             <TextField
               variant="outlined"
@@ -1281,14 +1553,14 @@ const SaleBill = () => {
               InputProps={{ readOnly: true }}
             />
           </Grid>
-          <Grid item xs={1}>
+          <Grid item xs={1.1}>
             <InputLabel className="input-label-2">Net Amount</InputLabel>
             <TextField
               variant="outlined"
               className="input-field"
               size="small"
               fullWidth
-              value={""}
+              value={totalValues.netAmt}
               InputProps={{ readOnly: true }}
             />
           </Grid>
@@ -1314,7 +1586,7 @@ const SaleBill = () => {
           color="success"
           size="medium"
           variant="outlined"
-          onClick={() => { }}
+          onClick={() => {}}
           sx={{ marginTop: 3, marginRight: 2 }}
         >
           PREV PAGE
@@ -1323,7 +1595,7 @@ const SaleBill = () => {
           color="secondary"
           size="medium"
           variant="outlined"
-          onClick={() => { }}
+          onClick={() => {}}
           sx={{ marginTop: 3, marginRight: 2 }}
         >
           NEXT PAGE
@@ -1333,7 +1605,7 @@ const SaleBill = () => {
           color="primary"
           size="medium"
           variant="outlined"
-          onClick={() => { }}
+          onClick={() => {}}
           sx={{ marginTop: 3, marginRight: 2 }}
         >
           EDIT
@@ -1342,7 +1614,7 @@ const SaleBill = () => {
           color="error"
           size="medium"
           variant="contained"
-          onClick={() => { }}
+          onClick={() => {}}
           sx={{ marginTop: 3, marginRight: 2 }}
         >
           DELETE
@@ -1351,7 +1623,7 @@ const SaleBill = () => {
           color="warning"
           size="medium"
           variant="contained"
-          onClick={() => { }}
+          onClick={() => {}}
           sx={{ marginTop: 3, marginRight: 2 }}
         >
           OPEN
@@ -1360,7 +1632,7 @@ const SaleBill = () => {
           color="success"
           size="medium"
           variant="contained"
-          onClick={() => { }}
+          onClick={handleCreateSale}
           sx={{ marginTop: 3 }}
         >
           SAVE

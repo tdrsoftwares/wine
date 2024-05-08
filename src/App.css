@@ -299,6 +299,21 @@ body {
   background: #dae4ed !important;
 }
 
+.radio-buttons-wrapper{
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+.pcs-input .MuiOutlinedInput-input:focus {
+  outline: none;
+}
+
+.pcs-input .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: red !important;
+}
+
+
 @media (max-width: 768px) {
   .form-container {
     width: 80%;
