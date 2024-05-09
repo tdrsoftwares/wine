@@ -313,6 +313,10 @@ body {
   border-color: red !important;
 }
 
+.date-picker, .date-picker div{
+  /* width: 100%; */
+  height: 38px;
+}
 
 @media (max-width: 768px) {
   .form-container {
