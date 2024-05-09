@@ -31,7 +31,6 @@ import {
   searchAllSalesByItemName,
 } from "../../../services/saleBillService";
 import { getAllLedgers } from "../../../services/ledgerService";
-import dayjs from 'dayjs';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -77,6 +76,7 @@ const SaleBill = () => {
   const [editableIndex, setEditableIndex] = useState(-1);
   const [editedRow, setEditedRow] = useState({});
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
+  const [billNoEditable, setBillNoEditable] = useState(false);
   const [totalValues, setTotalValues] = useState({
     totalVolume: "",
     totalPcs: "",
@@ -154,6 +154,8 @@ const SaleBill = () => {
       address: "",
       phoneNo: "",
       type: "",
+      billDate: null,
+      series: "",
     }));
   };
 
@@ -645,9 +647,9 @@ const SaleBill = () => {
     }
 
     if(salesData.length === 0) {
-      NotificationManager.error(
+      NotificationManager.warning(
         "Enter some item in table.",
-        "Error"
+        "Warning"
       );
       itemNameRef.current.focus();
       return;
@@ -660,7 +662,11 @@ const SaleBill = () => {
       if (response.status === 200) {
         console.log("Sale created successfully:", response);
         NotificationManager.success("Sale created successfully", "Success");
-        setFormData({...formData, billno: response.data.data.billno});
+        resetTopFormData()
+        resetMiddleFormData()
+        resetTotalValues()
+        setSearchResults([])
+        setSalesData([])
         setSearchMode(false);
       } else {
         NotificationManager.error(
@@ -978,7 +984,7 @@ const SaleBill = () => {
               onChange={(e) =>
                 setFormData({ ...formData, billno: e.target.value })
               }
-              disabled={formData.billType === "CREDITBILL" ? true : false}
+              disabled={billNoEditable ? false : true}
             />
           </div>
         </Grid>
@@ -1660,7 +1666,7 @@ const SaleBill = () => {
           color="warning"
           size="medium"
           variant="contained"
-          onClick={() => {}}
+          onClick={() => setBillNoEditable(true)}
           sx={{ marginTop: 3, marginRight: 2 }}
         >
           OPEN
