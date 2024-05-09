@@ -49,7 +49,7 @@ const PurchaseEntry = () => {
   const [formData, setFormData] = useState({
     supplierName: "",
     passNo: "",
-    passDate: dayjs("DD/MM/YYYY"),
+    passDate: null,
     address: "",
     billNo: "",
     billDate: null,
