@@ -1181,7 +1181,7 @@ const SaleBill = () => {
                         sx={{
                           cursor: "pointer",
                           backgroundColor:
-                            index === selectedRowIndex ? "inherit" : "#fff",
+                            index === selectedRowIndex ? "rgba(25, 118, 210, 0.08) !important" : "#fff !important",
                         }}
                       >
                         <TableCell
