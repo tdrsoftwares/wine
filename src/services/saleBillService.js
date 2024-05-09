@@ -51,3 +51,29 @@ export const searchAllSalesByItemCode = async (loginResponse, itemCode) => {
     return error;
   }
 };
+
+
+// export const getAllSales = async (loginResponse) => {
+//   try {
+//     const apiURL = `${url}/sales/reports`;
+//     const allSalesData = await axios.get(apiURL, {
+//       headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
+//     });
+//     return allSalesData;
+//   } catch (error) {
+//     return error;
+//   }
+// };
+
+export const getAllSales = async (loginResponse, filterOptions) => {
+  try {
+    const { page, limit, supplierName, fromDate, toDate } = filterOptions;
+    const apiURL = `${url}/sales/reports?page=${page}&limit=${limit}`;
+    const allSalesData = await axios.get(apiURL, {
+      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
+    });
+    return allSalesData;
+  } catch (error) {
+    return error;
+  }
+};
