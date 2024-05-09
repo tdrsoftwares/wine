@@ -218,12 +218,13 @@ const SaleBill = () => {
       const response = await searchAllSalesByItemCode(loginResponse, itemCode);
       console.log("itemCodeSearch response: ", response);
       const searchedItem = response?.data?.data[0];
+      console.log("searchedItem: ",searchedItem)
 
       if (response?.data?.data) {
         setSearchResults(response?.data?.data[0]);
         setFormData({
           ...formData,
-          itemId: searchedItem?._id,
+          itemId: searchedItem?.itemId,
           itemCode: searchedItem?.itemCode || 0,
           itemName: searchedItem?.item[0]?.name || 0,
           mrp: searchedItem?.mrp || 0,
@@ -460,7 +461,7 @@ const SaleBill = () => {
     console.log("handleRowClick selectedRow: ", selectedRow);
     setFormData({
       ...formData,
-      itemId: selectedRow._id,
+      itemId: selectedRow.itemId,
       itemCode: selectedRow.itemCode || 0,
       itemName: selectedRow.item[0].name || 0,
       mrp: selectedRow.mrp || 0,
@@ -633,6 +634,24 @@ const SaleBill = () => {
       });
     }
     console.log("payload: --> ", payload);
+
+    if(!formData.customerName) {
+      NotificationManager.warning(
+        "Customer name is required",
+        "Warning"
+      );
+      
+      return;
+    }
+
+    if(salesData.length === 0) {
+      NotificationManager.error(
+        "Enter some item in table.",
+        "Error"
+      );
+      itemNameRef.current.focus();
+      return;
+    }
   
     try {
       const response = await createSale(payload, loginResponse);
