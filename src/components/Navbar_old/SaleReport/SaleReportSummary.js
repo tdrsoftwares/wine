@@ -6,24 +6,21 @@ import {
   Grid,
   InputLabel,
   MenuItem,
-  Paper,
   Radio,
   RadioGroup,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { getAllSales } from "../../../services/saleBillService";
+import { DataGrid } from "@mui/x-data-grid";
+import { useLoginContext } from "../../../utils/loginContext";
+import { NotificationManager } from "react-notifications";
 
 const SaleReportSummary = () => {
   const [selectOptions, setselectOptions] = useState(null);
-
-
+  const [allSalesData, setAllSalesData] = useState([]);
+  const { loginResponse } = useLoginContext();
   const [filterData, setFilterData] = useState({
     dateFrom: "mm/dd/yyyy",
     dateTo: "mm/dd/yyyy",
@@ -35,33 +32,193 @@ const SaleReportSummary = () => {
     isChecked: false,
   });
 
-  const [tableData, setTableData] = useState([
-    {
-      billNo: "",
-      billDate: "",
-      customerName: "",
-      spDiscPercent: "",
-      spDiscAmt: "",
-      otherCharges: "",
-      billAmt: "",
-      saleDis: "",
-    },
-  ]);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+  });
 
   const seriesOptions = ["A", "B", "C", "D", "E", "ALL"];
+
+  const columns = [
+    {
+      field: "sNo",
+      headerName: "S. No.",
+      width: 90,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+
+    {
+      field: "billNo",
+      headerName: "Bill No.",
+      width: 120,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+
+    {
+      field: "billDate",
+      headerName: "Bill Date",
+      width: 180,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "billType",
+      headerName: "Bill Type",
+      width: 180,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "billSeries",
+      headerName: "Bill Series",
+      width: 180,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "customer",
+      headerName: "Customer Name",
+      width: 180,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "volume",
+      headerName: "Volume",
+      width: 180,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "totalPcs",
+      headerName: "Total Pcs.",
+      width: 150,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "grossAmount",
+      headerName: "Gross Amt.",
+      width: 150,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "discAmount",
+      headerName: "Discount Amt.",
+      width: 150,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "splDisc",
+      headerName: "Special Discount",
+      width: 160,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "splDiscAmount",
+      headerName: "S. Discount Amt.",
+      width: 160,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "taxAmount",
+      headerName: "Tax Amt.",
+      width: 150,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "adjustment",
+      headerName: "Adjustment",
+      width: 150,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "netAmount",
+      headerName: "Net Amt.",
+      width: 150,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "action",
+      headerName: "Action",
+      width: 100,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+      renderCell: (params) => (
+        <Button
+          variant="contained"
+          size="small"
+          // onClick={() => handleViewClick(params.row)}
+        >
+          View
+        </Button>
+      ),
+    },
+  ];
+
+  const columnsData = useMemo(
+    () =>
+      columns.map((col) =>
+        col.field === "action"
+          ? { ...col, sortable: false, fiterable: false }
+          : col
+      ),
+    [columns]
+  );
+
+  const fetchAllSales = async () => {
+    try {
+      const filterOptions = {
+        page: pagination.page,
+      limit: pagination.limit,
+        // supplierName: selectedSupplier,
+        // fromDate: dateFrom,
+        // toDate: dateTo,
+      };
+      const allSalesResponse = await getAllSales(loginResponse, filterOptions);
+      console.log("allSalesResponse ---> ", allSalesResponse?.data?.data);
+      setAllSalesData(allSalesResponse?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching sales. Please try again later.",
+        "Error"
+      );
+      console.error("Error fetching sales:", error);
+    }
+  };
+
+
+  useEffect(() => {
+    fetchAllSales();
+  }, []);
+
+
+  const handlePageChange = (newPage) => {
+    setPagination({ ...pagination, page: newPage + 1 });
+  };
+  
+  const handlePageSizeChange = (newPageSize) => {
+    setPagination({ ...pagination, limit: newPageSize });
+  };
 
   return (
     <form>
       <Box sx={{ p: 2, width: "900px" }}>
-        <Typography variant="h5" component="div" gutterBottom>
-          Sale Report Summary
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          Report Summary
+        <Typography variant="subtitle1" sx={{ marginBottom: 2 }}>
+          Sale Report Summary:
         </Typography>
 
         <Grid container spacing={2}>
-          <Grid item xs={9}>
+          <Grid item xs={12}>
             <RadioGroup
               row
               name="selectOptions"
@@ -97,9 +254,8 @@ const SaleReportSummary = () => {
               />
             </RadioGroup>
           </Grid>
-          <Grid item xs={1}></Grid>
 
-          <Grid item xs={2}>
+          <Grid item xs={3}>
             <FormControlLabel
               control={
                 <Checkbox
@@ -114,281 +270,257 @@ const SaleReportSummary = () => {
                 />
               }
               label="Only Disc. Bills"
-              
             />
           </Grid>
 
-          <Grid item xs={2}>
-            <TextField
-              fullWidth
-              type="date"
-              label="Date from"
-              name="dateFrom"
-              value={filterData.dateFrom}
-              onChange={(e) =>
-                setFilterData({ ...filterData, dateFrom: e.target.value })
-              }
-            />
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="dateFrom" className="input-label">
+                Date from :
+              </InputLabel>
+              <TextField
+                fullWidth
+                type="date"
+                size="small"
+                className="input-field"
+                name="dateFrom"
+                value={filterData.dateFrom}
+                onChange={(e) =>
+                  setFilterData({ ...filterData, dateFrom: e.target.value })
+                }
+              />
+            </div>
           </Grid>
 
-          <Grid item xs={2}>
-            <TextField
-              fullWidth
-              type="date"
-              label="Date to"
-              name="dateTo"
-              value={filterData.dateTo}
-              onChange={(e) =>
-                setFilterData({ ...filterData, dateTo: e.target.value })
-              }
-            />
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="dateFrom" className="input-label">
+                Date To :
+              </InputLabel>
+              <TextField
+                fullWidth
+                type="date"
+                size="small"
+                className="input-field"
+                name="dateTo"
+                value={filterData.dateTo}
+                onChange={(e) =>
+                  setFilterData({ ...filterData, dateTo: e.target.value })
+                }
+              />
+            </div>
           </Grid>
 
-          <Grid item xs={2}>
-            <TextField
-              select
-              fullWidth
-              name="customerName"
-              label="Customer Name"
-              variant="outlined"
-              value={filterData.customerName}
-              onChange={(e) =>
-                setFilterData({ ...filterData, customerName: e.target.value })
-              }
-            >
-              {["CASH BILL", "DEALER"].map((option, i) => (
-                <MenuItem key={i} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </TextField>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="customerName" className="input-label">
+                Customer Name :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="customerName"
+                className="input-field"
+                value={filterData.customerName}
+                onChange={(e) =>
+                  setFilterData({ ...filterData, customerName: e.target.value })
+                }
+              >
+                {["CASH BILL", "DEALER"].map((option, i) => (
+                  <MenuItem key={i} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
           </Grid>
 
-          <Grid item xs={2}>
-            <TextField
-              select
-              fullWidth
-              name="userName"
-              label="User Name"
-              variant="outlined"
-              className="input-field"
-              value={filterData.userName}
-              onChange={(e) =>
-                setFilterData({ ...filterData, userName: e.target.value })
-              }
-            >
-              {["admin"].map((pack, id) => (
-                <MenuItem key={id} value={pack}>
-                  {pack}
-                </MenuItem>
-              ))}
-            </TextField>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="customerType" className="input-label">
+                Customer Type :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="customerType"
+                className="input-field"
+                value={filterData.customerType}
+                onChange={(e) =>
+                  setFilterData({ ...filterData, customerType: e.target.value })
+                }
+              >
+                {["Cash", "Online"].map((item, id) => (
+                  <MenuItem key={id} value={item}>
+                    {item}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
           </Grid>
 
-          <Grid item xs={2}>
-            <TextField
-              select
-              fullWidth
-              name="series"
-              label="Series"
-              variant="outlined"
-              className="input-field"
-              value={filterData.series}
-              onChange={(e) =>
-                setFilterData({ ...filterData, series: e.target.value })
-              }
-            >
-              {seriesOptions.map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
-                </MenuItem>
-              ))}
-            </TextField>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="userName" className="input-label">
+                User Name :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="userName"
+                className="input-field"
+                value={filterData.userName}
+                onChange={(e) =>
+                  setFilterData({ ...filterData, userName: e.target.value })
+                }
+              >
+                {["admin"].map((pack, id) => (
+                  <MenuItem key={id} value={pack}>
+                    {pack}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
           </Grid>
 
-          <Grid item xs={2}>
-            <TextField
-              name="customerType"
-              select
-              label="Customer Type"
-              variant="outlined"
-              fullWidth
-              className="input-field"
-              value={filterData.customerType}
-              onChange={(e) =>
-                setFilterData({ ...filterData, customerType: e.target.value })
-              }
-            >
-              {["Cash", "Online"].map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
-                </MenuItem>
-              ))}
-            </TextField>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="series" className="input-label">
+                Series :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="series"
+                className="input-field"
+                value={filterData.series}
+                onChange={(e) =>
+                  setFilterData({ ...filterData, series: e.target.value })
+                }
+              >
+                {seriesOptions.map((item, id) => (
+                  <MenuItem key={id} value={item}>
+                    {item}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
           </Grid>
 
-          <Grid item xs={2}>
-            <TextField
-              name="phone"
-              select
-              label="Phone"
-              variant="outlined"
-              fullWidth
-              className="input-field"
-              value={filterData.phone}
-              onChange={(e) =>
-                setFilterData({ ...filterData, phone: e.target.value })
-              }
-            >
-              {["0", "Cash", "Online"].map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
-                </MenuItem>
-              ))}
-            </TextField>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="phone" className="input-label">
+                Phone :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="phone"
+                className="input-field"
+                value={filterData.phone}
+                onChange={(e) =>
+                  setFilterData({ ...filterData, phone: e.target.value })
+                }
+              >
+                {["0", "Cash", "Online"].map((item, id) => (
+                  <MenuItem key={id} value={item}>
+                    {item}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
           </Grid>
-
-          {/* <Grid item xs={3}></Grid> */}
-
         </Grid>
 
-        <TableContainer
-          component={Paper}
-          sx={{ marginTop: 4, maxHeight: 300, overflowY: "auto" }}
+        <Box
+          sx={{
+            height: 500,
+            width: "100%",
+            marginTop: 4,
+            "& .custom-header": {
+              backgroundColor: "#dae4ed",
+              paddingLeft: 4,
+            },
+            "& .custom-cell": {
+              paddingLeft: 4,
+            },
+          }}
         >
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>S. No.</TableCell>
-                <TableCell>Bill No.</TableCell>
-                <TableCell>Bill Date</TableCell>
-                <TableCell>Customer Name</TableCell>
-                <TableCell>Special Discount(%)</TableCell>
-                <TableCell>Special Discount Amt.</TableCell>
-                <TableCell>Other Charges</TableCell>
-                <TableCell>Bill Amt.(Rs)</TableCell>
-                <TableCell>Sale-0 / Dis-0</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {tableData.map((row, index) => (
-                <TableRow key={index}>
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={index + 1}
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.billNo}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.billDate}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.customerName || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.spDiscPercent || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.spDiscAmt || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.otherCharges || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.billAmt || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.saleDis || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+          <DataGrid
+            rows={allSalesData?.map((sale, index) => ({
+              id: index,
+              sNo: index + 1,
+              billNo: sale.billNo,
+              billDate: new Date(sale.billDate).toLocaleDateString("en-GB"),
+              billType: sale.billType,
+              billSeries: sale.billSeries,
+              customer: sale.customer,
+              volume: sale.volume,
+              totalPcs: sale.totalPcs,
+              grossAmount: sale.grossAmount,
+              discAmount: sale.discAmount,
+              splDisc: sale.splDisc,
+              splDiscAmount: sale.splDiscAmount,
+              taxAmount: sale.taxAmount,
+              adjustment: sale.adjustment,
+              netAmount: sale.netAmount,
+              action: (
+                <Button
+                  variant="contained"
+                  size="small"
+                  // onClick={() => handleViewClick(sale)}
+                >
+                  View
+                </Button>
+              ),
+            }))}
+            columns={columnsData}
+        page={pagination.page - 1}
+        pageSize={pagination.limit}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
+        rowsPerPageOptions={[10, 25, 50]}
+        sx={{ backgroundColor: "#fff" }}
+          />
+          
+        </Box>
 
         <Box
           sx={{
             display: "flex",
             justifyContent: "flex-end",
-            marginTop: 2,
+            "& button": { marginTop: 2, marginLeft: 2 },
           }}
         >
           <Button
             color="primary"
-            size="large"
-            variant="outlined"
+            size="medium"
+            variant="contained"
             onClick={() => {}}
-            sx={{ marginTop: 2, marginRight: 2 }}
+            sx={{ borderRadius: 8 }}
           >
             Display
           </Button>
           <Button
             color="secondary"
-            size="large"
-            variant="outlined"
+            size="medium"
+            variant="contained"
             onClick={() => {}}
-            sx={{ marginTop: 2, marginRight: 2 }}
+            sx={{ borderRadius: 8 }}
           >
             Print
           </Button>
           <Button
             color="error"
-            size="large"
+            size="medium"
             variant="outlined"
             onClick={() => {}}
-            sx={{ marginTop: 2 }}
+            sx={{ borderRadius: 8 }}
           >
             Clear
           </Button>
