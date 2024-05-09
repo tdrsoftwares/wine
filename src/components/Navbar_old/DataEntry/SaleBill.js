@@ -31,6 +31,10 @@ import {
   searchAllSalesByItemName,
 } from "../../../services/saleBillService";
 import { getAllLedgers } from "../../../services/ledgerService";
+import dayjs from 'dayjs';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 const SaleBill = () => {
   const { loginResponse } = useLoginContext();
@@ -53,7 +57,7 @@ const SaleBill = () => {
     newcode: "",
     series: "",
     billno: "",
-    billDate: "",
+    billDate: null,
     itemId: "",
     itemCode: "",
     itemName: "",
@@ -350,6 +354,20 @@ const SaleBill = () => {
     });
   }, [salesData, totalValues.splDiscount, totalValues.taxAmt]);
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    console.log("date: ", date);
+
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear().toString();
+
+    const formattedDate = `${day}/${month}/${year}`;
+    console.log("formattedDate: ", formattedDate);
+    return formattedDate;
+  };
+
+
   const handleItemNameChange = (event) => {
     const itemName = event.target.value;
     console.log("itemName: ", itemName);
@@ -430,6 +448,10 @@ const SaleBill = () => {
     updatedSalesData[index] = updatedRow;
 
     setSalesData(updatedSalesData);
+  };
+
+  const handleBillDateChange = (date) => {
+    setFormData({ ...formData, billDate: date });
   };
 
   const handleRowClick = (index) => {
@@ -571,7 +593,7 @@ const SaleBill = () => {
 
   const handleCreateSale = async () => {
     let payload = [];
-    const billDateObj = new Date(formData.billDate);
+    const billDateObj = formatDate(formData.billDate);
 
     if (salesData.length > 0) {
       salesData.forEach((item) => {
@@ -579,11 +601,7 @@ const SaleBill = () => {
           billType: formData.billType,
           customer: formData.customerName,
           billSeries: item.group,
-          billDate: formData.billDate
-            ? `${billDateObj.getDate()}/${
-                billDateObj.getMonth() + 1
-              }/${billDateObj.getFullYear()}`
-            : "",
+          billDate: billDateObj,
           volume: totalValues.totalVolume,
           totalPcs: totalValues.totalPcs,
           splDisc: totalValues.splDiscount,
@@ -951,18 +969,18 @@ const SaleBill = () => {
             <InputLabel htmlFor="billDate" className="input-label">
               Bill Date :
             </InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              type="date"
-              name="billDate"
-              className="input-field"
-              value={formData.billDate}
-              onChange={(e) =>
-                setFormData({ ...formData, billDate: e.target.value })
-              }
-              disabled={formData.billType === "CREDITBILL" ? true : false}
-            />
+            
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                id="billDate"
+                
+                format="DD/MM/YYYY"
+                value={formData.billDate}
+                className="input-field date-picker"
+                onChange={handleBillDateChange}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </LocalizationProvider>
           </div>
         </Grid>
       </Grid>
