@@ -28,6 +28,10 @@ import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import debounce from "lodash.debounce";
 import ItemRegisterModal from "./ItemRegisterModal";
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 const PurchaseEntry = () => {
   const { loginResponse } = useLoginContext();
@@ -45,10 +49,10 @@ const PurchaseEntry = () => {
   const [formData, setFormData] = useState({
     supplierName: "",
     passNo: "",
-    passDate: "mm/dd/yyyy",
+    passDate: dayjs("DD/MM/YYYY"),
     address: "",
     billNo: "",
-    billDate: "mm/dd/yyyy",
+    billDate: null,
     stockIn: "",
     itemId: "",
     itemCode: "",
@@ -358,11 +362,11 @@ const PurchaseEntry = () => {
     setSearchMode(false);
   };
 
-  let dateObj = new Date(formData.passDate);
-  let newDate = `${dateObj.getDate()}/${
-    dateObj.getMonth() + 1
-  }/${dateObj.getFullYear()}`
-  console.log("1 newDate --> ", newDate);
+  // let dateObj = new Date(formData.passDate);
+  // let newDate = `${dateObj.getDate()}/${
+  //   dateObj.getMonth() + 1
+  // }/${dateObj.getFullYear()}`
+  // console.log("1 newDate --> ", newDate);
   // console.log("2 totalValues --> ", totalValues);
 
   const handleCreatePurchase = async () => {
@@ -407,20 +411,25 @@ const PurchaseEntry = () => {
       return;
     }
 
-    const passDateObj = new Date(formData.passDate);
-    const billDateObj = new Date(formData.billDate);
+    const passDateObj = formatDate(formData.passDate);
+    console.log("passDateObj: ", passDateObj);
+    console.log("formData.passDate: ", formData.passDate);
+    const billDateObj = formatDate(formData.billDate);
+    console.log("billDateObj: ", billDateObj);
 
     const payload = {
       supplierName: formData.supplierName,
       storeName: formData.stockIn,
       passNo: formData.passNo,
-      passDate: `${passDateObj.getDate()}/${
-        passDateObj.getMonth() + 1
-      }/${passDateObj.getFullYear()}`,
+      // passDate: `${passDateObj.getDate()}/${
+      //   passDateObj.getMonth() + 1
+      // }/${passDateObj.getFullYear()}`,
+      passDate: passDateObj,
       billNo: formData.billNo,
-      billDate: `${billDateObj.getDate()}/${
-        billDateObj.getMonth() + 1
-      }/${billDateObj.getFullYear()}`,
+      // billDate: `${billDateObj.getDate()}/${
+      //   billDateObj.getMonth() + 1
+      // }/${billDateObj.getFullYear()}`,
+      billDate: billDateObj,
       mrpValue: parseFloat(totalValues.totalMrp) || 0,
       splDisc: parseFloat(totalValues.totalSDiscount) || 0,
       govtROff: parseFloat(totalValues.govtRate) || 0,
@@ -576,6 +585,28 @@ const PurchaseEntry = () => {
     setEntryNoEditable(false);
   };
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    console.log("date: ", date);
+
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear().toString();
+
+    const formattedDate = `${day}/${month}/${year}`;
+    console.log("formattedDate: ", formattedDate);
+    return formattedDate;
+  };
+
+
+  const handlePassDateChange = (date) => {
+    setFormData({ ...formData, passDate: date });
+  };
+
+  const handleBillDateChange = (date) => {
+    setFormData({ ...formData, billDate: date });
+  };
+
   useEffect(() => {
     fetchAllSuppliers();
     fetchAllStores();
@@ -710,16 +741,17 @@ const PurchaseEntry = () => {
             <InputLabel htmlFor="passDate" className="input-label">
               Pass Date :
             </InputLabel>
-            <TextField
-              id="passDate"
-              size="small"
-              type="date"
-              className="input-field"
-              value={formData.passDate}
-              onChange={(e) =>
-                setFormData({ ...formData, passDate: e.target.value })
-              }
-            />
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                id="passDate"
+                format="DD/MM/YYYY"
+                value={formData.passDate}
+                className="input-field date-picker"
+                onChange={handlePassDateChange}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </LocalizationProvider>
+            
           </div>
         </Grid>
         <Grid item xs={3}>
@@ -787,16 +819,18 @@ const PurchaseEntry = () => {
             <InputLabel htmlFor="billDate" className="input-label">
               Bill Date :
             </InputLabel>
-            <TextField
-              id="billDate"
-              size="small"
-              type="date"
-              className="input-field"
-              value={formData.billDate}
-              onChange={(e) =>
-                setFormData({ ...formData, billDate: e.target.value })
-              }
-            />
+            
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                id="billDate"
+                
+                format="DD/MM/YYYY"
+                value={formData.billDate}
+                className="input-field date-picker"
+                onChange={handleBillDateChange}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </LocalizationProvider>
           </div>
         </Grid>
       </Grid>
