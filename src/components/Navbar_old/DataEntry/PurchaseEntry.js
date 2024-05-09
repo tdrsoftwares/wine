@@ -357,7 +357,12 @@ const PurchaseEntry = () => {
     handleEnterKey(e, itemCodeRef);
     setSearchMode(false);
   };
-  // console.log("1 formData outside --> ", formData);
+
+  let dateObj = new Date(formData.passDate);
+  let newDate = `${dateObj.getDate()}/${
+    dateObj.getMonth() + 1
+  }/${dateObj.getFullYear()}`
+  console.log("1 newDate --> ", newDate);
   // console.log("2 totalValues --> ", totalValues);
 
   const handleCreatePurchase = async () => {
@@ -402,18 +407,20 @@ const PurchaseEntry = () => {
       return;
     }
 
-    const convertedPassDate = new Date(formData.passDate);
-    const convertedBillDate = new Date(formData.billDate);
+    const passDateObj = new Date(formData.passDate);
+    const billDateObj = new Date(formData.billDate);
 
     const payload = {
       supplierName: formData.supplierName,
       storeName: formData.stockIn,
       passNo: formData.passNo,
-      passDate:
-        convertedPassDate.toISOString().substring(0, 10) + "T00:00:00.000Z",
+      passDate: `${passDateObj.getDate()}/${
+        passDateObj.getMonth() + 1
+      }/${passDateObj.getFullYear()}`,
       billNo: formData.billNo,
-      billDate:
-        convertedBillDate.toISOString().substring(0, 10) + "T00:00:00.000Z",
+      billDate: `${billDateObj.getDate()}/${
+        billDateObj.getMonth() + 1
+      }/${billDateObj.getFullYear()}`,
       mrpValue: parseFloat(totalValues.totalMrp) || 0,
       splDisc: parseFloat(totalValues.totalSDiscount) || 0,
       govtROff: parseFloat(totalValues.govtRate) || 0,
@@ -1475,7 +1482,6 @@ const PurchaseEntry = () => {
             />
           </Grid>
         </Grid>
-        
       </Box>
       <Box
         sx={{
@@ -1483,7 +1489,10 @@ const PurchaseEntry = () => {
           justifyContent: "flex-end",
         }}
       >
-        <ItemRegisterModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+        <ItemRegisterModal
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
+        />
         <Button
           color="inherit"
           size="medium"
