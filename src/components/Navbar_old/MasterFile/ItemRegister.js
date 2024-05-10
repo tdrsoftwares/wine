@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   Button,
+  CircularProgress,
   Grid,
   Input,
   InputLabel,
@@ -51,12 +52,15 @@ const ItemRegister = () => {
   const [allItems, setAllItems] = useState([]);
   const [editableIndex, setEditableIndex] = useState(null);
   const [editedRow, setEditedRow] = useState({});
+  console.log("editedRow: ", editedRow);
+  console.log("allItems -->  ", allItems);
 
   const [sortBy, setSortBy] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const tableRef = useRef(null);
+  const [loading, setLoading] = useState(false);
 
   const clearForm = () => {
     setItemName("");
@@ -122,7 +126,7 @@ const ItemRegister = () => {
   const handleSaveClick = async (itemId) => {
     try {
       const updateItemResponse = await updateItem(
-        editedRow,
+        { ...editedRow, categoryId: categoryId },
         itemId,
         loginResponse
       );
@@ -147,13 +151,17 @@ const ItemRegister = () => {
 
   const fetchAllItems = async () => {
     try {
+      setLoading(true);
       const allItemsResponse = await getAllItems(loginResponse);
       setAllItems(allItemsResponse?.data?.data);
+      setLoading(false);
     } catch (error) {
       NotificationManager.error(
         "Error fetching items. Please try again later.",
         "Error"
       );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -272,7 +280,6 @@ const ItemRegister = () => {
     }
     return sorted;
   };
-
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -647,7 +654,19 @@ const ItemRegister = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {allItems ? (
+                {loading ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={11}
+                      align="center"
+                      sx={{
+                        backgroundColor: "#fff !important",
+                      }}
+                    >
+                      <CircularProgress />
+                    </TableCell>
+                  </TableRow>
+                ) : allItems ? (
                   sortedData()
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((item, index) => (
@@ -657,7 +676,9 @@ const ItemRegister = () => {
                           backgroundColor: "#fff",
                         }}
                       >
-                        <TableCell align="center">{page * rowsPerPage + index + 1}</TableCell>
+                        <TableCell align="center">
+                          {page * rowsPerPage + index + 1}
+                        </TableCell>
                         <TableCell>
                           {editableIndex === index ? (
                             <Input
@@ -693,16 +714,19 @@ const ItemRegister = () => {
                         <TableCell>
                           {editableIndex === index ? (
                             <Input
-                              value={editedRow.categoryId}
+                              value={editedRow.categoryId.categoryName}
                               onChange={(e) =>
                                 setEditedRow({
                                   ...editedRow,
-                                  categoryId: e.target.value,
+                                  categoryId: {
+                                    ...categoryId,
+                                    categoryName: e.target.value,
+                                  },
                                 })
                               }
                             />
                           ) : (
-                            item.categoryId
+                            item.categoryId.categoryName
                           )}
                         </TableCell>
 
@@ -725,7 +749,7 @@ const ItemRegister = () => {
                         <TableCell>
                           {editableIndex === index ? (
                             <Input
-                              value={editedRow.companyId}
+                              value={editedRow.companyId.name}
                               onChange={(e) =>
                                 setEditedRow({
                                   ...editedRow,
@@ -734,14 +758,14 @@ const ItemRegister = () => {
                               }
                             />
                           ) : (
-                            item.companyId
+                            item.companyId.name
                           )}
                         </TableCell>
 
                         <TableCell>
                           {editableIndex === index ? (
                             <Input
-                              value={editedRow.brandId}
+                              value={editedRow.brandId.name}
                               onChange={(e) =>
                                 setEditedRow({
                                   ...editedRow,
@@ -750,7 +774,7 @@ const ItemRegister = () => {
                               }
                             />
                           ) : (
-                            item.brandId
+                            item.brandId.name
                           )}
                         </TableCell>
 
@@ -837,14 +861,14 @@ const ItemRegister = () => {
           </TableContainer>
 
           <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={allItems.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={allItems.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
         </Box>
       </Box>
     </form>
