@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
+  CircularProgress,
   FormControlLabel,
   Grid,
   Input,
@@ -31,9 +32,9 @@ import {
   searchAllSalesByItemName,
 } from "../../../services/saleBillService";
 import { getAllLedgers } from "../../../services/ledgerService";
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
 const SaleBill = () => {
   const { loginResponse } = useLoginContext();
@@ -77,6 +78,7 @@ const SaleBill = () => {
   const [editedRow, setEditedRow] = useState({});
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
   const [billNoEditable, setBillNoEditable] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [totalValues, setTotalValues] = useState({
     totalVolume: "",
     totalPcs: "",
@@ -196,7 +198,9 @@ const SaleBill = () => {
   };
 
   const itemNameSearch = debounce(async (itemName) => {
+
     try {
+      setIsLoading(true);
       const response = await searchAllSalesByItemName(loginResponse, itemName);
       console.log("itemNameSearch response: ", response);
 
@@ -209,18 +213,22 @@ const SaleBill = () => {
       } else {
         setSearchResults([]);
       }
+      setIsLoading(false);
     } catch (error) {
       console.error("Error searching items:", error);
       setSearchResults([]);
+    } finally {
+      setIsLoading(false);
     }
   }, 500);
 
   const itemCodeSearch = debounce(async (itemCode) => {
     try {
+      setIsLoading(true);
       const response = await searchAllSalesByItemCode(loginResponse, itemCode);
       console.log("itemCodeSearch response: ", response);
       const searchedItem = response?.data?.data[0];
-      console.log("searchedItem: ",searchedItem)
+      console.log("searchedItem: ", searchedItem);
 
       if (response?.data?.data) {
         setSearchResults(response?.data?.data[0]);
@@ -231,16 +239,20 @@ const SaleBill = () => {
           itemName: searchedItem?.item[0]?.name || 0,
           mrp: searchedItem?.mrp || 0,
           batch: searchedItem?.batchNo || 0,
+          currentStock: searchedItem?.currentStock || 0,
           volume: searchedItem?.item[0]?.volume || 0,
         });
       } else {
         setSearchResults([]);
       }
+      setIsLoading(false);
     } catch (error) {
       console.error("Error searching items:", error);
       setSearchResults([]);
+    } finally {
+      setIsLoading(false);
     }
-  }, 1000);
+  }, 500);
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
@@ -248,10 +260,6 @@ const SaleBill = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
-
-
-
 
   useEffect(() => {
     if (formData.customerName) {
@@ -275,10 +283,6 @@ const SaleBill = () => {
       });
     }
   }, [formData.customerName, allCustomerData]);
-
-
-
-
 
   useEffect(() => {
     fetchAllCustomers();
@@ -334,8 +338,6 @@ const SaleBill = () => {
     resetTopFormData();
   }, [formData.billType]);
 
-  
-
   useEffect(() => {
     const totalAmount = salesData.reduce((total, item) => {
       return total + (parseInt(item.amount) || 0);
@@ -344,8 +346,9 @@ const SaleBill = () => {
     const specialDiscount = totalValues.splDiscount || 0;
     const specialDiscountAmount = (totalAmount * specialDiscount) / 100;
 
-    let netAmt = parseFloat(totalAmount - specialDiscountAmount) + parseFloat(totalValues.taxAmt)|| 0;
-
+    let netAmt =
+      parseFloat(totalAmount - specialDiscountAmount) +
+        parseFloat(totalValues.taxAmt) || 0;
 
     // const adjustmentAmt = netAmt + totalValues.adjustment || 0;
 
@@ -369,7 +372,6 @@ const SaleBill = () => {
     console.log("formattedDate: ", formattedDate);
     return formattedDate;
   };
-
 
   const handleItemNameChange = (event) => {
     const itemName = event.target.value;
@@ -521,7 +523,6 @@ const SaleBill = () => {
       netAmt: netAmt.toFixed(2),
     });
   };
-  
 
   const handleRemoveClick = (index) => {
     const updatedSales = [...salesData];
@@ -556,7 +557,9 @@ const SaleBill = () => {
     }
     if (formData.pcs > formData.currentStock) {
       NotificationManager.warning(
-        `Out of Stock! Currently you have ${formData.currentStock || 0}pcs in stock.`
+        `Out of Stock! Currently you have ${
+          formData.currentStock || 0
+        }pcs in stock.`
       );
       pcsRef.current.focus();
       return;
@@ -637,36 +640,30 @@ const SaleBill = () => {
     }
     console.log("payload: --> ", payload);
 
-    if(!formData.customerName) {
-      NotificationManager.warning(
-        "Customer name is required",
-        "Warning"
-      );
-      
+    if (!formData.customerName) {
+      NotificationManager.warning("Customer name is required", "Warning");
+
       return;
     }
 
-    if(salesData.length === 0) {
-      NotificationManager.warning(
-        "Enter some item in table.",
-        "Warning"
-      );
+    if (salesData.length === 0) {
+      NotificationManager.warning("Enter some item in table.", "Warning");
       itemNameRef.current.focus();
       return;
     }
-  
+
     try {
       const response = await createSale(payload, loginResponse);
       console.log("response: ", response);
-  
+
       if (response.status === 200) {
         console.log("Sale created successfully:", response);
         NotificationManager.success("Sale created successfully", "Success");
-        resetTopFormData()
-        resetMiddleFormData()
-        resetTotalValues()
-        setSearchResults([])
-        setSalesData([])
+        resetTopFormData();
+        resetMiddleFormData();
+        resetTotalValues();
+        setSearchResults([]);
+        setSalesData([]);
         setSearchMode(false);
       } else {
         NotificationManager.error(
@@ -678,7 +675,6 @@ const SaleBill = () => {
       console.error("Error creating sale:", error);
     }
   };
-  
 
   const handleItemCodeChange = async (e) => {
     const itemCode = e.target.value;
@@ -705,20 +701,21 @@ const SaleBill = () => {
     const stock = parseFloat(formData.currentStock) || 0;
     if (pcs > stock) {
       NotificationManager.warning(
-        `Out of Stock! Currently you have ${formData.currentStock || 0}pcs in stock.`
+        `Out of Stock! Currently you have ${
+          formData.currentStock || 0
+        }pcs in stock.`
       );
       pcsRef.current.focus();
     }
     const rate = parseFloat(formData.rate) || 1;
     const amount = pcs * rate;
     setFormData({ ...formData, pcs, amount });
-  }; 
-  
+  };
 
   const handleRateChange = (e) => {
     const rate = parseFloat(e.target.value) || 1;
     const pcs = parseFloat(formData.pcs) || 1;
-    const amount = (pcs * rate) || 0;
+    const amount = pcs * rate || 0;
     setFormData({ ...formData, rate, amount });
   };
 
@@ -742,7 +739,7 @@ const SaleBill = () => {
       e.preventDefault();
       const originalAmount =
         parseFloat(formData.rate) * parseFloat(formData.pcs);
-      let newAmount = (originalAmount - discount) || 0;
+      let newAmount = originalAmount - discount || 0;
       if (newAmount < 0) {
         newAmount = 0;
       }
@@ -756,15 +753,15 @@ const SaleBill = () => {
       handleDiscountChange(e);
     }
   };
-  
+
   const calculateTotalVolume = () => {
     let totalVolume = 0;
     salesData.forEach((row) => {
-      totalVolume += (parseFloat(row.volume) * parseFloat(row.pcs));
+      totalVolume += parseFloat(row.volume) * parseFloat(row.pcs);
     });
     return totalVolume.toFixed(0);
   };
-  
+
   const calculateTotalPcs = () => {
     let totalPcs = 0;
     salesData.forEach((row) => {
@@ -784,18 +781,20 @@ const SaleBill = () => {
   const calculateTaxAmt = () => {
     return parseFloat(totalValues.taxAmt || 0).toFixed(0);
   };
-  
+
   const calculateAdjustment = () => {
     return parseFloat(totalValues.adjustment || 0).toFixed(0);
   };
 
   const calculateNetAmount = () => {
     let netAmt =
-      parseFloat(totalValues.grossAmt || 0) - parseFloat(totalValues.splDiscAmount || 0) - parseFloat(totalValues.adjustment || 0) + parseFloat(totalValues.taxAmt || 0);
+      parseFloat(totalValues.grossAmt || 0) -
+      parseFloat(totalValues.splDiscAmount || 0) -
+      parseFloat(totalValues.adjustment || 0) +
+      parseFloat(totalValues.taxAmt || 0);
     return netAmt;
   };
 
-  
   const updateTotalValues = () => {
     setTotalValues({
       ...totalValues,
@@ -805,17 +804,13 @@ const SaleBill = () => {
       adjustment: calculateAdjustment(),
       netAmt: calculateNetAmount(),
       grossAmt: calculateGrossAmt(),
-      receiptMode1: calculateGrossAmt()
+      receiptMode1: calculateGrossAmt(),
     });
   };
 
-  
   useEffect(() => {
     updateTotalValues();
   }, [salesData]);
-
- 
-  
 
   return (
     <Box sx={{ p: 2, width: "900px" }}>
@@ -994,11 +989,10 @@ const SaleBill = () => {
             <InputLabel htmlFor="billDate" className="input-label">
               Bill Date :
             </InputLabel>
-            
+
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
                 id="billDate"
-                
                 format="DD/MM/YYYY"
                 value={formData.billDate}
                 className="input-field date-picker"
@@ -1083,7 +1077,9 @@ const SaleBill = () => {
               variant="outlined"
               type="text"
               size="small"
-              className={`input-field ${formData.pcs > formData.currentStock ? 'pcs-input' : ''}`}
+              className={`input-field ${
+                formData.pcs > formData.currentStock ? "pcs-input" : ""
+              }`}
               fullWidth
               value={formData.pcs}
               onChange={handlePcsChange}
@@ -1213,44 +1209,70 @@ const SaleBill = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {searchResults
-                  ? searchResults?.map((row, index) => (
-                      <TableRow
-                        key={index}
-                        onClick={() => {
-                          handleRowClick(index);
-                          setSearchMode(false);
-                        }}
-                        sx={{
-                          cursor: "pointer",
-                          backgroundColor:
-                            index === selectedRowIndex ? "rgba(25, 118, 210, 0.08) !important" : "#fff !important",
-                        }}
+                {Array.isArray(searchResults) && searchResults.length > 0 ? (
+                  searchResults.map((row, index) => (
+                    <TableRow
+                      key={index}
+                      onClick={() => {
+                        handleRowClick(index);
+                        setSearchMode(false);
+                      }}
+                      sx={{
+                        cursor: "pointer",
+                        backgroundColor:
+                          index === selectedRowIndex
+                            ? "rgba(25, 118, 210, 0.08) !important"
+                            : "#fff !important",
+                      }}
+                    >
+                      <TableCell
+                        align="center"
+                        sx={{ padding: "14px", paddingLeft: 2 }}
                       >
-                        <TableCell
-                          align="center"
-                          sx={{ padding: "14px", paddingLeft: 2 }}
-                        >
-                          {index + 1}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.itemCode || "No Data"}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.item[0]?.name || "No Data"}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.mrp || 0}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row.batch || 0}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row.currentStock || 0}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  : "No Data"}
+                        {index + 1}
+                      </TableCell>
+                      <TableCell align="center" sx={{ padding: "14px" }}>
+                        {row?.itemCode || "No Data"}
+                      </TableCell>
+                      <TableCell align="center" sx={{ padding: "14px" }}>
+                        {row?.item[0]?.name || "No Data"}
+                      </TableCell>
+                      <TableCell align="center" sx={{ padding: "14px" }}>
+                        {row?.mrp || 0}
+                      </TableCell>
+                      <TableCell align="center" sx={{ padding: "14px" }}>
+                        {row.batch || 0}
+                      </TableCell>
+                      <TableCell align="center" sx={{ padding: "14px" }}>
+                        {row.currentStock || 0}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : isLoading ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      align="center"
+                      sx={{
+                        backgroundColor: "#fff !important",
+                      }}
+                    >
+                      <CircularProgress />
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      align="center"
+                      sx={{
+                        backgroundColor: "#fff !important",
+                      }}
+                    >
+                      No Data
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </TableContainer>
