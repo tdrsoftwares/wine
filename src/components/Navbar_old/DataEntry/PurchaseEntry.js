@@ -14,6 +14,7 @@ import {
   MenuItem,
   InputLabel,
   Input,
+  CircularProgress,
 } from "@mui/material";
 import { useLoginContext } from "../../../utils/loginContext";
 import { NotificationManager } from "react-notifications";
@@ -29,9 +30,9 @@ import SaveIcon from "@mui/icons-material/Save";
 import debounce from "lodash.debounce";
 import ItemRegisterModal from "./ItemRegisterModal";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs from 'dayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+
 
 const PurchaseEntry = () => {
   const { loginResponse } = useLoginContext();
@@ -43,7 +44,7 @@ const PurchaseEntry = () => {
   const [searchMode, setSearchMode] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false);
   const [entryNumber, setEntryNumber] = useState("");
   const [entryNoEditable, setEntryNoEditable] = useState(true);
   const [formData, setFormData] = useState({
@@ -87,7 +88,9 @@ const PurchaseEntry = () => {
 
   const [editableIndex, setEditableIndex] = useState(-1);
   const [editedRow, setEditedRow] = useState({});
+  const [selectedRowIndex, setSelectedRowIndex] = useState(null);
 
+  const tableRef = useRef(null);
   const itemCodeRef = useRef(null);
   const itemNameRef = useRef(null);
   const mrpRef = useRef(null);
@@ -101,10 +104,27 @@ const PurchaseEntry = () => {
   const spRef = useRef(null);
   const amountRef = useRef(null);
 
+
+  const handleClickOutside = (event) => {
+    if (tableRef.current && !tableRef.current.contains(event.target)) {
+      setEditableIndex(null);
+      setEditedRow({});
+    }
+  };
+
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+
   const handleItemNameChange = (event) => {
     const itemName = event.target.value;
     console.log("itemName: ", itemName);
-    debouncedSearch(itemName);
+    itemNameSearch(itemName);
     setFormData({
       ...formData,
       itemName,
@@ -234,19 +254,26 @@ const PurchaseEntry = () => {
     }
   };
 
-  const debouncedSearch = debounce(async (itemName) => {
+  const itemNameSearch = debounce(async (itemName) => {
     try {
+      setIsLoading(true);
       const response = await searchAllPurchases(loginResponse, itemName);
-      console.log("debouncedSearch response: ", response);
+      console.log("itemNameSearch response: ", response);
       if (response?.data?.data) {
         setSearchResults(response?.data?.data);
         console.log("ami serc res ", searchResults);
+      } else if (response.response.data.message === "No matching items found") {
+        NotificationManager.error("No matching items found");
+        setSearchResults([]);
       } else {
         setSearchResults([]);
       }
+      setIsLoading(false);
     } catch (error) {
       console.error("Error searching items:", error);
       setSearchResults([]);
+    } finally {
+      setIsLoading(false);
     }
   }, 500);
 
@@ -466,7 +493,7 @@ const PurchaseEntry = () => {
         console.log("Purchase created successfully:", response);
         NotificationManager.success("Purchase created successfully", "Success");
         setEntryNumber(response?.data?.data?.purchase?.entryNo);
-        searchMode(false);
+        setSearchMode(false);
       } else {
         NotificationManager.error(
           "Error creating Purchase. Please try again later.",
@@ -607,14 +634,72 @@ const PurchaseEntry = () => {
     setFormData({ ...formData, billDate: date });
   };
 
+  const handlePcsChanges = (e) => {
+    setFormData({ ...formData, case: 0, pcs: e.target.value })
+  }
+
   useEffect(() => {
     fetchAllSuppliers();
     fetchAllStores();
   }, []);
 
   useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (searchMode) {
+        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+          event.preventDefault();
+          const currentIndex =
+            selectedRowIndex !== null ? selectedRowIndex : -1;
+          let nextIndex;
+          if (event.key === "ArrowDown") {
+            nextIndex =
+              currentIndex === searchResults.length - 1 ? 0 : currentIndex + 1;
+          } else {
+            nextIndex =
+              currentIndex === 0 ? searchResults.length - 1 : currentIndex - 1;
+          }
+          setSelectedRowIndex(nextIndex);
+          setFormData({
+            ...formData,
+            itemName: searchResults[nextIndex]?.itemName || "",
+          });
+        } else if (event.key === "Enter" && selectedRowIndex !== null) {
+          const selectedRow = searchResults[selectedRowIndex];
+          setFormData({
+            ...formData,
+            itemId: selectedRow._id,
+            itemCode: selectedRow.details[0]?.itemCode || 0,
+            itemName: selectedRow.name || 0,
+            mrp: selectedRow.details[0]?.mrp || 0,
+            batch: selectedRow.batch || 0,
+            case: selectedRow.case || null,
+            caseValue: selectedRow.caseValue || 0,
+            pcs: selectedRow.pcs || null,
+            brk: selectedRow.brk || 0,
+            purchaseRate: selectedRow.details[0]?.purchaseRate || 0,
+            btlRate: selectedRow.btlRate || 0,
+            gro: selectedRow.gro || 0,
+            sp: selectedRow.sp || 0,
+            amount: selectedRow.amount || 0,
+          });
+          setSearchMode(false);
+          setSelectedRowIndex(null);
+          caseRef.current.focus();
+        }
+      }
+    };
+
+    document.body.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [searchMode, formData.itemName, searchResults, selectedRowIndex]);
+
+  useEffect(() => {
     handlePurRatePcsChange();
   }, [formData.purchaseRate, formData.pcs]);
+  
 
   useEffect(() => {
     const totalMrpValue = purchases.reduce((total, purchase) => {
@@ -688,6 +773,7 @@ const PurchaseEntry = () => {
     totalValues.spcPurpose,
     totalValues.tcs,
   ]);
+  
 
   return (
     <Box component="form" sx={{ p: 2, width: "900px" }}>
@@ -928,9 +1014,7 @@ const PurchaseEntry = () => {
               className="input-field"
               fullWidth
               value={formData.pcs}
-              onChange={(e) =>
-                setFormData({ ...formData, pcs: e.target.value })
-              }
+              onChange={handlePcsChanges}
               onKeyDown={(e) => handleEnterKey(e, brkRef)}
             />
           </Grid>
@@ -1037,6 +1121,7 @@ const PurchaseEntry = () => {
         {searchMode ? (
           <TableContainer
             component={Paper}
+            ref={tableRef}
             sx={{
               marginTop: 1,
               height: 300,
@@ -1072,7 +1157,7 @@ const PurchaseEntry = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {searchResults
+                {Array.isArray(searchResults) && searchResults.length > 0
                   ? searchResults.map((row, index) => (
                       <TableRow
                         key={index}
@@ -1083,7 +1168,7 @@ const PurchaseEntry = () => {
                         sx={{
                           cursor: "pointer",
                           backgroundColor:
-                            formData.itemName === row.name ? "inherit" : "#fff",
+                            index === selectedRowIndex ? "rgba(25, 118, 210, 0.08) !important" : "#fff !important",
                         }}
                       >
                         <TableCell
@@ -1121,13 +1206,39 @@ const PurchaseEntry = () => {
                         </TableCell>
                       </TableRow>
                     ))
-                  : "No Data"}
+                    : isLoading ? (
+                      <TableRow>
+                        <TableCell
+                          colSpan={10}
+                          align="center"
+                          sx={{
+                            backgroundColor: "#fff !important",
+                          }}
+                        >
+                          <CircularProgress />
+                        </TableCell>
+                      </TableRow>
+                    )
+                  : (
+                    <TableRow>
+                      <TableCell
+                        colSpan={10}
+                        align="center"
+                        sx={{
+                          backgroundColor: "#fff !important",
+                        }}
+                      >
+                        No Data
+                      </TableCell>
+                    </TableRow>
+                  )}
               </TableBody>
             </Table>
           </TableContainer>
         ) : (
           <TableContainer
             component={Paper}
+            ref={tableRef}
             sx={{
               marginTop: 1,
               height: 300,
