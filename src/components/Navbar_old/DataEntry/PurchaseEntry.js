@@ -148,6 +148,7 @@ const PurchaseEntry = () => {
         gro: "",
         sp: "",
         amount: "",
+        stockIn: "",
       }));
     }
 
@@ -285,7 +286,7 @@ const PurchaseEntry = () => {
       itemCode: selectedRow.details[0]?.itemCode || 0,
       itemName: selectedRow.name || 0,
       mrp: selectedRow.details[0]?.mrp || 0,
-      batch: selectedRow.batch || 0,
+      batch: selectedRow?.details[0]?.batchNo || 0,
       case: selectedRow.case || null,
       caseValue: selectedRow.caseValue || 0,
       pcs: selectedRow.pcs || null,
@@ -295,6 +296,7 @@ const PurchaseEntry = () => {
       gro: selectedRow.gro || 0,
       sp: selectedRow.sp || 0,
       amount: selectedRow.amount || 0,
+      stockIn: selectedRow.details[0]?.currentStock || 0
     });
     // calculateMRPValue(formData);
   };
@@ -367,6 +369,11 @@ const PurchaseEntry = () => {
       return;
     }
 
+    // if(formData.itemCode && formData.batch && formData.mrp && formData.stockIn) {
+    //   setFormData({...formData, stockIn: parseInt(formData.stockIn) + parseInt(formData.pcs)})
+    // }
+
+    console.log("stockIn: " + formData.stockIn)
     setPurchases([...purchases, formData]);
     setFormData((prevFormData) => ({
       ...prevFormData,
@@ -384,6 +391,7 @@ const PurchaseEntry = () => {
       gro: "",
       sp: "",
       amount: "",
+      stockIn: "",
     }));
     handleEnterKey(e, itemCodeRef);
     setSearchMode(false);
@@ -671,7 +679,7 @@ const PurchaseEntry = () => {
             itemCode: selectedRow.details[0]?.itemCode || 0,
             itemName: selectedRow.name || 0,
             mrp: selectedRow.details[0]?.mrp || 0,
-            batch: selectedRow.batch || 0,
+            batch: selectedRow?.details[0]?.batchNo || 0,
             case: selectedRow.case || null,
             caseValue: selectedRow.caseValue || 0,
             pcs: selectedRow.pcs || null,
@@ -681,6 +689,7 @@ const PurchaseEntry = () => {
             gro: selectedRow.gro || 0,
             sp: selectedRow.sp || 0,
             amount: selectedRow.amount || 0,
+            stockIn: selectedRow.details[0]?.currentStock || 0
           });
           setSearchMode(false);
           setSelectedRowIndex(null);
