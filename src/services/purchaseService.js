@@ -62,13 +62,28 @@ export const getItemPurchaseDetails = async (entryNo, loginResponse) => {
   }
 };
 
-export const searchAllPurchases = async (loginResponse, itemName) => {
+export const searchAllPurchasesByItemName = async (loginResponse, itemName) => {
   try {
     const apiURL = `${url}/purchases/item-search?name=${itemName}`;
     const allPurchasesData = await axios.get(apiURL, {
       headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
     });
     return allPurchasesData;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const searchAllPurchasesByItemCode = async (loginResponse, itemCode) => {
+
+  try {
+    
+    const apiURL = `${url}/purchases/item-code/${itemCode}`;
+    const allPurchasesData = await axios.get(apiURL, {
+      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
+    });
+    return allPurchasesData;
+
   } catch (error) {
     return error;
   }
