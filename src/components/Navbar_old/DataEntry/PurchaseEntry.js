@@ -1196,7 +1196,7 @@ const PurchaseEntry = () => {
                           {row?.details[0]?.mrp || 0}
                         </TableCell>
                         <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row.batch || 0}
+                          {row?.details[0]?.batchNo || 0}
                         </TableCell>
                         <TableCell align="center" sx={{ padding: "14px" }}>
                           {row.caseValue || 0}
