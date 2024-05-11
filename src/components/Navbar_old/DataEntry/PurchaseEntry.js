@@ -22,7 +22,8 @@ import { getAllSuppliers } from "../../../services/supplierService";
 import { getAllStores } from "../../../services/storeService";
 import {
   createPurchase,
-  searchAllPurchases,
+  searchAllPurchasesByItemCode,
+  searchAllPurchasesByItemName,
 } from "../../../services/purchaseService";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
@@ -103,6 +104,26 @@ const PurchaseEntry = () => {
   const spRef = useRef(null);
   const amountRef = useRef(null);
 
+  const resetMiddleFormData = () => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      itemId: "",
+      itemCode: "",
+      itemName: "",
+      mrp: "",
+      batch: "",
+      case: "",
+      caseValue: "",
+      pcs: "",
+      brk: "",
+      purchaseRate: "",
+      btlRate: "",
+      gro: "",
+      sp: "",
+      amount: "",
+    }));
+  };
+
   const handleClickOutside = (event) => {
     if (tableRef.current && !tableRef.current.contains(event.target)) {
       setEditableIndex(null);
@@ -128,24 +149,7 @@ const PurchaseEntry = () => {
     setSearchMode(true);
     if (!itemName) {
       setSearchMode(false);
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        itemId: "",
-        itemCode: "",
-        itemName: "",
-        mrp: "",
-        batch: "",
-        case: "",
-        caseValue: "",
-        pcs: "",
-        brk: "",
-        purchaseRate: "",
-        btlRate: "",
-        gro: "",
-        sp: "",
-        amount: "",
-        stockIn: "",
-      }));
+      resetMiddleFormData();
     }
 
     setEditedRow({});
@@ -254,7 +258,7 @@ const PurchaseEntry = () => {
   const itemNameSearch = debounce(async (itemName) => {
     try {
       setIsLoading(true);
-      const response = await searchAllPurchases(loginResponse, itemName);
+      const response = await searchAllPurchasesByItemName(loginResponse, itemName);
       // console.log("itemNameSearch response: ", response);
       if (response?.data?.data) {
         setSearchResults(response?.data?.data);
@@ -274,6 +278,48 @@ const PurchaseEntry = () => {
     }
   }, 500);
 
+  const itemCodeSearch = debounce(async (itemCode) => {
+    try {
+      setIsLoading(true);
+      const response = await searchAllPurchasesByItemCode(loginResponse, itemCode);
+      console.log("itemCodeSearch response: ", response);
+      const searchedItem = response?.data?.data;
+      console.log("searchedItem: ", searchedItem);
+
+      if (searchedItem) {
+        setSearchResults(searchedItem);
+        setFormData({
+          ...formData,
+          itemId: searchedItem._id,
+          itemCode: searchedItem.itemCode || 0,
+          itemName: searchedItem.name || "",
+          mrp: searchedItem.mrp || 0,
+          batch: searchedItem.batchNo || 0,
+          case: searchedItem.case || null,
+          caseValue: searchedItem.caseValue || 0,
+          pcs: searchedItem.pcs || null,
+          brk: searchedItem.brk || 0,
+          purchaseRate: searchedItem.purchaseRate || 0,
+          btlRate: searchedItem.saleRate || 0,
+          gro: searchedItem.gro || 0,
+          sp: searchedItem.sp || 0,
+          amount: searchedItem.amount || 0,
+        });
+      } else if (response.response.data.message === "No matching items found") {
+        NotificationManager.error("No matching items found");
+        setSearchResults([]);
+      } else {
+        setSearchResults([]);
+      }
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error searching items:", error);
+      setSearchResults([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, 1000);
+
   const handleRowClick = (index) => {
     const selectedRow = searchResults[index];
     // console.log("selectedRow --> ", selectedRow)
@@ -281,11 +327,11 @@ const PurchaseEntry = () => {
       ...formData,
       itemId: selectedRow._id,
       itemCode: selectedRow.itemCode || 0,
-      itemName: selectedRow.item[0].name || 0,
+      itemName: selectedRow.name || 0,
       mrp: selectedRow.mrp || 0,
       batch: selectedRow?.batchNo || 0,
       case: selectedRow.case || null,
-      caseValue: selectedRow.item[0].caseValue || 0,
+      caseValue: selectedRow.caseValue || 0,
       pcs: selectedRow.pcs || null,
       brk: selectedRow.brk || 0,
       purchaseRate: selectedRow.purchaseRate || 0,
@@ -371,23 +417,7 @@ const PurchaseEntry = () => {
 
     // console.log("stockIn: " + formData.stockIn)
     setPurchases([...purchases, formData]);
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      itemId: "",
-      itemCode: "",
-      itemName: "",
-      mrp: "",
-      batch: "",
-      case: "",
-      caseValue: "",
-      pcs: "",
-      brk: "",
-      purchaseRate: "",
-      btlRate: "",
-      gro: "",
-      sp: "",
-      amount: "",
-    }));
+    resetMiddleFormData();
     handleEnterKey(e, itemCodeRef);
     setSearchMode(false);
   };
@@ -682,7 +712,6 @@ const PurchaseEntry = () => {
           const selectedRow = searchResults[selectedRowIndex];
           setFormData({
             ...formData,
-            ...formData,
             itemId: selectedRow._id,
             itemCode: selectedRow.itemCode || 0,
             itemName: selectedRow.item[0].name || 0,
@@ -798,22 +827,8 @@ const PurchaseEntry = () => {
       billNo: "",
       billDate: null,
       stockIn: "",
-      itemId: "",
-      itemCode: "",
-      itemName: "",
-      mrp: "",
-      batch: "",
-      case: "",
-      caseValue: "",
-      pcs: "",
-      brk: "",
-      purchaseRate: "",
-      btlRate: "",
-      gro: "",
-      sp: "",
-      amount: "",
     });
-
+    resetMiddleFormData();
     setPurchases([]);
     setEditedRow({});
     setSelectedRowIndex(null);
@@ -833,6 +848,21 @@ const PurchaseEntry = () => {
       adjustment: "",
       netAmt: "",
     });
+  };
+
+  const handleItemCodeChange = async (e) => {
+    const itemCode = e.target.value;
+    setFormData({ ...formData, itemCode: itemCode });
+    await itemCodeSearch(itemCode);
+    console.log("search result: ", searchResults);
+
+    if (!itemCode) {
+      setSearchMode(false);
+      resetMiddleFormData();
+    }
+
+    setEditedRow({});
+    setEditableIndex(-1);
   };
 
   return (
@@ -1001,34 +1031,30 @@ const PurchaseEntry = () => {
               className="input-field"
               fullWidth
               value={formData.itemCode}
-              onChange={(e) =>
-                setFormData({ ...formData, itemCode: e.target.value })
-              }
+              onChange={handleItemCodeChange}
               onKeyDown={(e) => handleEnterKey(e, itemNameRef)}
             />
           </Grid>
           <Grid item xs={1.8}>
             <InputLabel className="input-label-2">Item Name</InputLabel>
             <TextField
+              fullWidth
+              size="small"
               inputRef={itemNameRef}
               type="text"
-              size="small"
               className="input-field"
-              fullWidth
               value={formData.itemName}
-              onChange={(e) => {
-                handleItemNameChange(e);
-              }}
+              onChange={handleItemNameChange}
               onKeyDown={(e) => handleEnterKey(e, mrpRef)}
             />
           </Grid>
           <Grid item xs={0.8}>
             <InputLabel className="input-label-2">MRP</InputLabel>
             <TextField
-              inputRef={mrpRef}
-              size="small"
-              className="input-field"
               fullWidth
+              size="small"
+              inputRef={mrpRef}
+              className="input-field"
               value={formData.mrp}
               onChange={(e) => {
                 const regex = /^\d*\.?\d*$/;
@@ -1042,10 +1068,10 @@ const PurchaseEntry = () => {
           <Grid item xs={1}>
             <InputLabel className="input-label-2">Batch</InputLabel>
             <TextField
-              inputRef={batchRef}
-              size="small"
-              className="input-field"
               fullWidth
+              size="small"
+              inputRef={batchRef}
+              className="input-field"
               value={formData.batch}
               onChange={(e) =>
                 setFormData({ ...formData, batch: e.target.value })
@@ -1131,10 +1157,10 @@ const PurchaseEntry = () => {
           <Grid item xs={0.8}>
             <InputLabel className="input-label-2">GRO</InputLabel>
             <TextField
-              inputRef={groRef}
-              size="small"
-              className="input-field"
               fullWidth
+              size="small"
+              inputRef={groRef}
+              className="input-field"
               value={formData.gro}
               onChange={handleGROChange}
               onKeyDown={(e) => handleEnterKey(e, spRef)}
@@ -1143,10 +1169,10 @@ const PurchaseEntry = () => {
           <Grid item xs={0.8}>
             <InputLabel className="input-label-2">SP</InputLabel>
             <TextField
-              inputRef={spRef}
-              size="small"
-              className="input-field"
               fullWidth
+              size="small"
+              inputRef={spRef}
+              className="input-field"
               value={formData.sp}
               onChange={handleSPChange}
               onKeyDown={(e) => handleEnterKey(e, amountRef)}
@@ -1155,10 +1181,10 @@ const PurchaseEntry = () => {
           <Grid item xs={1}>
             <InputLabel className="input-label-2">Amt(₹)</InputLabel>
             <TextField
-              inputRef={amountRef}
-              size="small"
-              className="input-field"
               fullWidth
+              size="small"
+              inputRef={amountRef}
+              className="input-field"
               value={formData.amount}
               aria-readonly
               onChange={(e) => handleAmountChange(e)}
