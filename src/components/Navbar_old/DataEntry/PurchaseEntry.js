@@ -29,10 +29,9 @@ import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import debounce from "lodash.debounce";
 import ItemRegisterModal from "./ItemRegisterModal";
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
 const PurchaseEntry = () => {
   const { loginResponse } = useLoginContext();
@@ -104,14 +103,12 @@ const PurchaseEntry = () => {
   const spRef = useRef(null);
   const amountRef = useRef(null);
 
-
   const handleClickOutside = (event) => {
     if (tableRef.current && !tableRef.current.contains(event.target)) {
       setEditableIndex(null);
       setEditedRow({});
     }
   };
-
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
@@ -120,10 +117,9 @@ const PurchaseEntry = () => {
     };
   }, []);
 
-
   const handleItemNameChange = (event) => {
     const itemName = event.target.value;
-    console.log("itemName: ", itemName);
+    // console.log("itemName: ", itemName);
     itemNameSearch(itemName);
     setFormData({
       ...formData,
@@ -154,7 +150,7 @@ const PurchaseEntry = () => {
 
     setEditedRow({});
     setEditableIndex(-1);
-    console.log("handleItemNameChange formData: ", formData);
+    // console.log("handleItemNameChange formData: ", formData);
   };
 
   const handleSupplierNameChange = (e) => {
@@ -175,7 +171,7 @@ const PurchaseEntry = () => {
     }
 
     const editedRowCopy = { ...editedRow };
-    console.log("editedRowCopy: ", editedRowCopy);
+    // console.log("editedRowCopy: ", editedRowCopy);
     editedRowCopy[field] = value;
 
     if (
@@ -231,7 +227,7 @@ const PurchaseEntry = () => {
   const fetchAllSuppliers = async () => {
     try {
       const allItemsResponse = await getAllSuppliers(loginResponse);
-      console.log("allItemsResponse: ", allItemsResponse);
+      // console.log("allItemsResponse: ", allItemsResponse);
       setAllSuppliers(allItemsResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
@@ -244,7 +240,7 @@ const PurchaseEntry = () => {
   const fetchAllStores = async () => {
     try {
       const allStoresResponse = await getAllStores(loginResponse);
-      console.log("allStoresResponse ---> ", allStoresResponse);
+      // console.log("allStoresResponse ---> ", allStoresResponse);
       setAllStores(allStoresResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
@@ -259,10 +255,10 @@ const PurchaseEntry = () => {
     try {
       setIsLoading(true);
       const response = await searchAllPurchases(loginResponse, itemName);
-      console.log("itemNameSearch response: ", response);
+      // console.log("itemNameSearch response: ", response);
       if (response?.data?.data) {
         setSearchResults(response?.data?.data);
-        console.log("ami serc res ", searchResults);
+        // console.log("ami serc res ", searchResults);
       } else if (response.response.data.message === "No matching items found") {
         NotificationManager.error("No matching items found");
         setSearchResults([]);
@@ -280,23 +276,23 @@ const PurchaseEntry = () => {
 
   const handleRowClick = (index) => {
     const selectedRow = searchResults[index];
+    // console.log("selectedRow --> ", selectedRow)
     setFormData({
       ...formData,
       itemId: selectedRow._id,
-      itemCode: selectedRow.details[0]?.itemCode || 0,
-      itemName: selectedRow.name || 0,
-      mrp: selectedRow.details[0]?.mrp || 0,
-      batch: selectedRow?.details[0]?.batchNo || 0,
+      itemCode: selectedRow.itemCode || 0,
+      itemName: selectedRow.item[0].name || 0,
+      mrp: selectedRow.mrp || 0,
+      batch: selectedRow?.batchNo || 0,
       case: selectedRow.case || null,
-      caseValue: selectedRow.caseValue || 0,
+      caseValue: selectedRow.item[0].caseValue || 0,
       pcs: selectedRow.pcs || null,
       brk: selectedRow.brk || 0,
-      purchaseRate: selectedRow.details[0]?.purchaseRate || 0,
-      btlRate: selectedRow.btlRate || 0,
+      purchaseRate: selectedRow.purchaseRate || 0,
+      btlRate: selectedRow.saleRate || 0,
       gro: selectedRow.gro || 0,
       sp: selectedRow.sp || 0,
       amount: selectedRow.amount || 0,
-      stockIn: selectedRow.details[0]?.currentStock || 0
     });
     // calculateMRPValue(formData);
   };
@@ -373,7 +369,7 @@ const PurchaseEntry = () => {
     //   setFormData({...formData, stockIn: parseInt(formData.stockIn) + parseInt(formData.pcs)})
     // }
 
-    console.log("stockIn: " + formData.stockIn)
+    // console.log("stockIn: " + formData.stockIn)
     setPurchases([...purchases, formData]);
     setFormData((prevFormData) => ({
       ...prevFormData,
@@ -391,7 +387,6 @@ const PurchaseEntry = () => {
       gro: "",
       sp: "",
       amount: "",
-      stockIn: "",
     }));
     handleEnterKey(e, itemCodeRef);
     setSearchMode(false);
@@ -447,10 +442,10 @@ const PurchaseEntry = () => {
     }
 
     const passDateObj = formatDate(formData.passDate);
-    console.log("passDateObj: ", passDateObj);
-    console.log("formData.passDate: ", formData.passDate);
+    // console.log("passDateObj: ", passDateObj);
+    // console.log("formData.passDate: ", formData.passDate);
     const billDateObj = formatDate(formData.billDate);
-    console.log("billDateObj: ", billDateObj);
+    // console.log("billDateObj: ", billDateObj);
 
     const payload = {
       supplierName: formData.supplierName,
@@ -498,7 +493,7 @@ const PurchaseEntry = () => {
       const response = await createPurchase(payload, loginResponse);
 
       if (response.status === 200) {
-        console.log("Purchase created successfully:", response);
+        // console.log("Purchase created successfully:", response);
         NotificationManager.success("Purchase created successfully", "Success");
         setEntryNumber(response?.data?.data?.purchase?.entryNo);
         setSearchMode(false);
@@ -529,14 +524,14 @@ const PurchaseEntry = () => {
 
   const handleAmountChange = (event) => {
     const newAmountValue = parseFloat(event.target.value) || 0;
-    console.log("newAmountValue: ", newAmountValue);
+    // console.log("newAmountValue: ", newAmountValue);
     const pcs = parseFloat(formData.caseValue) || 1;
-    console.log("pcs: ", pcs);
+    // console.log("pcs: ", pcs);
     let newPurchaseRate = 0;
 
     if (pcs !== 0) {
       newPurchaseRate = parseFloat(newAmountValue / pcs);
-      console.log("newPurchaseRate: ", newPurchaseRate);
+      // console.log("newPurchaseRate: ", newPurchaseRate);
     }
 
     setFormData({
@@ -549,9 +544,9 @@ const PurchaseEntry = () => {
 
   const handleCaseChange = (event) => {
     const newCase = parseFloat(event.target.value) || 0;
-    console.log("newCase: ", newCase);
+    // console.log("newCase: ", newCase);
     const newPcsValue = newCase * parseFloat(formData.caseValue) || 0;
-    console.log("newPcsValue: ", newPcsValue);
+    // console.log("newPcsValue: ", newPcsValue);
     setFormData({
       ...formData,
       case: newCase,
@@ -560,28 +555,38 @@ const PurchaseEntry = () => {
   };
 
   const handleGROChange = (event) => {
-    const newGROValue = parseFloat(event.target.value) || 0;
-    const currentAmt = parseFloat(formData.amount) || 0;
-    const updatedAmtValue = (
-      currentAmt -
-      parseFloat(formData.gro) +
-      newGROValue
-    ).toFixed(2);
-
-    setFormData({ ...formData, gro: newGROValue, amount: updatedAmtValue });
+    const regex = /^\d*\.?\d*$/; 
+  
+    if (regex.test(event.target.value) || event.target.value === '') {
+      const newGROValue = parseFloat(event.target.value) || 0;
+      const currentAmt = parseFloat(formData.amount) || 0;
+      const updatedAmtValue = (
+        currentAmt -
+        parseFloat(formData.gro) +
+        newGROValue
+      ).toFixed(2);
+  
+      setFormData({ ...formData, gro: newGROValue, amount: updatedAmtValue });
+    }
   };
+
 
   const handleSPChange = (event) => {
-    const newSPValue = parseFloat(event.target.value) || 0;
-    const currentAmt = parseFloat(formData.amount) || 0;
-    const updatedAmtValue = (
-      currentAmt -
-      parseFloat(formData.sp) +
-      newSPValue
-    ).toFixed(2);
-
-    setFormData({ ...formData, sp: newSPValue, amount: updatedAmtValue });
+    const regex = /^\d*\.?\d*$/;
+  
+    if (regex.test(event.target.value) || event.target.value === '') {
+      const newSPValue = parseFloat(event.target.value) || 0;
+      const currentAmt = parseFloat(formData.amount) || 0;
+      const updatedAmtValue = (
+        currentAmt -
+        parseFloat(formData.sp) +
+        newSPValue
+      ).toFixed(2);
+  
+      setFormData({ ...formData, sp: newSPValue, amount: updatedAmtValue });
+    }
   };
+  
 
   const handleDiscountChange = (event) => {
     const discount = parseFloat(event.target.value) || 0;
@@ -622,17 +627,16 @@ const PurchaseEntry = () => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    console.log("date: ", date);
+    // console.log("date: ", date);
 
     const day = date.getDate().toString().padStart(2, "0");
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const year = date.getFullYear().toString();
 
     const formattedDate = `${day}/${month}/${year}`;
-    console.log("formattedDate: ", formattedDate);
+    // console.log("formattedDate: ", formattedDate);
     return formattedDate;
   };
-
 
   const handlePassDateChange = (date) => {
     setFormData({ ...formData, passDate: date });
@@ -643,8 +647,11 @@ const PurchaseEntry = () => {
   };
 
   const handlePcsChanges = (e) => {
-    setFormData({ ...formData, case: 0, pcs: e.target.value })
-  }
+    const regex = /^\d*\.?\d*$/;
+    if (regex.test(e.target.value) || e.target.value === "") {
+      setFormData({ ...formData, case: 0, pcs: e.target.value });
+    }
+  };
 
   useEffect(() => {
     fetchAllSuppliers();
@@ -675,21 +682,21 @@ const PurchaseEntry = () => {
           const selectedRow = searchResults[selectedRowIndex];
           setFormData({
             ...formData,
+            ...formData,
             itemId: selectedRow._id,
-            itemCode: selectedRow.details[0]?.itemCode || 0,
-            itemName: selectedRow.name || 0,
-            mrp: selectedRow.details[0]?.mrp || 0,
-            batch: selectedRow?.details[0]?.batchNo || 0,
+            itemCode: selectedRow.itemCode || 0,
+            itemName: selectedRow.item[0].name || 0,
+            mrp: selectedRow.mrp || 0,
+            batch: selectedRow.batchNo || 0,
             case: selectedRow.case || null,
-            caseValue: selectedRow.caseValue || 0,
+            caseValue: selectedRow.item[0].caseValue || 0,
             pcs: selectedRow.pcs || null,
             brk: selectedRow.brk || 0,
-            purchaseRate: selectedRow.details[0]?.purchaseRate || 0,
-            btlRate: selectedRow.btlRate || 0,
+            purchaseRate: selectedRow.purchaseRate || 0,
+            btlRate: selectedRow.saleRate || 0,
             gro: selectedRow.gro || 0,
             sp: selectedRow.sp || 0,
             amount: selectedRow.amount || 0,
-            stockIn: selectedRow.details[0]?.currentStock || 0
           });
           setSearchMode(false);
           setSelectedRowIndex(null);
@@ -708,7 +715,6 @@ const PurchaseEntry = () => {
   useEffect(() => {
     handlePurRatePcsChange();
   }, [formData.purchaseRate, formData.pcs]);
-  
 
   useEffect(() => {
     const totalMrpValue = purchases.reduce((total, purchase) => {
@@ -718,7 +724,7 @@ const PurchaseEntry = () => {
       ...prevValues,
       totalMrp: totalMrpValue,
     }));
-    console.log("totalMrpValue: ", totalMrpValue);
+    // console.log("totalMrpValue: ", totalMrpValue);
   }, [formData.amount, purchases]);
 
   useEffect(() => {
@@ -782,7 +788,52 @@ const PurchaseEntry = () => {
     totalValues.spcPurpose,
     totalValues.tcs,
   ]);
-  
+
+  const clearAllFields = () => {
+    setFormData({
+      supplierName: "",
+      passNo: "",
+      passDate: null,
+      address: "",
+      billNo: "",
+      billDate: null,
+      stockIn: "",
+      itemId: "",
+      itemCode: "",
+      itemName: "",
+      mrp: "",
+      batch: "",
+      case: "",
+      caseValue: "",
+      pcs: "",
+      brk: "",
+      purchaseRate: "",
+      btlRate: "",
+      gro: "",
+      sp: "",
+      amount: "",
+    });
+
+    setPurchases([]);
+    setEditedRow({});
+    setSelectedRowIndex(null);
+    setSearchMode(false);
+    setEditableIndex(-1);
+    setTotalValues({
+      totalMrp: "",
+      totalSDiscount: "",
+      govtRate: "",
+      spcPurpose: "",
+      sTax: "",
+      tcs: "",
+      tcsAmt: "",
+      grossAmt: "",
+      discount: "",
+      tax: "",
+      adjustment: "",
+      netAmt: "",
+    });
+  };
 
   return (
     <Box component="form" sx={{ p: 2, width: "900px" }}>
@@ -799,7 +850,6 @@ const PurchaseEntry = () => {
               select
               fullWidth
               id="supplierName"
-              variant="outlined"
               size="small"
               type="text"
               className="input-field"
@@ -822,12 +872,14 @@ const PurchaseEntry = () => {
             <TextField
               id="passNo"
               size="small"
-              type="number"
               className="input-field"
               value={formData.passNo}
-              onChange={(e) =>
-                setFormData({ ...formData, passNo: e.target.value })
-              }
+              onChange={(e) => {
+                const regex = /^\d*\.?\d*$/;
+                if (regex.test(e.target.value) || e.target.value === "") {
+                  setFormData({ ...formData, passNo: e.target.value });
+                }
+              }}
             />
           </div>
         </Grid>
@@ -846,7 +898,6 @@ const PurchaseEntry = () => {
                 renderInput={(params) => <TextField {...params} />}
               />
             </LocalizationProvider>
-            
           </div>
         </Grid>
         <Grid item xs={3}>
@@ -888,7 +939,12 @@ const PurchaseEntry = () => {
               className="input-field entryNo-adjustment"
               value={entryNumber}
               disabled={entryNoEditable}
-              onChange={(e) => setEntryNumber(e.target.value)}
+              onChange={(e) => {
+                const regex = /^\d*\.?\d*$/;
+                if (regex.test(e.target.value) || e.target.value === "") {
+                  setEntryNumber(e.target.value);
+                }
+              }}
             />
           </div>
         </Grid>
@@ -900,12 +956,14 @@ const PurchaseEntry = () => {
             <TextField
               id="billNo"
               size="small"
-              type="number"
               className="input-field"
               value={formData.billNo}
-              onChange={(e) =>
-                setFormData({ ...formData, billNo: e.target.value })
-              }
+              onChange={(e) => {
+                const regex = /^\d*\.?\d*$/;
+                if (regex.test(e.target.value) || e.target.value === "") {
+                  setFormData({ ...formData, billNo: e.target.value });
+                }
+              }}
             />
           </div>
         </Grid>
@@ -914,11 +972,10 @@ const PurchaseEntry = () => {
             <InputLabel htmlFor="billDate" className="input-label">
               Bill Date :
             </InputLabel>
-            
+
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
                 id="billDate"
-                
                 format="DD/MM/YYYY"
                 value={formData.billDate}
                 className="input-field date-picker"
@@ -939,7 +996,6 @@ const PurchaseEntry = () => {
             <InputLabel className="input-label-2">Item Code</InputLabel>
             <TextField
               inputRef={itemCodeRef}
-              variant="outlined"
               type="text"
               size="small"
               className="input-field"
@@ -955,7 +1011,6 @@ const PurchaseEntry = () => {
             <InputLabel className="input-label-2">Item Name</InputLabel>
             <TextField
               inputRef={itemNameRef}
-              variant="outlined"
               type="text"
               size="small"
               className="input-field"
@@ -971,15 +1026,16 @@ const PurchaseEntry = () => {
             <InputLabel className="input-label-2">MRP</InputLabel>
             <TextField
               inputRef={mrpRef}
-              variant="outlined"
-              type="text"
               size="small"
               className="input-field"
               fullWidth
               value={formData.mrp}
-              onChange={(e) =>
-                setFormData({ ...formData, mrp: e.target.value })
-              }
+              onChange={(e) => {
+                const regex = /^\d*\.?\d*$/;
+                if (regex.test(e.target.value) || e.target.value === "") {
+                  setFormData({ ...formData, mrp: e.target.value });
+                }
+              }}
               onKeyDown={(e) => handleEnterKey(e, batchRef)}
             />
           </Grid>
@@ -987,8 +1043,6 @@ const PurchaseEntry = () => {
             <InputLabel className="input-label-2">Batch</InputLabel>
             <TextField
               inputRef={batchRef}
-              variant="outlined"
-              type="text"
               size="small"
               className="input-field"
               fullWidth
@@ -1002,12 +1056,10 @@ const PurchaseEntry = () => {
           <Grid item xs={0.8}>
             <InputLabel className="input-label-2">Case</InputLabel>
             <TextField
-              inputRef={caseRef}
-              variant="outlined"
-              type="text"
-              size="small"
-              className="input-field"
               fullWidth
+              size="small"
+              inputRef={caseRef}
+              className="input-field"
               value={formData.case}
               onChange={(e) => handleCaseChange(e)}
               onKeyDown={(e) => handleEnterKey(e, pcsRef)}
@@ -1016,12 +1068,10 @@ const PurchaseEntry = () => {
           <Grid item xs={0.8}>
             <InputLabel className="input-label-2">Pcs</InputLabel>
             <TextField
-              inputRef={pcsRef}
-              variant="outlined"
-              type="text"
-              size="small"
-              className="input-field"
               fullWidth
+              size="small"
+              inputRef={pcsRef}
+              className="input-field"
               value={formData.pcs}
               onChange={handlePcsChanges}
               onKeyDown={(e) => handleEnterKey(e, brkRef)}
@@ -1030,48 +1080,51 @@ const PurchaseEntry = () => {
           <Grid item xs={0.8}>
             <InputLabel className="input-label-2">Brk</InputLabel>
             <TextField
-              inputRef={brkRef}
-              variant="outlined"
-              type="text"
-              size="small"
-              className="input-field"
               fullWidth
+              size="small"
+              inputRef={brkRef}
+              className="input-field"
               value={formData.brk}
-              onChange={(e) =>
-                setFormData({ ...formData, brk: e.target.value })
-              }
+              onChange={(e) => {
+                const regex = /^\d*\.?\d*$/;
+                if (regex.test(e.target.value) || e.target.value === "") {
+                  setFormData({ ...formData, brk: e.target.value });
+                }
+              }}
               onKeyDown={(e) => handleEnterKey(e, purRateRef)}
             />
           </Grid>
           <Grid item xs={0.9}>
             <InputLabel className="input-label-2">Pur. Rate</InputLabel>
             <TextField
-              inputRef={purRateRef}
-              variant="outlined"
-              type="text"
-              size="small"
-              className="input-field"
               fullWidth
+              size="small"
+              inputRef={purRateRef}
+              className="input-field"
               value={formData.purchaseRate}
-              onChange={(e) =>
-                setFormData({ ...formData, purchaseRate: e.target.value })
-              }
+              onChange={(e) => {
+                const regex = /^\d*\.?\d*$/;
+                if (regex.test(e.target.value) || e.target.value === "") {
+                  setFormData({ ...formData, purchaseRate: e.target.value });
+                }
+              }}
               onKeyDown={(e) => handleEnterKey(e, btlRateRef)}
             />
           </Grid>
           <Grid item xs={0.9}>
             <InputLabel className="input-label-2">Btl. Rate</InputLabel>
             <TextField
-              inputRef={btlRateRef}
-              variant="outlined"
-              type="text"
-              size="small"
-              className="input-field"
               fullWidth
+              size="small"
+              inputRef={btlRateRef}
+              className="input-field"
               value={formData.btlRate}
-              onChange={(e) =>
-                setFormData({ ...formData, btlRate: e.target.value })
-              }
+              onChange={(e) => {
+                const regex = /^\d*\.?\d*$/;
+                if (regex.test(e.target.value) || e.target.value === "") {
+                  setFormData({ ...formData, btlRate: e.target.value });
+                }
+              }}
               onKeyDown={(e) => handleEnterKey(e, groRef)}
             />
           </Grid>
@@ -1079,8 +1132,6 @@ const PurchaseEntry = () => {
             <InputLabel className="input-label-2">GRO</InputLabel>
             <TextField
               inputRef={groRef}
-              variant="outlined"
-              type="text"
               size="small"
               className="input-field"
               fullWidth
@@ -1093,8 +1144,6 @@ const PurchaseEntry = () => {
             <InputLabel className="input-label-2">SP</InputLabel>
             <TextField
               inputRef={spRef}
-              variant="outlined"
-              type="text"
               size="small"
               className="input-field"
               fullWidth
@@ -1107,8 +1156,6 @@ const PurchaseEntry = () => {
             <InputLabel className="input-label-2">Amt(₹)</InputLabel>
             <TextField
               inputRef={amountRef}
-              variant="outlined"
-              type="text"
               size="small"
               className="input-field"
               fullWidth
@@ -1166,81 +1213,82 @@ const PurchaseEntry = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {Array.isArray(searchResults) && searchResults.length > 0
-                  ? searchResults.map((row, index) => (
-                      <TableRow
-                        key={index}
-                        onClick={() => {
-                          handleRowClick(index);
-                          setSearchMode(false);
-                        }}
-                        sx={{
-                          cursor: "pointer",
-                          backgroundColor:
-                            index === selectedRowIndex ? "rgba(25, 118, 210, 0.08) !important" : "#fff !important",
-                        }}
-                      >
-                        <TableCell
-                          align="center"
-                          sx={{ padding: "14px", paddingLeft: 2 }}
-                        >
-                          {index + 1}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.details[0]?.itemCode || "No Data"}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.name || "No Data"}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.details[0]?.mrp || 0}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.details[0]?.batchNo || 0}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row.caseValue || 0}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.details[0]?.purchaseRate || 0}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row.btlRate || 0}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row.gro || 0}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row.sp || 0}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                    : isLoading ? (
-                      <TableRow>
-                        <TableCell
-                          colSpan={10}
-                          align="center"
-                          sx={{
-                            backgroundColor: "#fff !important",
-                          }}
-                        >
-                          <CircularProgress />
-                        </TableCell>
-                      </TableRow>
-                    )
-                  : (
-                    <TableRow>
+                {Array.isArray(searchResults) && searchResults.length > 0 ? (
+                  searchResults.map((row, index) => (
+                    <TableRow
+                      key={index}
+                      onClick={() => {
+                        handleRowClick(index);
+                        setSearchMode(false);
+                      }}
+                      sx={{
+                        cursor: "pointer",
+                        backgroundColor:
+                          index === selectedRowIndex
+                            ? "rgba(25, 118, 210, 0.08) !important"
+                            : "#fff !important",
+                      }}
+                    >
                       <TableCell
-                        colSpan={10}
                         align="center"
-                        sx={{
-                          backgroundColor: "#fff !important",
-                        }}
+                        sx={{ padding: "14px", paddingLeft: 2 }}
                       >
-                        No Data
+                        {index + 1}
+                      </TableCell>
+                      <TableCell align="center" sx={{ padding: "14px" }}>
+                        {row.itemCode || "No Data"}
+                      </TableCell>
+                      <TableCell align="center" sx={{ padding: "14px" }}>
+                        {row.item[0].name || "No Data"}
+                      </TableCell>
+                      <TableCell align="center" sx={{ padding: "14px" }}>
+                        {row.mrp || 0}
+                      </TableCell>
+                      <TableCell align="center" sx={{ padding: "14px" }}>
+                        {row.batchNo || 0}
+                      </TableCell>
+                      <TableCell align="center" sx={{ padding: "14px" }}>
+                        {row.item[0].caseValue || 0}
+                      </TableCell>
+                      <TableCell align="center" sx={{ padding: "14px" }}>
+                        {row.purchaseRate || 0}
+                      </TableCell>
+                      <TableCell align="center" sx={{ padding: "14px" }}>
+                        {row.saleRate || 0}
+                      </TableCell>
+                      <TableCell align="center" sx={{ padding: "14px" }}>
+                        {row.gro || 0}
+                      </TableCell>
+                      <TableCell align="center" sx={{ padding: "14px" }}>
+                        {row.sp || 0}
                       </TableCell>
                     </TableRow>
-                  )}
+                  ))
+                ) : isLoading ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={10}
+                      align="center"
+                      sx={{
+                        backgroundColor: "#fff !important",
+                      }}
+                    >
+                      <CircularProgress />
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={10}
+                      align="center"
+                      sx={{
+                        backgroundColor: "#fff !important",
+                      }}
+                    >
+                      No Data
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </TableContainer>
@@ -1491,7 +1539,6 @@ const PurchaseEntry = () => {
           <Grid item xs={1}>
             <InputLabel className="input-label-2">MRP Value</InputLabel>
             <TextField
-              variant="outlined"
               type="text"
               size="small"
               className="input-field"
@@ -1504,7 +1551,6 @@ const PurchaseEntry = () => {
           <Grid item xs={1}>
             <InputLabel className="input-label-2">S. Discount</InputLabel>
             <TextField
-              variant="outlined"
               type="text"
               size="small"
               className="input-field"
@@ -1516,7 +1562,6 @@ const PurchaseEntry = () => {
           <Grid item xs={1}>
             <InputLabel className="input-label-2">Govt. Rate Off</InputLabel>
             <TextField
-              variant="outlined"
               type="text"
               size="small"
               className="input-field"
@@ -1528,7 +1573,6 @@ const PurchaseEntry = () => {
           <Grid item xs={1}>
             <InputLabel className="input-label-2">Special Purposes</InputLabel>
             <TextField
-              variant="outlined"
               type="text"
               size="small"
               className="input-field"
@@ -1540,7 +1584,6 @@ const PurchaseEntry = () => {
           <Grid item xs={1}>
             <InputLabel className="input-label-2">Service Tax</InputLabel>
             <TextField
-              variant="outlined"
               type="text"
               size="small"
               className="input-field"
@@ -1552,7 +1595,6 @@ const PurchaseEntry = () => {
           <Grid item xs={1}>
             <InputLabel className="input-label-2">Tcs(%)</InputLabel>
             <TextField
-              variant="outlined"
               type="text"
               size="small"
               className="input-field"
@@ -1565,7 +1607,6 @@ const PurchaseEntry = () => {
           <Grid item xs={1}>
             <InputLabel className="input-label-2">Tcs Amt.</InputLabel>
             <TextField
-              variant="outlined"
               type="text"
               size="small"
               className="input-field"
@@ -1577,7 +1618,6 @@ const PurchaseEntry = () => {
           <Grid item xs={1}>
             <InputLabel className="input-label-2">Gross Amt.</InputLabel>
             <TextField
-              variant="outlined"
               type="text"
               size="small"
               className="input-field"
@@ -1589,7 +1629,6 @@ const PurchaseEntry = () => {
           <Grid item xs={1}>
             <InputLabel className="input-label-2">Discount(%)</InputLabel>
             <TextField
-              variant="outlined"
               type="text"
               size="small"
               className="input-field"
@@ -1601,7 +1640,6 @@ const PurchaseEntry = () => {
           <Grid item xs={1}>
             <InputLabel className="input-label-2">Tax</InputLabel>
             <TextField
-              variant="outlined"
               type="text"
               size="small"
               className="input-field"
@@ -1613,7 +1651,6 @@ const PurchaseEntry = () => {
           <Grid item xs={1}>
             <InputLabel className="input-label-2">Adjustment</InputLabel>
             <TextField
-              variant="outlined"
               type="text"
               size="small"
               className="input-field"
@@ -1626,7 +1663,6 @@ const PurchaseEntry = () => {
           <Grid item xs={1}>
             <InputLabel className="input-label-2">Net Amount</InputLabel>
             <TextField
-              variant="outlined"
               type="text"
               size="small"
               className="input-field"
@@ -1640,77 +1676,89 @@ const PurchaseEntry = () => {
       <Box
         sx={{
           display: "flex",
-          justifyContent: "flex-end",
+          justifyContent: "space-between",
         }}
       >
-        <ItemRegisterModal
-          isModalOpen={isModalOpen}
-          setIsModalOpen={setIsModalOpen}
-        />
         <Button
           color="inherit"
           size="medium"
-          variant="outlined"
+          variant="contained"
           onClick={() => setIsModalOpen(true)}
           sx={{ marginTop: 3, marginRight: 2 }}
         >
           CREATE ITEM
         </Button>
-        <Button
-          color="success"
-          size="medium"
-          variant="outlined"
-          onClick={() => {}}
-          sx={{ marginTop: 3, marginRight: 2 }}
-        >
-          PREV PAGE
-        </Button>
-        <Button
-          color="secondary"
-          size="medium"
-          variant="outlined"
-          onClick={() => {}}
-          sx={{ marginTop: 3, marginRight: 2 }}
-        >
-          NEXT PAGE
-        </Button>
+        <div>
+          <ItemRegisterModal
+            isModalOpen={isModalOpen}
+            setIsModalOpen={setIsModalOpen}
+          />
+          <Button
+            color="inherit"
+            size="medium"
+            variant="outlined"
+            onClick={clearAllFields}
+            sx={{ marginTop: 3, marginRight: 2 }}
+          >
+            CLEAR
+          </Button>
 
-        <Button
-          color="primary"
-          size="medium"
-          variant="outlined"
-          onClick={() => {}}
-          sx={{ marginTop: 3, marginRight: 2 }}
-        >
-          EDIT
-        </Button>
-        <Button
-          color="error"
-          size="medium"
-          variant="contained"
-          onClick={() => {}}
-          sx={{ marginTop: 3, marginRight: 2 }}
-        >
-          DELETE
-        </Button>
-        <Button
-          color="warning"
-          size="medium"
-          variant="contained"
-          onClick={handlePurchaseOpen}
-          sx={{ marginTop: 3, marginRight: 2 }}
-        >
-          OPEN
-        </Button>
-        <Button
-          color="success"
-          size="medium"
-          variant="contained"
-          onClick={handleCreatePurchase}
-          sx={{ marginTop: 3 }}
-        >
-          SAVE
-        </Button>
+          <Button
+            color="success"
+            size="medium"
+            variant="outlined"
+            onClick={() => {}}
+            sx={{ marginTop: 3, marginRight: 2 }}
+          >
+            PREV PAGE
+          </Button>
+          <Button
+            color="secondary"
+            size="medium"
+            variant="outlined"
+            onClick={() => {}}
+            sx={{ marginTop: 3, marginRight: 2 }}
+          >
+            NEXT PAGE
+          </Button>
+
+          <Button
+            color="primary"
+            size="medium"
+            variant="outlined"
+            onClick={() => {}}
+            sx={{ marginTop: 3, marginRight: 2 }}
+          >
+            EDIT
+          </Button>
+          <Button
+            color="error"
+            size="medium"
+            variant="contained"
+            onClick={() => {}}
+            sx={{ marginTop: 3, marginRight: 2 }}
+          >
+            DELETE
+          </Button>
+          <Button
+            color="warning"
+            size="medium"
+            variant="contained"
+            onClick={handlePurchaseOpen}
+            sx={{ marginTop: 3, marginRight: 2 }}
+          >
+            OPEN
+          </Button>
+          <Button
+            color="success"
+            size="medium"
+            variant="contained"
+            onClick={handleCreatePurchase}
+            sx={{ marginTop: 3 }}
+          >
+            SAVE
+          </Button>
+        </div>
       </Box>
     </Box>
   );
