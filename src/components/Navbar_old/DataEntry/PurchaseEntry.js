@@ -318,7 +318,7 @@ const PurchaseEntry = () => {
     } finally {
       setIsLoading(false);
     }
-  }, 1000);
+  }, 700);
 
   const handleRowClick = (index) => {
     const selectedRow = searchResults[index];
