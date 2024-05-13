@@ -2,9 +2,11 @@ import {
   Box,
   Button,
   Checkbox,
+  CircularProgress,
   FormControlLabel,
   Grid,
   InputLabel,
+  LinearProgress,
   MenuItem,
   Radio,
   RadioGroup,
@@ -20,6 +22,7 @@ import { NotificationManager } from "react-notifications";
 const SaleReportSummary = () => {
   const [selectOptions, setselectOptions] = useState(null);
   const [allSalesData, setAllSalesData] = useState([]);
+  const [loading, setLoading] = useState(false);
   const { loginResponse } = useLoginContext();
   const [filterData, setFilterData] = useState({
     dateFrom: "mm/dd/yyyy",
@@ -176,6 +179,8 @@ const SaleReportSummary = () => {
   );
 
   const fetchAllSales = async () => {
+    setLoading(true);
+    console.log("Fetching data...");
     try {
       const filterOptions = {
         page: pagination.page,
@@ -193,6 +198,9 @@ const SaleReportSummary = () => {
         "Error"
       );
       console.error("Error fetching sales:", error);
+    } finally {
+      setLoading(false);
+      console.log("Data fetching completed.");
     }
   };
 
@@ -451,24 +459,25 @@ const SaleReportSummary = () => {
             },
           }}
         >
+          
           <DataGrid
             rows={allSalesData?.map((sale, index) => ({
               id: index,
               sNo: index + 1,
-              billNo: sale.billNo,
-              billDate: new Date(sale.billDate).toLocaleDateString("en-GB"),
-              billType: sale.billType,
-              billSeries: sale.billSeries,
-              customer: sale.customer,
-              volume: sale.volume,
-              totalPcs: sale.totalPcs,
-              grossAmount: sale.grossAmount,
-              discAmount: sale.discAmount,
-              splDisc: sale.splDisc,
-              splDiscAmount: sale.splDiscAmount,
-              taxAmount: sale.taxAmount,
-              adjustment: sale.adjustment,
-              netAmount: sale.netAmount,
+              billNo: sale.billNo || "No Data",
+              billDate: new Date(sale.billDate).toLocaleDateString("en-GB") || "No Data",
+              billType: sale.billType || "No Data",
+              billSeries: sale.billSeries || "No Data",
+              customer: sale.customer || "No Data",
+              volume: sale.volume || "No Data",
+              totalPcs: sale.totalPcs || "No Data",
+              grossAmount: sale.grossAmount || "No Data",
+              discAmount: sale.discAmount || "No Data",
+              splDisc: sale.splDisc || "No Data",
+              splDiscAmount: sale.splDiscAmount || "No Data",
+              taxAmount: sale.taxAmount || "No Data",
+              adjustment: sale.adjustment || "No Data",
+              netAmount: sale.netAmount || "No Data",
               action: (
                 <Button
                   variant="contained"
@@ -480,14 +489,26 @@ const SaleReportSummary = () => {
               ),
             }))}
             columns={columnsData}
-        page={pagination.page - 1}
-        pageSize={pagination.limit}
-        onPageChange={handlePageChange}
-        onPageSizeChange={handlePageSizeChange}
-        rowsPerPageOptions={[10, 25, 50]}
-        sx={{ backgroundColor: "#fff" }}
+            page={pagination.page - 1}
+            pageSize={pagination.limit}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
+            rowsPerPageOptions={[10, 25, 50]}
+            sx={{ backgroundColor: "#fff" }}
+            loadingOverlay={
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            }
+            loading={loading}
           />
-          
         </Box>
 
         <Box
