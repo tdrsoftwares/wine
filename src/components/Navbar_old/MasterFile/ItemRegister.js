@@ -484,6 +484,7 @@ const ItemRegister = () => {
                 Group :
               </InputLabel>
               <TextField
+                select
                 fullWidth
                 size="small"
                 type="text"
@@ -492,7 +493,13 @@ const ItemRegister = () => {
                 variant="outlined"
                 value={group}
                 onChange={(e) => setGroup(e.target.value)}
-              />
+              >
+                {["FL", "BEER", "IML"].map((item, id) => (
+                  <MenuItem key={id} value={item}>
+                    {item}
+                  </MenuItem>
+                ))}
+              </TextField>
             </div>
           </Grid>
 

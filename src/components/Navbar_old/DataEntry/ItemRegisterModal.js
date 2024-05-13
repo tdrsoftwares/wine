@@ -373,6 +373,7 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
                 Group :
               </InputLabel>
               <TextField
+                select
                 fullWidth
                 size="small"
                 type="text"
@@ -381,7 +382,13 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
                 variant="outlined"
                 value={group}
                 onChange={(e) => setGroup(e.target.value)}
-              />
+              >
+                {["FL", "BEER", "IML"].map((item, id) => (
+                  <MenuItem key={id} value={item}>
+                    {item}
+                  </MenuItem>
+                ))}
+              </TextField>
             </div>
           </Grid>
 
