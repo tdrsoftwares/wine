@@ -292,11 +292,11 @@ const PurchaseEntry = () => {
           ...formData,
           itemId: searchedItem._id,
           itemCode: searchedItem.itemCode || 0,
-          itemName: searchedItem.name || "",
+          itemName: searchedItem.itemId.name || "",
           mrp: searchedItem.mrp || 0,
           batch: searchedItem.batchNo || 0,
           case: searchedItem.case || null,
-          caseValue: searchedItem.caseValue || 0,
+          caseValue: searchedItem.caseValue || searchedItem.itemId.caseValue || 0,
           pcs: searchedItem.pcs || null,
           brk: searchedItem.brk || 0,
           purchaseRate: searchedItem.purchaseRate || 0,
@@ -327,11 +327,11 @@ const PurchaseEntry = () => {
       ...formData,
       itemId: selectedRow._id,
       itemCode: selectedRow.itemCode || 0,
-      itemName: selectedRow.name || 0,
+      itemName: selectedRow.item.name || 0,
       mrp: selectedRow.mrp || 0,
       batch: selectedRow?.batchNo || 0,
       case: selectedRow.case || null,
-      caseValue: selectedRow.caseValue || 0,
+      caseValue: selectedRow.caseValue || selectedRow.item.caseValue || 0,
       pcs: selectedRow.pcs || null,
       brk: selectedRow.brk || 0,
       purchaseRate: selectedRow.purchaseRate || 0,
@@ -714,11 +714,11 @@ const PurchaseEntry = () => {
             ...formData,
             itemId: selectedRow._id,
             itemCode: selectedRow.itemCode || 0,
-            itemName: selectedRow.item[0].name || 0,
+            itemName: selectedRow.item.name || 0,
             mrp: selectedRow.mrp || 0,
             batch: selectedRow.batchNo || 0,
             case: selectedRow.case || null,
-            caseValue: selectedRow.item[0].caseValue || 0,
+            caseValue: selectedRow.item.caseValue || 0,
             pcs: selectedRow.pcs || null,
             brk: selectedRow.brk || 0,
             purchaseRate: selectedRow.purchaseRate || 0,
@@ -828,6 +828,7 @@ const PurchaseEntry = () => {
       billDate: null,
       stockIn: "",
     });
+    setEntryNumber("");
     resetMiddleFormData();
     setPurchases([]);
     setEditedRow({});
@@ -1262,31 +1263,31 @@ const PurchaseEntry = () => {
                         {index + 1}
                       </TableCell>
                       <TableCell align="center" sx={{ padding: "14px" }}>
-                        {row.itemCode || "No Data"}
+                        {row?.itemCode || "No Data"}
                       </TableCell>
                       <TableCell align="center" sx={{ padding: "14px" }}>
-                        {row.item[0].name || "No Data"}
+                        {row?.item?.name || "No Data"}
                       </TableCell>
                       <TableCell align="center" sx={{ padding: "14px" }}>
-                        {row.mrp || 0}
+                        {row?.mrp || 0}
                       </TableCell>
                       <TableCell align="center" sx={{ padding: "14px" }}>
-                        {row.batchNo || 0}
+                        {row?.batchNo || 0}
                       </TableCell>
                       <TableCell align="center" sx={{ padding: "14px" }}>
-                        {row.item[0].caseValue || 0}
+                        {row?.item?.caseValue || 0}
                       </TableCell>
                       <TableCell align="center" sx={{ padding: "14px" }}>
-                        {row.purchaseRate || 0}
+                        {row?.purchaseRate || 0}
                       </TableCell>
                       <TableCell align="center" sx={{ padding: "14px" }}>
-                        {row.saleRate || 0}
+                        {row?.saleRate || 0}
                       </TableCell>
                       <TableCell align="center" sx={{ padding: "14px" }}>
-                        {row.gro || 0}
+                        {row?.gro || 0}
                       </TableCell>
                       <TableCell align="center" sx={{ padding: "14px" }}>
-                        {row.sp || 0}
+                        {row?.sp || 0}
                       </TableCell>
                     </TableRow>
                   ))
