@@ -1,25 +1,15 @@
 import {
   Box,
   Button,
-  FormControlLabel,
+  CircularProgress,
   Grid,
   InputLabel,
   MenuItem,
-  Paper,
-  Radio,
-  RadioGroup,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TableSortLabel,
   TextField,
   Typography,
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { getAllStocks } from "../../services/stockService";
 import { useLoginContext } from "../../utils/loginContext";
 import { NotificationManager } from "react-notifications";
@@ -30,6 +20,7 @@ import { getAllItemCategory } from "../../services/categoryService";
 
 const StockReport = () => {
   const [allStocks, setAllStocks] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const [filterData, setFilterData] = useState({
     date: "mm/dd/yyyy",
@@ -52,8 +43,10 @@ const StockReport = () => {
 
   const batchNoOptions = ["0", "00", "01", "516-1", "521-1", "526-1"];
   const stockInOptions = ["All", "Godown", "Showroom"];
-  
-
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+  });
   const columns = [
     {
       field: "sNo",
@@ -77,6 +70,12 @@ const StockReport = () => {
       field: "batchNo",
       headerName: "Batch No.",
       width: 120,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "createdAt",
+      headerName: "Created At",
+      width: 150,
       headerClassName: "custom-header",
     },
     {
@@ -115,7 +114,7 @@ const StockReport = () => {
       width: 120,
       headerClassName: "custom-header",
     },
-    
+
     // {
     //   field: "action",
     //   headerName: "Action",
@@ -134,18 +133,29 @@ const StockReport = () => {
     // },
   ];
 
+  const columnsData = useMemo(
+    () =>
+      columns.map((col) =>
+        col.field === "action"
+          ? { ...col, sortable: false, fiterable: false }
+          : col
+      ),
+    [columns]
+  );
+
   const fetchAllStocks = async () => {
+    setLoading(true);
     try {
-      // const filterOptions = {
-      //   page: 1,
-      //   limit: 1,
-      //   supplierName: selectedSupplier,
-      //   fromDate: dateFrom,
-      //   toDate: dateTo,
-      // };
+      const filterOptions = {
+        page: pagination.page,
+        limit: pagination.limit,
+        // supplierName: selectedSupplier,
+        // fromDate: dateFrom,
+        // toDate: dateTo,
+      };
       const allStocksResponse = await getAllStocks(
-        loginResponse
-        // filterOptions
+        loginResponse,
+        filterOptions
       );
       console.log("allStocksResponse ---> ", allStocksResponse?.data?.data);
       setAllStocks(allStocksResponse?.data?.data);
@@ -155,9 +165,10 @@ const StockReport = () => {
         "Error"
       );
       console.error("Error fetching stock:", error);
+    } finally {
+      setLoading(false);
     }
   };
-
 
   const fetchAllItems = async () => {
     try {
@@ -185,7 +196,6 @@ const StockReport = () => {
     }
   };
 
-
   const fetchAllCompanies = async () => {
     try {
       const allCompaniesResponse = await getAllCompanies(loginResponse);
@@ -212,7 +222,6 @@ const StockReport = () => {
     }
   };
 
-
   useEffect(() => {
     fetchAllItems();
     fetchAllStocks();
@@ -221,18 +230,26 @@ const StockReport = () => {
     fetchAllCategory();
   }, [loginResponse]);
 
-  return (
-    <form>
-      <Box sx={{ p: 2, width: "900px" }}>
-        <Typography variant="h6" sx={{ marginBottom: 2 }}>
-          Stock Report
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          Filter By:
-        </Typography>
 
-        <Grid container spacing={2}>
-          {/* <Grid item xs={12}>
+  const handlePageChange = (newPage) => {
+    setPagination({ ...pagination, page: newPage + 1 });
+  };
+  
+  const handlePageSizeChange = (newPageSize) => {
+    setPagination({ ...pagination, limit: newPageSize });
+  };
+
+  return (
+    <Box sx={{ p: 2, width: "900px" }}>
+      <Typography variant="h6" sx={{ marginBottom: 2 }}>
+        Stock Report
+      </Typography>
+      <Typography variant="subtitle1" gutterBottom>
+        Filter By:
+      </Typography>
+
+      <Grid container spacing={2}>
+        {/* <Grid item xs={12}>
             <InputLabel for="selectOptions">Select Options</InputLabel>
             <RadioGroup
               row
@@ -348,296 +365,311 @@ const StockReport = () => {
             </RadioGroup>
           </Grid> */}
 
-          <Grid item xs={3}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="itemCode" className="input-label">
-                Item Code :
-              </InputLabel>
-              <TextField
-                select
-                fullWidth
-                size="small"
-                type="number"
-                name="itemCode"
-                className="input-field"
-                value={filterData.itemCode}
-                onChange={(e) =>
-                  setFilterData({ ...filterData, itemCode: e.target.value })
-                }
-              >
-                {batchNoOptions.map((option, i) => (
-                  <MenuItem key={i} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </div>
-          </Grid>
-
-          <Grid item xs={3}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="itemName" className="input-label">
-                Item Name :
-              </InputLabel>
-              <TextField
-                select
-                fullWidth
-                size="small"
-                name="itemName"
-                className="input-field"
-                value={filterData.itemName}
-                onChange={(e) =>
-                  setFilterData({ ...filterData, itemName: e.target.value })
-                }
-              >
-                {allItems.map((item, i) => (
-                  <MenuItem key={i} value={item._id}>
-                    {item.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </div>
-          </Grid>
-
-          <Grid item xs={3}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="category" className="input-label">
-                Category :
-              </InputLabel>
-              <TextField
-                select
-                fullWidth
-                size="small"
-                type="text"
-                name="category"
-                className="input-field"
-                value={filterData.category}
-                onChange={(e) =>
-                  setFilterData({ ...filterData, category: e.target.value })
-                }
-              >
-                {allCategory?.map((item) => (
-                  <MenuItem key={item._id} value={item._id}>
-                    {item.categoryName}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </div>
-          </Grid>
-
-          <Grid item xs={3}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="volume" className="input-label">
-                Volume :
-              </InputLabel>
-              <TextField
-                select
-                fullWidth
-                size="small"
-                type="text"
-                name="volume"
-                className="input-field"
-                value={filterData.volume}
-                onChange={(e) =>
-                  setFilterData({ ...filterData, volume: e.target.value })
-                }
-              >
-                {[180, 200, 375, 750, 1000].map((option, i) => (
-                  <MenuItem key={i} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </div>
-          </Grid>
-
-          <Grid item xs={3}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="batchNo" className="input-label">
-                Batch No. :
-              </InputLabel>
-              <TextField
-                select
-                fullWidth
-                size="small"
-                name="batchNo"
-                className="input-field"
-                value={filterData.batchNo}
-                onChange={(e) =>
-                  setFilterData({ ...filterData, batchNo: e.target.value })
-                }
-              >
-                {batchNoOptions.map((option, i) => (
-                  <MenuItem key={i} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </div>
-          </Grid>
-
-          <Grid item xs={3}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="brandName" className="input-label">
-                Brand :
-              </InputLabel>
-              <TextField
-                select
-                fullWidth
-                size="small"
-                name="brandName"
-                className="input-field"
-                value={filterData.brandName}
-                onChange={(e) =>
-                  setFilterData({ ...filterData, brandName: e.target.value })
-                }
-              >
-                {allBrands?.map((item) => (
-                  <MenuItem key={item._id} value={item._id}>
-                    {item.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </div>
-          </Grid>
-
-          <Grid item xs={3}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="stockIn" className="input-label">
-                Stock In :
-              </InputLabel>
-              <TextField
-                select
-                fullWidth
-                size="small"
-                name="stockIn"
-                className="input-field"
-                value={filterData.stockIn}
-                onChange={(e) =>
-                  setFilterData({ ...filterData, stockIn: e.target.value })
-                }
-              >
-                {stockInOptions?.map((option, i) => (
-                  <MenuItem key={i} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </div>
-          </Grid>
-
-          <Grid item xs={3}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="company" className="input-label">
-                Company :
-              </InputLabel>
-              <TextField
-                select
-                fullWidth
-                size="small"
-                name="company"
-                className="input-field"
-                value={filterData.company}
-                onChange={(e) =>
-                  setFilterData({ ...filterData, company: e.target.value })
-                }
-              >
-                {allCompanies?.map((item) => (
-                  <MenuItem key={item._id} value={item._id}>
-                    {item.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </div>
-          </Grid>
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="itemCode" className="input-label">
+              Item Code :
+            </InputLabel>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              type="number"
+              name="itemCode"
+              className="input-field"
+              value={filterData.itemCode}
+              onChange={(e) =>
+                setFilterData({ ...filterData, itemCode: e.target.value })
+              }
+            >
+              {batchNoOptions.map((option, i) => (
+                <MenuItem key={i} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </TextField>
+          </div>
         </Grid>
 
-        <Box
-          sx={{
-            height: 400,
-            width: "100%",
-            marginTop: 4,
-            "& .custom-header": {
-              backgroundColor: "#dae4ed",
-            },
-          }}
-        >
-          <DataGrid
-            rows={allStocks?.map((stock, index) => ({
-              id: index,
-              sNo: index + 1,
-              itemCode: stock.itemCode,
-              itemName: stock?.itemId?.name,
-              batchNo: stock.batchNo,
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="itemName" className="input-label">
+              Item Name :
+            </InputLabel>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              name="itemName"
+              className="input-field"
+              value={filterData.itemName}
+              onChange={(e) =>
+                setFilterData({ ...filterData, itemName: e.target.value })
+              }
+            >
+              {allItems.map((item, i) => (
+                <MenuItem key={i} value={item._id}>
+                  {item.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </div>
+        </Grid>
 
-              saleRate: stock.saleRate,
-              purchaseRate: stock.purchaseRate,
-              stockRate: stock.stockRate,
-              stockAt: stock.stockAt,
-              currentStock: stock.currentStock,
-              openingStock: stock.openingStock,
-              mrp: stock.mrp,
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="category" className="input-label">
+              Category :
+            </InputLabel>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              type="text"
+              name="category"
+              className="input-field"
+              value={filterData.category}
+              onChange={(e) =>
+                setFilterData({ ...filterData, category: e.target.value })
+              }
+            >
+              {allCategory?.map((item) => (
+                <MenuItem key={item._id} value={item._id}>
+                  {item.categoryName}
+                </MenuItem>
+              ))}
+            </TextField>
+          </div>
+        </Grid>
 
-              // action: (
-              //   <Button
-              //     variant="contained"
-              //     size="small"
-              //     onClick={() => handleViewClick(stock)}
-              //   >
-              //     View
-              //   </Button>
-              // ),
-            }))}
-            columns={columns}
-            pageSize={5}
-            rowsPerPageOptions={[10, 25, 50]}
-            sx={{ backgroundColor: "#fff" }}
-          />
-          {/* Modal to display details */}
-          {/* <PurchaseDetailsModal
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="volume" className="input-label">
+              Volume :
+            </InputLabel>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              type="text"
+              name="volume"
+              className="input-field"
+              value={filterData.volume}
+              onChange={(e) =>
+                setFilterData({ ...filterData, volume: e.target.value })
+              }
+            >
+              {[180, 200, 375, 750, 1000].map((option, i) => (
+                <MenuItem key={i} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </TextField>
+          </div>
+        </Grid>
+
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="batchNo" className="input-label">
+              Batch No. :
+            </InputLabel>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              name="batchNo"
+              className="input-field"
+              value={filterData.batchNo}
+              onChange={(e) =>
+                setFilterData({ ...filterData, batchNo: e.target.value })
+              }
+            >
+              {batchNoOptions.map((option, i) => (
+                <MenuItem key={i} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </TextField>
+          </div>
+        </Grid>
+
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="brandName" className="input-label">
+              Brand :
+            </InputLabel>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              name="brandName"
+              className="input-field"
+              value={filterData.brandName}
+              onChange={(e) =>
+                setFilterData({ ...filterData, brandName: e.target.value })
+              }
+            >
+              {allBrands?.map((item) => (
+                <MenuItem key={item._id} value={item._id}>
+                  {item.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </div>
+        </Grid>
+
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="stockIn" className="input-label">
+              Stock In :
+            </InputLabel>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              name="stockIn"
+              className="input-field"
+              value={filterData.stockIn}
+              onChange={(e) =>
+                setFilterData({ ...filterData, stockIn: e.target.value })
+              }
+            >
+              {stockInOptions?.map((option, i) => (
+                <MenuItem key={i} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </TextField>
+          </div>
+        </Grid>
+
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="company" className="input-label">
+              Company :
+            </InputLabel>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              name="company"
+              className="input-field"
+              value={filterData.company}
+              onChange={(e) =>
+                setFilterData({ ...filterData, company: e.target.value })
+              }
+            >
+              {allCompanies?.map((item) => (
+                <MenuItem key={item._id} value={item._id}>
+                  {item.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </div>
+        </Grid>
+      </Grid>
+
+      <Box
+        sx={{
+          height: 400,
+          width: "100%",
+          marginTop: 4,
+          "& .custom-header": {
+            backgroundColor: "#dae4ed",
+          },
+        }}
+      >
+        <DataGrid
+          rows={allStocks?.map((stock, index) => ({
+            id: index,
+            sNo: index + 1,
+            itemCode: stock.itemCode || "No Data",
+            itemName: stock?.itemId?.name || "No Data",
+            batchNo: stock.batchNo || "No Data",
+            createdAt: new Date(stock.createdAt).toLocaleDateString("en-GB"),
+            saleRate: stock.saleRate || "No Data",
+            purchaseRate: stock.purchaseRate || "No Data",
+            stockRate: stock.stockRate || "No Data",
+            stockAt: stock.stockAt || "No Data",
+            currentStock: stock.currentStock || "No Data",
+            openingStock: stock.openingStock || "No Data",
+            mrp: stock.mrp || "No Data",
+
+            // action: (
+            //   <Button
+            //     variant="contained"
+            //     size="small"
+            //     onClick={() => handleViewClick(stock)}
+            //   >
+            //     View
+            //   </Button>
+            // ),
+          }))}
+          columns={columnsData}
+          page={pagination.page - 1}
+          pageSize={pagination.limit}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          rowsPerPageOptions={[10, 25, 50]}
+          sx={{ backgroundColor: "#fff" }}
+          loadingOverlay={
+            <Box
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          }
+          loading={loading}
+        />
+        {/* Modal to display details */}
+        {/* <PurchaseDetailsModal
           open={isModalOpen}
           handleClose={() => setIsModalOpen(false)}
           rowData={selectedRowData}
         /> */}
-        </Box>
-
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            "& button": { marginTop: 2, marginLeft: 2 },
-          }}
-        >
-          <Button
-            color="primary"
-            size="medium"
-            variant="contained"
-            onClick={() => {}}
-            sx={{ borderRadius: 8 }}
-          >
-            Display
-          </Button>
-          <Button
-            color="secondary"
-            size="medium"
-            variant="outlined"
-            onClick={() => {}}
-            sx={{ borderRadius: 8 }}
-          >
-            Print
-          </Button>
-          <Button
-            color="error"
-            size="medium"
-            variant="outlined"
-            onClick={() => {}}
-            sx={{ borderRadius: 8 }}
-          >
-            Clear
-          </Button>
-        </Box>
       </Box>
-    </form>
+
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          "& button": { marginTop: 2, marginLeft: 2 },
+        }}
+      >
+        <Button
+          color="primary"
+          size="medium"
+          variant="contained"
+          onClick={() => {}}
+          sx={{ borderRadius: 8 }}
+        >
+          Display
+        </Button>
+        <Button
+          color="secondary"
+          size="medium"
+          variant="outlined"
+          onClick={() => {}}
+          sx={{ borderRadius: 8 }}
+        >
+          Print
+        </Button>
+        <Button
+          color="error"
+          size="medium"
+          variant="outlined"
+          onClick={() => {}}
+          sx={{ borderRadius: 8 }}
+        >
+          Clear
+        </Button>
+      </Box>
+    </Box>
   );
 };
 
