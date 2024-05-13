@@ -258,11 +258,14 @@ const PurchaseEntry = () => {
   const itemNameSearch = debounce(async (itemName) => {
     try {
       setIsLoading(true);
-      const response = await searchAllPurchasesByItemName(loginResponse, itemName);
+      const response = await searchAllPurchasesByItemName(
+        loginResponse,
+        itemName
+      );
       // console.log("itemNameSearch response: ", response);
       if (response?.data?.data) {
         setSearchResults(response?.data?.data);
-        // console.log("ami serc res ", searchResults);
+        // console.log("ami itemNameSearch res ", searchResults);
       } else if (response.response.data.message === "No matching items found") {
         NotificationManager.error("No matching items found");
         setSearchResults([]);
@@ -281,10 +284,13 @@ const PurchaseEntry = () => {
   const itemCodeSearch = debounce(async (itemCode) => {
     try {
       setIsLoading(true);
-      const response = await searchAllPurchasesByItemCode(loginResponse, itemCode);
-      console.log("itemCodeSearch response: ", response);
+      const response = await searchAllPurchasesByItemCode(
+        loginResponse,
+        itemCode
+      );
+      // console.log("itemCodeSearch response: ", response);
       const searchedItem = response?.data?.data;
-      console.log("searchedItem: ", searchedItem);
+      // console.log("searchedItem: ", searchedItem);
 
       if (searchedItem) {
         setSearchResults(searchedItem);
@@ -296,7 +302,8 @@ const PurchaseEntry = () => {
           mrp: searchedItem.mrp || 0,
           batch: searchedItem.batchNo || 0,
           case: searchedItem.case || null,
-          caseValue: searchedItem.caseValue || searchedItem.itemId.caseValue || 0,
+          caseValue:
+            searchedItem.caseValue || searchedItem.itemId.caseValue || 0,
           pcs: searchedItem.pcs || null,
           brk: searchedItem.brk || 0,
           purchaseRate: searchedItem.purchaseRate || 0,
@@ -305,9 +312,6 @@ const PurchaseEntry = () => {
           sp: searchedItem.sp || 0,
           amount: searchedItem.amount || 0,
         });
-      } else if (response.response.data.message === "No matching items found") {
-        NotificationManager.error("No matching items found");
-        setSearchResults([]);
       } else {
         setSearchResults([]);
       }
@@ -325,11 +329,11 @@ const PurchaseEntry = () => {
     // console.log("selectedRow --> ", selectedRow)
     setFormData({
       ...formData,
-      itemId: selectedRow._id,
-      itemCode: selectedRow.itemCode || 0,
+      itemId: selectedRow._id || selectedRow.item._id,
+      itemCode: selectedRow.itemCode || "",
       itemName: selectedRow.item.name || 0,
       mrp: selectedRow.mrp || 0,
-      batch: selectedRow?.batchNo || 0,
+      batch: selectedRow?.batchNo || "",
       case: selectedRow.case || null,
       caseValue: selectedRow.caseValue || selectedRow.item.caseValue || 0,
       pcs: selectedRow.pcs || null,
@@ -382,7 +386,7 @@ const PurchaseEntry = () => {
   // console.log("purchases: ", purchases);
 
   const handleSubmitIntoDataTable = (e) => {
-    console.log("handleSubmitIntoDataTable formData: ", formData);
+    // console.log("handleSubmitIntoDataTable formData: ", formData);
     e.preventDefault();
 
     if (!formData.itemName) {
@@ -430,7 +434,7 @@ const PurchaseEntry = () => {
   // console.log("2 totalValues --> ", totalValues);
 
   const handleCreatePurchase = async () => {
-    console.log("handleCreatePurchase formData --> ", formData);
+    // console.log("handleCreatePurchase formData --> ", formData);
 
     const missingFields = [];
 
@@ -505,7 +509,7 @@ const PurchaseEntry = () => {
       netAmount: parseFloat(totalValues.netAmt) || 0,
       purchaseItems: purchases.map((item) => ({
         itemCode: item.itemCode.toString(),
-        itemId: item.itemId.toString(),
+        itemId: item.itemId,
         mrp: parseFloat(item.mrp) || 0,
         batchNo: item.batch.toString(),
         caseNo: parseFloat(item.case) || 0,
@@ -569,7 +573,7 @@ const PurchaseEntry = () => {
       amount: newAmountValue.toString(),
       purchaseRate: newPurchaseRate.toString(),
     });
-    console.log("amount formData: ", formData);
+    // console.log("amount formData: ", formData);
   };
 
   const handleCaseChange = (event) => {
@@ -585,9 +589,9 @@ const PurchaseEntry = () => {
   };
 
   const handleGROChange = (event) => {
-    const regex = /^\d*\.?\d*$/; 
-  
-    if (regex.test(event.target.value) || event.target.value === '') {
+    const regex = /^\d*\.?\d*$/;
+
+    if (regex.test(event.target.value) || event.target.value === "") {
       const newGROValue = parseFloat(event.target.value) || 0;
       const currentAmt = parseFloat(formData.amount) || 0;
       const updatedAmtValue = (
@@ -595,16 +599,15 @@ const PurchaseEntry = () => {
         parseFloat(formData.gro) +
         newGROValue
       ).toFixed(2);
-  
+
       setFormData({ ...formData, gro: newGROValue, amount: updatedAmtValue });
     }
   };
 
-
   const handleSPChange = (event) => {
     const regex = /^\d*\.?\d*$/;
-  
-    if (regex.test(event.target.value) || event.target.value === '') {
+
+    if (regex.test(event.target.value) || event.target.value === "") {
       const newSPValue = parseFloat(event.target.value) || 0;
       const currentAmt = parseFloat(formData.amount) || 0;
       const updatedAmtValue = (
@@ -612,11 +615,10 @@ const PurchaseEntry = () => {
         parseFloat(formData.sp) +
         newSPValue
       ).toFixed(2);
-  
+
       setFormData({ ...formData, sp: newSPValue, amount: updatedAmtValue });
     }
   };
-  
 
   const handleDiscountChange = (event) => {
     const discount = parseFloat(event.target.value) || 0;
@@ -712,11 +714,11 @@ const PurchaseEntry = () => {
           const selectedRow = searchResults[selectedRowIndex];
           setFormData({
             ...formData,
-            itemId: selectedRow._id,
-            itemCode: selectedRow.itemCode || 0,
+            itemId: selectedRow._id || selectedRow.item._id,
+            itemCode: selectedRow.itemCode || "",
             itemName: selectedRow.item.name || 0,
             mrp: selectedRow.mrp || 0,
-            batch: selectedRow.batchNo || 0,
+            batch: selectedRow.batchNo || "",
             case: selectedRow.case || null,
             caseValue: selectedRow.item.caseValue || 0,
             pcs: selectedRow.pcs || null,
@@ -853,14 +855,16 @@ const PurchaseEntry = () => {
 
   const handleItemCodeChange = async (e) => {
     const itemCode = e.target.value;
+
+    // console.log("search result: ", searchResults);
+
+    // if (!itemCode) {
+    //   setSearchMode(false);
+    //   resetMiddleFormData();
+    // } else {
     setFormData({ ...formData, itemCode: itemCode });
     await itemCodeSearch(itemCode);
-    console.log("search result: ", searchResults);
-
-    if (!itemCode) {
-      setSearchMode(false);
-      resetMiddleFormData();
-    }
+    // }
 
     setEditedRow({});
     setEditableIndex(-1);
