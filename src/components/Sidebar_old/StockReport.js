@@ -148,7 +148,7 @@ const StockReport = () => {
     setLoading(true);
     try {
       const filterOptions = {
-        page: paginationModel.page,
+        page: paginationModel.page +1,
         limit: paginationModel.pageSize,
         // supplierName: selectedSupplier,
         // fromDate: dateFrom,
@@ -233,7 +233,7 @@ const StockReport = () => {
 
   useEffect(() => {
     fetchAllStocks();
-  }, [paginationModel.pageSize , paginationModel.page])
+  }, [paginationModel])
 
   const handlePageChange = (newPage) => {
     console.log("newPage: ", newPage)
@@ -591,7 +591,7 @@ const StockReport = () => {
         <DataGrid
           rows={(allStocks || [])?.map((stock, index) => ({
             id: index,
-            sNo: index + 1 + (paginationModel.page * paginationModel.pageSize),
+            sNo: index + 1,
             itemCode: stock.itemCode || "No Data",
             itemName: stock?.itemId?.name || "No Data",
             batchNo: stock.batchNo || "No Data",
@@ -610,6 +610,7 @@ const StockReport = () => {
           paginationMode="server"
           page={paginationModel.page}
           pageSize={paginationModel.pageSize}
+          
           pageSizeOptions={[25, 50, 100]}
           paginationModel={paginationModel}
           onPaginationModelChange={setPaginationModel}
