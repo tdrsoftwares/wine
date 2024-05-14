@@ -1,15 +1,23 @@
 import axios from "axios";
 import React, { useState } from "react";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+import {
+  Button,
+  Container,
+  Grid,
+  Link,
+  TextField,
+  Typography,
+} from "@mui/material";
 import {
   NotificationContainer,
   NotificationManager,
 } from "react-notifications";
-import { Link, useNavigate } from "react-router-dom";
 import { url } from "../../utils/apiDomain";
 import { useLoginContext } from "../../utils/loginContext";
 
 function LoginForm({ handleLogin }) {
-  const { loginResponse, setLoginResponse } = useLoginContext();
+  const { setLoginResponse } = useLoginContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -62,37 +70,71 @@ function LoginForm({ handleLogin }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="form-container">
-      <h2 className="mb-2 form-header">Sign In</h2>
-      <div className="form-control">
-        <label>Email:</label>
-        <input
-          type="text"
+    <Container
+    className="form-container"
+      component="main"
+      maxWidth="xs"
+      sx={{
+        padding: 4,
+        // margin: 4,
+        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+      }}
+    >
+      <Typography component="h1" variant="h5" gutterBottom>
+        Sign In
+      </Typography>
+      <form onSubmit={handleSubmit} noValidate>
+        <TextField
+          variant="outlined"
+          margin="normal"
+          size="medium"
+          required
+          fullWidth
+          id="email"
+          label="Email Address"
+          name="email"
+          autoComplete="email"
+          autoFocus
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-      </div>
-
-      <div className="form-control">
-        <label>Password:</label>
-        <input
+        <TextField
+          variant="outlined"
+          margin="normal"
+          size="medium"
+          required
+          fullWidth
+          name="password"
+          label="Password"
           type="password"
+          id="password"
+          autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-      </div>
-
-      <button type="submit" className="btn-primary mt-1">
-        Sign In
-      </button>
-      <br />
-
-      <p className="form-switch">
-        Don't have an account? &nbsp;
-        <Link to="/signup">Sign up here.</Link>
-      </p>
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          sx={{mt: 3, mb: 2, backgroundImage: "linear-gradient(#6a11cb 0%, #3b25fc 100%)"}}
+        >
+          Sign In
+        </Button>
+        <Grid container>
+          <Grid item xs>
+            <Link component={RouterLink} to="/forgot-password" variant="body2">
+              Forgot password?
+            </Link>
+          </Grid>
+          {/* <Grid item>
+              <Link component={RouterLink} to="/signup" variant="body2">
+                Don't have an account? Sign Up
+              </Link>
+            </Grid> */}
+        </Grid>
+      </form>
       <NotificationContainer />
-    </form>
+    </Container>
   );
 }
 

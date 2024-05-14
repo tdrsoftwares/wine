@@ -43,9 +43,9 @@ const StockReport = () => {
 
   const batchNoOptions = ["0", "00", "01", "516-1", "521-1", "526-1"];
   const stockInOptions = ["All", "Godown", "Showroom"];
-  const [pagination, setPagination] = useState({
+  const [paginationModel, setPaginationModel] = useState({
     page: 1,
-    limit: 10,
+    pageSize: 25,
   });
   const columns = [
     {
@@ -72,12 +72,7 @@ const StockReport = () => {
       width: 120,
       headerClassName: "custom-header",
     },
-    {
-      field: "createdAt",
-      headerName: "Created At",
-      width: 150,
-      headerClassName: "custom-header",
-    },
+
     {
       field: "saleRate",
       headerName: "Sale Rate",
@@ -114,6 +109,12 @@ const StockReport = () => {
       width: 120,
       headerClassName: "custom-header",
     },
+    {
+      field: "createdAt",
+      headerName: "Date",
+      width: 150,
+      headerClassName: "custom-header",
+    },
 
     // {
     //   field: "action",
@@ -147,8 +148,8 @@ const StockReport = () => {
     setLoading(true);
     try {
       const filterOptions = {
-        page: pagination.page,
-        limit: pagination.limit,
+        page: paginationModel.page,
+        limit: paginationModel.pageSize,
         // supplierName: selectedSupplier,
         // fromDate: dateFrom,
         // toDate: dateTo,
@@ -230,14 +231,22 @@ const StockReport = () => {
     fetchAllCategory();
   }, [loginResponse]);
 
+  useEffect(() => {
+    fetchAllStocks();
+  }, [paginationModel.pageSize , paginationModel.page])
 
   const handlePageChange = (newPage) => {
-    setPagination({ ...pagination, page: newPage + 1 });
+    console.log("newPage: ", newPage)
+
+    setPaginationModel((prev) => ({ ...prev, page: newPage + 1 }));
   };
-  
-  const handlePageSizeChange = (newPageSize) => {
-    setPagination({ ...pagination, limit: newPageSize });
+
+  const handlePageSizeChange = (params) => {
+    console.log("params: ", params)
+    const newPageSize = params.pageSize;
+    setPaginationModel((prev) => ({ ...prev, pageSize: newPageSize }));
   };
+  console.log("allStocks?.length: ",allStocks?.length)
 
   return (
     <Box sx={{ p: 2, width: "900px" }}>
@@ -580,9 +589,9 @@ const StockReport = () => {
         }}
       >
         <DataGrid
-          rows={allStocks?.map((stock, index) => ({
+          rows={(allStocks || [])?.map((stock, index) => ({
             id: index,
-            sNo: index + 1,
+            sNo: index + 1 + (paginationModel.page * paginationModel.pageSize),
             itemCode: stock.itemCode || "No Data",
             itemName: stock?.itemId?.name || "No Data",
             batchNo: stock.batchNo || "No Data",
@@ -594,23 +603,16 @@ const StockReport = () => {
             currentStock: stock.currentStock || "No Data",
             openingStock: stock.openingStock || "No Data",
             mrp: stock.mrp || "No Data",
-
-            // action: (
-            //   <Button
-            //     variant="contained"
-            //     size="small"
-            //     onClick={() => handleViewClick(stock)}
-            //   >
-            //     View
-            //   </Button>
-            // ),
           }))}
-          columns={columnsData}
-          page={pagination.page - 1}
-          pageSize={pagination.limit}
-          onPageChange={handlePageChange}
-          onPageSizeChange={handlePageSizeChange}
-          rowsPerPageOptions={[10, 25, 50]}
+          columns={columns}
+          rowCount={allStocks?.length || 0}
+          pagination
+          paginationMode="server"
+          page={paginationModel.page}
+          pageSize={paginationModel.pageSize}
+          pageSizeOptions={[25, 50, 100]}
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
           sx={{ backgroundColor: "#fff" }}
           loadingOverlay={
             <Box
@@ -626,12 +628,7 @@ const StockReport = () => {
           }
           loading={loading}
         />
-        {/* Modal to display details */}
-        {/* <PurchaseDetailsModal
-          open={isModalOpen}
-          handleClose={() => setIsModalOpen(false)}
-          rowData={selectedRowData}
-        /> */}
+        
       </Box>
 
       <Box
