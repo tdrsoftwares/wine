@@ -326,10 +326,10 @@ const PurchaseEntry = () => {
 
   const handleRowClick = (index) => {
     const selectedRow = searchResults[index];
-    // console.log("selectedRow --> ", selectedRow)
+
     setFormData({
       ...formData,
-      itemId: selectedRow._id || selectedRow.item._id,
+      itemId: selectedRow.item._id,
       itemCode: selectedRow.itemCode || "",
       itemName: selectedRow.item.name || 0,
       mrp: selectedRow.mrp || 0,
@@ -415,8 +415,8 @@ const PurchaseEntry = () => {
       return;
     }
 
-    // if(formData.itemCode && formData.batch && formData.mrp && formData.stockIn) {
-    //   setFormData({...formData, stockIn: parseInt(formData.stockIn) + parseInt(formData.pcs)})
+    // if(formData.itemCode && formData.batch && formData.mrp && formData.itemName) {
+    //   setPurchases({ ...purchases, pcs: parseInt(purchases.pcs) + parseInt(formData.pcs)})
     // }
 
     // console.log("stockIn: " + formData.stockIn)
@@ -714,7 +714,7 @@ const PurchaseEntry = () => {
           const selectedRow = searchResults[selectedRowIndex];
           setFormData({
             ...formData,
-            itemId: selectedRow._id || selectedRow.item._id,
+            itemId: selectedRow.item._id,
             itemCode: selectedRow.itemCode || "",
             itemName: selectedRow.item.name || 0,
             mrp: selectedRow.mrp || 0,
