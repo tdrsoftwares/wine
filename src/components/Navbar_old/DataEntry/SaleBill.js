@@ -313,12 +313,12 @@ const SaleBill = () => {
           const selectedRow = searchResults[selectedRowIndex];
           setFormData({
             ...formData,
-            itemId: selectedRow?._id || "",
+            itemId: selectedRow.item[0]?._id || "",
             itemCode: selectedRow?.itemCode || "",
             itemName: selectedRow?.item[0]?.name || "",
-            mrp: selectedRow?.mrp || "",
-            batch: selectedRow?.batchNo || "",
-            volume: selectedRow?.item[0]?.volume || "",
+            mrp: selectedRow?.mrp || 0,
+            batch: selectedRow?.batchNo || 0,
+            volume: selectedRow?.item[0]?.volume || 0,
           });
           setSearchMode(false);
           setSelectedRowIndex(null);
@@ -465,7 +465,7 @@ const SaleBill = () => {
     console.log("handleRowClick selectedRow: ", selectedRow);
     setFormData({
       ...formData,
-      itemId: selectedRow.itemId,
+      itemId: selectedRow.item[0]._id,
       itemCode: selectedRow.itemCode || 0,
       itemName: selectedRow.item[0].name || 0,
       mrp: selectedRow.mrp || 0,
@@ -1241,10 +1241,10 @@ const SaleBill = () => {
                         {row?.mrp || 0}
                       </TableCell>
                       <TableCell align="center" sx={{ padding: "14px" }}>
-                        {row.batch || 0}
+                        {row?.batchNo || 0}
                       </TableCell>
                       <TableCell align="center" sx={{ padding: "14px" }}>
-                        {row.currentStock || 0}
+                        {row?.currentStock || 0}
                       </TableCell>
                     </TableRow>
                   ))
