@@ -209,7 +209,6 @@ const SaleReportSummary = () => {
     }
   };
 
-
   useEffect(() => {
     fetchAllSales();
   }, []);
@@ -455,13 +454,14 @@ const SaleReportSummary = () => {
             },
           }}
         >
-          
           <DataGrid
             rows={(allSalesData || [])?.map((sale, index) => ({
               id: index,
               sNo: index + 1,
               billNo: sale.billNo || "No Data",
-              billDate: new Date(sale.billDate).toLocaleDateString("en-GB") || "No Data",
+              billDate:
+                new Date(sale.billDate).toLocaleDateString("en-GB") ||
+                "No Data",
               billType: sale.billType || "No Data",
               billSeries: sale.billSeries || "No Data",
               customer: sale.customer || "No Data",
@@ -486,24 +486,24 @@ const SaleReportSummary = () => {
             }))}
             columns={columnsData}
             rowCount={totalCount}
-          pagination
-          paginationMode="server"
-          pageSizeOptions={[10, 25, 50, 100]}
-          onPaginationModelChange={setPaginationModel}
-          sx={{ backgroundColor: "#fff" }}
-          loadingOverlay={
-            <Box
-              sx={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-              }}
-            >
-              <CircularProgress />
-            </Box>
-          }
-          loading={loading}
+            pagination
+            paginationMode="server"
+            pageSizeOptions={[10, 25, 50, 100]}
+            onPaginationModelChange={setPaginationModel}
+            sx={{ backgroundColor: "#fff" }}
+            loadingOverlay={
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            }
+            loading={loading}
           />
         </Box>
 
