@@ -38,9 +38,10 @@ export const updatePurchase = async (payload, id, loginResponse) => {
 //   }
 // };
 
-export const getAllPurchases = async (loginResponse) => {
+export const getAllPurchases = async (loginResponse, filterOptions) => {
   try {
-    const apiURL = `${url}/purchases/reports`;
+    const { page, limit, supplierName, fromDate, toDate } = filterOptions;
+    const apiURL = `${url}/purchases/reports?page=${page}&limit=${limit}`;
     const allPurchasesData = await axios.get(apiURL, {
       headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
     });

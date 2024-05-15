@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  CircularProgress,
   FormControlLabel,
   Grid,
   InputLabel,
@@ -27,9 +28,14 @@ const PurchaseReportSummary = () => {
   const [allSuppliers, setAllSuppliers] = useState([]);
   const [selectedRowData, setSelectedRowData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [paginationModel, setPaginationModel] = useState({
+    page: 1,
+    pageSize: 25
+  })
 
+  const [totalCount, setTotalCount] = useState(0);
   const { loginResponse } = useLoginContext();
-
+  const [loading, setLoading] = useState(false);
   const columns = [
     {
       field: "sNo",
@@ -172,26 +178,33 @@ const PurchaseReportSummary = () => {
   };
   
   const fetchAllPurchase = async () => {
+    setLoading(true);
     try {
-      // const filterOptions = {
-      //   page: 1,
-      //   limit: 1,
-      //   supplierName: selectedSupplier,
-      //   fromDate: dateFrom,
-      //   toDate: dateTo,
-      // };
+      const filterOptions = {
+        page:
+          paginationModel.page === 0
+            ? paginationModel.page + 1
+            : paginationModel.page,
+        limit: paginationModel.pageSize,
+        //   supplierName: selectedSupplier,
+        //   fromDate: dateFrom,
+        //   toDate: dateTo,
+      };
       const allPurchaseResponse = await getAllPurchases(
-        loginResponse
-        // filterOptions
+        loginResponse,
+        filterOptions
       );
       console.log("allPurchaseResponse ---> ", allPurchaseResponse?.data?.data);
       setAllPurchases(allPurchaseResponse?.data?.data);
+      setTotalCount(allPurchaseResponse?.data?.data?.length);
     } catch (error) {
       NotificationManager.error(
         "Error fetching purchase. Please try again later.",
         "Error"
       );
       console.error("Error fetching purchase:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -214,9 +227,9 @@ const PurchaseReportSummary = () => {
   }, [loginResponse]);
   
 
-  // useEffect(() => {
-  //   fetchAllPurchase();
-  // }, [dateFrom, dateTo, selectedSupplier]);
+  useEffect(() => {
+    fetchAllPurchase();
+  }, [paginationModel]);
 
   return (
     <Box sx={{ p: 2, width: "900px" }}>
@@ -322,7 +335,7 @@ const PurchaseReportSummary = () => {
         }}
       >
         <DataGrid
-          rows={allPurchases?.map((purchase, index) => ({
+          rows={(allPurchases || []).map((purchase, index) => ({
             id: index,
             sNo: index + 1,
             entryNo: purchase.entryNo,
@@ -350,9 +363,25 @@ const PurchaseReportSummary = () => {
             ),
           }))}
           columns={columnsData}
-          pageSize={5}
-          rowsPerPageOptions={[10, 25, 50]}
+          rowCount={totalCount}
+          pagination
+          paginationMode="server"
+          pageSizeOptions={[10, 25, 50, 100]}
+          onPaginationModelChange={setPaginationModel}
           sx={{ backgroundColor: "#fff" }}
+          loadingOverlay={
+            <Box
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          }
+          loading={loading}
         />
         {/* Modal to display details */}
         <PurchaseDetailsModal
