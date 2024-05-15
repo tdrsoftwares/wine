@@ -45,8 +45,12 @@ const StockReport = () => {
   const stockInOptions = ["All", "Godown", "Showroom"];
   const [paginationModel, setPaginationModel] = useState({
     page: 1,
-    pageSize: 20,
+    pageSize: 10,
   });
+  const [totalCount, setTotalCount] = useState(0);
+  console.log("totalCount: " + totalCount)
+  console.log("paginationModel: ",paginationModel)
+
   const columns = [
     {
       field: "sNo",
@@ -147,16 +151,24 @@ const StockReport = () => {
   const fetchAllStocks = async () => {
     setLoading(true);
     try {
-      // const filterOptions = {
-      //   page: paginationModel.page,
-      //   limit: paginationModel.pageSize,
-      //   // supplierName: selectedSupplier,
-      //   // fromDate: dateFrom,
-      //   // toDate: dateTo,
-      // };
-      const allStocksResponse = await getAllStocks(loginResponse);
-      console.log("allStocksResponse ---> ", allStocksResponse?.data?.data);
+      const filterOptions = {
+        page:
+          paginationModel.page === 0
+            ? paginationModel.page + 1
+            : paginationModel.page,
+        limit: paginationModel.pageSize,
+        // supplierName: selectedSupplier,
+        // fromDate: dateFrom,
+        // toDate: dateTo,
+      };
+      console.log("filterOptions: ", filterOptions);
+      const allStocksResponse = await getAllStocks(
+        loginResponse,
+        filterOptions
+      );
+
       setAllStocks(allStocksResponse?.data?.data);
+      setTotalCount(allStocksResponse?.data?.data?.length);
     } catch (error) {
       NotificationManager.error(
         "Error fetching stock. Please try again later.",
@@ -232,18 +244,15 @@ const StockReport = () => {
     fetchAllStocks();
   }, [paginationModel])
 
-  const handlePageChange = (newPage) => {
-    console.log("newPage: ", newPage)
-
-    setPaginationModel((prev) => ({ ...prev, page: newPage + 1 }));
-  };
-
-  const handlePageSizeChange = (params) => {
-    console.log("params: ", params)
-    const newPageSize = params.pageSize;
-    setPaginationModel((prev) => ({ ...prev, pageSize: newPageSize }));
-  };
-  console.log("allStocks?.length: ",allStocks?.length)
+  // const paginationMeta = useMemo(() => {
+  //   if (
+  //     hasNextPage !== undefined &&
+  //     paginationMetaRef.current?.hasNextPage !== hasNextPage
+  //   ) {
+  //     paginationMetaRef.current = { hasNextPage };
+  //   }
+  //   return paginationMetaRef.current;
+  // }, [hasNextPage]);
 
   return (
     <Box sx={{ p: 2, width: "900px" }}>
@@ -255,122 +264,6 @@ const StockReport = () => {
       </Typography>
 
       <Grid container spacing={2}>
-        {/* <Grid item xs={12}>
-            <InputLabel for="selectOptions">Select Options</InputLabel>
-            <RadioGroup
-              row
-              name="selectOptions"
-              aria-labelledby="selectOptions"
-              value={selectOptions}
-              onChange={(e) => setselectOptions(e.target.value)}
-            >
-              <FormControlLabel
-                value="all-stock"
-                control={<Radio />}
-                label="All Stock"
-              />
-              <FormControlLabel value="item" control={<Radio />} label="Item" />
-              <FormControlLabel
-                value="category"
-                control={<Radio />}
-                label="Category"
-              />
-              <FormControlLabel value="volume" control={<Radio />} label="Pack" />
-              <FormControlLabel
-                value="brand-wise"
-                control={<Radio />}
-                label="Brand Wise"
-              />
-              <FormControlLabel
-                value="cate/item"
-                control={<Radio />}
-                label="Cate/Item"
-              />
-              <FormControlLabel
-                value="cate/volume"
-                control={<Radio />}
-                label="Cate/Pack"
-              />
-              <FormControlLabel
-                value="cate/brand"
-                control={<Radio />}
-                label="Cate/Brand"
-              />
-              <FormControlLabel
-                value="item/volume"
-                control={<Radio />}
-                label="Item/Pack"
-              />
-              <FormControlLabel
-                value="brand/volume"
-                control={<Radio />}
-                label="Brand/Pack"
-              />
-              <FormControlLabel
-                value="item/brand"
-                control={<Radio />}
-                label="Item/Brand"
-              />
-
-              <FormControlLabel
-                value="item/volume/brand"
-                control={<Radio />}
-                label="Item/Pack/Brand"
-              />
-              <FormControlLabel
-                value="item/cate/size"
-                control={<Radio />}
-                label="Item/Cate/Size"
-              />
-              <FormControlLabel
-                value="item/cate/brand"
-                control={<Radio />}
-                label="Item/Cate/Brand"
-              />
-
-              <FormControlLabel
-                value="cate/volume/brand"
-                control={<Radio />}
-                label="Cate/Pack/Brand"
-              />
-              <FormControlLabel
-                value="company-wise"
-                control={<Radio />}
-                label="Distributor Wise"
-              />
-              <FormControlLabel
-                value="code-wise"
-                control={<Radio />}
-                label="Code Wise"
-              />
-              <FormControlLabel
-                value="batch-wise"
-                control={<Radio />}
-                label="Batch Wise"
-              />
-              <FormControlLabel
-                value="batch/item"
-                control={<Radio />}
-                label="Batch/Item"
-              />
-              <FormControlLabel
-                value="batch/cate"
-                control={<Radio />}
-                label="Batch/Cate"
-              />
-              <FormControlLabel
-                value="batch/brand"
-                control={<Radio />}
-                label="Batch/Brand"
-              />
-              <FormControlLabel
-                value="stock-on"
-                control={<Radio />}
-                label="Stock On"
-              />
-            </RadioGroup>
-          </Grid> */}
-
         <Grid item xs={3}>
           <div className="input-wrapper">
             <InputLabel htmlFor="itemCode" className="input-label">
@@ -602,14 +495,10 @@ const StockReport = () => {
             mrp: stock.mrp || "No Data",
           }))}
           columns={columnsData}
-          rowCount={allStocks?.length || 0}
+          rowCount={totalCount}
           pagination
-          // paginationMode="server"
-          page={paginationModel.page}
-          pageSize={paginationModel.pageSize}
-          
-          pageSizeOptions={[20, 50, 100]}
-          paginationModel={paginationModel}
+          paginationMode="server"
+          pageSizeOptions={[10, 25, 50, 100]}
           onPaginationModelChange={setPaginationModel}
           sx={{ backgroundColor: "#fff" }}
           loadingOverlay={
@@ -626,7 +515,6 @@ const StockReport = () => {
           }
           loading={loading}
         />
-        
       </Box>
 
       <Box
