@@ -1715,7 +1715,7 @@ const PurchaseEntry = () => {
           size="medium"
           variant="contained"
           onClick={() => setIsModalOpen(true)}
-          sx={{ marginTop: 3, marginRight: 2 }}
+          sx={{ marginTop: 3, marginRight: 2, borderRadius: 8 }}
         >
           CREATE ITEM
         </Button>
@@ -1729,7 +1729,7 @@ const PurchaseEntry = () => {
             size="medium"
             variant="outlined"
             onClick={clearAllFields}
-            sx={{ marginTop: 3, marginRight: 2 }}
+            sx={{ marginTop: 3, marginRight: 2, borderRadius: 8 }}
           >
             CLEAR
           </Button>
@@ -1739,7 +1739,7 @@ const PurchaseEntry = () => {
             size="medium"
             variant="outlined"
             onClick={() => {}}
-            sx={{ marginTop: 3, marginRight: 2 }}
+            sx={{ marginTop: 3, marginRight: 2, borderRadius: 8 }}
           >
             PREV PAGE
           </Button>
@@ -1748,7 +1748,7 @@ const PurchaseEntry = () => {
             size="medium"
             variant="outlined"
             onClick={() => {}}
-            sx={{ marginTop: 3, marginRight: 2 }}
+            sx={{ marginTop: 3, marginRight: 2, borderRadius: 8 }}
           >
             NEXT PAGE
           </Button>
@@ -1758,7 +1758,7 @@ const PurchaseEntry = () => {
             size="medium"
             variant="outlined"
             onClick={() => {}}
-            sx={{ marginTop: 3, marginRight: 2 }}
+            sx={{ marginTop: 3, marginRight: 2, borderRadius: 8 }}
           >
             EDIT
           </Button>
@@ -1767,7 +1767,7 @@ const PurchaseEntry = () => {
             size="medium"
             variant="contained"
             onClick={() => {}}
-            sx={{ marginTop: 3, marginRight: 2 }}
+            sx={{ marginTop: 3, marginRight: 2, borderRadius: 8 }}
           >
             DELETE
           </Button>
@@ -1776,7 +1776,7 @@ const PurchaseEntry = () => {
             size="medium"
             variant="contained"
             onClick={handlePurchaseOpen}
-            sx={{ marginTop: 3, marginRight: 2 }}
+            sx={{ marginTop: 3, marginRight: 2, borderRadius: 8 }}
           >
             OPEN
           </Button>
@@ -1785,7 +1785,7 @@ const PurchaseEntry = () => {
             size="medium"
             variant="contained"
             onClick={handleCreatePurchase}
-            sx={{ marginTop: 3 }}
+            sx={{ marginTop: 3, borderRadius: 8 }}
           >
             SAVE
           </Button>
