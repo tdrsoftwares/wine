@@ -38,10 +38,10 @@ export const updatePurchase = async (payload, id, loginResponse) => {
 //   }
 // };
 
-export const getAllStocks = async (loginResponse, filterOptions) => {
+export const getAllStocks = async (loginResponse) => {
   try {
-    const { page, limit, supplierName, fromDate, toDate } = filterOptions;
-    const apiURL = `${url}/purchases/stock-reports?page=${page}&limit=${limit}`;
+    // const { page, limit, supplierName, fromDate, toDate } = filterOptions;
+    const apiURL = `${url}/purchases/stock-reports`;
     const allStocksData = await axios.get(apiURL, {
       headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
     });

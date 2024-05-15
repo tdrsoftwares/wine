@@ -45,7 +45,7 @@ const StockReport = () => {
   const stockInOptions = ["All", "Godown", "Showroom"];
   const [paginationModel, setPaginationModel] = useState({
     page: 1,
-    pageSize: 25,
+    pageSize: 20,
   });
   const columns = [
     {
@@ -147,17 +147,14 @@ const StockReport = () => {
   const fetchAllStocks = async () => {
     setLoading(true);
     try {
-      const filterOptions = {
-        page: paginationModel.page +1,
-        limit: paginationModel.pageSize,
-        // supplierName: selectedSupplier,
-        // fromDate: dateFrom,
-        // toDate: dateTo,
-      };
-      const allStocksResponse = await getAllStocks(
-        loginResponse,
-        filterOptions
-      );
+      // const filterOptions = {
+      //   page: paginationModel.page,
+      //   limit: paginationModel.pageSize,
+      //   // supplierName: selectedSupplier,
+      //   // fromDate: dateFrom,
+      //   // toDate: dateTo,
+      // };
+      const allStocksResponse = await getAllStocks(loginResponse);
       console.log("allStocksResponse ---> ", allStocksResponse?.data?.data);
       setAllStocks(allStocksResponse?.data?.data);
     } catch (error) {
@@ -604,14 +601,14 @@ const StockReport = () => {
             openingStock: stock.openingStock || "No Data",
             mrp: stock.mrp || "No Data",
           }))}
-          columns={columns}
+          columns={columnsData}
           rowCount={allStocks?.length || 0}
           pagination
-          paginationMode="server"
+          // paginationMode="server"
           page={paginationModel.page}
           pageSize={paginationModel.pageSize}
           
-          pageSizeOptions={[25, 50, 100]}
+          pageSizeOptions={[20, 50, 100]}
           paginationModel={paginationModel}
           onPaginationModelChange={setPaginationModel}
           sx={{ backgroundColor: "#fff" }}
