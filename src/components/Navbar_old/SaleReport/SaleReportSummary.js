@@ -457,7 +457,7 @@ const SaleReportSummary = () => {
         >
           
           <DataGrid
-            rows={allSalesData?.map((sale, index) => ({
+            rows={(allSalesData || [])?.map((sale, index) => ({
               id: index,
               sNo: index + 1,
               billNo: sale.billNo || "No Data",
