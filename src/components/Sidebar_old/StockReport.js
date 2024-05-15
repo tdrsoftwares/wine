@@ -17,6 +17,7 @@ import { getAllItems } from "../../services/itemService";
 import { getAllBrands } from "../../services/brandService";
 import { getAllCompanies } from "../../services/companyService";
 import { getAllItemCategory } from "../../services/categoryService";
+import { Refresh } from "@mui/icons-material";
 
 const StockReport = () => {
   const [allStocks, setAllStocks] = useState([]);
@@ -48,8 +49,8 @@ const StockReport = () => {
     pageSize: 10,
   });
   const [totalCount, setTotalCount] = useState(0);
-  console.log("totalCount: " + totalCount)
-  console.log("paginationModel: ",paginationModel)
+  console.log("totalCount: " + totalCount);
+  console.log("paginationModel: ", paginationModel);
 
   const columns = [
     {
@@ -242,7 +243,7 @@ const StockReport = () => {
 
   useEffect(() => {
     fetchAllStocks();
-  }, [paginationModel])
+  }, [paginationModel]);
 
   // const paginationMeta = useMemo(() => {
   //   if (
@@ -520,37 +521,48 @@ const StockReport = () => {
       <Box
         sx={{
           display: "flex",
-          justifyContent: "flex-end",
-          "& button": { marginTop: 2, marginLeft: 2 },
+          justifyContent: "space-between",
+          
         }}
       >
         <Button
-          color="primary"
+          color="inherit"
           size="medium"
           variant="contained"
-          onClick={() => {}}
-          sx={{ borderRadius: 8 }}
+          onClick={() => fetchAllStocks()}
+          sx={{ marginTop: 3, marginRight: 2, borderRadius: 8 }}
         >
-          Display
+          Refresh
         </Button>
-        <Button
-          color="secondary"
-          size="medium"
-          variant="outlined"
-          onClick={() => {}}
-          sx={{ borderRadius: 8 }}
-        >
-          Print
-        </Button>
-        <Button
-          color="error"
-          size="medium"
-          variant="outlined"
-          onClick={() => {}}
-          sx={{ borderRadius: 8 }}
-        >
-          Clear
-        </Button>
+        <div>
+          <Button
+            color="primary"
+            size="medium"
+            variant="contained"
+            onClick={() => {}}
+            sx={{ marginTop: 3, marginRight: 2, borderRadius: 8 }}
+          >
+            Display
+          </Button>
+          <Button
+            color="secondary"
+            size="medium"
+            variant="outlined"
+            onClick={() => {}}
+            sx={{ marginTop: 3, marginRight: 2, borderRadius: 8 }}
+          >
+            Print
+          </Button>
+          <Button
+            color="error"
+            size="medium"
+            variant="outlined"
+            onClick={() => {}}
+            sx={{ marginTop: 3, borderRadius: 8 }}
+          >
+            Clear
+          </Button>
+        </div>
       </Box>
     </Box>
   );
