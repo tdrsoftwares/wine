@@ -113,14 +113,15 @@ const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
           allItemPurchasesResponse?.data?.data[0]?.purchaseItems
         );
       } catch (error) {
-        NotificationManager.error(
-          "Error fetching ItemPurchases. Please try again later.",
-          "Error"
-        );
+        // NotificationManager.error(
+        //   "Error fetching ItemPurchases. Please try again later.",
+        //   "Error"
+        // );
+        console.log("Error fetching ItemPurchases.", error);
       }
     };
     fetchAllItemPurchases();
-  }, [rowData]);
+  }, [loginResponse, rowData]);
 
   return (
     <Modal
