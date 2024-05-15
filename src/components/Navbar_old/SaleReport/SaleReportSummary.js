@@ -35,10 +35,11 @@ const SaleReportSummary = () => {
     isChecked: false,
   });
 
-  const [pagination, setPagination] = useState({
+  const [paginationModel, setPaginationModel] = useState({
     page: 1,
-    limit: 10,
+    pageSize: 25,
   });
+  const [totalCount, setTotalCount] = useState(0);
 
   const seriesOptions = ["A", "B", "C", "D", "E", "ALL"];
 
@@ -183,8 +184,11 @@ const SaleReportSummary = () => {
     console.log("Fetching data...");
     try {
       const filterOptions = {
-        page: pagination.page,
-      limit: pagination.limit,
+        page:
+          paginationModel.page === 0
+            ? paginationModel.page + 1
+            : paginationModel.page,
+        limit: paginationModel.pageSize,
         // supplierName: selectedSupplier,
         // fromDate: dateFrom,
         // toDate: dateTo,
@@ -192,6 +196,7 @@ const SaleReportSummary = () => {
       const allSalesResponse = await getAllSales(loginResponse, filterOptions);
       console.log("allSalesResponse ---> ", allSalesResponse?.data?.data);
       setAllSalesData(allSalesResponse?.data?.data);
+      setTotalCount(allSalesResponse?.data.data?.length);
     } catch (error) {
       NotificationManager.error(
         "Error fetching sales. Please try again later.",
@@ -208,15 +213,6 @@ const SaleReportSummary = () => {
   useEffect(() => {
     fetchAllSales();
   }, []);
-
-
-  const handlePageChange = (newPage) => {
-    setPagination({ ...pagination, page: newPage + 1 });
-  };
-  
-  const handlePageSizeChange = (newPageSize) => {
-    setPagination({ ...pagination, limit: newPageSize });
-  };
 
   return (
     <form>
@@ -489,25 +485,25 @@ const SaleReportSummary = () => {
               ),
             }))}
             columns={columnsData}
-            page={pagination.page - 1}
-            pageSize={pagination.limit}
-            onPageChange={handlePageChange}
-            onPageSizeChange={handlePageSizeChange}
-            rowsPerPageOptions={[10, 25, 50]}
-            sx={{ backgroundColor: "#fff" }}
-            loadingOverlay={
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: "50%",
-                  left: "50%",
-                  transform: "translate(-50%, -50%)",
-                }}
-              >
-                <CircularProgress />
-              </Box>
-            }
-            loading={loading}
+            rowCount={totalCount}
+          pagination
+          paginationMode="server"
+          pageSizeOptions={[10, 25, 50, 100]}
+          onPaginationModelChange={setPaginationModel}
+          sx={{ backgroundColor: "#fff" }}
+          loadingOverlay={
+            <Box
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          }
+          loading={loading}
           />
         </Box>
 
