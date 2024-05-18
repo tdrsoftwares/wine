@@ -1,49 +1,39 @@
-import axios from "axios";
-import { url } from "../utils/apiDomain";
+import axiosInstance from "../utils/axiosInstance";
 
-export const createBrand = async (payload, loginResponse) => {
+export const createBrand = async (payload) => {
   try {
-    const apiURL = `${url}/brand/create`
-    const createBrandData = await axios.post(apiURL, payload, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/brand/create`;
+    const createBrandData = await axiosInstance.post(apiURL, payload);
     return createBrandData;
   } catch (error) {
     return error;
   }
 };
 
-export const updateBrand = async (payload, id, loginResponse) => {
+export const updateBrand = async (payload, id) => {
   try {
-    const apiURL = `${url}/brand/update/${id}`;
-    const updateBrandData = await axios.put(apiURL, payload, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/brand/update/${id}`;
+    const updateBrandData = await axiosInstance.put(apiURL, payload);
     return updateBrandData;
   } catch (error) {
     return error;
   }
 };
 
-export const getAllBrands = async (loginResponse) => {
-  console.log("loginResponse: ", loginResponse);
+export const getAllBrands = async () => {
   try {
-    const apiURL = `${url}/brand/get-all`;
-    const allBrandsData = await axios.get(apiURL, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/brand/get-all`;
+    const allBrandsData = await axiosInstance.get(apiURL);
     return allBrandsData;
   } catch (error) {
     return error;
   }
 };
 
-export const deleteBrand = async (id, loginResponse) => {
+export const deleteBrand = async (id) => {
   try {
-    const apiURL = `${url}/brand/delete/${id}`;
-    const deleteBrandData = await axios.delete(apiURL, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/brand/delete/${id}`;
+    const deleteBrandData = await axiosInstance.delete(apiURL);
     return deleteBrandData;
   } catch (error) {
     return error;

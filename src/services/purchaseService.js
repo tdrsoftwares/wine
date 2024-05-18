@@ -1,36 +1,31 @@
-import axios from "axios";
-import { url } from "../utils/apiDomain";
+import axiosInstance from "../utils/axiosInstance";
 
-export const createPurchase = async (payload, loginResponse) => {
+export const createPurchase = async (payload) => {
   try {
-    const apiURL = `${url}/purchases/create`;
-    const createPurchaseData = await axios.post(apiURL, payload, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/purchases/create`;
+    const createPurchaseData = await axiosInstance.post(apiURL, payload);
     return createPurchaseData;
   } catch (error) {
     return error;
   }
 };
 
-export const updatePurchase = async (payload, id, loginResponse) => {
+export const updatePurchase = async (payload, id) => {
   try {
-    const apiURL = `${url}/purchases/update/${id}`;
-    const updatePurchaseData = await axios.put(apiURL, payload, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/purchases/update/${id}`;
+    const updatePurchaseData = await axiosInstance.put(apiURL, payload);
     return updatePurchaseData;
   } catch (error) {
     return error;
   }
 };
 
-// export const getAllPurchases = async (loginResponse, filterOptions) => {
+// export const getAllPurchases = async (filterOptions) => {
 //   try {
 //     const { page, limit, supplierName, fromDate, toDate } = filterOptions;
-//     const apiURL = `${url}/purchases/reports?page=${page}&limit=${limit}&supplierName=${supplierName}&fromDate=${fromDate}&toDate=${toDate}`;
-//     const allPurchasesData = await axios.get(apiURL, {
-//       headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
+//     const apiURL = `/purchases/reports?page=${page}&limit=${limit}&supplierName=${supplierName}&fromDate=${fromDate}&toDate=${toDate}`;
+//     const allPurchasesData = await axiosInstance.get(apiURL, {
+//       headers: { Authorization: `Bearer ${.accessToken}` },
 //     });
 //     return allPurchasesData;
 //   } catch (error) {
@@ -38,64 +33,51 @@ export const updatePurchase = async (payload, id, loginResponse) => {
 //   }
 // };
 
-export const getAllPurchases = async (loginResponse, filterOptions) => {
+export const getAllPurchases = async (filterOptions) => {
   try {
     const { page, limit, supplierName, fromDate, toDate } = filterOptions;
-    const apiURL = `${url}/purchases/reports?page=${page}&limit=${limit}`;
-    const allPurchasesData = await axios.get(apiURL, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/purchases/reports?page=${page}&limit=${limit}`;
+    const allPurchasesData = await axiosInstance.get(apiURL);
     return allPurchasesData;
   } catch (error) {
     return error;
   }
 };
 
-export const getItemPurchaseDetails = async (entryNo, loginResponse) => {
+export const getItemPurchaseDetails = async (entryNo) => {
   try {
-    const apiURL = `${url}/purchases/item-reports/${entryNo}`;
-    const getItemPurchaseData = await axios.get(apiURL, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/purchases/item-reports/${entryNo}`;
+    const getItemPurchaseData = await axiosInstance.get(apiURL);
     return getItemPurchaseData;
   } catch (error) {
     return error;
   }
 };
 
-export const searchAllPurchasesByItemName = async (loginResponse, itemName) => {
+export const searchAllPurchasesByItemName = async (itemName) => {
   try {
-    const apiURL = `${url}/purchases/item-search?name=${itemName}`;
-    const allPurchasesData = await axios.get(apiURL, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/purchases/item-search?name=${itemName}`;
+    const allPurchasesData = await axiosInstance.get(apiURL);
     return allPurchasesData;
   } catch (error) {
     return error;
   }
 };
 
-export const searchAllPurchasesByItemCode = async (loginResponse, itemCode) => {
-
+export const searchAllPurchasesByItemCode = async (itemCode) => {
   try {
-    
-    const apiURL = `${url}/purchases/item-code/${itemCode}`;
-    const allPurchasesData = await axios.get(apiURL, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/purchases/item-code/${itemCode}`;
+    const allPurchasesData = await axiosInstance.get(apiURL);
     return allPurchasesData;
-
   } catch (error) {
     return error;
   }
 };
 
-export const deletePurchase = async (id, loginResponse) => {
+export const deletePurchase = async (id) => {
   try {
-    const apiURL = `${url}/purchases/delete/${id}`;
-    const deletePurchaseData = await axios.delete(apiURL, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/purchases/delete/${id}`;
+    const deletePurchaseData = await axiosInstance.delete(apiURL);
     return deletePurchaseData;
   } catch (error) {
     return error;

@@ -1,48 +1,40 @@
-import axios from "axios";
-import { url } from "../utils/apiDomain";
 
-export const createCompany = async (payload, loginResponse) => {
+import axiosInstance from "../utils/axiosInstance";
+
+export const createCompany = async (payload) => {
   try {
-    const apiURL = `${url}/company/create`;
-    const createCompanyData = await axios.post(apiURL, payload, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/company/create`;
+    const createCompanyData = await axiosInstance.post(apiURL, payload);
     return createCompanyData;
   } catch (error) {
     return error;
   }
 };
 
-export const updateCompany = async (payload, id, loginResponse) => {
+export const updateCompany = async (payload, id) => {
   try {
-    const apiURL = `${url}/company/update/${id}`;
-    const updateCompanyData = await axios.put(apiURL, payload, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/company/update/${id}`;
+    const updateCompanyData = await axiosInstance.put(apiURL, payload);
     return updateCompanyData;
   } catch (error) {
     return error;
   }
 };
 
-export const getAllCompanies = async (loginResponse) => {
+export const getAllCompanies = async () => {
   try {
-    const apiURL = `${url}/company/get-all`;
-    const allCompaniesData = await axios.get(apiURL, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/company/get-all`;
+    const allCompaniesData = await axiosInstance.get(apiURL);
     return allCompaniesData;
   } catch (error) {
     return error;
   }
 };
 
-export const deleteCompany = async (id, loginResponse) => {
+export const deleteCompany = async (id) => {
   try {
-    const apiURL = `${url}/company/delete/${id}`;
-    const deleteCompanyData = await axios.delete(apiURL, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/company/delete/${id}`;
+    const deleteCompanyData = await axiosInstance.delete(apiURL);
     return deleteCompanyData;
   } catch (error) {
     return error;

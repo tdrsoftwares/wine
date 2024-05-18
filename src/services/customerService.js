@@ -1,49 +1,40 @@
-import axios from "axios";
-import { url } from "../utils/apiDomain";
 
-export const createCustomer = async (payload, loginResponse) => {
-  console.log("loginResponse: ", loginResponse);
+import axiosInstance from "../utils/axiosInstance";
+
+export const createCustomer = async (payload) => {
   try {
-    const apiURL = `${url}/customer/create`;
-    const createCustomerData = await axios.post(apiURL, payload, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/customer/create`;
+    const createCustomerData = await axiosInstance.post(apiURL, payload);
     return createCustomerData;
   } catch (error) {
     return error;
   }
 };
 
-export const updateCustomer = async (payload, id, loginResponse) => {
+export const updateCustomer = async (payload, id) => {
   try {
-    const apiURL = `${url}/customer/update/${id}`;
-    const updateCustomerData = await axios.put(apiURL, payload, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/customer/update/${id}`;
+    const updateCustomerData = await axiosInstance.put(apiURL, payload);
     return updateCustomerData;
   } catch (error) {
     return error;
   }
 };
 
-export const getAllCustomer = async (loginResponse) => {
+export const getAllCustomer = async () => {
   try {
-    const apiURL = `${url}/customer/get-all/`;
-    const allCustomerData = await axios.get(apiURL, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/customer/get-all`;
+    const allCustomerData = await axiosInstance.get(apiURL);
     return allCustomerData;
   } catch (error) {
     return error;
   }
 };
 
-export const deleteCustomer = async (id, loginResponse) => {
+export const deleteCustomer = async (id) => {
   try {
-    const apiURL = `${url}/customer/delete/${id}`;
-    const deleteCustomerData = await axios.delete(apiURL, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/customer/delete/${id}`;
+    const deleteCustomerData = await axiosInstance.delete(apiURL);
     return deleteCustomerData;
   } catch (error) {
     return error;

@@ -1,48 +1,39 @@
-import axios from "axios";
-import { url } from "../utils/apiDomain";
+import axiosInstance from "../utils/axiosInstance";
 
-export const createItem = async (payload, loginResponse) => {
+export const createItem = async (payload) => {
   try {
-    const apiURL = `${url}/item/create`;
-    const createItemData = await axios.post(apiURL, payload, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/item/create`;
+    const createItemData = await axiosInstance.post(apiURL, payload);
     return createItemData;
   } catch (error) {
     return error;
   }
 };
 
-export const updateItem = async (payload, id, loginResponse) => {
+export const updateItem = async (payload, id) => {
   try {
-    const apiURL = `${url}/item/update/${id}`;
-    const updateItemData = await axios.put(apiURL, payload, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/item/update/${id}`;
+    const updateItemData = await axiosInstance.put(apiURL, payload);
     return updateItemData;
   } catch (error) {
     return error;
   }
 };
 
-export const getAllItems = async (loginResponse) => {
+export const getAllItems = async () => {
   try {
-    const apiURL = `${url}/item/get-all`;
-    const allItemsData = await axios.get(apiURL, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/item/get-all`;
+    const allItemsData = await axiosInstance.get(apiURL);
     return allItemsData;
   } catch (error) {
     return error;
   }
 };
 
-export const deleteItem = async (id, loginResponse) => {
+export const deleteItem = async (id) => {
   try {
-    const apiURL = `${url}/item/delete/${id}`;
-    const deleteItemData = await axios.delete(apiURL, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/item/delete/${id}`;
+    const deleteItemData = await axiosInstance.delete(apiURL);
     return deleteItemData;
   } catch (error) {
     return error;

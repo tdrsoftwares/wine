@@ -1,36 +1,31 @@
-import axios from "axios";
-import { url } from "../utils/apiDomain";
+import axiosInstance from "../utils/axiosInstance";
 
-export const createPurchase = async (payload, loginResponse) => {
+export const createPurchase = async (payload) => {
   try {
-    const apiURL = `${url}/stocks/create`;
-    const createPurchaseData = await axios.post(apiURL, payload, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/stocks/create`;
+    const createPurchaseData = await axiosInstance.post(apiURL, payload);
     return createPurchaseData;
   } catch (error) {
     return error;
   }
 };
 
-export const updatePurchase = async (payload, id, loginResponse) => {
+export const updatePurchase = async (payload, id) => {
   try {
-    const apiURL = `${url}/stocks/update/${id}`;
-    const updatePurchaseData = await axios.put(apiURL, payload, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/stocks/update/${id}`;
+    const updatePurchaseData = await axiosInstance.put(apiURL, payload);
     return updatePurchaseData;
   } catch (error) {
     return error;
   }
 };
 
-// export const getAllStocks = async (loginResponse, filterOptions) => {
+// export const getAllStocks = async (filterOptions) => {
 //   try {
 //     const { page, limit, supplierName, fromDate, toDate } = filterOptions;
-//     const apiURL = `${url}/stocks/stock-reports?page=${page}&limit=${limit}&supplierName=${supplierName}&fromDate=${fromDate}&toDate=${toDate}`;
-//     const allStocksData = await axios.get(apiURL, {
-//       headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
+//     const apiURL = `/stocks/stock-reports?page=${page}&limit=${limit}&supplierName=${supplierName}&fromDate=${fromDate}&toDate=${toDate}`;
+//     const allStocksData = await axiosInstance.get(apiURL, {
+//       headers: { Authorization: `Bearer ${.accessToken}` },
 //     });
 //     return allStocksData;
 //   } catch (error) {
@@ -38,49 +33,41 @@ export const updatePurchase = async (payload, id, loginResponse) => {
 //   }
 // };
 
-export const getAllStocks = async (loginResponse, filterOptions) => {
+export const getAllStocks = async (filterOptions) => {
   try {
     const { page, limit, supplierName, fromDate, toDate } = filterOptions;
-    const apiURL = `${url}/purchases/stock-reports?page=${page}&limit=${limit}`;
-    const allStocksData = await axios.get(apiURL, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/purchases/stock-reports?page=${page}&limit=${limit}`;
+    const allStocksData = await axiosInstance.get(apiURL);
     return allStocksData;
   } catch (error) {
     return error;
   }
 };
 
-export const getItemPurchaseDetails = async (entryNo, loginResponse) => {
+export const getItemPurchaseDetails = async (entryNo) => {
   try {
-    const apiURL = `${url}/stocks/item-reports/${entryNo}`;
-    const getItemPurchaseData = await axios.get(apiURL, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/stocks/item-reports/${entryNo}`;
+    const getItemPurchaseData = await axiosInstance.get(apiURL);
     return getItemPurchaseData;
   } catch (error) {
     return error;
   }
 };
 
-export const searchAllStocks = async (loginResponse, itemName) => {
+export const searchAllStocks = async (itemName) => {
   try {
-    const apiURL = `${url}/stocks/item-search?name=${itemName}`;
-    const allStocksData = await axios.get(apiURL, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/stocks/item-search?name=${itemName}`;
+    const allStocksData = await axiosInstance.get(apiURL);
     return allStocksData;
   } catch (error) {
     return error;
   }
 };
 
-export const deletePurchase = async (id, loginResponse) => {
+export const deletePurchase = async (id) => {
   try {
-    const apiURL = `${url}/stocks/delete/${id}`;
-    const deletePurchaseData = await axios.delete(apiURL, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/stocks/delete/${id}`;
+    const deletePurchaseData = await axiosInstance.delete(apiURL);
     return deletePurchaseData;
   } catch (error) {
     return error;

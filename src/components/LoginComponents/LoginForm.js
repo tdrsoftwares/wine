@@ -15,6 +15,7 @@ import {
 } from "react-notifications";
 import { url } from "../../utils/apiDomain";
 import { useLoginContext } from "../../utils/loginContext";
+import axiosInstance from "../../utils/axiosInstance";
 
 function LoginForm({ handleLogin }) {
   const { setLoginResponse } = useLoginContext();
@@ -49,11 +50,17 @@ function LoginForm({ handleLogin }) {
         email,
         password,
       });
-      handleLogin(email);
-      console.log("response login: ", response);
+
+      const { accessToken, refreshToken } = response.data.data;
+      console.log("accessToken: ", accessToken);
+      document.cookie = `accessToken=${accessToken}; path=/;`;
+      document.cookie = `refreshToken=${refreshToken}; path=/;`;
+
       NotificationManager.success("Login successful.", "Success");
+      setLoginResponse(response.data.data);
+      handleLogin(email);
+
       navigate("/");
-      setLoginResponse(response?.data?.data);
     } catch (error) {
       if (error.response && error.response.status === 401) {
         NotificationManager.error(
@@ -71,7 +78,7 @@ function LoginForm({ handleLogin }) {
 
   return (
     <Container
-    className="form-container"
+      className="form-container"
       component="main"
       maxWidth="xs"
       sx={{
@@ -116,7 +123,11 @@ function LoginForm({ handleLogin }) {
           type="submit"
           fullWidth
           variant="contained"
-          sx={{mt: 3, mb: 2, backgroundImage: "linear-gradient(#6a11cb 0%, #3b25fc 100%)"}}
+          sx={{
+            mt: 3,
+            mb: 2,
+            backgroundImage: "linear-gradient(#6a11cb 0%, #3b25fc 100%)",
+          }}
         >
           Sign In
         </Button>

@@ -1,77 +1,50 @@
-import axios from "axios";
-import { url } from "../utils/apiDomain";
+import axiosInstance from "../utils/axiosInstance";
 
-
-export const createSale = async (payload, loginResponse) => {
-
+export const createSale = async (payload) => {
   try {
-
-    const apiURL = `${url}/sales/create`;
-    const createSaleBillData = await axios.post(apiURL, payload, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/sales/create`;
+    const createSaleBillData = await axiosInstance.post(apiURL, payload);
     return createSaleBillData;
-
   } catch (error) {
     return error;
   }
 };
 
-
-
-export const searchAllSalesByItemName = async (loginResponse, itemName) => {
+export const searchAllSalesByItemName = async (itemName) => {
   try {
-
-    const apiURL = `${url}/sales/get-items?name=${itemName}`;
-    const allSalesData = await axios.get(apiURL, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/sales/get-items?name=${itemName}`;
+    const allSalesData = await axiosInstance.get(apiURL);
     return allSalesData;
-
   } catch (error) {
-
     return error;
   }
-
 };
 
-
-
-export const searchAllSalesByItemCode = async (loginResponse, itemCode) => {
-
+export const searchAllSalesByItemCode = async (itemCode) => {
   try {
-    
-    const apiURL = `${url}/sales/get-items/${itemCode}`;
-    const allSalesData = await axios.get(apiURL, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/sales/get-items/${itemCode}`;
+    const allSalesData = await axiosInstance.get(apiURL);
     return allSalesData;
-
   } catch (error) {
     return error;
   }
 };
 
-
-// export const getAllSales = async (loginResponse) => {
+// export const getAllSales = async () => {
 //   try {
-//     const apiURL = `${url}/sales/reports`;
-//     const allSalesData = await axios.get(apiURL, {
-//       headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-//     });
+//     const apiURL = `/sales/reports`;
+//     const allSalesData = await axiosInstance.get(apiURL);
 //     return allSalesData;
 //   } catch (error) {
 //     return error;
 //   }
 // };
 
-export const getAllSales = async (loginResponse, filterOptions) => {
+export const getAllSales = async (filterOptions) => {
   try {
     const { page, limit, supplierName, fromDate, toDate } = filterOptions;
-    const apiURL = `${url}/sales/reports?page=${page}&limit=${limit}`;
-    const allSalesData = await axios.get(apiURL, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/sales/reports?page=${page}&limit=${limit}`;
+    const allSalesData = await axiosInstance.get(apiURL);
     return allSalesData;
   } catch (error) {
     return error;

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 import NavbarOld from "./components/Navbar_old/NavbarOld";
 import SidebarOld from "./components/Sidebar_old/SidebarOld";
@@ -7,9 +7,17 @@ import { LoginProvider } from "./utils/loginContext";
 import { NotificationContainer } from "react-notifications";
 import "react-notifications/lib/notifications.css";
 import "./App.css";
+import { getCookie } from "./utils/cookie";
 
 function App() {
   const [authenticatedUser, setAuthenticatedUser] = useState(null);
+
+  useEffect(() => {
+    const token = getCookie("accessToken");
+    if (token) {
+      setAuthenticatedUser(token); 
+    }
+  }, []);
 
   const handleSignUp = (email) => {
     setAuthenticatedUser(email);

@@ -1,48 +1,39 @@
-import axios from "axios";
-import { url } from "../utils/apiDomain";
+import axiosInstance from "../utils/axiosInstance";
 
-export const createStore = async (payload, loginResponse) => {
+export const createStore = async (payload) => {
   try {
-    const apiURL = `${url}/store/create`;
-    const createStoreData = await axios.post(apiURL, payload, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/store/create`;
+    const createStoreData = await axiosInstance.post(apiURL, payload);
     return createStoreData;
   } catch (error) {
     return error;
   }
 };
 
-export const updateStore = async (payload, id, loginResponse) => {
+export const updateStore = async (payload, id) => {
   try {
-    const apiURL = `${url}/store/update/${id}`;
-    const updateStoreData = await axios.put(apiURL, payload, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/store/update/${id}`;
+    const updateStoreData = await axiosInstance.put(apiURL, payload);
     return updateStoreData;
   } catch (error) {
     return error;
   }
 };
 
-export const getAllStores = async (loginResponse) => {
+export const getAllStores = async () => {
   try {
-    const apiURL = `${url}/store/get-all/`;
-    const allStoresData = await axios.get(apiURL, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/store/get-all/`;
+    const allStoresData = await axiosInstance.get(apiURL);
     return allStoresData;
   } catch (error) {
     return error;
   }
 };
 
-export const deleteStore = async (id, loginResponse) => {
+export const deleteStore = async (id) => {
   try {
-    const apiURL = `${url}/store/delete/${id}`;
-    const deleteStoreData = await axios.delete(apiURL, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/store/delete/${id}`;
+    const deleteStoreData = await axiosInstance.delete(apiURL);
     return deleteStoreData;
   } catch (error) {
     return error;

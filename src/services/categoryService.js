@@ -1,49 +1,40 @@
-import axios from "axios";
-import { url } from "../utils/apiDomain";
 
-export const createItemCategory = async (payload, loginResponse) => {
-  console.log("loginResponse: ", loginResponse);
+import axiosInstance from "../utils/axiosInstance";
+
+export const createItemCategory = async (payload) => {
   try {
-    const apiURL = `${url}/category/create`;
-    const createCategoryData = await axios.post(apiURL, payload, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/category/create`;
+    const createCategoryData = await axiosInstance.post(apiURL, payload);
     return createCategoryData;
   } catch (error) {
     return error;
   }
 };
 
-export const updateItemCategory = async (payload, id, loginResponse) => {
+export const updateItemCategory = async (payload, id) => {
   try {
-    const apiURL = `${url}/category/update/${id}`;
-    const updateCategoryData = await axios.put(apiURL, payload, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/category/update/${id}`;
+    const updateCategoryData = await axiosInstance.put(apiURL, payload);
     return updateCategoryData;
   } catch (error) {
     return error;
   }
 };
 
-export const getAllItemCategory = async (loginResponse) => {
+export const getAllItemCategory = async () => {
   try {
-    const apiURL = `${url}/category/get-all/`;
-    const allCategoryData = await axios.get(apiURL, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/category/get-all`;
+    const allCategoryData = await axiosInstance.get(apiURL);
     return allCategoryData;
   } catch (error) {
     return error;
   }
 };
 
-export const deleteItemCategory = async (id, loginResponse) => {
+export const deleteItemCategory = async (id) => {
   try {
-    const apiURL = `${url}/category/delete/${id}`;
-    const deleteCategoryData = await axios.delete(apiURL, {
-      headers: { Authorization: `Bearer ${loginResponse.accessToken}` },
-    });
+    const apiURL = `/category/delete/${id}`;
+    const deleteCategoryData = await axiosInstance.delete(apiURL);
     return deleteCategoryData;
   } catch (error) {
     return error;
