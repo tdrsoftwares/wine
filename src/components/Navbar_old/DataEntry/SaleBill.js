@@ -37,7 +37,6 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
 const SaleBill = () => {
-  const { loginResponse } = useLoginContext();
   const [allCustomerData, setAllCustomerData] = useState([]);
 
   const [searchResults, setSearchResults] = useState([]);
@@ -113,7 +112,7 @@ const SaleBill = () => {
 
   const fetchAllCustomers = async () => {
     try {
-      const allCustomerResponse = await getAllCustomer(loginResponse);
+      const allCustomerResponse = await getAllCustomer();
       console.log("allCustomerResponse ---> ", allCustomerResponse);
       setAllCustomerData(allCustomerResponse?.data?.data);
     } catch (error) {
@@ -127,7 +126,7 @@ const SaleBill = () => {
 
   const fetchAllLedger = async () => {
     try {
-      const allLedgerResponse = await getAllLedgers(loginResponse);
+      const allLedgerResponse = await getAllLedgers();
       setAllLedgers(allLedgerResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
@@ -198,10 +197,9 @@ const SaleBill = () => {
   };
 
   const itemNameSearch = debounce(async (itemName) => {
-
     try {
       setIsLoading(true);
-      const response = await searchAllSalesByItemName(loginResponse, itemName);
+      const response = await searchAllSalesByItemName(itemName);
       console.log("itemNameSearch response: ", response);
 
       if (response?.data?.data) {
@@ -225,13 +223,45 @@ const SaleBill = () => {
   const itemCodeSearch = debounce(async (itemCode) => {
     try {
       setIsLoading(true);
-      const response = await searchAllSalesByItemCode(loginResponse, itemCode);
-      console.log("itemCodeSearch response: ", response);
+      const response = await searchAllSalesByItemCode(itemCode);
       const searchedItem = response?.data?.data[0];
-      console.log("searchedItem: ", searchedItem);
 
-      if (response?.data?.data) {
-        setSearchResults(response?.data?.data[0]);
+      if (searchedItem) {
+        const existingItemIndex = salesData.findIndex(
+          (item) =>
+            item.itemCode === searchedItem.itemCode &&
+            item.mrp === searchedItem.mrp &&
+            item.batch === searchedItem.batchNo
+        );
+
+        if (existingItemIndex !== -1) {
+          const updatedSalesData = [...salesData];
+          updatedSalesData[existingItemIndex].pcs += 1;
+          updatedSalesData[existingItemIndex].amount =
+            updatedSalesData[existingItemIndex].pcs *
+            updatedSalesData[existingItemIndex].rate;
+          setSalesData(updatedSalesData);
+        } else {
+          setSalesData([
+            ...salesData,
+            {
+              itemId: searchedItem?.itemId,
+              itemCode: searchedItem?.itemCode || 0,
+              itemName: searchedItem?.item[0]?.name || 0,
+              mrp: searchedItem?.mrp || 0,
+              batch: searchedItem?.batchNo || 0,
+              pcs: 1,
+              rate: searchedItem?.mrp || 0,
+              currentStock: searchedItem?.currentStock || 0,
+              volume: searchedItem?.item[0]?.volume || 0,
+              discount: formData.discount || 0,
+              brk: formData.brk || 0,
+              split: formData.split || 0,
+              amount: searchedItem?.mrp || 0,
+            },
+          ]);
+        }
+
         setFormData({
           ...formData,
           itemId: searchedItem?.itemId,
@@ -239,9 +269,22 @@ const SaleBill = () => {
           itemName: searchedItem?.item[0]?.name || 0,
           mrp: searchedItem?.mrp || 0,
           batch: searchedItem?.batchNo || 0,
+          pcs: 1,
+          rate: searchedItem?.mrp || 0,
           currentStock: searchedItem?.currentStock || 0,
           volume: searchedItem?.item[0]?.volume || 0,
+          amount: searchedItem?.mrp || 0,
         });
+
+        // setTotalValues({
+        //   ...totalValues,
+        //   totalVolume: formData.volume,
+        //   grossAmt: formData.amount,
+        //   receiptMode1: formData.amount,
+        //   netAmt: formData.amount,
+        // });
+
+        resetMiddleFormData();
       } else {
         setSearchResults([]);
       }
@@ -253,6 +296,14 @@ const SaleBill = () => {
       setIsLoading(false);
     }
   }, 500);
+
+  useEffect(() => {
+    const newPcs = parseInt(formData.pcs) * parseInt(formData.mrp);
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      amount: newPcs ? parseInt(newPcs) : 0,
+    }));
+  }, [formData.pcs]);
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
@@ -285,9 +336,10 @@ const SaleBill = () => {
   }, [formData.customerName, allCustomerData]);
 
   useEffect(() => {
+    itemCodeRef.current.focus();
     fetchAllCustomers();
     fetchAllLedger();
-  }, [loginResponse]);
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -337,28 +389,6 @@ const SaleBill = () => {
   useEffect(() => {
     resetTopFormData();
   }, [formData.billType]);
-
-  useEffect(() => {
-    const totalAmount = salesData.reduce((total, item) => {
-      return total + (parseInt(item.amount) || 0);
-    }, 0);
-
-    const specialDiscount = totalValues.splDiscount || 0;
-    const specialDiscountAmount = (totalAmount * specialDiscount) / 100;
-
-    let netAmt =
-      parseFloat(totalAmount - specialDiscountAmount) +
-        parseFloat(totalValues.taxAmt) || 0;
-
-    // const adjustmentAmt = netAmt + totalValues.adjustment || 0;
-
-    setTotalValues({
-      ...totalValues,
-      splDiscAmount: specialDiscountAmount,
-      // adjustment: adjustmentAmt,
-      netAmt: netAmt,
-    });
-  }, [salesData, totalValues.splDiscount, totalValues.taxAmt]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -470,11 +500,14 @@ const SaleBill = () => {
       itemName: selectedRow.item[0].name || 0,
       mrp: selectedRow.mrp || 0,
       batch: selectedRow.batchNo || 0,
+      pcs: selectedRow.pcs || 1,
+      rate: selectedRow.mrp || 0,
       volume: selectedRow.item[0].volume || 0,
       currentStock: selectedRow.currentStock || 0,
       group: selectedRow.item[0].group || "",
     });
   };
+
   console.log("formData after row click: ", formData);
 
   const handleEditClick = (index) => {
@@ -484,46 +517,50 @@ const SaleBill = () => {
   const handleSaveClick = (index) => {
     const updatedSales = [...salesData];
     const updatedRow = { ...updatedSales[index] };
-
+  
     for (const key in editedRow) {
       if (editedRow.hasOwnProperty(key)) {
         updatedRow[key] = editedRow[key];
       }
     }
-
+  
     updatedSales[index] = updatedRow;
     setSalesData(updatedSales);
-
+  
     setEditedRow({});
     setEditableIndex(-1);
-
+  
+    // Recalculate total values
     const calculatedTotalVolume = updatedSales.reduce((total, item) => {
       return total + parseFloat(item.volume || 0) * parseInt(item.pcs || 1);
     }, 0);
-
+  
     const calculatedTotalPcs = updatedSales.reduce((total, item) => {
       return total + parseInt(item.pcs || 0);
     }, 0);
-
+  
     const calculatedGrossAmt = updatedSales.reduce((total, item) => {
       return total + parseFloat(item.amount || 0) * parseInt(item.pcs || 1);
     }, 0);
-
+  
+    const splDiscAmount = (calculatedGrossAmt * parseFloat(totalValues.splDiscount || 0)) / 100;
+  
     const netAmt =
       parseFloat(calculatedGrossAmt || 0) -
-      parseFloat(totalValues.splDiscAmount || 0) -
+      parseFloat(splDiscAmount || 0) -
       parseFloat(totalValues.adjustment || 0) +
       parseFloat(totalValues.taxAmt || 0);
-
+  
     setTotalValues({
       ...totalValues,
       totalVolume: calculatedTotalVolume.toFixed(0),
       totalPcs: calculatedTotalPcs,
       grossAmt: calculatedGrossAmt.toFixed(0),
+      splDiscAmount: splDiscAmount.toFixed(0),
       netAmt: netAmt.toFixed(2),
     });
   };
-
+  
   const handleRemoveClick = (index) => {
     const updatedSales = [...salesData];
     updatedSales.splice(index, 1);
@@ -531,70 +568,62 @@ const SaleBill = () => {
     resetTotalValues();
   };
 
-  const handleSubmitIntoDataTable = (e) => {
-    console.log("handleSubmitIntoDataTable formData: ", formData);
+  const handleSubmitIntoDataTable = async (e) => {
     e.preventDefault();
 
-    if (!formData.itemCode) {
-      NotificationManager.warning(`Please fill the Item Code`);
-      handleEnterKey(e, itemCodeRef);
+    if (
+      !formData.itemCode ||
+      !formData.itemName ||
+      !formData.mrp ||
+      !formData.pcs ||
+      formData.pcs > formData.currentStock ||
+      !formData.rate ||
+      !formData.amount
+    ) {
+      NotificationManager.warning("Please fill all required fields correctly");
       return;
     }
-    if (!formData.itemName) {
-      NotificationManager.warning(`Please fill the Item Name`);
-      handleEnterKey(e, itemNameRef);
-      return;
-    }
-    if (!formData.mrp) {
-      NotificationManager.warning(`Please fill the MRP`);
-      handleEnterKey(e, mrpRef);
-      return;
-    }
-    if (!formData.pcs) {
-      NotificationManager.warning(`Please fill the Pcs`);
-      handleEnterKey(e, pcsRef);
-      return;
-    }
-    if (formData.pcs > formData.currentStock) {
-      NotificationManager.warning(
-        `Out of Stock! Currently you have ${
-          formData.currentStock || 0
-        }pcs in stock.`
+
+    try {
+      const existingItemIndex = salesData.findIndex(
+        (item) =>
+          item.itemCode === formData.itemCode &&
+          item.mrp === formData.mrp &&
+          item.batch === formData.batch
       );
-      pcsRef.current.focus();
-      return;
-    }
-    if (!formData.rate) {
-      NotificationManager.warning(`Please fill the Rate`);
-      handleEnterKey(e, rateRef);
-      return;
-    }
 
-    if (!formData.amount) {
-      NotificationManager.warning(`Please fill the Amount`);
-      handleEnterKey(e, amountRef);
-      return;
+      if (existingItemIndex !== -1) {
+        const updatedSalesData = [...salesData];
+        updatedSalesData[existingItemIndex].pcs += parseInt(formData.pcs);
+        updatedSalesData[existingItemIndex].amount =
+          updatedSalesData[existingItemIndex].pcs *
+          updatedSalesData[existingItemIndex].rate;
+        setSalesData(updatedSalesData);
+      } else {
+        setSalesData([
+          ...salesData,
+          {
+            itemId: formData.itemId,
+            itemCode: formData.itemCode || 0,
+            itemName: formData.itemName || 0,
+            mrp: formData.mrp || 0,
+            batch: formData.batch || 0,
+            pcs: formData.pcs || 1,
+            rate: formData.rate || 0,
+            currentStock: formData.currentStock || 0,
+            volume: formData.volume || 0,
+            discount: formData.discount || 0,
+            brk: formData.brk || 0,
+            split: formData.split || 0,
+            amount: formData.amount || 0,
+          },
+        ]);
+      }
+
+      resetMiddleFormData();
+    } catch (error) {
+      console.error("Error submitting data:", error);
     }
-
-    setTotalValues({
-      ...totalValues,
-      totalVolume: formData.volume,
-      grossAmt: formData.amount,
-      receiptMode1: formData.amount,
-    });
-
-    setSalesData([
-      ...salesData,
-      {
-        ...formData,
-        discount: formData.discount || 0,
-        brk: formData.brk || 0,
-        split: formData.split || 0,
-      },
-    ]);
-    resetMiddleFormData();
-    handleEnterKey(e, itemCodeRef);
-    setSearchMode(false);
   };
 
   const handleCreateSale = async () => {
@@ -653,7 +682,7 @@ const SaleBill = () => {
     }
 
     try {
-      const response = await createSale(payload, loginResponse);
+      const response = await createSale(payload);
       console.log("response: ", response);
 
       if (response.status === 200) {
@@ -754,22 +783,6 @@ const SaleBill = () => {
     }
   };
 
-  const calculateTotalVolume = () => {
-    let totalVolume = 0;
-    salesData.forEach((row) => {
-      totalVolume += parseFloat(row.volume) * parseFloat(row.pcs);
-    });
-    return totalVolume.toFixed(0);
-  };
-
-  const calculateTotalPcs = () => {
-    let totalPcs = 0;
-    salesData.forEach((row) => {
-      totalPcs += parseInt(row.pcs);
-    });
-    return totalPcs;
-  };
-
   const calculateGrossAmt = () => {
     let grossAmt = 0;
     salesData.forEach((row) => {
@@ -778,39 +791,70 @@ const SaleBill = () => {
     return grossAmt;
   };
 
-  const calculateTaxAmt = () => {
-    return parseFloat(totalValues.taxAmt || 0).toFixed(0);
-  };
-
-  const calculateAdjustment = () => {
-    return parseFloat(totalValues.adjustment || 0).toFixed(0);
-  };
-
   const calculateNetAmount = () => {
-    let netAmt =
-      parseFloat(totalValues.grossAmt || 0) -
-      parseFloat(totalValues.splDiscAmount || 0) -
-      parseFloat(totalValues.adjustment || 0) +
-      parseFloat(totalValues.taxAmt || 0);
-    return netAmt;
-  };
 
-  const updateTotalValues = () => {
+    const totalVolume = salesData.reduce(
+      (total, item) =>
+        total + (parseFloat(item.volume) || 0) * (parseInt(item.pcs) || 0),
+      0
+    );
+
+    const totalPcs = salesData.reduce(
+      (total, item) => total + (parseInt(item.pcs) || 0),
+      0
+    );
+
+    const grossAmt = salesData.reduce(
+      (total, item) => total + (parseFloat(item.amount) || 0),
+      0
+    );
+
+    const splDiscAmount =
+      (grossAmt * (parseFloat(totalValues.splDiscount) || 0)) / 100;
+
+    const taxAmt = parseFloat(totalValues.taxAmt) || 0;
+
+    const adjustment = parseFloat(totalValues.adjustment) || 0;
+
+    const netAmt = grossAmt - splDiscAmount + taxAmt - adjustment;
+
     setTotalValues({
       ...totalValues,
-      totalVolume: calculateTotalVolume(),
-      totalPcs: calculateTotalPcs(),
-      taxAmt: calculateTaxAmt(),
-      adjustment: calculateAdjustment(),
-      netAmt: calculateNetAmount(),
-      grossAmt: calculateGrossAmt(),
+      totalVolume: totalVolume.toFixed(2),
+      totalPcs: totalPcs,
+      grossAmt: grossAmt.toFixed(2),
       receiptMode1: calculateGrossAmt(),
+      splDiscAmount: splDiscAmount.toFixed(2),
+      netAmt: netAmt.toFixed(2),
     });
   };
+  
 
   useEffect(() => {
-    updateTotalValues();
-  }, [salesData]);
+    calculateNetAmount();
+  }, [
+    salesData,
+    totalValues.splDiscount,
+    totalValues.taxAmt,
+    totalValues.adjustment,
+  ]);
+
+  // const updateTotalValues = () => {
+  //   setTotalValues({
+  //     ...totalValues,
+  //     totalVolume: calculateTotalVolume(),
+  //     totalPcs: calculateTotalPcs(),
+  //     taxAmt: calculateTaxAmt(),
+  //     adjustment: calculateAdjustment(),
+  //     // netAmt: calculateNetAmount(),
+  //     grossAmt: calculateGrossAmt(),
+  //     receiptMode1: calculateGrossAmt(),
+  //   });
+  // };
+
+  // useEffect(() => {
+  //   updateTotalValues();
+  // }, [salesData]);
 
   return (
     <Box sx={{ p: 2, width: "900px" }}>
@@ -910,32 +954,6 @@ const SaleBill = () => {
             />
           </div>
         </Grid>
-
-        {/* <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="type" className="input-label">
-              Customer Type :
-            </InputLabel>
-            <TextField
-              select
-              fullWidth
-              size="small"
-              name="type"
-              className="input-field"
-              value={formData.type}
-              onChange={(e) =>
-                setFormData({ ...formData, type: e.target.value })
-              }
-              disabled={formData.billType === "Cash Bill" ? true : false}
-            >
-              {["cash", "online"].map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
-        </Grid> */}
 
         {/* billType == "Cash Bill" */}
         <Grid item xs={4}>
