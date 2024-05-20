@@ -35,7 +35,6 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
 const PurchaseEntry = () => {
-  const { loginResponse } = useLoginContext();
   const [allSuppliers, setAllSuppliers] = useState([]);
   const [allStores, setAllStores] = useState([]);
 
@@ -81,7 +80,7 @@ const PurchaseEntry = () => {
     tcsAmt: "",
     grossAmt: "",
     discount: "",
-    tax: "",
+    otherCharges: "",
     adjustment: "",
     netAmt: "",
   });
@@ -230,7 +229,7 @@ const PurchaseEntry = () => {
 
   const fetchAllSuppliers = async () => {
     try {
-      const allItemsResponse = await getAllSuppliers(loginResponse);
+      const allItemsResponse = await getAllSuppliers();
       // console.log("allItemsResponse: ", allItemsResponse);
       setAllSuppliers(allItemsResponse?.data?.data);
     } catch (error) {
@@ -243,7 +242,7 @@ const PurchaseEntry = () => {
 
   const fetchAllStores = async () => {
     try {
-      const allStoresResponse = await getAllStores(loginResponse);
+      const allStoresResponse = await getAllStores();
       // console.log("allStoresResponse ---> ", allStoresResponse);
       setAllStores(allStoresResponse?.data?.data);
     } catch (error) {
@@ -258,10 +257,7 @@ const PurchaseEntry = () => {
   const itemNameSearch = debounce(async (itemName) => {
     try {
       setIsLoading(true);
-      const response = await searchAllPurchasesByItemName(
-        loginResponse,
-        itemName
-      );
+      const response = await searchAllPurchasesByItemName(itemName);
       // console.log("itemNameSearch response: ", response);
       if (response?.data?.data) {
         setSearchResults(response?.data?.data);
@@ -284,10 +280,7 @@ const PurchaseEntry = () => {
   const itemCodeSearch = debounce(async (itemCode) => {
     try {
       setIsLoading(true);
-      const response = await searchAllPurchasesByItemCode(
-        loginResponse,
-        itemCode
-      );
+      const response = await searchAllPurchasesByItemCode(itemCode);
       // console.log("itemCodeSearch response: ", response);
       const searchedItem = response?.data?.data;
       // console.log("searchedItem: ", searchedItem);
@@ -503,7 +496,7 @@ const PurchaseEntry = () => {
       tcsP: parseFloat(totalValues.tcs) || 1,
       tcsAmount: parseFloat(totalValues.tcsAmt) || 0,
       grossAmount: parseFloat(totalValues.grossAmt) || 0,
-      discountAmount: parseFloat(totalValues.discountAmt) || 0,
+      discountAmount: parseFloat(totalValues.discount) || 0,
       taxAmount: parseFloat(totalValues.taxAmt) || 0,
       adjustment: parseFloat(totalValues.adjustment) || 0,
       netAmount: parseFloat(totalValues.netAmt) || 0,
@@ -524,7 +517,7 @@ const PurchaseEntry = () => {
     };
 
     try {
-      const response = await createPurchase(payload, loginResponse);
+      const response = await createPurchase(payload);
 
       if (response.status === 200) {
         // console.log("Purchase created successfully:", response);
@@ -847,7 +840,7 @@ const PurchaseEntry = () => {
       tcsAmt: "",
       grossAmt: "",
       discount: "",
-      tax: "",
+      otherCharges: "",
       adjustment: "",
       netAmt: "",
     });
@@ -1669,13 +1662,13 @@ const PurchaseEntry = () => {
             />
           </Grid>
           <Grid item xs={1}>
-            <InputLabel className="input-label-2">Tax</InputLabel>
+            <InputLabel className="input-label-2">Other Charges</InputLabel>
             <TextField
               type="text"
               size="small"
               className="input-field"
               fullWidth
-              value={totalValues.tax}
+              value={totalValues.otherCharges}
               InputProps={{ readOnly: true }}
             />
           </Grid>
