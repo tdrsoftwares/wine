@@ -234,6 +234,7 @@ const SaleBill = () => {
             item.batch === searchedItem.batchNo
         );
 
+        // for exisiting item
         if (existingItemIndex !== -1) {
           const updatedSalesData = [...salesData];
           updatedSalesData[existingItemIndex].pcs += 1;
@@ -241,7 +242,7 @@ const SaleBill = () => {
             updatedSalesData[existingItemIndex].pcs *
             updatedSalesData[existingItemIndex].rate;
           setSalesData(updatedSalesData);
-        } else {
+        } else { // for new item
           setSalesData([
             ...salesData,
             {
@@ -365,16 +366,20 @@ const SaleBill = () => {
           const selectedRow = searchResults[selectedRowIndex];
           setFormData({
             ...formData,
-            itemId: selectedRow.item[0]?._id || "",
-            itemCode: selectedRow?.itemCode || "",
-            itemName: selectedRow?.item[0]?.name || "",
-            mrp: selectedRow?.mrp || 0,
-            batch: selectedRow?.batchNo || 0,
-            volume: selectedRow?.item[0]?.volume || 0,
+            itemId: selectedRow.item[0]._id,
+            itemCode: selectedRow.itemCode || 0,
+            itemName: selectedRow.item[0].name || 0,
+            mrp: selectedRow.mrp || 0,
+            batch: selectedRow.batchNo || 0,
+            pcs: selectedRow.pcs || 1,
+            rate: selectedRow.mrp || 0,
+            volume: selectedRow.item[0].volume || 0,
+            currentStock: selectedRow.currentStock || 0,
+            group: selectedRow.item[0].group || "",
           });
+          pcsRef.current.focus();
           setSearchMode(false);
           setSelectedRowIndex(null);
-          pcsRef.current.focus();
         }
       }
     };
@@ -506,6 +511,7 @@ const SaleBill = () => {
       currentStock: selectedRow.currentStock || 0,
       group: selectedRow.item[0].group || "",
     });
+    pcsRef.current.focus();
   };
 
   console.log("formData after row click: ", formData);
@@ -726,7 +732,11 @@ const SaleBill = () => {
   console.log("formData: ", formData);
 
   const handlePcsChange = (e) => {
-    const pcs = parseFloat(e.target.value) || 1;
+    const value = e.target.value;
+    let pcs = parseFloat(value) || "";
+    if (formData.billType === "CREDITBILL") pcs = parseFloat(value) || "";
+    else pcs = parseFloat(value) || 1;
+
     const stock = parseFloat(formData.currentStock) || 0;
     if (pcs > stock) {
       NotificationManager.warning(
@@ -764,7 +774,7 @@ const SaleBill = () => {
     const discount = parseFloat(e.target.value) || 0;
     setFormData({ ...formData, discount });
 
-    if (e.key === "Enter") {
+    if (e.key === "Enter" || e.key === "Tab") {
       e.preventDefault();
       const originalAmount =
         parseFloat(formData.rate) * parseFloat(formData.pcs);
@@ -778,7 +788,8 @@ const SaleBill = () => {
   };
 
   const handleDiscountKeyDown = (e) => {
-    if (e.key === "Enter") {
+    // console.log("handleDiscountKeyDown e: ", e)
+    if (e.key === "Enter" || e.key === "Tab") {
       handleDiscountChange(e);
     }
   };
@@ -828,7 +839,7 @@ const SaleBill = () => {
       netAmt: netAmt.toFixed(2),
     });
   };
-  
+
 
   useEffect(() => {
     calculateNetAmount();
@@ -838,23 +849,6 @@ const SaleBill = () => {
     totalValues.taxAmt,
     totalValues.adjustment,
   ]);
-
-  // const updateTotalValues = () => {
-  //   setTotalValues({
-  //     ...totalValues,
-  //     totalVolume: calculateTotalVolume(),
-  //     totalPcs: calculateTotalPcs(),
-  //     taxAmt: calculateTaxAmt(),
-  //     adjustment: calculateAdjustment(),
-  //     // netAmt: calculateNetAmount(),
-  //     grossAmt: calculateGrossAmt(),
-  //     receiptMode1: calculateGrossAmt(),
-  //   });
-  // };
-
-  // useEffect(() => {
-  //   updateTotalValues();
-  // }, [salesData]);
 
   return (
     <Box sx={{ p: 2, width: "900px" }}>
@@ -1101,7 +1095,13 @@ const SaleBill = () => {
               fullWidth
               value={formData.pcs}
               onChange={handlePcsChange}
-              onKeyDown={(e) => handleEnterKey(e, rateRef)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleSubmitIntoDataTable(e);
+                  handleEnterKey(e, itemCodeRef);
+                }
+              }}
             />
           </Grid>
 
@@ -1184,8 +1184,7 @@ const SaleBill = () => {
                 if (e.key === "Enter") {
                   e.preventDefault();
                   handleSubmitIntoDataTable(e);
-                } else {
-                  handleEnterKey(e, amountRef);
+                  handleEnterKey(e, itemCodeRef);
                 }
               }}
             />
