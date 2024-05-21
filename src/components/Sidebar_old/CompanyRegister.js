@@ -16,10 +16,8 @@ import {
   getAllCompanies,
   updateCompany,
 } from "../../services/companyService";
-import { useLoginContext } from "../../utils/loginContext";
 
 const CompanyRegister = () => {
-  const { loginResponse } = useLoginContext();
   const [companyName, setCompanyName] = useState("");
   const [companyType, setCompanyType] = useState("");
   const [allCompanies, setAllCompanies] = useState([]);
@@ -40,7 +38,7 @@ const CompanyRegister = () => {
       type: companyType,
     };
     try {
-      const createCompanyResponse = await createCompany(payload, loginResponse);
+      const createCompanyResponse = await createCompany(payload);
       if (createCompanyResponse.status === 200) {
         NotificationManager.success("Company created successfully", "Success");
         console.log("Company created successfully:", createCompanyResponse);
@@ -70,8 +68,7 @@ const CompanyRegister = () => {
     try {
       const updateCompanyResponse = await updateCompany(
         payload,
-        existingCompanyUpdate,
-        loginResponse
+        existingCompanyUpdate
       );
       if (updateCompanyResponse.status === 200) {
         NotificationManager.success("Company updated successfully", "Success");
@@ -107,10 +104,7 @@ const CompanyRegister = () => {
 
   const handleDeleteCompany = async () => {
     try {
-      const deleteCompanyResponse = await deleteCompany(
-        existingCompanyDelete,
-        loginResponse
-      );
+      const deleteCompanyResponse = await deleteCompany(existingCompanyDelete);
       if (deleteCompanyResponse.status === 200) {
         NotificationManager.success("Company deleted successfully", "Success");
         console.log("Company deleted successfully:", deleteCompanyResponse);
@@ -134,7 +128,7 @@ const CompanyRegister = () => {
 
   const fetchAllCompanies = async () => {
     try {
-      const allCompaniesResponse = await getAllCompanies(loginResponse);
+      const allCompaniesResponse = await getAllCompanies();
       console.log("allCompaniesResponse ---> ", allCompaniesResponse);
       setAllCompanies(allCompaniesResponse?.data?.data);
     } catch (error) {

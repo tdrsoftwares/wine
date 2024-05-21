@@ -18,7 +18,6 @@ import { getAllBrands } from "../../../services/brandService";
 import { getAllCompanies } from "../../../services/companyService";
 
 const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
-  const { loginResponse } = useLoginContext();
   const [itemName, setItemName] = useState("");
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -75,7 +74,7 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
     };
 
     try {
-      const createItemResponse = await createItem(payload, loginResponse);
+      const createItemResponse = await createItem(payload);
       if (createItemResponse.status === 200) {
         NotificationManager.success("Item created successfully", "Success");
         clearForm();
@@ -96,7 +95,7 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
 
   const fetchAllItems = async () => {
     try {
-      const allItemsResponse = await getAllItems(loginResponse);
+      const allItemsResponse = await getAllItems();
       setAllItems(allItemsResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
@@ -108,7 +107,7 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
 
   const fetchAllCategory = async () => {
     try {
-      const getAllCategoryResponse = await getAllItemCategory(loginResponse);
+      const getAllCategoryResponse = await getAllItemCategory();
       setAllCategory(getAllCategoryResponse?.data?.data);
     } catch (err) {
       NotificationManager.error(
@@ -120,7 +119,7 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
 
   const fetchAllBrands = async () => {
     try {
-      const allBrandsResponse = await getAllBrands(loginResponse);
+      const allBrandsResponse = await getAllBrands();
       setAllBrands(allBrandsResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
@@ -132,7 +131,7 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
 
   const fetchAllCompanies = async () => {
     try {
-      const allCompaniesResponse = await getAllCompanies(loginResponse);
+      const allCompaniesResponse = await getAllCompanies();
       setAllCompanies(allCompaniesResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(

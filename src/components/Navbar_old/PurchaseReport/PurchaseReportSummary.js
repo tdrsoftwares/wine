@@ -13,7 +13,6 @@ import {
 } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
 import { getAllPurchases, getItemPurchaseDetails } from "../../../services/purchaseService";
-import { useLoginContext } from "../../../utils/loginContext";
 import { NotificationManager } from "react-notifications";
 import { getAllSuppliers } from "../../../services/supplierService";
 import { DataGrid } from "@mui/x-data-grid";
@@ -34,7 +33,6 @@ const PurchaseReportSummary = () => {
   })
 
   const [totalCount, setTotalCount] = useState(0);
-  const { loginResponse } = useLoginContext();
   const [loading, setLoading] = useState(false);
   const columns = [
     {
@@ -190,10 +188,7 @@ const PurchaseReportSummary = () => {
         //   fromDate: dateFrom,
         //   toDate: dateTo,
       };
-      const allPurchaseResponse = await getAllPurchases(
-        loginResponse,
-        filterOptions
-      );
+      const allPurchaseResponse = await getAllPurchases(filterOptions);
       console.log("allPurchaseResponse ---> ", allPurchaseResponse?.data?.data);
       setAllPurchases(allPurchaseResponse?.data?.data);
       setTotalCount(allPurchaseResponse?.data?.data?.length);
@@ -210,7 +205,7 @@ const PurchaseReportSummary = () => {
 
   const fetchAllSuppliers = async () => {
     try {
-      const allSuppliersResponse = await getAllSuppliers(loginResponse);
+      const allSuppliersResponse = await getAllSuppliers();
       console.log("allSuppliersResponse: ", allSuppliersResponse);
       setAllSuppliers(allSuppliersResponse?.data?.data);
     } catch (error) {
@@ -224,7 +219,7 @@ const PurchaseReportSummary = () => {
   useEffect(() => {
     fetchAllSuppliers();
     fetchAllPurchase();
-  }, [loginResponse]);
+  }, []);
   
 
   useEffect(() => {

@@ -25,7 +25,6 @@ import {
   updateLedger,
 } from "../../../services/ledgerService";
 import { NotificationManager } from "react-notifications";
-import { useLoginContext } from "../../../utils/loginContext";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
@@ -43,7 +42,6 @@ const LedgerCreation = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const tableRef = useRef(null);
-  const { loginResponse } = useLoginContext();
   const [loading, setLoading] = useState(true);
 
   const clearForm = () => {
@@ -71,7 +69,7 @@ const LedgerCreation = () => {
 
   const fetchAllLedger = async () => {
     try {
-      const allLedgerResponse = await getAllLedgers(loginResponse);
+      const allLedgerResponse = await getAllLedgers();
       setAllLedgers(allLedgerResponse?.data?.data);
       setLoading(false);
     } catch (error) {
@@ -131,7 +129,7 @@ const LedgerCreation = () => {
     };
 
     try {
-      const response = await createLedger(payload, loginResponse);
+      const response = await createLedger(payload);
       if (response.status === 200) {
         NotificationManager.success("Ledger created successfully", "Success");
         clearForm();
@@ -151,7 +149,7 @@ const LedgerCreation = () => {
 
   const handleSaveClick = async (id) => {
     try {
-      const updateResponse = await updateLedger(editedRow, id, loginResponse);
+      const updateResponse = await updateLedger(editedRow, id);
       if (updateResponse.status === 200) {
         NotificationManager.success("Ledger updated successfully", "Success");
         setEditableIndex(null);
@@ -179,7 +177,7 @@ const LedgerCreation = () => {
 
   const handleRemoveLedger = async (id) => {
     try {
-      const deleteResponse = await deleteLedger(id, loginResponse);
+      const deleteResponse = await deleteLedger(id);
       if (deleteResponse.status === 200) {
         NotificationManager.success("Ledger deleted successfully", "Success");
         fetchAllLedger();

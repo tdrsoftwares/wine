@@ -18,16 +18,19 @@ import {
   TableSortLabel,
   TablePagination,
 } from "@mui/material";
-import { useLoginContext } from "../../../utils/loginContext";
-import { createCustomer, deleteCustomer, getAllCustomer, updateCustomer } from "../../../services/customerService";
+import {
+  createCustomer,
+  deleteCustomer,
+  getAllCustomer,
+  updateCustomer,
+} from "../../../services/customerService";
 import { NotificationManager } from "react-notifications";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 
 const CustomerRegister = () => {
-  const { loginResponse } = useLoginContext();
-  const tableRef = useRef(null)
+  const tableRef = useRef(null);
   const [allCustomerData, setAllCustomerData] = useState(null);
   const [editableIndex, setEditableIndex] = useState(null);
   const [editedRow, setEditedRow] = useState({});
@@ -59,7 +62,6 @@ const CustomerRegister = () => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-  
 
   const handleClear = () => {
     setFormData({
@@ -124,7 +126,7 @@ const CustomerRegister = () => {
 
   const fetchAllCustomers = async () => {
     try {
-      const allCustomerResponse = await getAllCustomer(loginResponse);
+      const allCustomerResponse = await getAllCustomer();
       console.log("allCustomerResponse ---> ", allCustomerResponse);
       setAllCustomerData(allCustomerResponse?.data?.data);
     } catch (error) {
@@ -144,8 +146,8 @@ const CustomerRegister = () => {
   }, []);
 
   useEffect(() => {
-    fetchAllCustomers()
-  }, [loginResponse]);
+    fetchAllCustomers();
+  }, []);
 
   const handleCreateCustomer = async () => {
     const mandatoryFields = [
@@ -165,10 +167,7 @@ const CustomerRegister = () => {
     }
 
     if ((formData?.contactNo).length < 10) {
-      NotificationManager.warning(
-        "Invalid Mobile Number.",
-        "Validation Error"
-      );
+      NotificationManager.warning("Invalid Mobile Number.", "Validation Error");
       return;
     }
 
@@ -186,7 +185,7 @@ const CustomerRegister = () => {
     console.log("payload: ", payload);
 
     try {
-      const customerResponse = await createCustomer(payload, loginResponse);
+      const customerResponse = await createCustomer(payload);
       if (customerResponse.status === 200) {
         NotificationManager.success("Item created successfully", "Success");
         handleClear();
@@ -207,11 +206,7 @@ const CustomerRegister = () => {
 
   const handleSaveClick = async (itemId) => {
     try {
-      const updateCustomerResponse = await updateCustomer(
-        editedRow,
-        itemId,
-        loginResponse
-      );
+      const updateCustomerResponse = await updateCustomer(editedRow, itemId);
       if (updateCustomerResponse.status === 200) {
         NotificationManager.success("Item updated successfully", "Success");
         setEditableIndex(null);
@@ -251,7 +246,7 @@ const CustomerRegister = () => {
 
   const handleDeleteItem = async (itemId) => {
     try {
-      const deleteItemResponse = await deleteCustomer(itemId, loginResponse);
+      const deleteItemResponse = await deleteCustomer(itemId);
       if (deleteItemResponse.status === 200) {
         NotificationManager.success("Item deleted successfully", "Success");
         fetchAllCustomers();

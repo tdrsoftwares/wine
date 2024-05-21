@@ -67,7 +67,6 @@ import DsrOpst from "./components/Sidebar_old/DsrOpst";
 import DsrBrandStock from "./components/Sidebar_old/DsrBrandStock";
 import CatLedgerPack from "./components/Sidebar_old/CatLedgerPack";
 import GtinStock from "./components/Sidebar_old/GtinStock";
-import { useLoginContext } from "./utils/loginContext";
 import BrandRegister from "./components/Sidebar_old/BrandRegister";
 import CompanyRegister from "./components/Sidebar_old/CompanyRegister";
 import ItemRegister from "./components/Navbar_old/MasterFile/ItemRegister";
@@ -83,7 +82,6 @@ const PublicRoute = ({ element, authenticatedUser }) => {
 };
 
 const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp }) => {
-  const { setLoginResponse } = useLoginContext();
   return (
     <Routes>
       <Route
@@ -102,7 +100,6 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp }) => {
             element={
               <LoginForm
                 handleLogin={handleLogin}
-                setLoginResponse={setLoginResponse}
               />
             }
             authenticatedUser={authenticatedUser}

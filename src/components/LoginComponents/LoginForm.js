@@ -18,7 +18,6 @@ import { useLoginContext } from "../../utils/loginContext";
 import axiosInstance from "../../utils/axiosInstance";
 
 function LoginForm({ handleLogin }) {
-  const { setLoginResponse } = useLoginContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -57,7 +56,6 @@ function LoginForm({ handleLogin }) {
       document.cookie = `refreshToken=${refreshToken}; path=/;`;
 
       NotificationManager.success("Login successful.", "Success");
-      setLoginResponse(response.data.data);
       handleLogin(email);
 
       navigate("/");

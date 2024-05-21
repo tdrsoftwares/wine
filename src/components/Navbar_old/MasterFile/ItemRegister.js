@@ -27,7 +27,6 @@ import {
   getAllItems,
   updateItem,
 } from "../../../services/itemService";
-import { useLoginContext } from "../../../utils/loginContext";
 import { getAllItemCategory } from "../../../services/categoryService";
 import { getAllBrands } from "../../../services/brandService";
 import { getAllCompanies } from "../../../services/companyService";
@@ -36,7 +35,6 @@ import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 
 const ItemRegister = () => {
-  const { loginResponse } = useLoginContext();
   const [itemName, setItemName] = useState("");
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -104,7 +102,7 @@ const ItemRegister = () => {
     };
 
     try {
-      const createItemResponse = await createItem(payload, loginResponse);
+      const createItemResponse = await createItem(payload);
       if (createItemResponse.status === 200) {
         NotificationManager.success("Item created successfully", "Success");
         clearForm();
@@ -127,8 +125,7 @@ const ItemRegister = () => {
     try {
       const updateItemResponse = await updateItem(
         { ...editedRow, categoryId: categoryId },
-        itemId,
-        loginResponse
+        itemId
       );
       if (updateItemResponse.status === 200) {
         NotificationManager.success("Item updated successfully", "Success");
@@ -152,7 +149,7 @@ const ItemRegister = () => {
   const fetchAllItems = async () => {
     try {
       setLoading(true);
-      const allItemsResponse = await getAllItems(loginResponse);
+      const allItemsResponse = await getAllItems();
       setAllItems(allItemsResponse?.data?.data);
       setLoading(false);
     } catch (error) {
@@ -167,7 +164,7 @@ const ItemRegister = () => {
 
   const fetchAllCategory = async () => {
     try {
-      const getAllCategoryResponse = await getAllItemCategory(loginResponse);
+      const getAllCategoryResponse = await getAllItemCategory();
       setAllCategory(getAllCategoryResponse?.data?.data);
     } catch (err) {
       NotificationManager.error(
@@ -179,7 +176,7 @@ const ItemRegister = () => {
 
   const fetchAllBrands = async () => {
     try {
-      const allBrandsResponse = await getAllBrands(loginResponse);
+      const allBrandsResponse = await getAllBrands();
       // console.log("allBrandsResponse ---> ", allBrandsResponse);
       setAllBrands(allBrandsResponse?.data?.data);
     } catch (error) {
@@ -193,7 +190,7 @@ const ItemRegister = () => {
 
   const fetchAllCompanies = async () => {
     try {
-      const allCompaniesResponse = await getAllCompanies(loginResponse);
+      const allCompaniesResponse = await getAllCompanies();
       // console.log("allCompaniesResponse ---> ", allCompaniesResponse);
       setAllCompanies(allCompaniesResponse?.data?.data);
     } catch (error) {
@@ -228,7 +225,7 @@ const ItemRegister = () => {
 
   const handleDeleteItem = async (itemId) => {
     try {
-      const deleteItemResponse = await deleteItem(itemId, loginResponse);
+      const deleteItemResponse = await deleteItem(itemId);
       if (deleteItemResponse.status === 200) {
         NotificationManager.success("Item deleted successfully", "Success");
         fetchAllItems();

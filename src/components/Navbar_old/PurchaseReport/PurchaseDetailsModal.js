@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Typography, Modal, Box, Button } from "@mui/material";
-import { useLoginContext } from "../../../utils/loginContext";
 import { getItemPurchaseDetails } from "../../../services/purchaseService";
 import { NotificationManager } from "react-notifications";
 import { DataGrid } from "@mui/x-data-grid";
 
 const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
-  const { loginResponse } = useLoginContext();
   const [itemPurchaseDetails, setItemPurchaseDetails] = useState([]);
 
   console.log("itemPurchaseDetails: ", itemPurchaseDetails);
@@ -105,8 +103,7 @@ const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
     const fetchAllItemPurchases = async () => {
       try {
         const allItemPurchasesResponse = await getItemPurchaseDetails(
-          rowData.entryNo,
-          loginResponse
+          rowData.entryNo
         );
         console.log("allItemPurchasesResponse: ", allItemPurchasesResponse);
         setItemPurchaseDetails(
@@ -121,7 +118,7 @@ const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
       }
     };
     fetchAllItemPurchases();
-  }, [loginResponse, rowData]);
+  }, [rowData]);
 
   return (
     <Modal

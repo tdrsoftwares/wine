@@ -24,14 +24,11 @@ import {
   deleteSupplier,
 } from "../../../services/supplierService";
 import { NotificationManager } from "react-notifications";
-import { useLoginContext } from "../../../utils/loginContext";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 
 const SuppliersRegister = () => {
-  const { loginResponse } = useLoginContext();
-
   const [formData, setFormData] = useState({
     name: "",
     address: "",
@@ -137,10 +134,7 @@ const SuppliersRegister = () => {
     };
 
     try {
-      const createSupplierResponse = await createSupplier(
-        payload,
-        loginResponse
-      );
+      const createSupplierResponse = await createSupplier(payload);
       if (createSupplierResponse.status === 200) {
         NotificationManager.success("Supplier created successfully", "Success");
         clearForm();
@@ -202,7 +196,7 @@ const SuppliersRegister = () => {
 
   const fetchAllSuppliers = async () => {
     try {
-      const allItemsResponse = await getAllSuppliers(loginResponse);
+      const allItemsResponse = await getAllSuppliers();
       setAllSuppliers(allItemsResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
@@ -220,11 +214,7 @@ const SuppliersRegister = () => {
 
   const handleSaveClick = async (id) => {
     try {
-      const updateItemResponse = await updateSupplier(
-        editedRow,
-        id,
-        loginResponse
-      );
+      const updateItemResponse = await updateSupplier(editedRow, id);
       if (updateItemResponse.status === 200) {
         NotificationManager.success("Supplier updated successfully", "Success");
         setEditableIndex(null);
@@ -246,7 +236,7 @@ const SuppliersRegister = () => {
 
   const handleRemoveSupplier = async (id) => {
     try {
-      const deleteItemResponse = await deleteSupplier(id, loginResponse);
+      const deleteItemResponse = await deleteSupplier(id);
       if (deleteItemResponse.status === 200) {
         NotificationManager.success("Supplier deleted successfully", "Success");
         fetchAllSuppliers();

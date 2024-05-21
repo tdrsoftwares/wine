@@ -234,48 +234,56 @@ const SaleBill = () => {
             item.batch === searchedItem.batchNo
         );
 
-        // for exisiting item
-        if (existingItemIndex !== -1) {
-          const updatedSalesData = [...salesData];
-          updatedSalesData[existingItemIndex].pcs += 1;
-          updatedSalesData[existingItemIndex].amount =
-            updatedSalesData[existingItemIndex].pcs *
-            updatedSalesData[existingItemIndex].rate;
-          setSalesData(updatedSalesData);
-        } else { // for new item
-          setSalesData([
-            ...salesData,
-            {
-              itemId: searchedItem?.itemId,
-              itemCode: searchedItem?.itemCode || 0,
-              itemName: searchedItem?.item[0]?.name || 0,
-              mrp: searchedItem?.mrp || 0,
-              batch: searchedItem?.batchNo || 0,
-              pcs: 1,
-              rate: searchedItem?.mrp || 0,
-              currentStock: searchedItem?.currentStock || 0,
-              volume: searchedItem?.item[0]?.volume || 0,
-              discount: formData.discount || 0,
-              brk: formData.brk || 0,
-              split: formData.split || 0,
-              amount: searchedItem?.mrp || 0,
-            },
-          ]);
+        if (formData.billType === "CASHBILL") {
+          // for exisiting item
+          if (existingItemIndex !== -1) {
+            const updatedSalesData = [...salesData];
+            updatedSalesData[existingItemIndex].pcs += 1;
+            updatedSalesData[existingItemIndex].amount =
+              updatedSalesData[existingItemIndex].pcs *
+              updatedSalesData[existingItemIndex].rate;
+            setSalesData(updatedSalesData);
+          } else {
+            // for new item
+            setSalesData([
+              ...salesData,
+              {
+                itemId: searchedItem?.itemId,
+                itemCode: searchedItem?.itemCode || 0,
+                itemName: searchedItem?.item[0]?.name || 0,
+                mrp: searchedItem?.mrp || 0,
+                batch: searchedItem?.batchNo || 0,
+                pcs: 1,
+                rate: searchedItem?.mrp || 0,
+                currentStock: searchedItem?.currentStock || 0,
+                volume: searchedItem?.item[0]?.volume || 0,
+                discount: formData.discount || 0,
+                brk: formData.brk || 0,
+                split: formData.split || 0,
+                amount: searchedItem?.mrp || 0,
+              },
+            ]);
+          }
+          resetMiddleFormData();
         }
 
-        setFormData({
-          ...formData,
-          itemId: searchedItem?.itemId,
-          itemCode: searchedItem?.itemCode || 0,
-          itemName: searchedItem?.item[0]?.name || 0,
-          mrp: searchedItem?.mrp || 0,
-          batch: searchedItem?.batchNo || 0,
-          pcs: 1,
-          rate: searchedItem?.mrp || 0,
-          currentStock: searchedItem?.currentStock || 0,
-          volume: searchedItem?.item[0]?.volume || 0,
-          amount: searchedItem?.mrp || 0,
-        });
+        else {
+          setFormData({
+            ...formData,
+            itemId: searchedItem?.itemId,
+            itemCode: searchedItem?.itemCode || 0,
+            itemName: searchedItem?.item[0]?.name || 0,
+            mrp: searchedItem?.mrp || 0,
+            batch: searchedItem?.batchNo || 0,
+            pcs: formData.pcs || "",
+            rate: searchedItem?.mrp || 0,
+            currentStock: searchedItem?.currentStock || 0,
+            volume: searchedItem?.item[0]?.volume || 0,
+            amount: searchedItem?.mrp || 0,
+          });
+          pcsRef.current.focus();
+        }
+
 
         // setTotalValues({
         //   ...totalValues,
@@ -285,7 +293,7 @@ const SaleBill = () => {
         //   netAmt: formData.amount,
         // });
 
-        resetMiddleFormData();
+        
       } else {
         setSearchResults([]);
       }
@@ -316,8 +324,9 @@ const SaleBill = () => {
   useEffect(() => {
     if (formData.customerName) {
       const selectedCustomer = allCustomerData.find(
-        (customer) => customer._id === formData._id
+        (customer) => customer._id === formData.customerName._id
       );
+      console.log("selectedCustomer: ", selectedCustomer)
       if (selectedCustomer) {
         setFormData({
           ...formData,
@@ -635,14 +644,26 @@ const SaleBill = () => {
   const handleCreateSale = async () => {
     let payload = [];
     const billDateObj = formatDate(formData.billDate);
+    const todaysDateObj = formatDate(new Date);
+
+    if (formData.billType === "CREDITBILL" && !formData.customerName) {
+      NotificationManager.warning("Customer name is required", "Warning");
+      return;
+    }
+
+    if (salesData.length === 0) {
+      NotificationManager.warning("Enter some item in table.", "Warning");
+      itemNameRef.current.focus();
+      return;
+    }
 
     if (salesData.length > 0) {
       salesData.forEach((item) => {
         let newPayload = {
           billType: formData.billType,
-          customer: formData.customerName,
+          customer: formData.customerName._id,
           billSeries: item.group,
-          billDate: billDateObj,
+          billDate: formData.billDate ? billDateObj : todaysDateObj,
           volume: totalValues.totalVolume,
           totalPcs: totalValues.totalPcs,
           splDisc: totalValues.splDiscount,
@@ -675,17 +696,7 @@ const SaleBill = () => {
     }
     console.log("payload: --> ", payload);
 
-    if (!formData.customerName) {
-      NotificationManager.warning("Customer name is required", "Warning");
-
-      return;
-    }
-
-    if (salesData.length === 0) {
-      NotificationManager.warning("Enter some item in table.", "Warning");
-      itemNameRef.current.focus();
-      return;
-    }
+    
 
     try {
       const response = await createSale(payload);
@@ -802,6 +813,16 @@ const SaleBill = () => {
     return grossAmt;
   };
 
+  const handleReceiptModeChange = (e) => {
+    const value = e.target.value;
+    // const receiptMode2Amt = parseInt(totalValues.receiptAmt)
+    setTotalValues({
+      ...totalValues,
+      receiptMode1: value,
+      receiptAmt: parseInt(totalValues.grossAmt) - parseInt(value),
+    });
+  };
+
   const calculateNetAmount = () => {
 
     const totalVolume = salesData.reduce(
@@ -899,10 +920,9 @@ const SaleBill = () => {
               className="input-field"
               value={formData.customerName}
               onChange={handleCustomerNameChange}
-              // disabled={formData.billType === "Cash Bill" ? true : false}
             >
               {allCustomerData.map((item) => (
-                <MenuItem key={item._id} value={item._id}>
+                <MenuItem key={item._id} value={item}>
                   {item.name}
                 </MenuItem>
               ))}
@@ -924,7 +944,6 @@ const SaleBill = () => {
               onChange={(e) =>
                 setFormData({ ...formData, address: e.target.value })
               }
-              // disabled={formData.billType === "Cash Bill" ? true : false}
             />
           </div>
         </Grid>
@@ -937,14 +956,13 @@ const SaleBill = () => {
             <TextField
               fullWidth
               size="small"
-              type="number"
               name="phoneNo"
               className="input-field"
               value={formData.phoneNo}
-              onChange={(e) =>
-                setFormData({ ...formData, phoneNo: e.target.value })
-              }
-              // disabled={formData.billType === "Cash Bill" ? true : false}
+              onChange={(e) =>{
+                const value = e.target.value;
+                if(!isNaN(value))setFormData({ ...formData, phoneNo: value })
+              }}
             />
           </div>
         </Grid>
@@ -1550,9 +1568,7 @@ const SaleBill = () => {
               size="small"
               fullWidth
               value={totalValues.receiptMode1}
-              onChange={(e) =>
-                setTotalValues({ ...totalValues, receiptMode1: e.target.value })
-              }
+              onChange={handleReceiptModeChange}
             />
           </Grid>
           <Grid item xs={1.7}>

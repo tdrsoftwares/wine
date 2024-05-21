@@ -16,14 +16,12 @@ import {
 import React, { useEffect, useMemo, useState } from "react";
 import { getAllSales } from "../../../services/saleBillService";
 import { DataGrid } from "@mui/x-data-grid";
-import { useLoginContext } from "../../../utils/loginContext";
 import { NotificationManager } from "react-notifications";
 
 const SaleReportSummary = () => {
   const [selectOptions, setselectOptions] = useState(null);
   const [allSalesData, setAllSalesData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const { loginResponse } = useLoginContext();
   const [filterData, setFilterData] = useState({
     dateFrom: "mm/dd/yyyy",
     dateTo: "mm/dd/yyyy",
@@ -193,7 +191,7 @@ const SaleReportSummary = () => {
         // fromDate: dateFrom,
         // toDate: dateTo,
       };
-      const allSalesResponse = await getAllSales(loginResponse, filterOptions);
+      const allSalesResponse = await getAllSales(filterOptions);
       console.log("allSalesResponse ---> ", allSalesResponse?.data?.data);
       setAllSalesData(allSalesResponse?.data?.data);
       setTotalCount(allSalesResponse?.data.data?.length);

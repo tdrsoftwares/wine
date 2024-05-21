@@ -25,14 +25,12 @@ import {
   getAllBrands,
   updateBrand,
 } from "../../services/brandService";
-import { useLoginContext } from "../../utils/loginContext";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import { getAllCompanies } from "../../services/companyService";
 
 const BrandRegister = () => {
-  const { loginResponse } = useLoginContext();
   const [brandName, setBrandName] = useState("");
   const [type, setType] = useState("");
   const [indexNo, setIndexNo] = useState("");
@@ -85,7 +83,7 @@ const BrandRegister = () => {
       indexNo: indexNo,
     };
     try {
-      const createBrandResponse = await createBrand(payload, loginResponse);
+      const createBrandResponse = await createBrand(payload);
       if (createBrandResponse.status === 200) {
         NotificationManager.success("Brand created successfully", "Success");
         clearForm();
@@ -114,11 +112,7 @@ const BrandRegister = () => {
       indexNo: editedRow.indexNo,
     };
     try {
-      const updateBrandResponse = await updateBrand(
-        payload,
-        brandId,
-        loginResponse
-      );
+      const updateBrandResponse = await updateBrand(payload, brandId);
       if (updateBrandResponse.status === 200) {
         NotificationManager.success("Brand updated successfully", "Success");
         setEditableIndex(null);
@@ -142,7 +136,7 @@ const BrandRegister = () => {
 
   const handleDeleteBrand = async (brandId) => {
     try {
-      const deleteBrandResponse = await deleteBrand(brandId, loginResponse);
+      const deleteBrandResponse = await deleteBrand(brandId);
       if (deleteBrandResponse.status === 200) {
         NotificationManager.success("Brand deleted successfully", "Success");
         fetchAllBrands();
@@ -164,7 +158,7 @@ const BrandRegister = () => {
 
   const fetchAllBrands = async () => {
     try {
-      const allBrandsResponse = await getAllBrands(loginResponse);
+      const allBrandsResponse = await getAllBrands();
       setAllBrands(allBrandsResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
@@ -177,7 +171,7 @@ const BrandRegister = () => {
 
   const fetchAllCompanies = async () => {
     try {
-      const allCompaniesResponse = await getAllCompanies(loginResponse);
+      const allCompaniesResponse = await getAllCompanies();
       setAllCompanies(allCompaniesResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
@@ -466,9 +460,7 @@ const BrandRegister = () => {
                       <TableCell>
                         {editableIndex === index ? (
                           <Input
-                            value={
-                              editedRow.companyId?.name
-                            }
+                            value={editedRow.companyId?.name}
                             onChange={(e) =>
                               setEditedRow({
                                 ...editedRow,

@@ -25,13 +25,11 @@ import {
   getAllStores,
   deleteStore,
 } from "../../../services/storeService";
-import { useLoginContext } from "../../../utils/loginContext";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 
 const StoreRegister = () => {
-  const { loginResponse } = useLoginContext();
   const [storeName, setStoreName] = useState("");
   const [type, setType] = useState("");
   const [indexNo, setIndexNo] = useState("");
@@ -110,7 +108,7 @@ const StoreRegister = () => {
       indexNo: indexNo,
     };
     try {
-      const createStoreResponse = await createStore(payload, loginResponse);
+      const createStoreResponse = await createStore(payload);
       NotificationManager.success("Store created successfully", "Success");
       console.log("Store created successfully:", createStoreResponse);
       clearForm();
@@ -131,11 +129,7 @@ const StoreRegister = () => {
       indexNo: editedRow.indexNo,
     };
     try {
-      const updateStoreResponse = await updateStore(
-        payload,
-        storeId,
-        loginResponse
-      );
+      const updateStoreResponse = await updateStore(payload, storeId);
       NotificationManager.success("Store updated successfully", "Success");
       console.log("Store updated successfully:", updateStoreResponse);
       setEditableIndex(null);
@@ -152,7 +146,7 @@ const StoreRegister = () => {
 
   const handleDeleteStore = async (storeId) => {
     try {
-      const deleteStoreResponse = await deleteStore(storeId, loginResponse);
+      const deleteStoreResponse = await deleteStore(storeId);
       NotificationManager.success("Store deleted successfully", "Success");
       console.log("Store deleted successfully:", deleteStoreResponse);
       fetchAllStores();
@@ -167,7 +161,7 @@ const StoreRegister = () => {
 
   const fetchAllStores = async () => {
     try {
-      const allStoresResponse = await getAllStores(loginResponse);
+      const allStoresResponse = await getAllStores();
       console.log("allStoresResponse ---> ", allStoresResponse);
       setAllStores(allStoresResponse?.data?.data);
     } catch (error) {

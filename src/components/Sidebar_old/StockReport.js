@@ -11,13 +11,11 @@ import {
 import { DataGrid } from "@mui/x-data-grid";
 import React, { useEffect, useMemo, useState } from "react";
 import { getAllStocks } from "../../services/stockService";
-import { useLoginContext } from "../../utils/loginContext";
 import { NotificationManager } from "react-notifications";
 import { getAllItems } from "../../services/itemService";
 import { getAllBrands } from "../../services/brandService";
 import { getAllCompanies } from "../../services/companyService";
 import { getAllItemCategory } from "../../services/categoryService";
-import { Refresh } from "@mui/icons-material";
 
 const StockReport = () => {
   const [allStocks, setAllStocks] = useState([]);
@@ -36,7 +34,6 @@ const StockReport = () => {
     company: "",
   });
 
-  const { loginResponse } = useLoginContext();
   const [allItems, setAllItems] = useState([]);
   const [allBrands, setAllBrands] = useState([]);
   const [allCompanies, setAllCompanies] = useState([]);
@@ -163,10 +160,7 @@ const StockReport = () => {
         // toDate: dateTo,
       };
       console.log("filterOptions: ", filterOptions);
-      const allStocksResponse = await getAllStocks(
-        loginResponse,
-        filterOptions
-      );
+      const allStocksResponse = await getAllStocks(filterOptions);
 
       setAllStocks(allStocksResponse?.data?.data);
       setTotalCount(allStocksResponse?.data?.data?.length);
@@ -183,7 +177,7 @@ const StockReport = () => {
 
   const fetchAllItems = async () => {
     try {
-      const allItemsResponse = await getAllItems(loginResponse);
+      const allItemsResponse = await getAllItems();
       setAllItems(allItemsResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
@@ -195,7 +189,7 @@ const StockReport = () => {
 
   const fetchAllBrands = async () => {
     try {
-      const allBrandsResponse = await getAllBrands(loginResponse);
+      const allBrandsResponse = await getAllBrands();
       // console.log("allBrandsResponse ---> ", allBrandsResponse);
       setAllBrands(allBrandsResponse?.data?.data);
     } catch (error) {
@@ -209,7 +203,7 @@ const StockReport = () => {
 
   const fetchAllCompanies = async () => {
     try {
-      const allCompaniesResponse = await getAllCompanies(loginResponse);
+      const allCompaniesResponse = await getAllCompanies();
       // console.log("allCompaniesResponse ---> ", allCompaniesResponse);
       setAllCompanies(allCompaniesResponse?.data?.data);
     } catch (error) {
@@ -223,7 +217,7 @@ const StockReport = () => {
 
   const fetchAllCategory = async () => {
     try {
-      const getAllCategoryResponse = await getAllItemCategory(loginResponse);
+      const getAllCategoryResponse = await getAllItemCategory();
       setAllCategory(getAllCategoryResponse?.data?.data);
     } catch (err) {
       NotificationManager.error(
@@ -239,7 +233,7 @@ const StockReport = () => {
     fetchAllBrands();
     fetchAllCompanies();
     fetchAllCategory();
-  }, [loginResponse]);
+  }, []);
 
   useEffect(() => {
     fetchAllStocks();
@@ -522,7 +516,6 @@ const StockReport = () => {
         sx={{
           display: "flex",
           justifyContent: "space-between",
-          
         }}
       >
         <Button

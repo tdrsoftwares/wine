@@ -24,14 +24,12 @@ import {
   getAllItemCategory,
   updateItemCategory,
 } from "../../../services/categoryService";
-import { useLoginContext } from "../../../utils/loginContext";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import TableSortLabel from "@mui/material/TableSortLabel";
 
 const ItemCatRegister = () => {
-  const { loginResponse } = useLoginContext();
   const [categoryName, setCategoryName] = useState("");
   const [allCategory, setAllCategory] = useState([]);
   const [indexNo, setIndexNo] = useState("");
@@ -94,10 +92,7 @@ const ItemCatRegister = () => {
     };
 
     try {
-      const createCategoryResponse = await createItemCategory(
-        payload,
-        loginResponse
-      );
+      const createCategoryResponse = await createItemCategory(payload);
       if (createCategoryResponse.status === 200) {
         NotificationManager.success("Category created successfully", "Success");
         handleClear();
@@ -121,11 +116,7 @@ const ItemCatRegister = () => {
 
   const handleSaveCategory = async (id) => {
     try {
-      const updateCategoryResponse = await updateItemCategory(
-        editedRow,
-        id,
-        loginResponse
-      );
+      const updateCategoryResponse = await updateItemCategory(editedRow, id);
       if (updateCategoryResponse.status === 200) {
         NotificationManager.success("Category updated successfully", "Success");
         setEditableIndex(null);
@@ -147,10 +138,7 @@ const ItemCatRegister = () => {
 
   const handleRemoveCategory = async (id) => {
     try {
-      const deleteCategoryResponse = await deleteItemCategory(
-        id,
-        loginResponse
-      );
+      const deleteCategoryResponse = await deleteItemCategory(id);
 
       if (deleteCategoryResponse.status === 200) {
         NotificationManager.success("Category deleted successfully", "Success");
@@ -195,7 +183,7 @@ const ItemCatRegister = () => {
 
   const fetchAllCategory = async () => {
     try {
-      const getAllCategoryResponse = await getAllItemCategory(loginResponse);
+      const getAllCategoryResponse = await getAllItemCategory();
       console.log("getAllCategoryResponse: ", getAllCategoryResponse);
       setAllCategory(getAllCategoryResponse?.data?.data);
     } catch (err) {
@@ -388,7 +376,9 @@ const ItemCatRegister = () => {
                     Group Number
                   </TableSortLabel>
                 </TableCell>
-                <TableCell align="center" sx={{ minWidth: "200px" }}>Action</TableCell>
+                <TableCell align="center" sx={{ minWidth: "200px" }}>
+                  Action
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
