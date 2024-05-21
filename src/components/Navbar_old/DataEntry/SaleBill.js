@@ -20,7 +20,6 @@ import {
   TextField,
 } from "@mui/material";
 import { getAllCustomer } from "../../../services/customerService";
-import { useLoginContext } from "../../../utils/loginContext";
 import { NotificationManager } from "react-notifications";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
@@ -35,6 +34,7 @@ import { getAllLedgers } from "../../../services/ledgerService";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from 'dayjs';
 
 const SaleBill = () => {
   const [allCustomerData, setAllCustomerData] = useState([]);
@@ -43,6 +43,7 @@ const SaleBill = () => {
   const [salesData, setSalesData] = useState([]);
   const [allLedgers, setAllLedgers] = useState([]);
 
+  const todaysDate = dayjs();
   console.log("salesData: ", salesData);
   const [searchMode, setSearchMode] = useState(false);
   const [formData, setFormData] = useState({
@@ -56,7 +57,7 @@ const SaleBill = () => {
     newcode: "",
     series: "",
     billno: "",
-    billDate: null,
+    billDate: todaysDate,
     itemId: "",
     itemCode: "",
     itemName: "",
@@ -155,7 +156,7 @@ const SaleBill = () => {
       address: "",
       phoneNo: "",
       type: "",
-      billDate: null,
+      billDate: todaysDate,
       series: "",
     }));
   };
@@ -318,6 +319,21 @@ const SaleBill = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.ctrlKey && event.key === 's') {
+        event.preventDefault();
+        handleCreateSale();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
 
@@ -745,8 +761,8 @@ const SaleBill = () => {
   const handlePcsChange = (e) => {
     const value = e.target.value;
     let pcs = parseFloat(value) || "";
-    if (formData.billType === "CREDITBILL") pcs = parseFloat(value) || "";
-    else pcs = parseFloat(value) || 1;
+    // if (formData.billType === "CREDITBILL") pcs = parseFloat(value) || "";
+    // else pcs = parseFloat(value) || 1;
 
     const stock = parseFloat(formData.currentStock) || 0;
     if (pcs > stock) {
