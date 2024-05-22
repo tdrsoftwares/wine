@@ -92,46 +92,42 @@ const SuppliersRegister = () => {
   };
 
   const handleCreateSupplier = async () => {
-    if (
-      !formData.name ||
-      !formData.address ||
-      !formData.contactNo ||
-      !formData.gstinNo ||
-      !formData.panNo ||
-      !formData.cinNo ||
-      !formData.openingBlance
-    ) {
+    if (!formData.name) {
       NotificationManager.warning(
-        "All fields are mandatory.",
+        `Supplier Name is mandatory.`,
         "Validation Error"
       );
       return;
     }
 
-    if (formData.contactNo.length < 10) {
+    if (!formData.address) {
+      NotificationManager.warning(`Address is mandatory.`, "Validation Error");
+      return;
+    }
+
+    if (formData.contactNo && formData.contactNo.length < 10) {
       NotificationManager.warning("Invalid Mobile Number.", "Validation Error");
       return;
     }
 
-    if (!validatePanNo(formData.panNo)) {
+    if (formData.panNo && !validatePanNo(formData.panNo)) {
       NotificationManager.warning("Invalid PAN Number.", "Validation Error");
       return;
     }
 
-    if (!validateGstinNo(formData.gstinNo)) {
+    if (formData.gstinNo && !validateGstinNo(formData.gstinNo)) {
       NotificationManager.warning("Invalid GSTIN Number.", "Validation Error");
       return;
     }
 
-    const payload = {
-      name: formData.name,
-      address: formData.address,
-      contactNo: formData.contactNo,
-      gstinNo: formData.gstinNo,
-      panNo: formData.panNo,
-      cinNo: formData.cinNo,
-      openingBlance: formData.openingBlance,
-    };
+    const payload = {};
+    if (formData.name) payload.name = formData.name;
+    if (formData.address) payload.address = formData.address;
+    if (formData.contactNo) payload.contactNo = formData.contactNo;
+    if (formData.gstinNo) payload.gstinNo = formData.gstinNo;
+    if (formData.panNo) payload.panNo = formData.panNo;
+    if (formData.cinNo) payload.cinNo = formData.cinNo;
+    if (formData.openingBlance) payload.openingBlance = formData.openingBlance;
 
     try {
       const createSupplierResponse = await createSupplier(payload);
@@ -263,7 +259,7 @@ const SuppliersRegister = () => {
       <Grid container spacing={2}>
         <Grid item xs={4}>
           <div className="input-wrapper">
-            <InputLabel htmlFor="name" className="input-label">
+            <InputLabel htmlFor="name" className="input-label" required>
               Supplier Name :
             </InputLabel>
             <TextField
@@ -279,7 +275,7 @@ const SuppliersRegister = () => {
 
         <Grid item xs={4}>
           <div className="input-wrapper">
-            <InputLabel htmlFor="address" className="input-label">
+            <InputLabel htmlFor="address" className="input-label" required>
               Address :
             </InputLabel>
             <TextField

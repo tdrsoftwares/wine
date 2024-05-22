@@ -1,25 +1,26 @@
-import axios from "axios";
 import React, { useState } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import {
   Button,
   Container,
   Grid,
+  IconButton,
+  InputAdornment,
   Link,
   TextField,
   Typography,
 } from "@mui/material";
-import {
-  NotificationContainer,
-  NotificationManager,
-} from "react-notifications";
+import EmailIcon from '@mui/icons-material/Email';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { NotificationContainer, NotificationManager } from "react-notifications";
+import axios from "axios";
 import { url } from "../../utils/apiDomain";
-import { useLoginContext } from "../../utils/loginContext";
-import axiosInstance from "../../utils/axiosInstance";
 
 function LoginForm({ handleLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -45,10 +46,7 @@ function LoginForm({ handleLogin }) {
     }
 
     try {
-      const response = await axios.post(`${url}/user/login`, {
-        email,
-        password,
-      });
+      const response = await axios.post(`${url}/user/login`, { email, password });
 
       const { accessToken, refreshToken } = response.data.data;
       console.log("accessToken: ", accessToken);
@@ -74,6 +72,10 @@ function LoginForm({ handleLogin }) {
     }
   };
 
+  const handleClickShowPassword = () => {
+    setShowPassword((prevShowPassword) => !prevShowPassword);
+  };
+
   return (
     <Container
       className="form-container"
@@ -81,7 +83,6 @@ function LoginForm({ handleLogin }) {
       maxWidth="xs"
       sx={{
         padding: 4,
-        // margin: 4,
         boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
       }}
     >
@@ -102,6 +103,15 @@ function LoginForm({ handleLogin }) {
           autoFocus
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end" disablePointerEvents sx={{ marginRight: 1}}>
+                <IconButton edge="end">
+                  <EmailIcon/>
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
         <TextField
           variant="outlined"
@@ -111,11 +121,24 @@ function LoginForm({ handleLogin }) {
           fullWidth
           name="password"
           label="Password"
-          type="password"
+          type={showPassword ? "text" : "password"}
           id="password"
           autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end" sx={{ marginRight: 1}}>
+                <IconButton
+                  aria-label="toggle password visibility"
+                  onClick={handleClickShowPassword}
+                  edge="end"
+                >
+                  {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
         <Button
           type="submit"

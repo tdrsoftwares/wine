@@ -16,6 +16,7 @@ import { getAllItems } from "../../services/itemService";
 import { getAllBrands } from "../../services/brandService";
 import { getAllCompanies } from "../../services/companyService";
 import { getAllItemCategory } from "../../services/categoryService";
+import { ReplayOutlined } from "@mui/icons-material";
 
 const StockReport = () => {
   const [allStocks, setAllStocks] = useState([]);
@@ -146,6 +147,14 @@ const StockReport = () => {
     [columns]
   );
 
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilterData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
   const fetchAllStocks = async () => {
     setLoading(true);
     try {
@@ -155,9 +164,14 @@ const StockReport = () => {
             ? paginationModel.page + 1
             : paginationModel.page,
         limit: paginationModel.pageSize,
-        // supplierName: selectedSupplier,
-        // fromDate: dateFrom,
-        // toDate: dateTo,
+        itemName: filterData.itemName,
+        itemCode: filterData.itemCode,
+        categoryName: filterData.category,
+        volume: filterData.volume,
+        brandName: filterData.brandName,
+        batch: filterData.batchNo,
+        stockAt: filterData.stockIn,
+        company: filterData.company,
       };
       console.log("filterOptions: ", filterOptions);
       const allStocksResponse = await getAllStocks(filterOptions);
@@ -227,6 +241,21 @@ const StockReport = () => {
     }
   };
 
+  const debounce = (func, delay) => {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        func(...args);
+      }, delay);
+    };
+  };
+
+  useEffect(() => {
+    const debouncedFetch = debounce(fetchAllStocks, 300);
+    debouncedFetch();
+  }, [filterData]);
+
   useEffect(() => {
     fetchAllItems();
     fetchAllStocks();
@@ -239,15 +268,20 @@ const StockReport = () => {
     fetchAllStocks();
   }, [paginationModel]);
 
-  // const paginationMeta = useMemo(() => {
-  //   if (
-  //     hasNextPage !== undefined &&
-  //     paginationMetaRef.current?.hasNextPage !== hasNextPage
-  //   ) {
-  //     paginationMetaRef.current = { hasNextPage };
-  //   }
-  //   return paginationMetaRef.current;
-  // }, [hasNextPage]);
+  const handleReloadTable = () => {
+    setFilterData({
+      ...filterData,
+      itemCode: "",
+      itemName: "",
+      category: "",
+      volume: "",
+      batchNo: "",
+      brandNo: "",
+      brandName: "",
+      stockIn: "",
+      company: "",
+    });
+  };
 
   return (
     <Box sx={{ p: 2, width: "900px" }}>
@@ -265,23 +299,14 @@ const StockReport = () => {
               Item Code :
             </InputLabel>
             <TextField
-              select
               fullWidth
               size="small"
               type="number"
               name="itemCode"
               className="input-field"
               value={filterData.itemCode}
-              onChange={(e) =>
-                setFilterData({ ...filterData, itemCode: e.target.value })
-              }
-            >
-              {batchNoOptions.map((option, i) => (
-                <MenuItem key={i} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </TextField>
+              onChange={handleFilterChange}
+            />
           </div>
         </Grid>
 
@@ -297,12 +322,10 @@ const StockReport = () => {
               name="itemName"
               className="input-field"
               value={filterData.itemName}
-              onChange={(e) =>
-                setFilterData({ ...filterData, itemName: e.target.value })
-              }
+              onChange={handleFilterChange}
             >
-              {allItems.map((item, i) => (
-                <MenuItem key={i} value={item._id}>
+              {allItems?.map((item) => (
+                <MenuItem key={item._id} value={item.name}>
                   {item.name}
                 </MenuItem>
               ))}
@@ -323,9 +346,7 @@ const StockReport = () => {
               name="category"
               className="input-field"
               value={filterData.category}
-              onChange={(e) =>
-                setFilterData({ ...filterData, category: e.target.value })
-              }
+              onChange={handleFilterChange}
             >
               {allCategory?.map((item) => (
                 <MenuItem key={item._id} value={item._id}>
@@ -342,23 +363,14 @@ const StockReport = () => {
               Volume :
             </InputLabel>
             <TextField
-              select
               fullWidth
               size="small"
               type="text"
               name="volume"
               className="input-field"
               value={filterData.volume}
-              onChange={(e) =>
-                setFilterData({ ...filterData, volume: e.target.value })
-              }
-            >
-              {[180, 200, 375, 750, 1000].map((option, i) => (
-                <MenuItem key={i} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </TextField>
+              onChange={handleFilterChange}
+            />
           </div>
         </Grid>
 
@@ -368,22 +380,13 @@ const StockReport = () => {
               Batch No. :
             </InputLabel>
             <TextField
-              select
               fullWidth
               size="small"
               name="batchNo"
               className="input-field"
               value={filterData.batchNo}
-              onChange={(e) =>
-                setFilterData({ ...filterData, batchNo: e.target.value })
-              }
-            >
-              {batchNoOptions.map((option, i) => (
-                <MenuItem key={i} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </TextField>
+              onChange={handleFilterChange}
+            />
           </div>
         </Grid>
 
@@ -399,12 +402,10 @@ const StockReport = () => {
               name="brandName"
               className="input-field"
               value={filterData.brandName}
-              onChange={(e) =>
-                setFilterData({ ...filterData, brandName: e.target.value })
-              }
+              onChange={handleFilterChange}
             >
               {allBrands?.map((item) => (
-                <MenuItem key={item._id} value={item._id}>
+                <MenuItem key={item._id} value={item.name}>
                   {item.name}
                 </MenuItem>
               ))}
@@ -424,9 +425,7 @@ const StockReport = () => {
               name="stockIn"
               className="input-field"
               value={filterData.stockIn}
-              onChange={(e) =>
-                setFilterData({ ...filterData, stockIn: e.target.value })
-              }
+              onChange={handleFilterChange}
             >
               {stockInOptions?.map((option, i) => (
                 <MenuItem key={i} value={option}>
@@ -449,9 +448,7 @@ const StockReport = () => {
               name="company"
               className="input-field"
               value={filterData.company}
-              onChange={(e) =>
-                setFilterData({ ...filterData, company: e.target.value })
-              }
+              onChange={handleFilterChange}
             >
               {allCompanies?.map((item) => (
                 <MenuItem key={item._id} value={item._id}>
@@ -463,6 +460,7 @@ const StockReport = () => {
         </Grid>
       </Grid>
 
+      
       <Box
         sx={{
           height: 400,
@@ -477,17 +475,17 @@ const StockReport = () => {
           rows={(allStocks || [])?.map((stock, index) => ({
             id: index,
             sNo: index + 1,
-            itemCode: stock.itemCode || "No Data",
-            itemName: stock?.itemId?.name || "No Data",
-            batchNo: stock.batchNo || "No Data",
+            itemCode: stock.itemCode,
+            itemName: stock?.item?.name,
+            batchNo: stock.batchNo,
             createdAt: new Date(stock.createdAt).toLocaleDateString("en-GB"),
-            saleRate: stock.saleRate || "No Data",
-            purchaseRate: stock.purchaseRate || "No Data",
-            stockRate: stock.stockRate || "No Data",
-            stockAt: stock.stockAt || "No Data",
-            currentStock: stock.currentStock || "No Data",
-            openingStock: stock.openingStock || "No Data",
-            mrp: stock.mrp || "No Data",
+            saleRate: stock.saleRate,
+            purchaseRate: stock.purchaseRate,
+            stockRate: stock.stockRate,
+            stockAt: stock.stockAt,
+            currentStock: stock.currentStock,
+            openingStock: stock.openingStock,
+            mrp: stock.mrp,
           }))}
           columns={columnsData}
           rowCount={totalCount}
@@ -515,17 +513,18 @@ const StockReport = () => {
       <Box
         sx={{
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "flex-end",
+          "& button": { marginTop: 2, marginLeft: 2 },
         }}
       >
         <Button
           color="inherit"
           size="medium"
           variant="contained"
-          onClick={() => fetchAllStocks()}
+          onClick={handleReloadTable}
           sx={{ marginTop: 3, marginRight: 2, borderRadius: 8 }}
         >
-          Refresh
+          <ReplayOutlined />
         </Button>
         <div>
           <Button
@@ -533,7 +532,7 @@ const StockReport = () => {
             size="medium"
             variant="contained"
             onClick={() => {}}
-            sx={{ marginTop: 3, marginRight: 2, borderRadius: 8 }}
+            sx={{ borderRadius: 8 }}
           >
             Display
           </Button>
@@ -542,7 +541,7 @@ const StockReport = () => {
             size="medium"
             variant="outlined"
             onClick={() => {}}
-            sx={{ marginTop: 3, marginRight: 2, borderRadius: 8 }}
+            sx={{ borderRadius: 8 }}
           >
             Print
           </Button>
@@ -551,7 +550,7 @@ const StockReport = () => {
             size="medium"
             variant="outlined"
             onClick={() => {}}
-            sx={{ marginTop: 3, borderRadius: 8 }}
+            sx={{ borderRadius: 8 }}
           >
             Clear
           </Button>
