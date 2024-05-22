@@ -12,7 +12,6 @@ import {
 import { NotificationManager } from "react-notifications";
 
 import { createItem, getAllItems } from "../../../services/itemService";
-import { useLoginContext } from "../../../utils/loginContext";
 import { getAllItemCategory } from "../../../services/categoryService";
 import { getAllBrands } from "../../../services/brandService";
 import { getAllCompanies } from "../../../services/companyService";
@@ -180,7 +179,7 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
           variant="h6"
           component="h2"
           align="center"
-          sx={{marginBottom: 3}}
+          sx={{ marginBottom: 3 }}
         >
           Create Item
         </Typography>
@@ -412,28 +411,50 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
         <Box
           sx={{
             display: "flex",
-            justifyContent: "flex-end",
-            marginTop: 2,
+            justifyContent: "space-between",
+            marginTop: 4,
           }}
         >
-          <Button
-            color="primary"
-            size="medium"
-            variant="contained"
-            onClick={handleCreateItem}
-            sx={{ borderRadius: 8 }}
-          >
-            Create
-          </Button>
-          <Button
-            color="warning"
-            size="medium"
-            variant="outlined"
-            onClick={() => setIsModalOpen(false)}
-            sx={{ borderRadius: 8, marginLeft: 2 }}
-          >
-            Cancel
-          </Button>
+          <div>
+            <Button
+              color="info"
+              size="medium"
+              variant="outlined"
+              onClick={() => {}}
+              sx={{ borderRadius: 8, marginRight: 2 }}
+            >
+              Create Company
+            </Button>
+            <Button
+              color="secondary"
+              size="medium"
+              variant="outlined"
+              onClick={() => {}}
+              sx={{ borderRadius: 8 }}
+            >
+              Create Brand
+            </Button>
+          </div>
+          <div>
+            <Button
+              color="primary"
+              size="medium"
+              variant="contained"
+              onClick={handleCreateItem}
+              sx={{ borderRadius: 8 }}
+            >
+              Create
+            </Button>
+            <Button
+              color="warning"
+              size="medium"
+              variant="outlined"
+              onClick={() => setIsModalOpen(false)}
+              sx={{ borderRadius: 8, marginLeft: 2 }}
+            >
+              Cancel
+            </Button>
+          </div>
         </Box>
       </Box>
     </Modal>
