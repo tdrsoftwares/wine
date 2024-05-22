@@ -118,23 +118,6 @@ const StockReport = () => {
       width: 150,
       headerClassName: "custom-header",
     },
-
-    // {
-    //   field: "action",
-    //   headerName: "Action",
-    //   width: 100,
-    //   cellClassName: "custom-cell",
-    //   headerClassName: "custom-header",
-    //   renderCell: (params) => (
-    //     <Button
-    //       variant="contained"
-    //       size="small"
-    //       onClick={() => handleViewClick(params.row)}
-    //     >
-    //       View
-    //     </Button>
-    //   ),
-    // },
   ];
 
   const columnsData = useMemo(
