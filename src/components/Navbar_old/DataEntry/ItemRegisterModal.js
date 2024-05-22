@@ -1,3 +1,4 @@
+// src/ItemRegisterModal.js
 import React, { useState, useEffect } from "react";
 import {
   Box,
@@ -10,11 +11,12 @@ import {
   Typography,
 } from "@mui/material";
 import { NotificationManager } from "react-notifications";
-
 import { createItem, getAllItems } from "../../../services/itemService";
 import { getAllItemCategory } from "../../../services/categoryService";
 import { getAllBrands } from "../../../services/brandService";
 import { getAllCompanies } from "../../../services/companyService";
+import CreateCompanyModal from "./CreateCompanyModal";
+import CreateBrandModal from "./CreateBrandModal";
 
 const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
   const [itemName, setItemName] = useState("");
@@ -30,6 +32,9 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
   const [group, setGroup] = useState("");
   const [caseValue, setCaseValue] = useState("");
   const [allItems, setAllItems] = useState([]);
+
+  const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
+  const [isBrandModalOpen, setIsBrandModalOpen] = useState(false);
 
   const clearForm = () => {
     setItemName("");
@@ -104,13 +109,13 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
     }
   };
 
-  const fetchAllCategory = async () => {
+  const fetchAllItemCategory = async () => {
     try {
-      const getAllCategoryResponse = await getAllItemCategory();
-      setAllCategory(getAllCategoryResponse?.data?.data);
-    } catch (err) {
+      const allCategoryResponse = await getAllItemCategory();
+      setAllCategory(allCategoryResponse?.data?.data);
+    } catch (error) {
       NotificationManager.error(
-        "Something went Wrong, Please try again later.",
+        "Error fetching categories. Please try again later.",
         "Error"
       );
     }
@@ -118,8 +123,8 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
 
   const fetchAllBrands = async () => {
     try {
-      const allBrandsResponse = await getAllBrands();
-      setAllBrands(allBrandsResponse?.data?.data);
+      const allBrandResponse = await getAllBrands();
+      setAllBrands(allBrandResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
         "Error fetching brands. Please try again later.",
@@ -130,8 +135,8 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
 
   const fetchAllCompanies = async () => {
     try {
-      const allCompaniesResponse = await getAllCompanies();
-      setAllCompanies(allCompaniesResponse?.data?.data);
+      const allCompanyResponse = await getAllCompanies();
+      setAllCompanies(allCompanyResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
         "Error fetching companies. Please try again later.",
@@ -141,99 +146,55 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
   };
 
   useEffect(() => {
-    fetchAllCategory();
+    fetchAllItems();
+    fetchAllItemCategory();
     fetchAllBrands();
     fetchAllCompanies();
-    fetchAllItems();
   }, []);
 
-  const handleOpen = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleClose = () => {
-    setIsModalOpen(false);
-  };
-
   return (
-    <Modal
-      open={isModalOpen}
-      onClose={handleClose}
-      aria-labelledby="modal-modal-title"
-      aria-describedby="modal-modal-description"
-    >
-      <Box
-        sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: 900,
-          bgcolor: "background.paper",
-          boxShadow: 24,
-          p: 4,
-        }}
+    <>
+      <Modal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
       >
-        <Typography
-          id="modal-modal-title"
-          variant="h6"
-          component="h2"
-          align="center"
-          sx={{ marginBottom: 3 }}
-        >
-          Create Item
-        </Typography>
-
-        <Grid container spacing={2}>
-          <Grid item xs={6}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="itemName" className="input-label">
-                Item Name :
-              </InputLabel>
+        <Box sx={modalStyles}>
+          <Typography variant="h6" component="h2" align="center" mb={3}>
+            Register Item
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
               <TextField
                 fullWidth
                 size="small"
                 type="text"
-                name="itemName"
-                className="input-field"
-                variant="outlined"
+                label="Item Name"
                 value={itemName}
                 onChange={(e) => setItemName(e.target.value)}
+                variant="outlined"
+                required
               />
-            </div>
-          </Grid>
-
-          <Grid item xs={6}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="description" className="input-label">
-                Description :
-              </InputLabel>
+            </Grid>
+            <Grid item xs={12}>
               <TextField
                 fullWidth
                 size="small"
                 type="text"
-                name="description"
-                className="input-field"
-                variant="outlined"
+                label="Description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                variant="outlined"
+                required
               />
-            </div>
-          </Grid>
-
-          <Grid item xs={6}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="categoryId" className="input-label">
-                Category :
-              </InputLabel>
+            </Grid>
+            <Grid item xs={12}>
               <TextField
                 select
                 fullWidth
                 size="small"
-                type="text"
-                name="categoryId"
-                className="input-field"
-                variant="outlined"
+                label="Category"
                 value={categoryId}
                 SelectProps={{
                   MenuProps: {
@@ -245,220 +206,200 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
                   },
                 }}
                 onChange={(e) => setCategoryId(e.target.value)}
+                variant="outlined"
+                required
               >
-                {allCategory?.map((item) => (
-                  <MenuItem key={item._id} value={item._id}>
-                    {item.categoryName}
+                {allCategory?.map((category) => (
+                  <MenuItem key={category._id} value={category._id}>
+                    {category.categoryName}
                   </MenuItem>
                 ))}
               </TextField>
-            </div>
-          </Grid>
-
-          <Grid item xs={6}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="subCategory" className="input-label">
-                Sub Category :
-              </InputLabel>
+            </Grid>
+            <Grid item xs={12}>
               <TextField
-                select
                 fullWidth
                 size="small"
                 type="text"
-                name="subCategory"
-                className="input-field"
-                variant="outlined"
+                label="Sub Category"
                 value={subCategory}
                 onChange={(e) => setSubCategory(e.target.value)}
-              >
-                {["A", "B", "C", "D"].map((item, id) => (
-                  <MenuItem key={id} value={item}>
-                    {item}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </div>
-          </Grid>
-
-          <Grid item xs={6}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="companyId" className="input-label">
-                Company :
-              </InputLabel>
-              <TextField
-                select
-                fullWidth
-                size="small"
-                type="text"
-                name="companyId"
-                className="input-field"
                 variant="outlined"
-                value={companyId}
-                SelectProps={{
-                  MenuProps: {
-                    PaperProps: {
-                      style: {
-                        maxHeight: 200,
-                      },
-                    },
-                  },
-                }}
-                onChange={(e) => setCompanyId(e.target.value)}
-              >
-                {allCompanies?.map((item) => (
-                  <MenuItem key={item._id} value={item._id}>
-                    {item.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </div>
-          </Grid>
-
-          <Grid item xs={6}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="brandId" className="input-label">
-                Brand :
-              </InputLabel>
-              <TextField
-                select
-                fullWidth
-                size="small"
-                name="brandId"
-                className="input-field"
-                variant="outlined"
-                value={brandId}
-                SelectProps={{
-                  MenuProps: {
-                    PaperProps: {
-                      style: {
-                        maxHeight: 200,
-                      },
-                    },
-                  },
-                }}
-                onChange={(e) => setBrandId(e.target.value)}
-              >
-                {allBrands?.map((item) => (
-                  <MenuItem key={item._id} value={item._id}>
-                    {item.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </div>
-          </Grid>
-
-          <Grid item xs={6}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="volume" className="input-label">
-                Volume :
-              </InputLabel>
-              <TextField
-                fullWidth
-                size="small"
-                type="number"
-                name="volume"
-                className="input-field"
-                variant="outlined"
-                value={volume}
-                onChange={(e) => setVolume(e.target.value)}
+                required
               />
-            </div>
-          </Grid>
-
-          <Grid item xs={6}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="group" className="input-label">
-                Group :
-              </InputLabel>
+            </Grid>
+            <Grid item xs={12}>
+              <Grid container spacing={1}>
+                <Grid item xs={10}>
+                  <TextField
+                    select
+                    fullWidth
+                    size="small"
+                    label="Company"
+                    value={companyId}
+                    onChange={(e) => setCompanyId(e.target.value)}
+                    variant="outlined"
+                    required
+                    SelectProps={{
+                      MenuProps: {
+                        PaperProps: {
+                          style: {
+                            maxHeight: 200,
+                          },
+                        },
+                      },
+                    }}
+                  >
+                    {allCompanies?.map((company) => (
+                      <MenuItem key={company._id} value={company._id}>
+                        {company.name}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+                <Grid item xs={2}>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    onClick={() => setIsCompanyModalOpen(true)}
+                  >
+                    Add
+                  </Button>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item xs={12}>
+              <Grid container spacing={1}>
+                <Grid item xs={10}>
+                  <TextField
+                    select
+                    fullWidth
+                    size="small"
+                    label="Brand"
+                    value={brandId}
+                    onChange={(e) => setBrandId(e.target.value)}
+                    variant="outlined"
+                    required
+                    SelectProps={{
+                      MenuProps: {
+                        PaperProps: {
+                          style: {
+                            maxHeight: 200,
+                          },
+                        },
+                      },
+                    }}
+                  >
+                    {allBrands.map((brand) => (
+                      <MenuItem key={brand._id} value={brand._id}>
+                        {brand.name}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+                <Grid item xs={2}>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    onClick={() => setIsBrandModalOpen(true)}
+                  >
+                    Add
+                  </Button>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item xs={12}>
               <TextField
                 select
                 fullWidth
                 size="small"
                 type="text"
-                name="group"
-                className="input-field"
-                variant="outlined"
+                label="Group"
                 value={group}
                 onChange={(e) => setGroup(e.target.value)}
+                variant="outlined"
+                required
               >
-                {["FL", "BEER", "IML"].map((item, id) => (
+                {["FL", "BEER", "IML"]?.map((item, id) => (
                   <MenuItem key={id} value={item}>
                     {item}
                   </MenuItem>
                 ))}
               </TextField>
-            </div>
-          </Grid>
-
-          <Grid item xs={6}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="caseValue" className="input-label">
-                Case Value :
-              </InputLabel>
+            </Grid>
+            <Grid item xs={12}>
               <TextField
                 fullWidth
                 size="small"
-                type="number"
-                name="caseValue"
-                className="input-field"
+                type="text"
+                label="Volume"
+                value={volume}
+                onChange={(e) => setVolume(e.target.value)}
                 variant="outlined"
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                size="small"
+                type="text"
+                label="Case Value"
                 value={caseValue}
                 onChange={(e) => setCaseValue(e.target.value)}
+                variant="outlined"
+                required
               />
-            </div>
+            </Grid>
           </Grid>
-        </Grid>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginTop: 4,
-          }}
-        >
-          <div>
+          <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
             <Button
-              color="info"
-              size="medium"
-              variant="outlined"
-              onClick={() => {}}
-              sx={{ borderRadius: 8, marginRight: 2 }}
+              color="primary"
+              variant="contained"
+              onClick={handleCreateItem}
             >
-              Create Company
+              Register
             </Button>
             <Button
               color="secondary"
-              size="medium"
               variant="outlined"
-              onClick={() => {}}
-              sx={{ borderRadius: 8 }}
-            >
-              Create Brand
-            </Button>
-          </div>
-          <div>
-            <Button
-              color="primary"
-              size="medium"
-              variant="contained"
-              onClick={handleCreateItem}
-              sx={{ borderRadius: 8 }}
-            >
-              Create
-            </Button>
-            <Button
-              color="warning"
-              size="medium"
-              variant="outlined"
-              onClick={() => setIsModalOpen(false)}
-              sx={{ borderRadius: 8, marginLeft: 2 }}
+              onClick={() => {
+                setIsModalOpen(false);
+                clearForm();
+              }}
             >
               Cancel
             </Button>
-          </div>
+          </Box>
         </Box>
-      </Box>
-    </Modal>
+      </Modal>
+      <CreateCompanyModal
+        isOpen={isCompanyModalOpen}
+        fetchAllCompanies={fetchAllCompanies}
+        handleClose={() => setIsCompanyModalOpen(false)}
+      />
+      <CreateBrandModal
+        isOpen={isBrandModalOpen}
+        fetchAllBrands={fetchAllBrands}
+        handleClose={() => setIsBrandModalOpen(false)}
+      />
+    </>
   );
+};
+
+const modalStyles = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 420,
+  height: "90",
+  bgcolor: "background.paper",
+  boxShadow: 24,
+  p: 4,
+  borderRadius: 2,
 };
 
 export default ItemRegisterModal;
