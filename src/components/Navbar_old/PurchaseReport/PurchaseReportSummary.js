@@ -12,16 +12,23 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
-import { getAllPurchases, getItemPurchaseDetails } from "../../../services/purchaseService";
+import {
+  getAllPurchases,
+  getItemPurchaseDetails,
+} from "../../../services/purchaseService";
 import { NotificationManager } from "react-notifications";
 import { getAllSuppliers } from "../../../services/supplierService";
 import { DataGrid } from "@mui/x-data-grid";
 import PurchaseDetailsModal from "./PurchaseDetailsModal";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 
 const PurchaseReportSummary = () => {
   const [selectedSupplier, setSelectedSupplier] = useState("");
-  const [dateFrom, setDateFrom] = useState("mm/dd/yyyy");
-  const [dateTo, setDateTo] = useState("mm/dd/yyyy");
+  const [dateFrom, setDateFrom] = useState(null);
+
+  const [dateTo, setDateTo] = useState(null);
   const [filter1, setFilter1] = useState("date-wise");
   const [allPurchases, setAllPurchases] = useState([]);
   const [allSuppliers, setAllSuppliers] = useState([]);
@@ -29,11 +36,19 @@ const PurchaseReportSummary = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     page: 1,
-    pageSize: 25
-  })
+    pageSize: 25,
+  });
 
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
+
+  const formatDate = (date) => {
+    if (!date) return null;
+    return dayjs(date).format("DD/MM/YYYY");
+  };
+
+  // console.log("dateFrom: ", formatDate(dateFrom));
+
   const columns = [
     {
       field: "sNo",
@@ -162,20 +177,21 @@ const PurchaseReportSummary = () => {
     () =>
       columns.map((col) =>
         col.field === "action"
-          ? { ...col, sortable: false, fiterable: false }
+          ? { ...col, sortable: false, filterable: false }
           : col
       ),
     [columns]
   );
 
   const handleViewClick = (row) => {
-    console.log("row: ", row);
     setSelectedRowData(row);
     setIsModalOpen(true);
-
   };
-  
-  const fetchAllPurchase = async () => {
+
+  const fetchAllPurchases = async () => {
+    const fromDate = dateFrom ? formatDate(dateFrom) : null;
+    const toDate = dateTo ? formatDate(dateTo) : null;
+
     setLoading(true);
     try {
       const filterOptions = {
@@ -184,20 +200,18 @@ const PurchaseReportSummary = () => {
             ? paginationModel.page + 1
             : paginationModel.page,
         limit: paginationModel.pageSize,
-        //   supplierName: selectedSupplier,
-        //   fromDate: dateFrom,
-        //   toDate: dateTo,
+        fromDate: fromDate,
+        toDate: toDate,
+        supplierName: selectedSupplier,
       };
-      const allPurchaseResponse = await getAllPurchases(filterOptions);
-      console.log("allPurchaseResponse ---> ", allPurchaseResponse?.data?.data);
-      setAllPurchases(allPurchaseResponse?.data?.data);
-      setTotalCount(allPurchaseResponse?.data?.data?.length);
+      const response = await getAllPurchases(filterOptions);
+      setAllPurchases(response?.data?.data || []);
+      setTotalCount(response.data.data.length || 0);
     } catch (error) {
       NotificationManager.error(
-        "Error fetching purchase. Please try again later.",
+        "Error fetching purchases. Please try again later.",
         "Error"
       );
-      console.error("Error fetching purchase:", error);
     } finally {
       setLoading(false);
     }
@@ -205,9 +219,8 @@ const PurchaseReportSummary = () => {
 
   const fetchAllSuppliers = async () => {
     try {
-      const allSuppliersResponse = await getAllSuppliers();
-      console.log("allSuppliersResponse: ", allSuppliersResponse);
-      setAllSuppliers(allSuppliersResponse?.data?.data);
+      const response = await getAllSuppliers();
+      setAllSuppliers(response?.data?.data || []);
     } catch (error) {
       NotificationManager.error(
         "Error fetching suppliers. Please try again later.",
@@ -215,25 +228,39 @@ const PurchaseReportSummary = () => {
       );
     }
   };
-  
-  useEffect(() => {
-    fetchAllSuppliers();
-    fetchAllPurchase();
-  }, []);
-  
 
   useEffect(() => {
-    fetchAllPurchase();
-  }, [paginationModel]);
+    fetchAllSuppliers();
+    fetchAllPurchases();
+  }, []);
+
+  const debounce = (func, delay) => {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        func(...args);
+      }, delay);
+    };
+  };
+
+  useEffect(() => {
+    const debouncedFetch = debounce(fetchAllPurchases, 300);
+    debouncedFetch();
+  }, [paginationModel, dateFrom, dateTo, selectedSupplier]);
+
 
   return (
     <Box sx={{ p: 2, width: "900px" }}>
-      <Typography variant="subtitle1" sx={{ marginBottom: 2 }}>
+      <Typography variant="h6" sx={{ marginBottom: 2 }}>
         Purchase Report Summary:
       </Typography>
+      <Typography variant="subtitle1" gutterBottom>
+        Filter By:
+      </Typography>
 
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
+      <Grid container spacing={2}>
+        <Grid item xs={3}>
           <RadioGroup
             row
             name="filter1"
@@ -241,78 +268,84 @@ const PurchaseReportSummary = () => {
             value={filter1}
             onChange={(e) => setFilter1(e.target.value)}
           >
+            <FormControlLabel value="date" control={<Radio />} label="Date" />
             <FormControlLabel
-              value="date-wise"
+              value="supplier-date"
               control={<Radio />}
-              label="Date Wise"
-            />
-
-            <FormControlLabel
-              value="supplier/date-wise"
-              control={<Radio />}
-              label="Supplier/Date Wise"
+              label="Supplier-Date"
             />
           </RadioGroup>
         </Grid>
 
-        <Grid item xs={4}>
+        <Grid item xs={3}>
           <div className="input-wrapper">
             <InputLabel htmlFor="dateFrom" className="input-label">
-              Date from :
+              Bill date from:
             </InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              type="date"
-              name="dateFrom"
-              className="input-field"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-            />
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                id="dateFrom"
+                format="DD/MM/YYYY"
+                value={dateFrom}
+                className="input-field date-picker"
+                onChange={(date) => setDateFrom(date)}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </LocalizationProvider>
           </div>
         </Grid>
 
-        <Grid item xs={4}>
+        <Grid item xs={3}>
           <div className="input-wrapper">
-            <InputLabel htmlFor="dateFrom" className="input-label">
-              Date To :
+            <InputLabel htmlFor="dateTo" className="input-label">
+              Bill date to:
             </InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              type="date"
-              name="dateTo"
-              className="input-field"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-            />
+
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                id="dateTo"
+                format="DD/MM/YYYY"
+                value={dateTo}
+                className="input-field date-picker"
+                onChange={(date) => setDateTo(date)}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </LocalizationProvider>
           </div>
         </Grid>
 
-        {filter1 === "supplier/date-wise" && (
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="supplier" className="input-label">
-                Supplier :
-              </InputLabel>
-              <TextField
-                select
-                fullWidth
-                size="small"
-                name="supplier"
-                className="input-field"
-                value={selectedSupplier}
-                onChange={(e) => setSelectedSupplier(e.target.value)}
-              >
-                {allSuppliers.map((item, id) => (
-                  <MenuItem key={id} value={item.name}>
-                    {item.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </div>
-          </Grid>
-        )}
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="supplier" className="input-label">
+              Supplier:
+            </InputLabel>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              name="supplier"
+              className="input-field"
+              value={selectedSupplier}
+              disabled={filter1 === "supplier-date" ? false : true}
+              onChange={(e) => setSelectedSupplier(e.target.value)}
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200,
+                    },
+                  },
+                },
+              }}
+            >
+              {allSuppliers.map((item) => (
+                <MenuItem key={item.id} value={item.name}>
+                  {item.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </div>
+        </Grid>
       </Grid>
 
       <Box
@@ -320,33 +353,15 @@ const PurchaseReportSummary = () => {
           height: 500,
           width: "100%",
           marginTop: 4,
-          "& .custom-header": {
-            backgroundColor: "#dae4ed",
-            paddingLeft: 4,
-          },
-          "& .custom-cell": {
-            paddingLeft: 4,
-          },
+          "& .custom-header": { backgroundColor: "#dae4ed", paddingLeft: 4 },
+          "& .custom-cell": { paddingLeft: 4 },
         }}
       >
         <DataGrid
           rows={(allPurchases || []).map((purchase, index) => ({
             id: index,
             sNo: index + 1,
-            entryNo: purchase.entryNo,
-            billNo: purchase.billNo,
-            passNo: purchase.passNo,
-            billDate: purchase.billDate,
-            passDate: purchase.passDate,
-            supplierName: purchase.supplierName,
-            mrpValue: purchase.mrpValue,
-            grossAmount: purchase.grossAmount,
-            discountAmount: purchase.discountAmount,
-            govtROff: purchase.govtROff,
-            specialPurpose: purchase.specialPurpose,
-            sTaxAmount: purchase.sTaxAmount,
-            tcsAmount: purchase.tcsAmount,
-            netAmount: purchase.netAmount,
+            ...purchase,
             action: (
               <Button
                 variant="contained"
@@ -364,21 +379,23 @@ const PurchaseReportSummary = () => {
           pageSizeOptions={[10, 25, 50, 100]}
           onPaginationModelChange={setPaginationModel}
           sx={{ backgroundColor: "#fff" }}
-          loadingOverlay={
-            <Box
-              sx={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-              }}
-            >
-              <CircularProgress />
-            </Box>
-          }
           loading={loading}
+          components={{
+            LoadingOverlay: () => (
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            ),
+          }}
         />
-        {/* Modal to display details */}
+
         <PurchaseDetailsModal
           open={isModalOpen}
           handleClose={() => setIsModalOpen(false)}
@@ -394,31 +411,36 @@ const PurchaseReportSummary = () => {
         }}
       >
         <Button
-          color="primary"
+          color="warning"
           size="medium"
-          variant="contained"
-          onClick={() => {}}
+          variant="outlined"
+          onClick={() => {
+            setDateFrom(null);
+            setDateTo(null);
+            setSelectedSupplier("");
+            setFilter1("date");
+            fetchAllPurchases();
+          }}
           sx={{ borderRadius: 8 }}
         >
-          Display
+          Clear
         </Button>
         <Button
           color="secondary"
           size="medium"
-          variant="contained"
-          onClick={() => {}}
+          variant="outlined"
           sx={{ borderRadius: 8 }}
         >
           Print
         </Button>
         <Button
-          color="error"
+          color="primary"
           size="medium"
-          variant="outlined"
-          onClick={() => {}}
+          variant="contained"
+          onClick={fetchAllPurchases}
           sx={{ borderRadius: 8 }}
         >
-          Clear
+          Display
         </Button>
       </Box>
     </Box>

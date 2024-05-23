@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Typography, Modal, Box, Button } from "@mui/material";
 import { getItemPurchaseDetails } from "../../../services/purchaseService";
-import { NotificationManager } from "react-notifications";
 import { DataGrid } from "@mui/x-data-grid";
 
 const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
@@ -107,8 +106,9 @@ const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
         );
         console.log("allItemPurchasesResponse: ", allItemPurchasesResponse);
         setItemPurchaseDetails(
-          allItemPurchasesResponse?.data?.data[0]?.purchaseItems
+          allItemPurchasesResponse?.data?.data
         );
+
       } catch (error) {
         // NotificationManager.error(
         //   "Error fetching ItemPurchases. Please try again later.",
@@ -170,6 +170,7 @@ const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
             itemAmount: item.itemAmount,
           }))}
           columns={columns}
+          // rowCount={totalCount}
           pageSize={5}
           rowsPerPageOptions={[10, 25, 50]}
           sx={{ backgroundColor: "#fff" }}
