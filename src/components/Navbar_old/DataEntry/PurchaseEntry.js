@@ -101,6 +101,18 @@ const PurchaseEntry = () => {
   const groRef = useRef(null);
   const spRef = useRef(null);
   const amountRef = useRef(null);
+  const totalMrpRef = useRef(null);
+  const sDiscountRef = useRef(null);
+  const totalGroRef = useRef(null);
+  const totalSPRef = useRef(null);
+  const tcsPercentRef = useRef(null);
+  const tcsAmtRef = useRef(null);
+  const grossAmountRef = useRef(null);
+  const totalDiscountRef = useRef(null);
+  const otherChargesRef = useRef(null);
+  const adjustmentRef = useRef(null);
+  const netAmountRef = useRef(null);
+  const saveButtonRef = useRef(null);
 
   const resetMiddleFormData = () => {
     setFormData((prevFormData) => ({
@@ -131,17 +143,16 @@ const PurchaseEntry = () => {
 
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.ctrlKey && event.key === 's') {
-        event.preventDefault();
+      if (event.keyCode === 120) { // 120 F9 key
         handleCreatePurchase();
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
+
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
-
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
@@ -359,35 +370,52 @@ const PurchaseEntry = () => {
     setPurchases(updatedPurchases);
   };
 
-  const handleEnterKey = (event, nextInputRef) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      nextInputRef.current.focus();
+  const handleFocusOnSave = () => {
+    saveButtonRef.current.focus();
+ };
+ console.log("purchases ---> ", purchases.length);
 
-      switch (nextInputRef.current) {
-        case itemCodeRef:
-        case itemNameRef:
-          handleItemNameChange(event);
-          break;
-        case mrpRef:
-        case batchRef:
-        case caseRef:
-        case pcsRef:
-        case brkRef:
-        case purRateRef:
-        case btlRateRef:
-        case groRef:
-        case spRef:
-          handlePurRatePcsChange();
-          break;
-        case amountRef:
-          handleSubmitIntoDataTable(event);
-          break;
-        default:
-          break;
-      }
+ const handleEnterKey = (event, nextInputRef) => {
+  if (event.key === "Enter" || event.key === "Tab") {
+    
+  
+
+    switch (nextInputRef.current) {
+      case itemCodeRef:
+      case itemNameRef:
+        // handleItemNameChange(event);
+        // break;
+      case mrpRef:
+      case batchRef:
+      case caseRef:
+      case pcsRef:
+      case brkRef:
+      case purRateRef:
+      case btlRateRef:
+      case groRef:
+      case spRef:
+      case amountRef:
+        handleSubmitIntoDataTable(event);
+        break;
+      case totalGroRef:
+      case totalSPRef:
+      case tcsPercentRef:
+      case tcsAmtRef:
+      case grossAmountRef:
+      case totalDiscountRef:
+      case otherChargesRef:
+      case adjustmentRef:
+      case netAmountRef:
+        handleFocusOnSave();
+        break;
+      case saveButtonRef:
+        break;
+      default:
+        nextInputRef.current.focus();
     }
-  };
+  }
+};
+
 
   // console.log("purchases: ", purchases);
 
@@ -421,27 +449,14 @@ const PurchaseEntry = () => {
       return;
     }
 
-    // if(formData.itemCode && formData.batch && formData.mrp && formData.itemName) {
-    //   setPurchases({ ...purchases, pcs: parseInt(purchases.pcs) + parseInt(formData.pcs)})
-    // }
-
-    // console.log("stockIn: " + formData.stockIn)
     setPurchases([...purchases, formData]);
     resetMiddleFormData();
     handleEnterKey(e, itemCodeRef);
     setSearchMode(false);
   };
 
-  // let dateObj = new Date(formData.passDate);
-  // let newDate = `${dateObj.getDate()}/${
-  //   dateObj.getMonth() + 1
-  // }/${dateObj.getFullYear()}`
-  // console.log("1 newDate --> ", newDate);
-  // console.log("2 totalValues --> ", totalValues);
-
   const handleCreatePurchase = async () => {
     // console.log("handleCreatePurchase formData --> ", formData);
-
     const missingFields = [];
 
     if (!formData.supplierName) {
@@ -491,14 +506,8 @@ const PurchaseEntry = () => {
       supplierName: formData.supplierName,
       storeName: formData.stockIn,
       passNo: formData.passNo,
-      // passDate: `${passDateObj.getDate()}/${
-      //   passDateObj.getMonth() + 1
-      // }/${passDateObj.getFullYear()}`,
       passDate: passDateObj,
       billNo: formData.billNo,
-      // billDate: `${billDateObj.getDate()}/${
-      //   billDateObj.getMonth() + 1
-      // }/${billDateObj.getFullYear()}`,
       billDate: billDateObj,
       mrpValue: parseFloat(totalValues.totalMrp) || 0,
       splDisc: parseFloat(totalValues.totalSDiscount) || 0,
@@ -848,7 +857,6 @@ const PurchaseEntry = () => {
       spcPurpose: totalSP.toFixed(2),
     }));
   }, [purchases]);
-  
 
   const clearAllFields = () => {
     setFormData({
@@ -1080,7 +1088,22 @@ const PurchaseEntry = () => {
               className="input-field"
               value={formData.itemName}
               onChange={handleItemNameChange}
-              onKeyDown={(e) => handleEnterKey(e, mrpRef)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === "Tab") {
+                  if (
+                    purchases.length > 0 &&
+                    formData.itemCode.trim() === "" &&
+                    formData.itemName.trim() === ""
+                  ) {
+                    handleEnterKey(e, totalGroRef);
+                  } else if(!formData.itemCode) {
+                    handleEnterKey(e, itemCodeRef)
+                  }
+                  else {
+                    handleEnterKey(e, mrpRef);
+                  }
+                }
+              }}
             />
           </Grid>
           <Grid item xs={0.8}>
@@ -1179,7 +1202,7 @@ const PurchaseEntry = () => {
               size="small"
               inputRef={btlRateRef}
               className="input-field"
-              value={formData.btlRate}
+              value={formData.mrp}
               onChange={(e) => {
                 const regex = /^\d*\.?\d*$/;
                 if (regex.test(e.target.value) || e.target.value === "") {
@@ -1600,6 +1623,7 @@ const PurchaseEntry = () => {
           <Grid item xs={1.2}>
             <InputLabel className="input-label-2">MRP Value</InputLabel>
             <TextField
+              inputRef={totalMrpRef}
               type="text"
               size="small"
               className="input-field"
@@ -1607,39 +1631,47 @@ const PurchaseEntry = () => {
               value={totalValues.totalMrp}
               InputProps={{ readOnly: true }}
               // onChange={handleTotalMRPChanges}
+              onKeyDown={(e) => handleEnterKey(e, sDiscountRef)}
+
             />
           </Grid>
           <Grid item xs={1}>
             <InputLabel className="input-label-2">S. Discount</InputLabel>
             <TextField
+              inputRef={sDiscountRef}
               type="text"
               size="small"
               className="input-field"
               fullWidth
               value={totalValues.totalSDiscount}
               onChange={handleSDiscountChange}
+              onKeyDown={(e) => handleEnterKey(e, totalGroRef)}
             />
           </Grid>
           <Grid item xs={1}>
             <InputLabel className="input-label-2">Govt. Rate Off</InputLabel>
             <TextField
+              inputRef={totalGroRef}
               type="text"
               size="small"
               className="input-field"
               fullWidth
               value={totalValues.govtRate}
               onChange={handleGovtRateChange}
+              onKeyDown={(e) => handleEnterKey(e, totalSPRef)}
             />
           </Grid>
           <Grid item xs={1}>
             <InputLabel className="input-label-2">Special Purposes</InputLabel>
             <TextField
+              inputRef={totalSPRef}
               type="text"
               size="small"
               className="input-field"
               fullWidth
               value={totalValues.spcPurpose}
               onChange={handleSpcPurchasesChange}
+              onKeyDown={(e) => handleEnterKey(e, tcsPercentRef)}
             />
           </Grid>
           {/* <Grid item xs={1}>
@@ -1656,6 +1688,7 @@ const PurchaseEntry = () => {
           <Grid item xs={1}>
             <InputLabel className="input-label-2">Tcs(%)</InputLabel>
             <TextField
+              inputRef={tcsPercentRef}
               type="text"
               size="small"
               className="input-field"
@@ -1663,55 +1696,65 @@ const PurchaseEntry = () => {
               value={totalValues.tcs || 1}
               // onChange={handleTcsChange}
               InputProps={{ readOnly: true }}
+              onKeyDown={(e) => handleEnterKey(e, tcsAmtRef)}
             />
           </Grid>
           <Grid item xs={1.1}>
             <InputLabel className="input-label-2">Tcs Amt.</InputLabel>
             <TextField
+              inputRef={tcsAmtRef}
               type="text"
               size="small"
               className="input-field"
               fullWidth
               value={totalValues.tcsAmt}
               InputProps={{ readOnly: true }}
+              onKeyDown={(e) => handleEnterKey(e, grossAmountRef)}
             />
           </Grid>
           <Grid item xs={1.2}>
             <InputLabel className="input-label-2">Gross Amt.</InputLabel>
             <TextField
+              inputRef={grossAmountRef}
               type="text"
               size="small"
               className="input-field"
               fullWidth
               value={totalValues.grossAmt}
               InputProps={{ readOnly: true }}
+              onKeyDown={(e) => handleEnterKey(e, totalDiscountRef)}
             />
           </Grid>
           <Grid item xs={1}>
             <InputLabel className="input-label-2">Discount(%)</InputLabel>
             <TextField
+              inputRef={totalDiscountRef}
               type="text"
               size="small"
               className="input-field"
               fullWidth
               value={totalValues.discount}
               onChange={handleDiscountChange}
+              onKeyDown={(e) => handleEnterKey(e, otherChargesRef)}
             />
           </Grid>
           <Grid item xs={1.2}>
             <InputLabel className="input-label-2">Other Charges</InputLabel>
             <TextField
+              inputRef={otherChargesRef}
               type="text"
               size="small"
               className="input-field"
               fullWidth
               value={totalValues.otherCharges}
               InputProps={{ readOnly: true }}
+              onKeyDown={(e) => handleEnterKey(e, adjustmentRef)}
             />
           </Grid>
           <Grid item xs={1.1}>
             <InputLabel className="input-label-2">Adjustment</InputLabel>
             <TextField
+              inputRef={adjustmentRef}
               type="text"
               size="small"
               className="input-field"
@@ -1719,17 +1762,23 @@ const PurchaseEntry = () => {
               value={totalValues.adjustment}
               InputProps={{ readOnly: true }}
               // onChange={handleAdjustmentChange}
+              onKeyDown={(e) => handleEnterKey(e, netAmountRef)}
             />
           </Grid>
           <Grid item xs={1.2}>
             <InputLabel className="input-label-2">Net Amount</InputLabel>
             <TextField
+              inputRef={netAmountRef}
               type="text"
               size="small"
               className="input-field"
               fullWidth
               value={totalValues.netAmt}
               InputProps={{ readOnly: true }}
+              onKeyDown={(e) => {
+                handleEnterKey(e, saveButtonRef);
+                handleFocusOnSave();
+              }}
             />
           </Grid>
         </Grid>
@@ -1811,11 +1860,18 @@ const PurchaseEntry = () => {
             OPEN
           </Button>
           <Button
+            ref={saveButtonRef}
             color="success"
             size="medium"
             variant="contained"
             onClick={handleCreatePurchase}
             sx={{ marginTop: 3, borderRadius: 8 }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleCreatePurchase();
+                handleEnterKey(e, itemCodeRef);
+              }
+            }}
           >
             SAVE
           </Button>
