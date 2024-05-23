@@ -686,7 +686,7 @@ const ItemRegister = () => {
                         <TableCell>
                           {editableIndex === index ? (
                             <Input
-                              value={editedRow.name}
+                              value={editedRow?.name}
                               onChange={(e) =>
                                 setEditedRow({
                                   ...editedRow,
@@ -695,7 +695,7 @@ const ItemRegister = () => {
                               }
                             />
                           ) : (
-                            item.name
+                            item?.name
                           )}
                         </TableCell>
 
@@ -718,7 +718,7 @@ const ItemRegister = () => {
                         <TableCell>
                           {editableIndex === index ? (
                             <Input
-                              value={editedRow.categoryId.categoryName}
+                              value={editedRow?.categoryId?.categoryName}
                               onChange={(e) =>
                                 setEditedRow({
                                   ...editedRow,
@@ -730,7 +730,7 @@ const ItemRegister = () => {
                               }
                             />
                           ) : (
-                            item.categoryId.categoryName
+                            item?.categoryId?.categoryName
                           )}
                         </TableCell>
 
@@ -753,7 +753,7 @@ const ItemRegister = () => {
                         <TableCell>
                           {editableIndex === index ? (
                             <Input
-                              value={editedRow.companyId.name}
+                              value={editedRow?.companyId?.name}
                               onChange={(e) =>
                                 setEditedRow({
                                   ...editedRow,
@@ -762,14 +762,14 @@ const ItemRegister = () => {
                               }
                             />
                           ) : (
-                            item.companyId.name
+                            item?.companyId?.name
                           )}
                         </TableCell>
 
                         <TableCell>
                           {editableIndex === index ? (
                             <Input
-                              value={editedRow.brandId.name}
+                              value={editedRow?.brandId?.name}
                               onChange={(e) =>
                                 setEditedRow({
                                   ...editedRow,
@@ -778,7 +778,7 @@ const ItemRegister = () => {
                               }
                             />
                           ) : (
-                            item.brandId.name
+                            item?.brandId?.name
                           )}
                         </TableCell>
 
