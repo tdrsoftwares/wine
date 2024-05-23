@@ -114,7 +114,7 @@ const StockReport = () => {
     },
     {
       field: "createdAt",
-      headerName: "Date",
+      headerName: "Created Date",
       width: 150,
       headerClassName: "custom-header",
     },
@@ -251,7 +251,7 @@ const StockReport = () => {
     fetchAllStocks();
   }, [paginationModel]);
 
-  const handleReloadTable = () => {
+  const handleClearFilters = () => {
     setFilterData({
       ...filterData,
       itemCode: "",
@@ -306,6 +306,15 @@ const StockReport = () => {
               className="input-field"
               value={filterData.itemName}
               onChange={handleFilterChange}
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200,
+                    },
+                  },
+                },
+              }}
             >
               {allItems?.map((item) => (
                 <MenuItem key={item._id} value={item.name}>
@@ -330,6 +339,15 @@ const StockReport = () => {
               className="input-field"
               value={filterData.category}
               onChange={handleFilterChange}
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200,
+                    },
+                  },
+                },
+              }}
             >
               {allCategory?.map((item) => (
                 <MenuItem key={item._id} value={item._id}>
@@ -386,6 +404,15 @@ const StockReport = () => {
               className="input-field"
               value={filterData.brandName}
               onChange={handleFilterChange}
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200,
+                    },
+                  },
+                },
+              }}
             >
               {allBrands?.map((item) => (
                 <MenuItem key={item._id} value={item.name}>
@@ -432,6 +459,15 @@ const StockReport = () => {
               className="input-field"
               value={filterData.company}
               onChange={handleFilterChange}
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200,
+                    },
+                  },
+                },
+              }}
             >
               {allCompanies?.map((item) => (
                 <MenuItem key={item._id} value={item._id}>
@@ -443,7 +479,6 @@ const StockReport = () => {
         </Grid>
       </Grid>
 
-      
       <Box
         sx={{
           height: 400,
@@ -500,44 +535,44 @@ const StockReport = () => {
           "& button": { marginTop: 2, marginLeft: 2 },
         }}
       >
-        <Button
+        {/* <Button
           color="inherit"
           size="medium"
           variant="contained"
-          onClick={handleReloadTable}
+          onClick={}
           sx={{ marginTop: 3, marginRight: 2, borderRadius: 8 }}
         >
           <ReplayOutlined />
+        </Button> */}
+        {/* <div> */}
+        <Button
+          color="warning"
+          size="medium"
+          variant="outlined"
+          onClick={handleClearFilters}
+          sx={{ borderRadius: 8 }}
+        >
+          Clear
         </Button>
-        <div>
-          <Button
-            color="primary"
-            size="medium"
-            variant="contained"
-            onClick={() => {}}
-            sx={{ borderRadius: 8 }}
-          >
-            Display
-          </Button>
-          <Button
-            color="secondary"
-            size="medium"
-            variant="outlined"
-            onClick={() => {}}
-            sx={{ borderRadius: 8 }}
-          >
-            Print
-          </Button>
-          <Button
-            color="error"
-            size="medium"
-            variant="outlined"
-            onClick={() => {}}
-            sx={{ borderRadius: 8 }}
-          >
-            Clear
-          </Button>
-        </div>
+        <Button
+          color="secondary"
+          size="medium"
+          variant="outlined"
+          onClick={() => {}}
+          sx={{ borderRadius: 8 }}
+        >
+          Print
+        </Button>
+        <Button
+          color="primary"
+          size="medium"
+          variant="contained"
+          onClick={fetchAllStocks}
+          sx={{ borderRadius: 8 }}
+        >
+          Display
+        </Button>
+        {/* </div> */}
       </Box>
     </Box>
   );
