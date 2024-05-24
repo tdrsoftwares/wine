@@ -456,21 +456,21 @@ const SaleReportSummary = () => {
             rows={(allSalesData || [])?.map((sale, index) => ({
               id: index,
               sNo: index + 1,
-              billNo: sale.billNo,
+              billNo: sale.billNo || "No Data",
               billDate:
                 new Date(sale.billDate).toLocaleDateString("en-GB"),
-              billType: sale.billType,
-              billSeries: sale.billSeries,
-              customer: sale.customer?.name,
-              volume: sale.volume,
-              totalPcs: sale.totalPcs,
-              grossAmount: sale.grossAmount,
-              discAmount: sale.discAmount,
+              billType: sale.billType || "No Data",
+              billSeries: sale.billSeries || "No Data",
+              customer: sale.customer?.name || "No Data",
+              volume: sale.volume || "No Data",
+              totalPcs: sale.totalPcs || "No Data",
+              grossAmount: sale.grossAmount || "No Data",
+              discAmount: sale.discAmount || "No Data",
               // splDisc: sale.splDisc,
               // splDiscAmount: sale.splDiscAmount,
-              taxAmount: sale.taxAmount,
-              adjustment: sale.adjustment,
-              netAmount: sale.netAmount,
+              taxAmount: sale.taxAmount || "No Data",
+              adjustment: sale.adjustment || "No Data",
+              netAmount: sale.netAmount || "No Data",
               action: (
                 <Button
                   variant="contained"
