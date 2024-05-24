@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Typography, Modal, Box, Button } from "@mui/material";
+import {
+  Typography,
+  Modal,
+  Box,
+  Button,
+  CircularProgress,
+} from "@mui/material";
 import { getItemPurchaseDetails } from "../../../services/purchaseService";
 import { DataGrid } from "@mui/x-data-grid";
 
 const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
   const [itemPurchaseDetails, setItemPurchaseDetails] = useState([]);
-
+  const [loading, setLoading] = useState(false);
   console.log("itemPurchaseDetails: ", itemPurchaseDetails);
 
   const columns = [
@@ -100,21 +106,21 @@ const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
 
   useEffect(() => {
     const fetchAllItemPurchases = async () => {
+      setLoading(true);
       try {
         const allItemPurchasesResponse = await getItemPurchaseDetails(
           rowData.entryNo
         );
         console.log("allItemPurchasesResponse: ", allItemPurchasesResponse);
-        setItemPurchaseDetails(
-          allItemPurchasesResponse?.data?.data
-        );
-
+        setItemPurchaseDetails(allItemPurchasesResponse?.data?.data);
       } catch (error) {
         // NotificationManager.error(
         //   "Error fetching ItemPurchases. Please try again later.",
         //   "Error"
         // );
         console.log("Error fetching ItemPurchases.", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchAllItemPurchases();
@@ -151,30 +157,41 @@ const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
         >
           Purchased Items
         </Typography>
-        <DataGrid
-          rows={itemPurchaseDetails?.map((item, index) => ({
-            id: index,
-            sNo: index + 1,
-            // itemId: item.itemId,
-            itemCode: item.itemCode,
-            batchNo: item.batchNo,
-            brokenNo: item.brokenNo,
-            caseNo: item.caseNo,
-            createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
-            updatedAt: new Date(item.updatedAt).toLocaleDateString("en-GB"),
-            mrp: item.mrp,
-            pcs: item.pcs,
-            purchaseRate: item.purchaseRate,
-            saleRate: item.saleRate,
-            sp: item.sp,
-            itemAmount: item.itemAmount,
-          }))}
-          columns={columns}
-          // rowCount={totalCount}
-          pageSize={5}
-          rowsPerPageOptions={[10, 25, 50]}
-          sx={{ backgroundColor: "#fff" }}
-        />
+
+        {itemPurchaseDetails.length > 0 ? (
+          <DataGrid
+            rows={(itemPurchaseDetails || [])?.map((item, index) => ({
+              id: index,
+              sNo: index + 1,
+              itemCode: item.itemCode || "No Data",
+              batchNo: item.batchNo || "No Data",
+              brokenNo: item.brokenNo || "No Data",
+              caseNo: item.caseNo || "No Data",
+              createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
+              updatedAt: new Date(item.updatedAt).toLocaleDateString("en-GB"),
+              mrp: item.mrp || "No Data",
+              pcs: item.pcs || "No Data",
+              purchaseRate: item.purchaseRate || "No Data",
+              saleRate: item.saleRate || "No Data",
+              sp: item.sp || "No Data",
+              itemAmount: item.itemAmount || "No Data",
+            }))}
+            columns={columns}
+            pageSize={5}
+            rowsPerPageOptions={[10, 25, 50]}
+            sx={{ backgroundColor: "#fff" }}
+            loading={loading}
+            loadingOverlay={
+              <Box>
+                <CircularProgress />
+              </Box>
+            }
+          />
+        ) : (
+          <Typography variant="body1" align="center">
+            No purchased items to display.
+          </Typography>
+        )}
 
         <Box
           sx={{
@@ -183,15 +200,6 @@ const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
             marginTop: 3,
           }}
         >
-          {/* <Button
-            color="primary"
-            size="medium"
-            variant="contained"
-            onClick={handleCreateItem}
-            sx={{ borderRadius: 8 }}
-          >
-            Create
-          </Button> */}
           <Button
             color="warning"
             size="medium"

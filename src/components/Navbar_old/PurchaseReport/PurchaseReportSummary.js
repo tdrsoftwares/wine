@@ -29,7 +29,7 @@ const PurchaseReportSummary = () => {
   const [dateFrom, setDateFrom] = useState(null);
 
   const [dateTo, setDateTo] = useState(null);
-  const [filter1, setFilter1] = useState("date-wise");
+  const [filter1, setFilter1] = useState("date");
   const [allPurchases, setAllPurchases] = useState([]);
   const [allSuppliers, setAllSuppliers] = useState([]);
   const [selectedRowData, setSelectedRowData] = useState(null);
@@ -419,6 +419,7 @@ const PurchaseReportSummary = () => {
             setDateTo(null);
             setSelectedSupplier("");
             setFilter1("date");
+            setPaginationModel({ page: 1, pageSize: 25 });
             fetchAllPurchases();
           }}
           sx={{ borderRadius: 8 }}
