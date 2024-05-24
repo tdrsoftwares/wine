@@ -457,8 +457,8 @@ const SaleReportSummary = () => {
               id: index,
               sNo: index + 1,
               billNo: sale.billNo || "No Data",
-              billDate:
-                new Date(sale.billDate).toLocaleDateString("en-GB"),
+              billDate: sale.billDate || "No Data",
+                // new Date(sale.billDate).toLocaleDateString("en-GB"),
               billType: sale.billType || "No Data",
               billSeries: sale.billSeries || "No Data",
               customer: sale.customer?.name || "No Data",
