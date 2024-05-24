@@ -52,6 +52,16 @@ export const getItemPurchaseDetails = async (entryNo) => {
   }
 };
 
+export const getItemWisePurchaseDetails = async () => {
+  try {
+    const apiURL = `/purchases/all-item-reports`;
+    const getItemPurchaseData = await axiosInstance.get(apiURL);
+    return getItemPurchaseData;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const searchAllPurchasesByItemName = async (itemName) => {
   try {
     const apiURL = `/purchases/item-search?name=${encodeURIComponent(itemName)}`;

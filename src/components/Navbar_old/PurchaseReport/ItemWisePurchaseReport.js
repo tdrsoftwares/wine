@@ -1,8 +1,10 @@
 import {
   Box,
   Button,
+  CircularProgress,
   FormControlLabel,
   Grid,
+  InputLabel,
   MenuItem,
   Paper,
   Radio,
@@ -16,43 +18,38 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import dayjs from "dayjs";
+import React, { useEffect, useState } from "react";
+import { getItemWisePurchaseDetails } from "../../../services/purchaseService";
+import { NotificationManager } from "react-notifications";
+import { DataGrid } from "@mui/x-data-grid";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { getAllSuppliers } from "../../../services/supplierService";
 
 const ItemWisePurchaseReport = () => {
   const [selectedSupplier, setSelectedSupplier] = useState("");
   const [code, setCode] = useState("");
-  const [dateFrom, setDateFrom] = useState("mm/dd/yyyy");
-  const [dateTo, setDateTo] = useState("mm/dd/yyyy");
+  const [dateFrom, setDateFrom] = useState(null);
+  const [dateTo, setDateTo] = useState(null);
   const [filter1, setFilter1] = useState("");
-
+  const [allPurchases, setAllPurchases] = useState([]);
+  const [allSuppliers, setAllSuppliers] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [brandName, setBrandName] = useState("");
   const [categoryName, setCategoryName] = useState("");
   const [itemName, setItemName] = useState("");
   const [packing, setPacking] = useState("");
-
-  const [tableData, setTableData] = useState([
-    {
-      eNo: "",
-      billNo: "",
-      billDate: "",
-      itemName: "",
-      brand: "",
-      cate: "",
-      packing: "",
-      bl: "",
-      cases: "",
-      qty: "",
-      rate: "",
-      mrp: "",
-      disc: "",
-      vat: "",
-      brkReceipt: "",
-      total: "",
-      mrpTotal: "",
-      margin: "",
-      stockIn: "",
-    },
-  ]);
+  const [loading, setLoading] = useState(false);
+  const [paginationModel, setPaginationModel] = useState({
+    page: 1,
+    pageSize: 25,
+  });
+  
+  const formatDate = (date) => {
+    if (!date) return null;
+    return dayjs(date).format("DD/MM/YYYY");
+  };
 
   const categoryOptions = [
     "All",
@@ -82,476 +79,494 @@ const ItemWisePurchaseReport = () => {
 
   const packingOptions = [750, 700, 650, 550, 450, 350, 250, 180];
 
+  const columns = [
+    {
+      field: "sNo",
+      headerName: "S. No.",
+      width: 90,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "itemName",
+      headerName: "Item Name",
+      width: 180,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "brandName",
+      headerName: "Brand Name",
+      width: 150,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "categoryName",
+      headerName: "Category",
+      width: 150,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "itemCode",
+      headerName: "Item Code",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "batchNo",
+      headerName: "Batch No.",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "brokenNo",
+      headerName: "Broken",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "gro",
+      headerName: "G.R.O.",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "sp",
+      headerName: "S. Purposes",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+    
+    {
+      field: "mrp",
+      headerName: "MRP",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "pcs",
+      headerName: "Pcs.",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "caseNo",
+      headerName: "Case No.",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "purchaseRate",
+      headerName: "Purchase Rate",
+      width: 150,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "saleRate",
+      headerName: "Sale Rate",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+    
+    {
+      field: "itemAmount",
+      headerName: "Amount",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "createdAt",
+      headerName: "Created Date",
+      width: 150,
+      headerClassName: "custom-header",
+    },
+  ];
+
+  const fetchAllPurchases = async () => {
+
+    setLoading(true);
+    try {
+      const filterOptions = {
+        // page:
+        //   paginationModel.page === 0
+        //     ? paginationModel.page + 1
+        //     : paginationModel.page,
+        // limit: paginationModel.pageSize,
+        // fromDate: fromDate,
+        // toDate: toDate,
+        // supplierName: selectedSupplier,
+      };
+      const response = await getItemWisePurchaseDetails();
+      setAllPurchases(response?.data?.data || []);
+      setTotalCount(response.data.data.length || 0);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching purchases. Please try again later.",
+        "Error"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchAllSuppliers = async () => {
+    try {
+      const response = await getAllSuppliers();
+      setAllSuppliers(response?.data?.data || []);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching suppliers. Please try again later.",
+        "Error"
+      );
+    }
+  };
+
+  useEffect(() => {
+    fetchAllPurchases();
+    fetchAllSuppliers();
+  }, []);
+
+  // const debounce = (func, delay) => {
+  //   let timeout;
+  //   return (...args) => {
+  //     clearTimeout(timeout);
+  //     timeout = setTimeout(() => {
+  //       func(...args);
+  //     }, delay);
+  //   };
+  // };
+
+  // useEffect(() => {
+  //   const debouncedFetch = debounce(fetchAllPurchases, 300);
+  //   debouncedFetch();
+  // }, [paginationModel, dateFrom, dateTo, selectedSupplier]);
+
+
   return (
-    <form>
-      <Box sx={{ p: 2, width: "900px" }}>
-        <Typography variant="h5" component="div" gutterBottom>
-          Purchase Report
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          Item Wise Purchase Report
-        </Typography>
+    <Box sx={{ p: 2, width: "900px" }}>
+      <Typography variant="h6" sx={{ marginBottom: 2 }}>
+        Item Wise Purchase Report:
+      </Typography>
+      {/* <Typography variant="subtitle1" gutterBottom>
+        Filter By:
+      </Typography>
 
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <RadioGroup
-              row
-              name="filter1"
-              aria-label="filter1"
-              value={filter1}
-              onChange={(e) => setFilter1(e.target.value)}
-            >
-              <FormControlLabel value="date" control={<Radio />} label="Date" />
-              <FormControlLabel
-                value="supplier"
-                control={<Radio />}
-                label="Supplier"
-              />
-              <FormControlLabel value="item" control={<Radio />} label="Item" />
-              <FormControlLabel
-                value="supplier/item"
-                control={<Radio />}
-                label="Supplier/Item"
-              />
-              <FormControlLabel
-                value="category"
-                control={<Radio />}
-                label="Category"
-              />
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <RadioGroup
+            row
+            name="filter1"
+            aria-label="filter1"
+            value={filter1}
+            onChange={(e) => setFilter1(e.target.value)}
+          >
+            <FormControlLabel value="date" control={<Radio />} label="Date" />
+            <FormControlLabel
+              value="supplier"
+              control={<Radio />}
+              label="Supplier"
+            />
+            <FormControlLabel value="item" control={<Radio />} label="Item" />
+            <FormControlLabel
+              value="supplier/item"
+              control={<Radio />}
+              label="Supplier/Item"
+            />
+            <FormControlLabel
+              value="category"
+              control={<Radio />}
+              label="Category"
+            />
 
-              <FormControlLabel
-                value="brand"
-                control={<Radio />}
-                label="Brand"
-              />
+            <FormControlLabel value="brand" control={<Radio />} label="Brand" />
 
-              <FormControlLabel value="fl" control={<Radio />} label="Fl" />
+            <FormControlLabel value="fl" control={<Radio />} label="Fl" />
 
-              <FormControlLabel value="beer" control={<Radio />} label="Beer" />
+            <FormControlLabel value="beer" control={<Radio />} label="Beer" />
 
-              <FormControlLabel
-                value="cs/iml"
-                control={<Radio />}
-                label="CS/IML"
-              />
-              <FormControlLabel value="code" control={<Radio />} label="Code" />
+            <FormControlLabel
+              value="cs/iml"
+              control={<Radio />}
+              label="CS/IML"
+            />
+            <FormControlLabel value="code" control={<Radio />} label="Code" />
 
-              <FormControlLabel value="pack" control={<Radio />} label="Pack" />
-            </RadioGroup>
-          </Grid>
-
-          {filter1 === "date" ? (
-            <>
-              <Grid item xs={2}>
-                <TextField
-                  fullWidth
-                  type="date"
-                  label="Date from"
-                  name="dateFrom"
-                  value={dateFrom}
-                  onChange={(e) => setDateFrom(e.target.value)}
-                />
-              </Grid>
-
-              <Grid item xs={2}>
-                <TextField
-                  fullWidth
-                  type="date"
-                  label="Date to"
-                  name="dateTo"
-                  value={dateTo}
-                  onChange={(e) => setDateTo(e.target.value)}
-                />
-              </Grid>
-            </>
-          ) : (
-            ""
-          )}
-
-          {filter1 === "supplier" || filter1 === "supplier/item" ? (
-            <Grid item xs={2}>
-              <TextField
-                select
-                fullWidth
-                name="Supplier"
-                label="Supplier"
-                variant="outlined"
-                className="input-field"
-                value={selectedSupplier}
-                onChange={(e) => setSelectedSupplier(e.target.value)}
-              >
-                {["Bevco", "Diamond", "Kalyani", "Vikram dhull"].map(
-                  (item, id) => (
-                    <MenuItem key={id} value={item}>
-                      {item}
-                    </MenuItem>
-                  )
-                )}
-              </TextField>
-            </Grid>
-          ) : (
-            ""
-          )}
-
-          {filter1 === "item" || filter1 === "supplier/item" ? (
-            <Grid item xs={2}>
-              <TextField
-                select
-                fullWidth
-                label="Item Name"
-                name="itemName"
-                value={itemName}
-                onChange={(e) => setItemName(e.target.value)}
-              >
-                {items.map((item, id) => (
-                  <MenuItem key={id} value={item}>
-                    {item}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-          ) : (
-            ""
-          )}
-
-          {filter1 === "brand" ? (
-            <Grid item xs={2}>
-              <TextField
-                select
-                fullWidth
-                label="Brand Name"
-                name="brandName"
-                value={brandName}
-                onChange={(e) => setBrandName(e.target.value)}
-              >
-                {brandOptions.map((item, id) => (
-                  <MenuItem key={id} value={item}>
-                    {item}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-          ) : (
-            ""
-          )}
-
-          {filter1 === "category" ? (
-            <Grid item xs={2}>
-              <TextField
-                select
-                fullWidth
-                label="Select Category"
-                name="categoryName"
-                value={categoryName}
-                onChange={(e) => setCategoryName(e.target.value)}
-              >
-                {categoryOptions.map((item, id) => (
-                  <MenuItem key={id} value={item}>
-                    {item}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-          ) : (
-            ""
-          )}
-
-          {filter1 === "pack" ? (
-            <Grid item xs={2}>
-              <TextField
-                select
-                fullWidth
-                name="packing"
-                label="Packing"
-                variant="outlined"
-                className="input-field"
-                value={packing}
-                onChange={(e) => setPacking(e.target.value)}
-              >
-                {packingOptions.map((item, id) => (
-                  <MenuItem key={id} value={item}>
-                    {item}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-          ) : (
-            ""
-          )}
-
-          {filter1 === "code" ? (
-            <Grid item xs={2}>
-              <TextField
-                select
-                fullWidth
-                name="code"
-                label="Code"
-                variant="outlined"
-                className="input-field"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-              >
-                {packingOptions.map((item, id) => (
-                  <MenuItem key={id} value={item}>
-                    {item}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-          ) : (
-            ""
-          )}
+            <FormControlLabel value="pack" control={<Radio />} label="Pack" />
+          </RadioGroup>
         </Grid>
 
-        <TableContainer
-          component={Paper}
-          sx={{
-            marginTop: 4,
-            width: "100%",
-            maxHeight: 300,
-            overflow: "auto",
-          }}
-        >
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>E. No.</TableCell>
-                <TableCell>Bill No.</TableCell>
-                <TableCell>Bill Date</TableCell>
-                <TableCell>Item Name</TableCell>
-                <TableCell>Brand</TableCell>
-                <TableCell>Category</TableCell>
-                <TableCell>Packing</TableCell>
-                <TableCell>BL</TableCell>
-                <TableCell>Cases</TableCell>
-                <TableCell>Qty.</TableCell>
-                <TableCell>Rate</TableCell>
-                <TableCell>MRP</TableCell>
-                <TableCell>Disc.</TableCell>
-                <TableCell>Vat</TableCell>
-                <TableCell>Brk. Receipt</TableCell>
-                <TableCell>Total</TableCell>
-                <TableCell>MRP Total</TableCell>
-                <TableCell>Margin(%)</TableCell>
-                <TableCell>Stock In</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {tableData.map((row, index) => (
-                <TableRow key={index}>
-                  <TableCell sx={{ padding: "6px" }}>
-                    <TextField
-                      size="small"
-                      value={row.eNo || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="dateFrom" className="input-label">
+              Bill date from:
+            </InputLabel>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                id="dateFrom"
+                format="DD/MM/YYYY"
+                value={dateFrom}
+                className="input-field date-picker"
+                onChange={(date) => setDateFrom(date)}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </LocalizationProvider>
+          </div>
+        </Grid>
 
-                  <TableCell sx={{ padding: "6px" }}>
-                    <TextField
-                      size="small"
-                      value={row.billNo || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="dateTo" className="input-label">
+              Bill date to:
+            </InputLabel>
 
-                  <TableCell sx={{ padding: "6px" }}>
-                    <TextField
-                      size="small"
-                      value={row.billDate || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                id="dateTo"
+                format="DD/MM/YYYY"
+                value={dateTo}
+                className="input-field date-picker"
+                onChange={(date) => setDateTo(date)}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </LocalizationProvider>
+          </div>
+        </Grid>
 
-                  <TableCell sx={{ padding: "6px" }}>
-                    <TextField
-                      size="small"
-                      value={row.itemName || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "6px" }}>
-                    <TextField
-                      size="small"
-                      value={row.brand || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "6px" }}>
-                    <TextField
-                      size="small"
-                      value={row.cate || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "6px" }}>
-                    <TextField
-                      size="small"
-                      value={row.packing || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "6px" }}>
-                    <TextField
-                      size="small"
-                      value={row.bl || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "6px" }}>
-                    <TextField
-                      size="small"
-                      value={row.cases || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "6px" }}>
-                    <TextField
-                      size="small"
-                      value={row.qty || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "6px" }}>
-                    <TextField
-                      size="small"
-                      value={row.rate || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "6px" }}>
-                    <TextField
-                      size="small"
-                      value={row.mrp || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "6px" }}>
-                    <TextField
-                      size="small"
-                      value={row.disc || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "6px" }}>
-                    <TextField
-                      size="small"
-                      value={row.vat || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "6px" }}>
-                    <TextField
-                      size="small"
-                      value={row.brkReceipt || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "6px" }}>
-                    <TextField
-                      size="small"
-                      value={row.total || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "6px" }}>
-                    <TextField
-                      size="small"
-                      value={row.mrpTotal || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "6px" }}>
-                    <TextField
-                      size="small"
-                      value={row.margin || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "6px" }}>
-                    <TextField
-                      size="small"
-                      value={row.stockIn || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-                </TableRow>
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="dateTo" className="input-label">
+              Supplier:
+            </InputLabel>
+            <TextField
+              select
+              fullWidth
+              name="Supplier"
+              className="input-field"
+              value={selectedSupplier}
+              onChange={(e) => setSelectedSupplier(e.target.value)}
+              disabled={
+                filter1 === "supplier" || filter1 === "supplier/item"
+                  ? false
+                  : true
+              }
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200,
+                    },
+                  },
+                },
+              }}
+            >
+              {allSuppliers.map((item) => (
+                <MenuItem key={item.id} value={item.name}>
+                  {item.name}
+                </MenuItem>
               ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+            </TextField>
+          </div>
+        </Grid>
 
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            marginTop: 2,
-          }}
-        >
-          <Button
-            color="primary"
-            size="large"
-            variant="outlined"
-            onClick={() => {}}
-            sx={{ marginTop: 2, marginRight: 2 }}
-          >
-            Display
-          </Button>
-          <Button
-            color="secondary"
-            size="large"
-            variant="outlined"
-            onClick={() => {}}
-            sx={{ marginTop: 2, marginRight: 2 }}
-          >
-            Print
-          </Button>
-          <Button
-            color="error"
-            size="large"
-            variant="outlined"
-            onClick={() => {}}
-            sx={{ marginTop: 2 }}
-          >
-            Clear
-          </Button>
-        </Box>
+        {filter1 === "item" || filter1 === "supplier/item" ? (
+          <Grid item xs={2}>
+            <TextField
+              select
+              fullWidth
+              label="Item Name"
+              name="itemName"
+              value={itemName}
+              onChange={(e) => setItemName(e.target.value)}
+            >
+              {items.map((item, id) => (
+                <MenuItem key={id} value={item}>
+                  {item}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+        ) : (
+          ""
+        )}
+
+        {filter1 === "brand" ? (
+          <Grid item xs={2}>
+            <TextField
+              select
+              fullWidth
+              label="Brand Name"
+              name="brandName"
+              value={brandName}
+              onChange={(e) => setBrandName(e.target.value)}
+            >
+              {brandOptions.map((item, id) => (
+                <MenuItem key={id} value={item}>
+                  {item}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+        ) : (
+          ""
+        )}
+
+        {filter1 === "category" ? (
+          <Grid item xs={2}>
+            <TextField
+              select
+              fullWidth
+              label="Select Category"
+              name="categoryName"
+              value={categoryName}
+              onChange={(e) => setCategoryName(e.target.value)}
+            >
+              {categoryOptions.map((item, id) => (
+                <MenuItem key={id} value={item}>
+                  {item}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+        ) : (
+          ""
+        )}
+
+        {filter1 === "pack" ? (
+          <Grid item xs={2}>
+            <TextField
+              select
+              fullWidth
+              name="packing"
+              label="Packing"
+              variant="outlined"
+              className="input-field"
+              value={packing}
+              onChange={(e) => setPacking(e.target.value)}
+            >
+              {packingOptions.map((item, id) => (
+                <MenuItem key={id} value={item}>
+                  {item}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+        ) : (
+          ""
+        )}
+
+        {filter1 === "code" ? (
+          <Grid item xs={2}>
+            <TextField
+              select
+              fullWidth
+              name="code"
+              label="Code"
+              variant="outlined"
+              className="input-field"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+            >
+              {packingOptions.map((item, id) => (
+                <MenuItem key={id} value={item}>
+                  {item}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+        ) : (
+          ""
+        )}
+      </Grid> */}
+
+      <Box
+        sx={{
+          height: 500,
+          width: "100%",
+          marginTop: 4,
+          "& .custom-header": { backgroundColor: "#dae4ed", paddingLeft: 4 },
+          "& .custom-cell": { paddingLeft: 4 },
+        }}
+      >
+        {allPurchases.length > 0 ? (
+          <DataGrid
+            rows={(allPurchases || [])?.map((item, index) => ({
+              id: index,
+              sNo: index + 1,
+              itemCode: item.itemCode || "No Data",
+              itemName: item?.item?.name || "No Data",
+              brandName: item?.item?.brand?.name || "No Data",
+              categoryName: item?.item?.category?.categoryName || "No Data",
+              batchNo: item.batchNo || "No Data",
+              brokenNo: item.brokenNo || "No Data",
+              caseNo: item.caseNo || "No Data",
+              pcs: item.pcs || "No Data",
+              // updatedAt: new Date(item.updatedAt).toLocaleDateString("en-GB"),
+              mrp: item.mrp || "No Data",
+              gro: item.gro || "No Data",
+              sp: item.sp || "No Data",
+              purchaseRate: item.purchaseRate || "No Data",
+              saleRate: item.saleRate || "No Data",
+              itemAmount: item.itemAmount || "No Data",
+              createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
+            }))}
+            columns={columns}
+            pageSize={5}
+            rowsPerPageOptions={[10, 25, 50]}
+            sx={{ backgroundColor: "#fff" }}
+            loading={loading}
+            loadingOverlay={
+              <Box>
+                <CircularProgress />
+              </Box>
+            }
+          />
+        ) : (
+          <Typography variant="body1" align="center">
+            No purchased items to display.
+          </Typography>
+        )}
       </Box>
-    </form>
+
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          "& button": { marginTop: 2, marginLeft: 2 },
+        }}
+      >
+        <Button
+          color="warning"
+          size="medium"
+          variant="outlined"
+          onClick={() => {
+            setDateFrom(null);
+            setDateTo(null);
+            setSelectedSupplier("");
+            setFilter1("");
+            setPaginationModel({ page: 1, pageSize: 25 });
+            fetchAllPurchases();
+          }}
+          sx={{ borderRadius: 8 }}
+        >
+          Clear
+        </Button>
+        <Button
+          color="secondary"
+          size="medium"
+          variant="outlined"
+          sx={{ borderRadius: 8 }}
+        >
+          Print
+        </Button>
+        <Button
+          color="primary"
+          size="medium"
+          variant="contained"
+          onClick={fetchAllPurchases}
+          sx={{ borderRadius: 8 }}
+        >
+          Display
+        </Button>
+      </Box>
+    </Box>
   );
 };
 
