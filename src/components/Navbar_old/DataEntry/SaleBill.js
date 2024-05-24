@@ -307,6 +307,19 @@ const SaleBill = () => {
     }
   }, 500);
 
+
+  // const updateTotalDiscounts = (salesData) => {
+  //   const totalDiscounts = salesData.reduce((total, item) => {
+  //     const discountValue = parseFloat(item.discount) || 0;
+  //     return total + discountValue;
+  //   }, 0);
+  
+  //   setTotalValues((prevTotalValues) => ({
+  //     ...prevTotalValues,
+  //     splDiscAmount: totalDiscounts.toFixed(2),
+  //   }));
+  // };  
+
   useEffect(() => {
     const newPcs = parseInt(formData.pcs) * parseInt(formData.mrp);
     setFormData((prevFormData) => ({
@@ -324,8 +337,7 @@ const SaleBill = () => {
 
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.ctrlKey && event.key === 's') {
-        event.preventDefault();
+      if (event.keyCode === 120) {
         handleCreateSale();
       }
     };
@@ -481,9 +493,9 @@ const SaleBill = () => {
 
   const handleEdit = (index, field, value) => {
     const updatedRow = { ...salesData[index] };
-
+  
     updatedRow[field] = value;
-
+  
     if (
       field === "rate" ||
       field === "pcs" ||
@@ -508,10 +520,10 @@ const SaleBill = () => {
         }
       }
     }
-
+  
     const updatedSalesData = [...salesData];
     updatedSalesData[index] = updatedRow;
-
+  
     setSalesData(updatedSalesData);
   };
 
@@ -574,6 +586,11 @@ const SaleBill = () => {
       return total + parseFloat(item.amount || 0) * parseInt(item.pcs || 1);
     }, 0);
   
+    
+    const totalDiscount = updatedSales.reduce((total, item) => {
+      return total + parseFloat(item.discount || 0);
+    }, 0);
+  
     const splDiscAmount = (calculatedGrossAmt * parseFloat(totalValues.splDiscount || 0)) / 100;
   
     const netAmt =
@@ -587,7 +604,7 @@ const SaleBill = () => {
       totalVolume: calculatedTotalVolume.toFixed(0),
       totalPcs: calculatedTotalPcs,
       grossAmt: calculatedGrossAmt.toFixed(0),
-      splDiscAmount: splDiscAmount.toFixed(0),
+      splDiscAmount: (splDiscAmount + totalDiscount).toFixed(0),
       netAmt: netAmt.toFixed(2),
     });
   };
@@ -857,6 +874,11 @@ const SaleBill = () => {
       0
     );
 
+    const totalDiscount = salesData.reduce(
+      (total, item) => total + parseFloat(item.discount || 0),
+      0
+    );
+
     const splDiscAmount =
       (grossAmt * (parseFloat(totalValues.splDiscount) || 0)) / 100;
 
@@ -872,7 +894,7 @@ const SaleBill = () => {
       totalPcs: totalPcs,
       grossAmt: grossAmt.toFixed(2),
       receiptMode1: calculateGrossAmt(),
-      splDiscAmount: splDiscAmount.toFixed(2),
+      splDiscAmount: (splDiscAmount + totalDiscount).toFixed(0),
       netAmt: netAmt.toFixed(2),
     });
   };
