@@ -30,15 +30,15 @@ export const searchAllSalesByItemCode = async (itemCode) => {
   }
 };
 
-// export const getAllSales = async () => {
-//   try {
-//     const apiURL = `/sales/reports`;
-//     const allSalesData = await axiosInstance.get(apiURL);
-//     return allSalesData;
-//   } catch (error) {
-//     return error;
-//   }
-// };
+export const getItemSaleDetails = async (billNo) => {
+  try {
+    const apiURL = `/sales/reports/${billNo}`;
+    const getItemSaleData = await axiosInstance.get(apiURL);
+    return getItemSaleData;
+  } catch (error) {
+    return error;
+  }
+};
 
 export const getAllSales = async (filterOptions) => {
   try {

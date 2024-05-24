@@ -17,6 +17,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { getAllSales } from "../../../services/saleBillService";
 import { DataGrid } from "@mui/x-data-grid";
 import { NotificationManager } from "react-notifications";
+import SalesDetailsModal from "./SalesDetailsModal";
 
 const SaleReportSummary = () => {
   const [selectOptions, setselectOptions] = useState(null);
@@ -32,13 +33,13 @@ const SaleReportSummary = () => {
     phone: "",
     isChecked: false,
   });
-
+  const [selectedRowData, setSelectedRowData] = useState(null);
   const [paginationModel, setPaginationModel] = useState({
     page: 1,
     pageSize: 25,
   });
   const [totalCount, setTotalCount] = useState(0);
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const seriesOptions = ["A", "B", "C", "D", "E", "ALL"];
 
   const columns = [
@@ -159,7 +160,7 @@ const SaleReportSummary = () => {
         <Button
           variant="contained"
           size="small"
-          // onClick={() => handleViewClick(params.row)}
+          onClick={() => handleViewClick(params.row)}
         >
           View
         </Button>
@@ -176,6 +177,11 @@ const SaleReportSummary = () => {
       ),
     [columns]
   );
+  
+  const handleViewClick = (row) => {
+    setSelectedRowData(row);
+    setIsModalOpen(true);
+  };
 
   const fetchAllSales = async () => {
     setLoading(true);
@@ -458,7 +464,7 @@ const SaleReportSummary = () => {
               sNo: index + 1,
               billNo: sale.billNo || "No Data",
               billDate: sale.billDate || "No Data",
-                // new Date(sale.billDate).toLocaleDateString("en-GB"),
+              // new Date(sale.billDate).toLocaleDateString("en-GB"),
               billType: sale.billType || "No Data",
               billSeries: sale.billSeries || "No Data",
               customer: sale.customer?.name || "No Data",
@@ -468,14 +474,14 @@ const SaleReportSummary = () => {
               discAmount: sale.discAmount || "No Data",
               // splDisc: sale.splDisc,
               // splDiscAmount: sale.splDiscAmount,
-              taxAmount: sale.taxAmount || "No Data",
+              // taxAmount: sale.taxAmount || "No Data",
               adjustment: sale.adjustment || "No Data",
               netAmount: sale.netAmount || "No Data",
               action: (
                 <Button
                   variant="contained"
                   size="small"
-                  // onClick={() => handleViewClick(sale)}
+                  onClick={() => handleViewClick(sale)}
                 >
                   View
                 </Button>
@@ -501,6 +507,11 @@ const SaleReportSummary = () => {
               </Box>
             }
             loading={loading}
+          />
+          <SalesDetailsModal
+            open={isModalOpen}
+            handleClose={() => setIsModalOpen(false)}
+            rowData={selectedRowData}
           />
         </Box>
 
