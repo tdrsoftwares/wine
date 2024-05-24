@@ -1246,6 +1246,7 @@ const PurchaseEntry = () => {
               value={formData.amount}
               aria-readonly
               onChange={(e) => handleAmountChange(e)}
+              InputProps={{ readOnly: true }}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();

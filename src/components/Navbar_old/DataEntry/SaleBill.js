@@ -110,6 +110,19 @@ const SaleBill = () => {
   const discountRef = useRef(null);
   const splitRef = useRef(null);
   const amountRef = useRef(null);
+  const totalVolRef = useRef(null);
+  const totalPcsRef = useRef(null);
+  const grossAmtRef = useRef(null);
+  const rectMode1Ref = useRef(null);
+  const rectMode2Ref = useRef(null);
+  const rectMode2AmtRef = useRef(null);
+  const sDiscPercentRef = useRef(null);
+  const sDiscAmtRef = useRef(null);
+  const taxAmtRef = useRef(null);
+  const adjustmentRef = useRef(null);
+  const netAmtRef = useRef(null);
+  const saveButtonRef = useRef(null);
+
 
   const fetchAllCustomers = async () => {
     try {
@@ -465,7 +478,7 @@ const SaleBill = () => {
   };
 
   const handleEnterKey = (event, nextInputRef) => {
-    if (event.key === "Enter") {
+    if (event.key === "Enter" || event.key === "Tab") {
       event.preventDefault();
       nextInputRef.current.focus();
 
@@ -485,7 +498,22 @@ const SaleBill = () => {
         case splitRef:
           handleSubmitIntoDataTable(event);
           break;
+        case totalVolRef:
+        case totalPcsRef:
+        case grossAmtRef:
+        case rectMode1Ref:
+        case rectMode2Ref:
+        case rectMode2AmtRef:
+        case sDiscPercentRef:
+        case sDiscAmtRef:
+        case taxAmtRef:
+        case adjustmentRef:
+        case netAmtRef:
+        case saveButtonRef:
+          handleCreateSale();
+          break;
         default:
+          nextInputRef.current.focus();
           break;
       }
     }
@@ -997,9 +1025,9 @@ const SaleBill = () => {
               name="phoneNo"
               className="input-field"
               value={formData.phoneNo}
-              onChange={(e) =>{
+              onChange={(e) => {
                 const value = e.target.value;
-                if(!isNaN(value))setFormData({ ...formData, phoneNo: value })
+                if (!isNaN(value)) setFormData({ ...formData, phoneNo: value });
               }}
             />
           </div>
@@ -1568,51 +1596,60 @@ const SaleBill = () => {
           <Grid item xs={0.8}>
             <InputLabel className="input-label-2">Vol (ml)</InputLabel>
             <TextField
+              inputRef={totalVolRef}
               variant="outlined"
               className="input-field"
               size="small"
               fullWidth
               value={totalValues.totalVolume}
               InputProps={{ readOnly: true }}
+              onKeyDown={(e) => handleEnterKey(e, totalPcsRef)}
             />
           </Grid>
           <Grid item xs={0.8}>
             <InputLabel className="input-label-2">Total Pcs.</InputLabel>
             <TextField
+              inputRef={totalPcsRef}
               variant="outlined"
               className="input-field"
               size="small"
               fullWidth
               value={totalValues.totalPcs}
               InputProps={{ readOnly: true }}
+              onKeyDown={(e) => handleEnterKey(e, grossAmtRef)}
             />
           </Grid>
           <Grid item xs={1.1}>
             <InputLabel className="input-label-2">Gross Amt. (₹)</InputLabel>
             <TextField
+              inputRef={grossAmtRef}
               variant="outlined"
               className="input-field"
               size="small"
               fullWidth
               value={totalValues.grossAmt}
               InputProps={{ readOnly: true }}
+              onKeyDown={(e) => handleEnterKey(e, rectMode1Ref)}
             />
           </Grid>
           <Grid item xs={1.2}>
             <InputLabel className="input-label-2">Rect. Mode 1</InputLabel>
             <TextField
+              inputRef={rectMode1Ref}
               variant="outlined"
               className="input-field"
               size="small"
               fullWidth
               value={totalValues.receiptMode1}
               onChange={handleReceiptModeChange}
+              onKeyDown={(e) => handleEnterKey(e, rectMode2Ref)}
             />
           </Grid>
           <Grid item xs={1.7}>
             <InputLabel className="input-label-2">Rect. Mode 2</InputLabel>
             <TextField
               select
+              inputRef={rectMode2Ref}
               variant="outlined"
               className="input-field"
               size="small"
@@ -1621,6 +1658,7 @@ const SaleBill = () => {
               onChange={(e) =>
                 setTotalValues({ ...totalValues, receiptMode2: e.target.value })
               }
+              onKeyDown={(e) => handleEnterKey(e, rectMode2AmtRef)}
             >
               {allLedgers?.map((item) => (
                 <MenuItem key={item._id} value={item._id}>
@@ -1632,6 +1670,7 @@ const SaleBill = () => {
           <Grid item xs={1}>
             <InputLabel className="input-label-2">Receipt Amt</InputLabel>
             <TextField
+              inputRef={rectMode2AmtRef}
               variant="outlined"
               className="input-field"
               size="small"
@@ -1640,11 +1679,13 @@ const SaleBill = () => {
               onChange={(e) =>
                 setTotalValues({ ...totalValues, receiptAmt: e.target.value })
               }
+              onKeyDown={(e) => handleEnterKey(e, sDiscPercentRef)}
             />
           </Grid>
           <Grid item xs={1}>
             <InputLabel className="input-label-2">S Disc(%)</InputLabel>
             <TextField
+              inputRef={sDiscPercentRef}
               variant="outlined"
               className="input-field"
               size="small"
@@ -1653,51 +1694,60 @@ const SaleBill = () => {
               onChange={(e) =>
                 setTotalValues({ ...totalValues, splDiscount: e.target.value })
               }
+              onKeyDown={(e) => handleEnterKey(e, sDiscAmtRef)}
             />
           </Grid>
           <Grid item xs={1.1}>
             <InputLabel className="input-label-2">S Disc Amt.</InputLabel>
             <TextField
+              inputRef={sDiscAmtRef}
               variant="outlined"
               className="input-field"
               size="small"
               fullWidth
               value={totalValues.splDiscAmount}
               InputProps={{ readOnly: true }}
+              onKeyDown={(e) => handleEnterKey(e, taxAmtRef)}
             />
           </Grid>
           <Grid item xs={1.1}>
             <InputLabel className="input-label-2">Tax Amt.</InputLabel>
             <TextField
+              inputRef={taxAmtRef}
               variant="outlined"
               className="input-field"
               size="small"
               fullWidth
               value={totalValues.taxAmt}
               InputProps={{ readOnly: true }}
+              onKeyDown={(e) => handleEnterKey(e, adjustmentRef)}
             />
           </Grid>
 
           <Grid item xs={1.1}>
             <InputLabel className="input-label-2">Adjustment</InputLabel>
             <TextField
+              inputRef={adjustmentRef}
               variant="outlined"
               className="input-field"
               size="small"
               fullWidth
               value={totalValues.adjustment}
               InputProps={{ readOnly: true }}
+              onKeyDown={(e) => handleEnterKey(e, netAmtRef)}
             />
           </Grid>
           <Grid item xs={1.1}>
             <InputLabel className="input-label-2">Net Amount</InputLabel>
             <TextField
+              inputRef={netAmtRef}
               variant="outlined"
               className="input-field"
               size="small"
               fullWidth
               value={totalValues.netAmt}
               InputProps={{ readOnly: true }}
+              onKeyDown={(e) => handleEnterKey(e, saveButtonRef)}
             />
           </Grid>
         </Grid>
@@ -1765,11 +1815,18 @@ const SaleBill = () => {
           OPEN
         </Button>
         <Button
+          ref={saveButtonRef}
           color="success"
           size="medium"
           variant="contained"
           onClick={handleCreateSale}
           sx={{ marginTop: 3 }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleCreateSale();
+              handleEnterKey(e, itemCodeRef);
+            }
+          }}
         >
           SAVE
         </Button>
