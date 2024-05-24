@@ -43,6 +43,14 @@ const NavbarOld = () => {
     setIsSidebarOpen((prevState) => !prevState);
   };
 
+  const closeAllDropdowns = () => {
+    setIsMasterFileDropdownOpen(false);
+    setIsDataEntryDropdownOpen(false);
+    setIsSaleReportDropdownOpen(false);
+    setIsSaleStatusReportDropdownOpen(false);
+    setIsPurchaseReportDropdownOpen(false);
+  };
+
   useEffect(() => {
     const closeDropdownOnOutsideClick = (event) => {
       if (
@@ -110,20 +118,45 @@ const NavbarOld = () => {
                 isMasterFileDropdownOpen ? "open" : ""
               }`}
             >
-              <Link to="/customer-register">Customer Register</Link>
-              <Link to="/suppliers-register">Suppliers Register</Link>
-              <Link to="/lpl-setup">LPL Setup</Link>
-              <Link to="/item-register">Item Register</Link>
-              <Link to="/item-category-register">Item Category Register</Link>
-              <Link to="/item-discount-register">Item Discount Register</Link>
-              <Link to="/dealer-category-discount-register">
+              <Link to="/customer-register" onClick={closeAllDropdowns}>
+                Customer Register
+              </Link>
+              <Link to="/suppliers-register" onClick={closeAllDropdowns}>
+                Suppliers Register
+              </Link>
+              <Link to="/lpl-setup" onClick={closeAllDropdowns}>
+                LPL Setup
+              </Link>
+              <Link to="/item-register" onClick={closeAllDropdowns}>
+                Item Register
+              </Link>
+              <Link to="/item-category-register" onClick={closeAllDropdowns}>
+                Item Category Register
+              </Link>
+              <Link to="/item-discount-register" onClick={closeAllDropdowns}>
+                Item Discount Register
+              </Link>
+              <Link
+                to="/dealer-category-discount-register"
+                onClick={closeAllDropdowns}
+              >
                 Dealer Category Discount Register
               </Link>
-              <Link to="/minimum-stock-register">Minimum Stock Register</Link>
-              <Link to="/scheme-register">Scheme Register</Link>
-              <Link to="/ledger-creation">Ledger Creation</Link>
-              <Link to="/store-register">Store Register</Link>
-              <Link to="/licensee-info">Licensee Info</Link>
+              <Link to="/minimum-stock-register" onClick={closeAllDropdowns}>
+                Minimum Stock Register
+              </Link>
+              <Link to="/scheme-register" onClick={closeAllDropdowns}>
+                Scheme Register
+              </Link>
+              <Link to="/ledger-creation" onClick={closeAllDropdowns}>
+                Ledger Creation
+              </Link>
+              <Link to="/store-register" onClick={closeAllDropdowns}>
+                Store Register
+              </Link>
+              <Link to="/licensee-info" onClick={closeAllDropdowns}>
+                Licensee Info
+              </Link>
             </div>
           </li>
           <li className="nav-item dropdown" ref={dataEntryDropdownRef}>
@@ -138,16 +171,36 @@ const NavbarOld = () => {
                 isDataEntryDropdownOpen ? "open" : ""
               }`}
             >
-              <Link to="/sale-bill">Sale Bill</Link>
-              <Link to="/purchase-entry">Purchase Entry</Link>
-              <Link to="/stock-transfer">Stock Transfer</Link>
-              <Link to="/party-payment">Party Payment</Link>
-              <Link to="/general-payment">General Payment</Link>
-              <Link to="/customer-receipt">Customer Receipt</Link>
-              <Link to="/general-receipt">General Receipt</Link>
-              <Link to="/cash-deposit">Cash Deposit to Bank</Link>
-              <Link to="/cash-withdrawn">Cash Withdrawn from Bank</Link>
-              <Link to="/journal-entry">Journal Entry</Link>
+              <Link to="/sale-bill" onClick={closeAllDropdowns}>
+                Sale Bill
+              </Link>
+              <Link to="/purchase-entry" onClick={closeAllDropdowns}>
+                Purchase Entry
+              </Link>
+              <Link to="/stock-transfer" onClick={closeAllDropdowns}>
+                Stock Transfer
+              </Link>
+              <Link to="/party-payment" onClick={closeAllDropdowns}>
+                Party Payment
+              </Link>
+              <Link to="/general-payment" onClick={closeAllDropdowns}>
+                General Payment
+              </Link>
+              <Link to="/customer-receipt" onClick={closeAllDropdowns}>
+                Customer Receipt
+              </Link>
+              <Link to="/general-receipt" onClick={closeAllDropdowns}>
+                General Receipt
+              </Link>
+              <Link to="/cash-deposit" onClick={closeAllDropdowns}>
+                Cash Deposit to Bank
+              </Link>
+              <Link to="/cash-withdrawn" onClick={closeAllDropdowns}>
+                Cash Withdrawn from Bank
+              </Link>
+              <Link to="/journal-entry" onClick={closeAllDropdowns}>
+                Journal Entry
+              </Link>
             </div>
           </li>
 
@@ -164,10 +217,18 @@ const NavbarOld = () => {
                 isSaleReportDropdownOpen ? "open" : ""
               }`}
             >
-              <Link to="/sale-report-summary">Sale Report (Summary)</Link>
-              <Link to="/item-wise-sale-report">Item Wise Sale Report</Link>
-              <Link to="/daily-sale-report">Daily Sale Report (DSR)</Link>
-              <Link to="/daily-profit-report">Daily Profit Report</Link>
+              <Link to="/sale-report-summary" onClick={closeAllDropdowns}>
+                Sale Report (Summary)
+              </Link>
+              <Link to="/item-wise-sale-report" onClick={closeAllDropdowns}>
+                Item Wise Sale Report
+              </Link>
+              <Link to="/daily-sale-report" onClick={closeAllDropdowns}>
+                Daily Sale Report (DSR)
+              </Link>
+              <Link to="/daily-profit-report" onClick={closeAllDropdowns}>
+                Daily Profit Report
+              </Link>
               <li
                 className="nav-item dropdown"
                 ref={saleStatusReportDropdownRef}
@@ -181,36 +242,65 @@ const NavbarOld = () => {
                     isSaleStatusReportDropdownOpen ? "open" : ""
                   }`}
                 >
-                  <Link to="/brand-wise-sale-status">
+                  <Link
+                    to="/brand-wise-sale-status"
+                    onClick={closeAllDropdowns}
+                  >
                     Brand Wise Sale Status
                   </Link>
-                  <Link to="/item-category-wise-sale-status">
+                  <Link
+                    to="/item-category-wise-sale-status"
+                    onClick={closeAllDropdowns}
+                  >
                     Item Category Wise Sale Status
                   </Link>
-                  <Link to="/brand-sale-status">Brand Sale Status</Link>
-                  <Link to="/category-sale-status">Category Sale Status</Link>
+                  <Link to="/brand-sale-status" onClick={closeAllDropdowns}>
+                    Brand Sale Status
+                  </Link>
+                  <Link to="/category-sale-status" onClick={closeAllDropdowns}>
+                    Category Sale Status
+                  </Link>
                 </div>
               </li>
-              <Link to="/daily-item-sale-category">
+              <Link to="/daily-item-sale-category" onClick={closeAllDropdowns}>
                 Daily Item Sale Status (Category)
               </Link>
-              <Link to="/daily-item-sale-brand">
+              <Link to="/daily-item-sale-brand" onClick={closeAllDropdowns}>
                 Daily Item Sale Status (Brand)
               </Link>
-              <Link to="/daily-item-status">Daily Item Status</Link>
-              <Link to="/customer-due-report">Customer Due Report</Link>
-              <Link to="/salesman-report">Salesman Report</Link>
-              <Link to="/receipt-report">Receipt Report</Link>
-              <Link to="/bill-wise-collection-report">
+              <Link to="/daily-item-status" onClick={closeAllDropdowns}>
+                Daily Item Status
+              </Link>
+              <Link to="/customer-due-report" onClick={closeAllDropdowns}>
+                Customer Due Report
+              </Link>
+              <Link to="/salesman-report" onClick={closeAllDropdowns}>
+                Salesman Report
+              </Link>
+              <Link to="/receipt-report" onClick={closeAllDropdowns}>
+                Receipt Report
+              </Link>
+              <Link
+                to="/bill-wise-collection-report"
+                onClick={closeAllDropdowns}
+              >
                 Bill Wise Collection Report
               </Link>
-              <Link to="/dealer-sale-discount-chart">
+              <Link
+                to="/dealer-sale-discount-chart"
+                onClick={closeAllDropdowns}
+              >
                 Dealer Sale Discount Chart
               </Link>
-              <Link to="/customer-transaction-details">
+              <Link
+                to="/customer-transaction-details"
+                onClick={closeAllDropdowns}
+              >
                 Customer Transaction Details
               </Link>
-              <Link to="/profit-on-sale">Profit On Sale</Link>
+              <Link to="/profit-on-sale" onClick={closeAllDropdowns}>
+                Profit On Sale
+              </Link>
             </div>
           </li>
 
@@ -226,42 +316,60 @@ const NavbarOld = () => {
                 isPurchaseReportDropdownOpen ? "open" : ""
               }`}
             >
-              <Link to="/purchase-report-summary">
+              <Link to="/purchase-report-summary" onClick={closeAllDropdowns}>
                 Purchase Report (Summary)
               </Link>
-              <Link to="/item-wise-purchase-report">
+              <Link to="/item-wise-purchase-report" onClick={closeAllDropdowns}>
                 Item Wise Purchase Report
               </Link>
-              <Link to="/daily-purchase-report">
+              <Link to="/daily-purchase-report" onClick={closeAllDropdowns}>
                 Daily Purchase Report (Dpr)
               </Link>
-              <Link to="/suppliers-balance-report">
+              <Link to="/suppliers-balance-report" onClick={closeAllDropdowns}>
                 Suppliers Balance Report
               </Link>
-              <Link to="/payment-report">Payment Report</Link>
-              <Link to="/bill-wise-payment-report">
+              <Link to="/payment-report" onClick={closeAllDropdowns}>
+                Payment Report
+              </Link>
+              <Link to="/bill-wise-payment-report" onClick={closeAllDropdowns}>
                 Bill Wise Payment Report
               </Link>
             </div>
           </li>
 
           <li className="nav-item">
-            <Link to="/inventory-report" className="nav-link">
+            <Link
+              to="/inventory-report"
+              className="nav-link"
+              onClick={closeAllDropdowns}
+            >
               Inventory Report
             </Link>
           </li>
           <li className="nav-item">
-            <Link to="/excise-report" className="nav-link">
+            <Link
+              to="/excise-report"
+              className="nav-link"
+              onClick={closeAllDropdowns}
+            >
               Excise Report
             </Link>
           </li>
           <li className="nav-item">
-            <Link to="/audit-accounts" className="nav-link">
+            <Link
+              to="/audit-accounts"
+              className="nav-link"
+              onClick={closeAllDropdowns}
+            >
               Audit & Accounts
             </Link>
           </li>
           <li className="nav-item">
-            <Link to="/utilities" className="nav-link">
+            <Link
+              to="/utilities"
+              className="nav-link"
+              onClick={closeAllDropdowns}
+            >
               Utilities
             </Link>
           </li>
