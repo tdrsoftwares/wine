@@ -1,5 +1,4 @@
-// src/CreateCompanyModal.js
-import React, { useState } from "react";
+import React from "react";
 import {
   Box,
   Button,
@@ -8,44 +7,16 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { NotificationManager } from "react-notifications";
-import { createCompany } from "../../../services/companyService";
 
-const CreateCompanyModal = ({ isOpen, handleClose, fetchAllCompanies }) => {
-  const [companyName, setCompanyName] = useState("");
-  const [companyType, setCompanyType] = useState("");
-
-  const handleCreateCompany = async () => {
-    console.log("Creating company:", { companyName, companyType });
-    const payload = {
-      name: companyName,
-      type: companyType,
-    };
-    try {
-      const createCompanyResponse = await createCompany(payload);
-      if (createCompanyResponse.status === 200) {
-        NotificationManager.success("Company created successfully", "Success");
-        console.log("Company created successfully:", createCompanyResponse);
-        setCompanyName("");
-        setCompanyType("");
-        fetchAllCompanies();
-        handleClose();
-      } else {
-        NotificationManager.error(
-          "Error creating company. Please try again later.",
-          "Error"
-        );
-        console.error("Error creating company:", createCompanyResponse);
-      }
-    } catch (error) {
-      NotificationManager.error(
-        "Error creating company. Please try again later.",
-        "Error"
-      );
-      console.error("Error creating company:", error);
-    }
-  };
-
+const CreateCompanyModal = ({
+  isOpen,
+  handleClose,
+  companyName,
+  setCompanyName,
+  companyType,
+  setCompanyType,
+  handleCreateCompany,
+}) => {
   return (
     <Modal open={isOpen} onClose={handleClose}>
       <Box sx={modalStyles}>

@@ -13,8 +13,8 @@ import {
 import { NotificationManager } from "react-notifications";
 import { createItem, getAllItems } from "../../../services/itemService";
 import { getAllItemCategory } from "../../../services/categoryService";
-import { getAllBrands } from "../../../services/brandService";
-import { getAllCompanies } from "../../../services/companyService";
+import { createBrand, getAllBrands } from "../../../services/brandService";
+import { createCompany, getAllCompanies } from "../../../services/companyService";
 import CreateCompanyModal from "./CreateCompanyModal";
 import CreateBrandModal from "./CreateBrandModal";
 
@@ -35,6 +35,12 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
 
   const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
   const [isBrandModalOpen, setIsBrandModalOpen] = useState(false);
+
+  const [companyName, setCompanyName] = useState("");
+  const [companyType, setCompanyType] = useState("");
+  const [brandName, setBrandName] = useState("");
+  const [type, setType] = useState("");
+  const [indexNumber, setIndexNumber] = useState("");
 
   const clearForm = () => {
     setItemName("");
@@ -145,12 +151,102 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
     }
   };
 
+  const handleCreateCompany = async () => {
+    console.log("Creating company:", { companyName, companyType });
+    const payload = {
+      name: companyName,
+      type: companyType,
+    };
+    try {
+      const createCompanyResponse = await createCompany(payload);
+      if (createCompanyResponse.status === 200) {
+        NotificationManager.success("Company created successfully", "Success");
+        console.log("Company created successfully:", createCompanyResponse);
+        setCompanyName("");
+        setCompanyType("");
+        fetchAllCompanies();
+        setIsCompanyModalOpen(false)
+      } else {
+        NotificationManager.error(
+          "Error creating company. Please try again later.",
+          "Error"
+        );
+        console.error("Error creating company:", createCompanyResponse);
+      }
+    } catch (error) {
+      NotificationManager.error(
+        "Error creating company. Please try again later.",
+        "Error"
+      );
+      console.error("Error creating company:", error);
+    }
+  };
+  
+
+  const handleCreateBrand = async () => {
+    // Logic to create brand
+    console.log("Creating brand:", {
+      brandName,
+      companyName,
+      type,
+      indexNumber,
+    });
+    const payload = {
+      name: brandName,
+      companyId: companyName,
+      type: type,
+      indexNo: indexNumber,
+    };
+    try {
+      const createBrandResponse = await createBrand(payload);
+      if (createBrandResponse.status === 200) {
+        NotificationManager.success("Brand created successfully", "Success");
+        setBrandName("");
+        setCompanyName("");
+        setType("");
+        setIndexNumber("");
+        fetchAllBrands();
+        setIsBrandModalOpen(false);
+      } else {
+        NotificationManager.error(
+          "Error creating brand. Please try again later.",
+          "Error"
+        );
+        console.error("Error creating brand:", createBrandResponse);
+      }
+    } catch (error) {
+      NotificationManager.error(
+        "Error creating brand. Please try again later.",
+        "Error"
+      );
+      console.error("Error creating brand:", error);
+    }
+  };
+
+  useEffect(() => {
+    const loadCompanies = async () => {
+      try {
+        const companies = await getAllCompanies();
+        setAllCompanies(companies?.data.data);
+      } catch (error) {
+        console.error("Failed to fetch companies", error);
+      }
+    };
+
+    loadCompanies();
+  }, []);
+
   useEffect(() => {
     fetchAllItems();
     fetchAllItemCategory();
     fetchAllBrands();
     fetchAllCompanies();
   }, []);
+
+  useEffect(() => {
+    fetchAllCompanies();
+    fetchAllBrands();
+  }, [isBrandModalOpen, isCompanyModalOpen])
 
   return (
     <>
@@ -378,11 +474,27 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
       <CreateCompanyModal
         isOpen={isCompanyModalOpen}
         fetchAllCompanies={fetchAllCompanies}
+        companyName={companyName}
+        setCompanyName={setCompanyName}
+        companyType={companyType}
+        setCompanyType={setCompanyType}
+        handleCreateCompany={handleCreateCompany}
         handleClose={() => setIsCompanyModalOpen(false)}
       />
       <CreateBrandModal
         isOpen={isBrandModalOpen}
         fetchAllBrands={fetchAllBrands}
+        brandName={brandName}
+        setBrandName={setBrandName}
+        companyName={companyName}
+        setCompanyName={setCompanyName}
+        type={type}
+        setType={setType}
+        indexNumber={indexNumber}
+        setIndexNumber={setIndexNumber}
+        allCompanies={allCompanies}
+        setAllCompanies={setAllCompanies}
+        handleCreateBrand={handleCreateBrand}
         handleClose={() => setIsBrandModalOpen(false)}
       />
     </>

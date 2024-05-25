@@ -12,66 +12,20 @@ import { getAllCompanies } from "../../../services/companyService";
 import { NotificationManager } from "react-notifications";
 import { createBrand } from "../../../services/brandService";
 
-const CreateBrandModal = ({ isOpen, handleClose, fetchAllBrands }) => {
-  const [brandName, setBrandName] = useState("");
-  const [companyName, setCompanyName] = useState("");
-  const [type, setType] = useState("");
-  const [indexNumber, setIndexNumber] = useState("");
-  const [allCompanies, setAllCompanies] = useState([]);
-
-  useEffect(() => {
-    const loadCompanies = async () => {
-      try {
-        const companies = await getAllCompanies();
-        setAllCompanies(companies?.data.data);
-      } catch (error) {
-        console.error("Failed to fetch companies", error);
-      }
-    };
-
-    loadCompanies();
-  }, []);
-
-  const handleCreateBrand = async () => {
-    // Logic to create brand
-    console.log("Creating brand:", {
-      brandName,
-      companyName,
-      type,
-      indexNumber,
-    });
-    const payload = {
-      name: brandName,
-      companyId: companyName,
-      type: type,
-      indexNo: indexNumber,
-    };
-    try {
-      const createBrandResponse = await createBrand(payload);
-      if (createBrandResponse.status === 200) {
-        NotificationManager.success("Brand created successfully", "Success");
-        setBrandName("");
-        setCompanyName("");
-        setType("");
-        setIndexNumber("");
-        fetchAllBrands();
-        handleClose();
-      } else {
-        NotificationManager.error(
-          "Error creating brand. Please try again later.",
-          "Error"
-        );
-        console.error("Error creating brand:", createBrandResponse);
-      }
-    } catch (error) {
-      NotificationManager.error(
-        "Error creating brand. Please try again later.",
-        "Error"
-      );
-      console.error("Error creating brand:", error);
-    }
-  };
-
+const CreateBrandModal = ({
+  isOpen,
+  handleClose,
+  brandName,
+  setBrandName,
+  companyName,
+  setCompanyName,
+  type,
+  setType,
+  indexNumber,
+  setIndexNumber,
+  allCompanies,
+  handleCreateBrand,
+}) => {
   return (
     <Modal open={isOpen} onClose={handleClose}>
       <Box sx={modalStyles}>
