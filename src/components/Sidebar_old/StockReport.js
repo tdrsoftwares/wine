@@ -125,6 +125,12 @@ const StockReport = () => {
       headerClassName: "custom-header",
     },
     {
+      field: "volume",
+      headerName: "Volume",
+      width: 150,
+      headerClassName: "custom-header",
+    },
+    {
       field: "mrp",
       headerName: "MRP",
       width: 120,
@@ -384,7 +390,7 @@ const StockReport = () => {
               }}
             >
               {allCategory?.map((item) => (
-                <MenuItem key={item._id} value={item._id}>
+                <MenuItem key={item._id} value={item.categoryName}>
                   {item.categoryName}
                 </MenuItem>
               ))}
@@ -513,7 +519,7 @@ const StockReport = () => {
               }}
             >
               {allCompanies?.map((item) => (
-                <MenuItem key={item._id} value={item._id}>
+                <MenuItem key={item._id} value={item.name}>
                   {item.name}
                 </MenuItem>
               ))}
@@ -542,7 +548,7 @@ const StockReport = () => {
             categoryName: stock?.item?.category?.categoryName || "No Data",
             companyName: stock?.item?.company?.name || "No Data",
             batchNo: stock.batchNo || "No Data",
-            createdAt: new Date(stock.createdAt).toLocaleDateString("en-GB"),
+            volume: stock?.item?.volume || "No Data",
             saleRate: stock.saleRate || "No Data",
             purchaseRate: stock.purchaseRate || "No Data",
             stockRate: stock.stockRate || "No Data",
@@ -550,6 +556,7 @@ const StockReport = () => {
             currentStock: stock.currentStock || "No Data",
             openingStock: stock.openingStock || "No Data",
             mrp: stock.mrp || "No Data",
+            createdAt: new Date(stock.createdAt).toLocaleDateString("en-GB"),
           }))}
           columns={columnsData}
           rowCount={totalCount}
