@@ -16,7 +16,7 @@ import { getAllItems } from "../../services/itemService";
 import { getAllBrands } from "../../services/brandService";
 import { getAllCompanies } from "../../services/companyService";
 import { getAllItemCategory } from "../../services/categoryService";
-import { ReplayOutlined } from "@mui/icons-material";
+import { getAllStores } from "../../services/storeService";
 
 const StockReport = () => {
   const [allStocks, setAllStocks] = useState([]);
@@ -39,9 +39,9 @@ const StockReport = () => {
   const [allBrands, setAllBrands] = useState([]);
   const [allCompanies, setAllCompanies] = useState([]);
   const [allCategory, setAllCategory] = useState([]);
+  const [allStores, setAllStores] = useState([]);
 
-  const batchNoOptions = ["0", "00", "01", "516-1", "521-1", "526-1"];
-  const stockInOptions = ["All", "Godown", "Showroom"];
+
   const [paginationModel, setPaginationModel] = useState({
     page: 1,
     pageSize: 10,
@@ -60,13 +60,31 @@ const StockReport = () => {
     {
       field: "itemCode",
       headerName: "Item Code",
-      width: 120,
+      width: 150,
       headerClassName: "custom-header",
     },
     {
       field: "itemName",
-      headerName: "Item Name",
-      width: 120,
+      headerName: "Item",
+      width: 180,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "brandName",
+      headerName: "Brand",
+      width: 180,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "categoryName",
+      headerName: "Category",
+      width: 150,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "companyName",
+      headerName: "Company",
+      width: 180,
       headerClassName: "custom-header",
     },
     {
@@ -158,6 +176,7 @@ const StockReport = () => {
       };
       console.log("filterOptions: ", filterOptions);
       const allStocksResponse = await getAllStocks(filterOptions);
+      console.log("allStocksResponse: ", allStocksResponse);
 
       setAllStocks(allStocksResponse?.data?.data);
       setTotalCount(allStocksResponse?.data?.data?.length);
@@ -181,6 +200,20 @@ const StockReport = () => {
         "Error fetching items. Please try again later.",
         "Error"
       );
+    }
+  };
+
+  const fetchAllStores = async () => {
+    try {
+      const allStoresResponse = await getAllStores();
+      // console.log("allStoresResponse ---> ", allStoresResponse);
+      setAllStores(allStoresResponse?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching stores. Please try again later.",
+        "Error"
+      );
+      console.error("Error fetching stores:", error);
     }
   };
 
@@ -245,6 +278,7 @@ const StockReport = () => {
     fetchAllBrands();
     fetchAllCompanies();
     fetchAllCategory();
+    fetchAllStores();
   }, []);
 
   useEffect(() => {
@@ -436,10 +470,19 @@ const StockReport = () => {
               className="input-field"
               value={filterData.stockIn}
               onChange={handleFilterChange}
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200,
+                    },
+                  },
+                },
+              }}
             >
-              {stockInOptions?.map((option, i) => (
-                <MenuItem key={i} value={option}>
-                  {option}
+              {allStores?.map((store) => (
+                <MenuItem key={store._id} value={store.name}>
+                  {store.name}
                 </MenuItem>
               ))}
             </TextField>
@@ -493,17 +536,20 @@ const StockReport = () => {
           rows={(allStocks || [])?.map((stock, index) => ({
             id: index,
             sNo: index + 1,
-            itemCode: stock.itemCode,
-            itemName: stock?.item?.name,
-            batchNo: stock.batchNo,
+            itemCode: stock.itemCode || "No Data",
+            itemName: stock?.item?.name || "No Data",
+            brandName: stock?.item?.brand?.name || "No Data",
+            categoryName: stock?.item?.category?.categoryName || "No Data",
+            companyName: stock?.item?.company?.name || "No Data",
+            batchNo: stock.batchNo || "No Data",
             createdAt: new Date(stock.createdAt).toLocaleDateString("en-GB"),
-            saleRate: stock.saleRate,
-            purchaseRate: stock.purchaseRate,
-            stockRate: stock.stockRate,
-            stockAt: stock.stockAt,
-            currentStock: stock.currentStock,
-            openingStock: stock.openingStock,
-            mrp: stock.mrp,
+            saleRate: stock.saleRate || "No Data",
+            purchaseRate: stock.purchaseRate || "No Data",
+            stockRate: stock.stockRate || "No Data",
+            stockAt: stock.stockAt || "No Data",
+            currentStock: stock.currentStock || "No Data",
+            openingStock: stock.openingStock || "No Data",
+            mrp: stock.mrp || "No Data",
           }))}
           columns={columnsData}
           rowCount={totalCount}
