@@ -1,8 +1,10 @@
 import {
   Box,
   Button,
+  Checkbox,
   CircularProgress,
   FormControlLabel,
+  FormGroup,
   Grid,
   InputLabel,
   MenuItem,
@@ -26,6 +28,9 @@ import { DataGrid } from "@mui/x-data-grid";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { getAllSuppliers } from "../../../services/supplierService";
+import { getAllItems } from "../../../services/itemService";
+import { getAllItemCategory } from "../../../services/categoryService";
+import { getAllBrands } from "../../../services/brandService";
 
 const ItemWisePurchaseReport = () => {
   const [selectedSupplier, setSelectedSupplier] = useState("");
@@ -35,6 +40,14 @@ const ItemWisePurchaseReport = () => {
   const [filter1, setFilter1] = useState("");
   const [allPurchases, setAllPurchases] = useState([]);
   const [allSuppliers, setAllSuppliers] = useState([]);
+  const [allItems, setAllItems] = useState([]);
+  const [allCategory, setAllCategory] = useState([]);
+  const [checkController, setCheckController] = useState({
+    fl: false,
+    beer: false,
+    cs_iml: false,
+  });
+  const [allBrands, setAllBrands] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [brandName, setBrandName] = useState("");
   const [categoryName, setCategoryName] = useState("");
@@ -45,37 +58,11 @@ const ItemWisePurchaseReport = () => {
     page: 1,
     pageSize: 25,
   });
-  
+
   const formatDate = (date) => {
     if (!date) return null;
     return dayjs(date).format("DD/MM/YYYY");
   };
-
-  const categoryOptions = [
-    "All",
-    "50 UP IML",
-    "60 UP IML",
-    "70 UP IML",
-    "Beer (India)",
-    "Brandy (IMFL)",
-    "Rum (IMFL)",
-    "Vodka (IMFL)",
-    "Vodka (OS)",
-    "Whisky (IMFL)",
-    "Whisky (OS)",
-    "Wine (IMFL)",
-    "Wine (OS)",
-  ];
-
-  const brandOptions = [
-    "All",
-    "Beer",
-    "Country Sprit",
-    "Foreign Liquor",
-    "India Made Liquor",
-  ];
-
-  const items = ["100 Pipers 375", "100 Pipers 12Yr 750", "100 Pipers W180"];
 
   const packingOptions = [750, 700, 650, 550, 450, 350, 250, 180];
 
@@ -134,7 +121,7 @@ const ItemWisePurchaseReport = () => {
       width: 120,
       headerClassName: "custom-header",
     },
-    
+
     {
       field: "mrp",
       headerName: "MRP",
@@ -165,7 +152,7 @@ const ItemWisePurchaseReport = () => {
       width: 120,
       headerClassName: "custom-header",
     },
-    
+
     {
       field: "itemAmount",
       headerName: "Amount",
@@ -181,7 +168,6 @@ const ItemWisePurchaseReport = () => {
   ];
 
   const fetchAllPurchases = async () => {
-
     setLoading(true);
     try {
       const filterOptions = {
@@ -219,9 +205,48 @@ const ItemWisePurchaseReport = () => {
     }
   };
 
+  const fetchAllItems = async () => {
+    try {
+      const allItemsResponse = await getAllItems();
+      setAllItems(allItemsResponse?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching items. Please try again later.",
+        "Error"
+      );
+    }
+  };
+
+  const fetchAllItemCategory = async () => {
+    try {
+      const allCategoryResponse = await getAllItemCategory();
+      setAllCategory(allCategoryResponse?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching categories. Please try again later.",
+        "Error"
+      );
+    }
+  };
+
+  const fetchAllBrands = async () => {
+    try {
+      const allBrandResponse = await getAllBrands();
+      setAllBrands(allBrandResponse?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching brands. Please try again later.",
+        "Error"
+      );
+    }
+  };
+
   useEffect(() => {
     fetchAllPurchases();
     fetchAllSuppliers();
+    fetchAllItems();
+    fetchAllItemCategory();
+    fetchAllBrands();
   }, []);
 
   // const debounce = (func, delay) => {
@@ -239,18 +264,17 @@ const ItemWisePurchaseReport = () => {
   //   debouncedFetch();
   // }, [paginationModel, dateFrom, dateTo, selectedSupplier]);
 
-
   return (
     <Box sx={{ p: 2, width: "900px" }}>
       <Typography variant="h6" sx={{ marginBottom: 2 }}>
         Item Wise Purchase Report:
       </Typography>
-      {/* <Typography variant="subtitle1" gutterBottom>
+      <Typography variant="subtitle1" gutterBottom>
         Filter By:
       </Typography>
 
       <Grid container spacing={2}>
-        <Grid item xs={12}>
+        <Grid item xs={9}>
           <RadioGroup
             row
             name="filter1"
@@ -278,19 +302,57 @@ const ItemWisePurchaseReport = () => {
 
             <FormControlLabel value="brand" control={<Radio />} label="Brand" />
 
-            <FormControlLabel value="fl" control={<Radio />} label="Fl" />
-
-            <FormControlLabel value="beer" control={<Radio />} label="Beer" />
-
-            <FormControlLabel
-              value="cs/iml"
-              control={<Radio />}
-              label="CS/IML"
-            />
             <FormControlLabel value="code" control={<Radio />} label="Code" />
 
             <FormControlLabel value="pack" control={<Radio />} label="Pack" />
           </RadioGroup>
+        </Grid>
+
+        <Grid item xs={3} display="flex" justifyContent="center">
+          <FormGroup row>
+            <FormControlLabel
+              label="FL"
+              control={
+                <Checkbox
+                  checked={checkController.fl}
+                  onChange={(e) =>
+                    setCheckController((prev) => ({
+                      ...prev,
+                      fl: e.target.checked,
+                    }))
+                  }
+                />
+              }
+            />
+            <FormControlLabel
+              label="Beer"
+              control={
+                <Checkbox
+                  checked={checkController.beer}
+                  onChange={(e) =>
+                    setCheckController((prev) => ({
+                      ...prev,
+                      beer: e.target.checked,
+                    }))
+                  }
+                />
+              }
+            />
+            <FormControlLabel
+              label="CS/IML"
+              control={
+                <Checkbox
+                  checked={checkController.cs_iml}
+                  onChange={(e) =>
+                    setCheckController((prev) => ({
+                      ...prev,
+                      cs_iml: e.target.checked,
+                    }))
+                  }
+                />
+              }
+            />
+          </FormGroup>
         </Grid>
 
         <Grid item xs={3}>
@@ -306,6 +368,7 @@ const ItemWisePurchaseReport = () => {
                 className="input-field date-picker"
                 onChange={(date) => setDateFrom(date)}
                 renderInput={(params) => <TextField {...params} />}
+                disabled={filter1 === "date" ? false : true}
               />
             </LocalizationProvider>
           </div>
@@ -325,6 +388,7 @@ const ItemWisePurchaseReport = () => {
                 className="input-field date-picker"
                 onChange={(date) => setDateTo(date)}
                 renderInput={(params) => <TextField {...params} />}
+                disabled={filter1 === "date" ? false : true}
               />
             </LocalizationProvider>
           </div>
@@ -332,12 +396,13 @@ const ItemWisePurchaseReport = () => {
 
         <Grid item xs={3}>
           <div className="input-wrapper">
-            <InputLabel htmlFor="dateTo" className="input-label">
+            <InputLabel htmlFor="Supplier" className="input-label">
               Supplier:
             </InputLabel>
             <TextField
               select
               fullWidth
+              size="small"
               name="Supplier"
               className="input-field"
               value={selectedSupplier}
@@ -357,7 +422,7 @@ const ItemWisePurchaseReport = () => {
                 },
               }}
             >
-              {allSuppliers.map((item) => (
+              {allSuppliers?.map((item) => (
                 <MenuItem key={item.id} value={item.name}>
                   {item.name}
                 </MenuItem>
@@ -366,80 +431,130 @@ const ItemWisePurchaseReport = () => {
           </div>
         </Grid>
 
-        {filter1 === "item" || filter1 === "supplier/item" ? (
-          <Grid item xs={2}>
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="itemName" className="input-label">
+              Item:
+            </InputLabel>
             <TextField
               select
               fullWidth
-              label="Item Name"
+              size="small"
               name="itemName"
+              className="input-field"
               value={itemName}
               onChange={(e) => setItemName(e.target.value)}
+              disabled={
+                filter1 === "item" || filter1 === "supplier/item" ? false : true
+              }
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200,
+                    },
+                  },
+                },
+              }}
             >
-              {items.map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
+              {allItems?.map((item) => (
+                <MenuItem key={item._id} value={item.name}>
+                  {item.name}
                 </MenuItem>
               ))}
             </TextField>
-          </Grid>
-        ) : (
-          ""
-        )}
+          </div>
+        </Grid>
 
-        {filter1 === "brand" ? (
-          <Grid item xs={2}>
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="brandName" className="input-label">
+              Brand:
+            </InputLabel>
             <TextField
               select
               fullWidth
-              label="Brand Name"
+              size="small"
               name="brandName"
+              className="input-field"
               value={brandName}
               onChange={(e) => setBrandName(e.target.value)}
+              disabled={filter1 === "brand" ? false : true}
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200,
+                    },
+                  },
+                },
+              }}
             >
-              {brandOptions.map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
+              {allBrands.map((brand) => (
+                <MenuItem key={brand._id} value={brand.name}>
+                  {brand.name}
                 </MenuItem>
               ))}
             </TextField>
-          </Grid>
-        ) : (
-          ""
-        )}
+          </div>
+        </Grid>
 
-        {filter1 === "category" ? (
-          <Grid item xs={2}>
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="categoryName" className="input-label">
+              Category:
+            </InputLabel>
             <TextField
               select
               fullWidth
-              label="Select Category"
+              size="small"
               name="categoryName"
+              className="input-field"
               value={categoryName}
               onChange={(e) => setCategoryName(e.target.value)}
+              disabled={filter1 === "category" ? false : true}
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200,
+                    },
+                  },
+                },
+              }}
             >
-              {categoryOptions.map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
+              {allCategory?.map((category) => (
+                <MenuItem key={category._id} value={category.categoryName}>
+                  {category.categoryName}
                 </MenuItem>
               ))}
             </TextField>
-          </Grid>
-        ) : (
-          ""
-        )}
+          </div>
+        </Grid>
 
-        {filter1 === "pack" ? (
-          <Grid item xs={2}>
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="packing" className="input-label">
+              Pack:
+            </InputLabel>
             <TextField
               select
               fullWidth
+              size="small"
               name="packing"
-              label="Packing"
-              variant="outlined"
               className="input-field"
               value={packing}
               onChange={(e) => setPacking(e.target.value)}
+              disabled={filter1 === "pack" ? false : true}
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200,
+                    },
+                  },
+                },
+              }}
             >
               {packingOptions.map((item, id) => (
                 <MenuItem key={id} value={item}>
@@ -447,34 +562,26 @@ const ItemWisePurchaseReport = () => {
                 </MenuItem>
               ))}
             </TextField>
-          </Grid>
-        ) : (
-          ""
-        )}
+          </div>
+        </Grid>
 
-        {filter1 === "code" ? (
-          <Grid item xs={2}>
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="code" className="input-label">
+              Code:
+            </InputLabel>
             <TextField
-              select
               fullWidth
               name="code"
-              label="Code"
-              variant="outlined"
+              size="small"
               className="input-field"
               value={code}
               onChange={(e) => setCode(e.target.value)}
-            >
-              {packingOptions.map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-        ) : (
-          ""
-        )}
-      </Grid> */}
+              disabled={filter1 === "code" ? false : true}
+            />
+          </div>
+        </Grid>
+      </Grid>
 
       <Box
         sx={{
@@ -540,6 +647,11 @@ const ItemWisePurchaseReport = () => {
             setDateFrom(null);
             setDateTo(null);
             setSelectedSupplier("");
+            setItemName("");
+            setBrandName("");
+            setCategoryName("");
+            setPacking("");
+            setCode("");
             setFilter1("");
             setPaginationModel({ page: 1, pageSize: 25 });
             fetchAllPurchases();
