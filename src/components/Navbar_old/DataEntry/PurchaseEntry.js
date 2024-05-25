@@ -143,7 +143,8 @@ const PurchaseEntry = () => {
 
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.keyCode === 120) { // 120 F9 key
+      if (event.keyCode === 120) {
+        // 120 F9 key
         handleCreatePurchase();
       }
     };
@@ -372,50 +373,46 @@ const PurchaseEntry = () => {
 
   const handleFocusOnSave = () => {
     saveButtonRef.current.focus();
- };
- console.log("purchases ---> ", purchases.length);
+  };
+  //  console.log("purchases ---> ", purchases.length);
 
- const handleEnterKey = (event, nextInputRef) => {
-  if (event.key === "Enter" || event.key === "Tab") {
-    
-  
-
-    switch (nextInputRef.current) {
-      case itemCodeRef:
-      case itemNameRef:
+  const handleEnterKey = (event, nextInputRef) => {
+    if (event.key === "Enter" || event.key === "Tab") {
+      switch (nextInputRef.current) {
+        case itemCodeRef:
+        case itemNameRef:
         // handleItemNameChange(event);
         // break;
-      case mrpRef:
-      case batchRef:
-      case caseRef:
-      case pcsRef:
-      case brkRef:
-      case purRateRef:
-      case btlRateRef:
-      case groRef:
-      case spRef:
-      case amountRef:
-        handleSubmitIntoDataTable(event);
-        break;
-      case totalGroRef:
-      case totalSPRef:
-      case tcsPercentRef:
-      case tcsAmtRef:
-      case grossAmountRef:
-      case totalDiscountRef:
-      case otherChargesRef:
-      case adjustmentRef:
-      case netAmountRef:
-        handleFocusOnSave();
-        break;
-      case saveButtonRef:
-        break;
-      default:
-        nextInputRef.current.focus();
+        case mrpRef:
+        case batchRef:
+        case caseRef:
+        case pcsRef:
+        case brkRef:
+        case purRateRef:
+        case btlRateRef:
+        case groRef:
+        case spRef:
+        case amountRef:
+          handleSubmitIntoDataTable(event);
+          break;
+        case totalGroRef:
+        case totalSPRef:
+        case tcsPercentRef:
+        case tcsAmtRef:
+        case grossAmountRef:
+        case totalDiscountRef:
+        case otherChargesRef:
+        case adjustmentRef:
+        case netAmountRef:
+          handleFocusOnSave();
+          break;
+        case saveButtonRef:
+          break;
+        default:
+          nextInputRef.current.focus();
+      }
     }
-  }
-};
-
+  };
 
   // console.log("purchases: ", purchases);
 
@@ -456,7 +453,6 @@ const PurchaseEntry = () => {
   };
 
   const handleCreatePurchase = async () => {
-    // console.log("handleCreatePurchase formData --> ", formData);
     const missingFields = [];
 
     if (!formData.supplierName) {
@@ -491,16 +487,13 @@ const PurchaseEntry = () => {
       const missingFieldsMessage = missingFields.join(", ");
       NotificationManager.warning(
         `Please fill in the necessary details for: ${missingFieldsMessage}.`,
-        "Error"
+        "Warning"
       );
       return;
     }
 
     const passDateObj = formatDate(formData.passDate);
-    // console.log("passDateObj: ", passDateObj);
-    // console.log("formData.passDate: ", formData.passDate);
     const billDateObj = formatDate(formData.billDate);
-    // console.log("billDateObj: ", billDateObj);
 
     const payload = {
       supplierName: formData.supplierName,
@@ -540,12 +533,16 @@ const PurchaseEntry = () => {
 
     try {
       const response = await createPurchase(payload);
+      console.log("Purchase created successfully:", response);
 
       if (response.status === 200) {
-        // console.log("Purchase created successfully:", response);
         NotificationManager.success("Purchase created successfully", "Success");
         setEntryNumber(response?.data?.data?.purchase?.entryNo);
         setSearchMode(false);
+      } else if (response.response.status === 400) {
+        // console.log("executing ...")
+        const errorMessage = response.response.data.message;
+        NotificationManager.error(errorMessage, "Error");
       } else {
         NotificationManager.error(
           "Error creating Purchase. Please try again later.",
@@ -553,6 +550,10 @@ const PurchaseEntry = () => {
         );
       }
     } catch (error) {
+      NotificationManager.error(
+        "Error creating Purchase. Please try again later.",
+        "Error"
+      );
       console.error("Error creating purchase:", error);
     }
   };
@@ -1096,10 +1097,9 @@ const PurchaseEntry = () => {
                     formData.itemName.trim() === ""
                   ) {
                     handleEnterKey(e, totalGroRef);
-                  } else if(!formData.itemCode) {
-                    handleEnterKey(e, itemCodeRef)
-                  }
-                  else {
+                  } else if (!formData.itemCode) {
+                    handleEnterKey(e, itemCodeRef);
+                  } else {
                     handleEnterKey(e, mrpRef);
                   }
                 }
@@ -1633,7 +1633,6 @@ const PurchaseEntry = () => {
               InputProps={{ readOnly: true }}
               // onChange={handleTotalMRPChanges}
               onKeyDown={(e) => handleEnterKey(e, sDiscountRef)}
-
             />
           </Grid>
           <Grid item xs={1}>
