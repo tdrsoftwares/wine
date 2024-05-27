@@ -2,8 +2,10 @@ import {
   Box,
   Button,
   Checkbox,
+  CircularProgress,
   FormControlLabel,
   Grid,
+  InputLabel,
   MenuItem,
   Paper,
   Radio,
@@ -17,571 +19,701 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import React, { useEffect, useState } from "react";
+import { getAllCustomer } from "../../../services/customerService";
+import { NotificationManager } from "react-notifications";
+import { getAllItems } from "../../../services/itemService";
+import { getAllBrands } from "../../../services/brandService";
+import { getAllSuppliers } from "../../../services/supplierService";
+import { DataGrid } from "@mui/x-data-grid";
 
 const ItemWiseSaleReport = () => {
   const [selectOptions, setselectOptions] = useState(null);
-
+  const [allCustomerData, setAllCustomerData] = useState([]);
+  const [allBrands, setAllBrands] = useState([]);
+  const [allSuppliers, setAllSuppliers] = useState([]);
   const [filterData, setFilterData] = useState({
-    dateFrom: "mm/dd/yyyy",
-    dateTo: "mm/dd/yyyy",
+    dateFrom: null,
+    dateTo: null,
     batchNo: "",
-    distributorName: "",
+    customerName: "",
+    brandName: "",
+    itemName: "",
+    itemCode: "",
+    supplierName: "",
+    series: "",
     group: "",
     userName: "",
     billNo: "",
-    series: "",
+    pack: "",
     phone: "",
     isShortChecked: false,
     isBrkSummaryChecked: false,
   });
+  const [allItems, setAllItems] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 25,
+  });
+  const [totalCount, setTotalCount] = useState(0);
 
-  const [tableData, setTableData] = useState([
+  const columns = [
     {
-      billNo: "",
-      billDate: "",
-      customerName: "",
-      pCode: "",
-      category: "",
-      brand: "",
-      itemDesc: "",
-      pack: "",
-      pcs: "",
-      mrp: "",
-      rate: "",
-      disc: "",
-      bl: "",
-      amt:"",
-      brkPc: "",
-      brkAmt: "",
-      batch: "",
-      total: ""
+      field: "sNo",
+      headerName: "S. No.",
+      width: 90,
+      headerClassName: "custom-header",
     },
-  ]);
+    {
+      field: "itemCode",
+      headerName: "Item Code",
+      width: 150,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "itemName",
+      headerName: "Item Name",
+      width: 150,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "brandName",
+      headerName: "Brand",
+      width: 150,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "customerName",
+      headerName: "Customer",
+      width: 150,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "supplierName",
+      headerName: "Supplier",
+      width: 150,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "batchNo",
+      headerName: "Batch No.",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "series",
+      headerName: "Series",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "group",
+      headerName: "Group",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "billNo",
+      headerName: "Bill No.",
+      width: 120,
+      headerClassName: "custom-header",
+    },
 
-  const batchNoOptions = ["0", "00", "01", "516-1", "521-1", "526-1"];
-  const distributorOptions = ["AA", "BB", "CC", "DD"];
-  const seriesOptions = ["A", "B", "C", "D", "E", "ALL"];
-  const groupOptions = [
-    "All",
-    "Beer",
-    "Country Sprit",
-    "Foreign Liquor",
-    "India Made Liquor",
+    {
+      field: "mrp",
+      headerName: "MRP",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "pcs",
+      headerName: "Pcs.",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "pack",
+      headerName: "Pack",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+    // {
+    //   field: "caseNo",
+    //   headerName: "Case No.",
+    //   width: 120,
+    //   headerClassName: "custom-header",
+    // },
+    // {
+    //   field: "purchaseRate",
+    //   headerName: "Purchase Rate",
+    //   width: 150,
+    //   headerClassName: "custom-header",
+    // },
+    {
+      field: "rate",
+      headerName: "Rate",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+
+    {
+      field: "itemAmount",
+      headerName: "Amount",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "createdAt",
+      headerName: "Created Date",
+      width: 150,
+      headerClassName: "custom-header",
+    },
   ];
 
+  const fetchAllCustomers = async () => {
+    try {
+      const allCustomerResponse = await getAllCustomer();
+      console.log("allCustomerResponse ---> ", allCustomerResponse);
+      setAllCustomerData(allCustomerResponse?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching brands. Please try again later.",
+        "Error"
+      );
+      console.error("Error fetching brands:", error);
+    }
+  };
+
+  const fetchAllItems = async () => {
+    try {
+      const allItemsResponse = await getAllItems();
+      setAllItems(allItemsResponse?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching items. Please try again later.",
+        "Error"
+      );
+    }
+  };
+
+  const fetchAllBrands = async () => {
+    try {
+      const allBrandResponse = await getAllBrands();
+      setAllBrands(allBrandResponse?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching brands. Please try again later.",
+        "Error"
+      );
+    }
+  };
+
+  const fetchAllSuppliers = async () => {
+    try {
+      const response = await getAllSuppliers();
+      setAllSuppliers(response?.data?.data || []);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching suppliers. Please try again later.",
+        "Error"
+      );
+    }
+  };
+
+  useEffect(() => {
+    fetchAllSuppliers()
+    fetchAllBrands()
+    fetchAllItems()
+    fetchAllCustomers();
+  },[])
+
   return (
-    <form>
-      <Box sx={{ p: 2, width: "900px" }}>
-        <Typography variant="h5" component="div" gutterBottom>
-          Sale Report
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          Sale Report
-        </Typography>
+    <Box sx={{ p: 2, width: "900px" }}>
+      <Typography variant="h6" sx={{ marginBottom: 2 }}>
+        Item Wise Sale Report:
+      </Typography>
+      <Typography variant="subtitle1" gutterBottom>
+        Filter By:
+      </Typography>
 
-        <Grid container spacing={2}>
-          <Grid item xs={8}>
-            <RadioGroup
-              row
-              name="selectOptions"
-              aria-labelledby="selectOptions"
-              value={selectOptions}
-              onChange={(e) => setselectOptions(e.target.value)}
-            >
-              <FormControlLabel value="date" control={<Radio />} label="Date" />
-              <FormControlLabel
-                value="customer"
-                control={<Radio />}
-                label="Customer"
-              />
-              <FormControlLabel value="code" control={<Radio />} label="Code" />
-              <FormControlLabel value="user" control={<Radio />} label="User" />
-              <FormControlLabel
-                value="brand"
-                control={<Radio />}
-                label="Brand"
-              />
-              <FormControlLabel
-                value="item-name"
-                control={<Radio />}
-                label="Item Name"
-              />
-              <FormControlLabel
-                value="batch"
-                control={<Radio />}
-                label="Batch"
-              />
-              <FormControlLabel value="pack" control={<Radio />} label="Pack" />
-              <FormControlLabel
-                value="series"
-                control={<Radio />}
-                label="Series"
-              />
-              <FormControlLabel
-                value="brand-packing"
-                control={<Radio />}
-                label="Brand/Packing"
-              />
-              <FormControlLabel
-                value="cate-packing"
-                control={<Radio />}
-                label="Cate/Packing"
-              />
-              <FormControlLabel value="group" control={<Radio />} label="Group" />
-              <FormControlLabel
-                value="supplier"
-                control={<Radio />}
-                label="Supplier"
-              />
-              <FormControlLabel value="user" control={<Radio />} label="User" />
-              <FormControlLabel value="bill" control={<Radio />} label="Bill" />
-            </RadioGroup>
-          </Grid>
-
-          <Grid item xs={2}>
-            <TextField
-              fullWidth
-              type="date"
-              label="Date from"
-              name="dateFrom"
-              value={filterData.dateFrom}
-              onChange={(e) =>
-                setFilterData({ ...filterData, dateFrom: e.target.value })
-              }
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <RadioGroup
+            row
+            name="selectOptions"
+            aria-labelledby="selectOptions"
+            value={selectOptions}
+            onChange={(e) => setselectOptions(e.target.value)}
+          >
+            <FormControlLabel value="date" control={<Radio />} label="Date" />
+            <FormControlLabel
+              value="customer"
+              control={<Radio />}
+              label="Customer"
             />
-          </Grid>
 
-          <Grid item xs={2}>
-            <TextField
-              fullWidth
-              type="date"
-              label="Date to"
-              name="dateTo"
-              value={filterData.dateTo}
-              onChange={(e) =>
-                setFilterData({ ...filterData, dateTo: e.target.value })
-              }
+            <FormControlLabel value="brand" control={<Radio />} label="Brand" />
+            <FormControlLabel
+              value="itemName"
+              control={<Radio />}
+              label="Item Name"
             />
-          </Grid>
+            <FormControlLabel
+              value="itemCode"
+              control={<Radio />}
+              label="Item Code"
+            />
+            <FormControlLabel
+              value="supplier"
+              control={<Radio />}
+              label="Supplier"
+            />
+            <FormControlLabel value="batch" control={<Radio />} label="Batch" />
+            <FormControlLabel
+              value="series"
+              control={<Radio />}
+              label="Series"
+            />
+            <FormControlLabel value="group" control={<Radio />} label="Group" />
+            <FormControlLabel value="billNo" control={<Radio />} label="Bill" />
+            <FormControlLabel value="pack" control={<Radio />} label="Pack" />
 
-          <Grid item xs={2}>
+          </RadioGroup>
+        </Grid>
+
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="dateFrom" className="input-label">
+              Date from:
+            </InputLabel>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                id="dateFrom"
+                format="DD/MM/YYYY"
+                value={filterData.dateFrom}
+                className="input-field date-picker"
+                onChange={(newDate) =>
+                  setFilterData({ ...filterData, dateFrom: newDate })
+                }
+                renderInput={(params) => <TextField {...params} />}
+                disabled={selectOptions === "date" ? false : true}
+              />
+            </LocalizationProvider>
+          </div>
+        </Grid>
+
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="dateTo" className="input-label">
+              Date to:
+            </InputLabel>
+
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                id="dateTo"
+                format="DD/MM/YYYY"
+                value={filterData.dateTo}
+                className="input-field date-picker"
+                onChange={(newDate) =>
+                  setFilterData({ ...filterData, dateTo: newDate })
+                }
+                renderInput={(params) => <TextField {...params} />}
+                disabled={selectOptions === "date" ? false : true}
+              />
+            </LocalizationProvider>
+          </div>
+        </Grid>
+
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="customerName" className="input-label">
+              Customer:
+            </InputLabel>
             <TextField
               select
               fullWidth
+              size="small"
+              name="customerName"
+              className="input-field"
+              value={filterData.customerName}
+              onChange={(e) =>
+                setFilterData({ ...filterData, customerName: e.target.value })
+              }
+              disabled={selectOptions === "customer" ? false : true}
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200,
+                    },
+                  },
+                },
+              }}
+            >
+              {allCustomerData?.map((item) => (
+                <MenuItem key={item._id} value={item.name}>
+                  {item.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </div>
+        </Grid>
+
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="brandName" className="input-label">
+              Brand:
+            </InputLabel>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              name="brandName"
+              className="input-field"
+              value={filterData.brandName}
+              onChange={(e) =>
+                setFilterData({ ...filterData, brandName: e.target.value })
+              }
+              disabled={selectOptions === "brand" ? false : true}
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200,
+                    },
+                  },
+                },
+              }}
+            >
+              {allBrands?.map((brand) => (
+                <MenuItem key={brand._id} value={brand.name}>
+                  {brand.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </div>
+        </Grid>
+
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="itemName" className="input-label">
+              Item:
+            </InputLabel>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              name="itemName"
+              className="input-field"
+              value={filterData.itemName}
+              onChange={(e) =>
+                setFilterData({ ...filterData, itemName: e.target.value })
+              }
+              disabled={selectOptions === "itemName" ? false : true}
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200,
+                    },
+                  },
+                },
+              }}
+            >
+              {allItems?.map((item) => (
+                <MenuItem key={item._id} value={item.name}>
+                  {item.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </div>
+        </Grid>
+
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="itemCode" className="input-label">
+              ItemCode:
+            </InputLabel>
+            <TextField
+              fullWidth
+              size="small"
+              name="itemCode"
+              className="input-field"
+              value={filterData.itemCode}
+              onChange={(e) =>
+                setFilterData({ ...filterData, itemCode: e.target.value })
+              }
+              disabled={selectOptions === "itemCode" ? false : true}
+            />
+          </div>
+        </Grid>
+
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="Supplier" className="input-label">
+              Supplier:
+            </InputLabel>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              name="Supplier"
+              className="input-field"
+              value={filterData.supplierName}
+              onChange={(e) =>
+                setFilterData({ ...filterData, supplierName: e.target.value })
+              }
+              disabled={selectOptions === "supplier" ? false : true}
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200,
+                    },
+                  },
+                },
+              }}
+            >
+              {allSuppliers?.map((item) => (
+                <MenuItem key={item.id} value={item.name}>
+                  {item.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </div>
+        </Grid>
+
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="batchNo" className="input-label">
+              Batch No.:
+            </InputLabel>
+            <TextField
+              fullWidth
+              size="small"
               name="batchNo"
-              label="Batch No."
-              variant="outlined"
+              className="input-field"
               value={filterData.batchNo}
               onChange={(e) =>
                 setFilterData({ ...filterData, batchNo: e.target.value })
               }
-            >
-              {batchNoOptions.map((option, i) => (
-                <MenuItem key={i} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
+              disabled={selectOptions === "batch" ? false : true}
+            />
+          </div>
+        </Grid>
 
-          <Grid item xs={2}>
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="series" className="input-label">
+              Series:
+            </InputLabel>
             <TextField
-              select
               fullWidth
-              name="distributorName"
-              label="Distributor Name"
-              variant="outlined"
-              value={filterData.distributorName}
-              onChange={(e) =>
-                setFilterData({
-                  ...filterData,
-                  distributorName: e.target.value,
-                })
-              }
-            >
-              {distributorOptions.map((option, i) => (
-                <MenuItem key={i} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-
-          <Grid item xs={2}>
-            <TextField
-              select
-              fullWidth
-              name="group"
-              label="Select Group"
-              variant="outlined"
-              value={filterData.group}
-              onChange={(e) =>
-                setFilterData({ ...filterData, group: e.target.value })
-              }
-            >
-              {groupOptions?.map((option, i) => (
-                <MenuItem key={i} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-
-          <Grid item xs={2}>
-            <TextField
-              select
-              fullWidth
-              name="userName"
-              label="User Name"
-              variant="outlined"
-              className="input-field"
-              value={filterData.userName}
-              onChange={(e) =>
-                setFilterData({ ...filterData, userName: e.target.value })
-              }
-            >
-              {["admin"].map((pack, id) => (
-                <MenuItem key={id} value={pack}>
-                  {pack}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-
-          <Grid item xs={2}>
-            <TextField
-              name="billNo"
-              select
-              label="Bill No"
-              variant="outlined"
-              fullWidth
-              className="input-field"
-              value={filterData.billNo}
-              onChange={(e) =>
-                setFilterData({ ...filterData, billNo: e.target.value })
-              }
-            >
-              {[""].map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-
-          <Grid item xs={2}>
-            <TextField
-              select
-              fullWidth
+              size="small"
               name="series"
-              label="Series"
-              variant="outlined"
               className="input-field"
               value={filterData.series}
               onChange={(e) =>
                 setFilterData({ ...filterData, series: e.target.value })
               }
+              disabled={selectOptions === "series" ? false : true}
+            />
+          </div>
+        </Grid>
+
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="group" className="input-label">
+              Group:
+            </InputLabel>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              name="group"
+              className="input-field"
+              value={filterData.group}
+              onChange={(e) =>
+                setFilterData({ ...filterData, group: e.target.value })
+              }
+              disabled={selectOptions === "group" ? false : true}
             >
-              {seriesOptions.map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
+              {["FL", "BEER", "IML"].map((option, i) => (
+                <MenuItem key={i} value={option}>
+                  {option}
                 </MenuItem>
               ))}
             </TextField>
-          </Grid>
-
-          {/* <Grid item xs={3}></Grid> */}
-
-          <Grid item xs={2}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={filterData.isShortChecked}
-                  inputProps={{ "aria-label": "controlled" }}
-                  onChange={(e) =>
-                    setFilterData({
-                      ...filterData,
-                      isShortChecked: e.target.checked,
-                    })
-                  }
-                />
-              }
-              label="Short"
-            />
-          </Grid>
-
-          <Grid item xs={2}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={filterData.isBrkSummaryChecked}
-                  inputProps={{ "aria-label": "controlled" }}
-                  onChange={(e) =>
-                    setFilterData({
-                      ...filterData,
-                      isBrkSummaryChecked: e.target.checked,
-                    })
-                  }
-                />
-              }
-              label="Brake Summary"
-            />
-          </Grid>
+          </div>
         </Grid>
 
-        <TableContainer
-          component={Paper}
-          sx={{ marginTop: 4, maxHeight: 300, overflowY: "auto" }}
-        >
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>S. No.</TableCell>
-                <TableCell>Bill No.</TableCell>
-                <TableCell>Bill Date</TableCell>
-                <TableCell>Customer</TableCell>
-                <TableCell>P. Code</TableCell>
-                <TableCell>Category</TableCell>
-                <TableCell>Brand</TableCell>
-                <TableCell>Item Desc.</TableCell>
-                <TableCell>Packing</TableCell>
-                <TableCell>Pcs</TableCell>
-                <TableCell>MRP</TableCell>
-                <TableCell>Rate</TableCell>
-                <TableCell>Disc.</TableCell>
-                <TableCell>BL</TableCell>
-                <TableCell>Amt.(Rs)</TableCell>
-                <TableCell>Brk Pc.</TableCell>
-                <TableCell>Brk Amt.</TableCell>
-                <TableCell>Batch</TableCell>
-                <TableCell>Total</TableCell>
-              </TableRow>
-            </TableHead>
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="group" className="input-label">
+              Bill No:
+            </InputLabel>
+            <TextField
+              fullWidth
+              size="small"
+              name="billNo"
+              className="input-field"
+              value={filterData.billNo}
+              onChange={(e) =>
+                setFilterData({ ...filterData, billNo: e.target.value })
+              }
+              disabled={selectOptions === "billNo" ? false : true}
+            />
+          </div>
+        </Grid>
 
-            {/* 
-            
-            const [tableData, setTableData] = useState([
-    {
-      
-    },
-  ]);
-            
-            */}
-            <TableBody>
-              {tableData.map((row, index) => (
-                <TableRow key={index}>
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={index + 1}
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="volume" className="input-label">
+              Pack:
+            </InputLabel>
+            <TextField
+              fullWidth
+              size="small"
+              name="volume"
+              className="input-field"
+              value={filterData.pack}
+              onChange={(e) =>
+                setFilterData({ ...filterData, pack: e.target.value })
+              }
+              disabled={selectOptions === "pack" ? false : true}
+            />
+          </div>
+        </Grid>
 
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.billNo}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
+        {/* <Grid item xs={2}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={filterData.isShortChecked}
+                inputProps={{ "aria-label": "controlled" }}
+                onChange={(e) =>
+                  setFilterData({
+                    ...filterData,
+                    isShortChecked: e.target.checked,
+                  })
+                }
+              />
+            }
+            label="Short"
+          />
+        </Grid>
 
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.billDate}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
+        <Grid item xs={2}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={filterData.isBrkSummaryChecked}
+                inputProps={{ "aria-label": "controlled" }}
+                onChange={(e) =>
+                  setFilterData({
+                    ...filterData,
+                    isBrkSummaryChecked: e.target.checked,
+                  })
+                }
+              />
+            }
+            label="Brake Summary"
+          />
+        </Grid> */}
+      </Grid>
 
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.customerName || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.pCode || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.category || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.brand || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.itemDesc || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.pack || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.pcs || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.mrp || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.rate || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.disc || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.bl || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.amt || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.brkPc || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.brkAmt || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.batch || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.total || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            marginTop: 2,
-          }}
-        >
-          <Button
-            color="primary"
-            size="large"
-            variant="outlined"
-            onClick={() => {}}
-            sx={{ marginTop: 2, marginRight: 2 }}
-          >
-            Display
-          </Button>
-          <Button
-            color="secondary"
-            size="large"
-            variant="outlined"
-            onClick={() => {}}
-            sx={{ marginTop: 2, marginRight: 2 }}
-          >
-            Print
-          </Button>
-          <Button
-            color="error"
-            size="large"
-            variant="outlined"
-            onClick={() => {}}
-            sx={{ marginTop: 2 }}
-          >
-            Clear
-          </Button>
-        </Box>
+      <Box
+        sx={{
+          height: 500,
+          width: "100%",
+          marginTop: 4,
+          "& .custom-header": { backgroundColor: "#dae4ed", paddingLeft: 4 },
+          "& .custom-cell": { paddingLeft: 4 },
+        }}
+      >
+        <DataGrid
+          rows={([])?.map((item, index) => ({
+            id: index,
+            sNo: index + 1,
+            itemCode: item.itemCode || "No Data",
+            itemName: item?.item?.name || "No Data",
+            brandName: item?.item?.brand?.name || "No Data",
+            categoryName: item?.item?.category?.categoryName || "No Data",
+            batchNo: item.batchNo || "No Data",
+            brokenNo: item.brokenNo || "No Data",
+            caseNo: item.caseNo || "No Data",
+            pcs: item.pcs || "No Data",
+            volume: item?.item?.volume || "No Data",
+            // updatedAt: new Date(item.updatedAt).toLocaleDateString("en-GB"),
+            mrp: item.mrp || "No Data",
+            gro: item.gro || "No Data",
+            sp: item.sp || "No Data",
+            purchaseRate: item.purchaseRate || "No Data",
+            saleRate: item.saleRate || "No Data",
+            itemAmount: item.itemAmount || "No Data",
+            createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
+          }))}
+          columns={columns}
+          rowCount={totalCount}
+          pagination
+          paginationMode="server"
+          pageSizeOptions={[10, 25, 50, 100]}
+          // onPaginationModelChange={setPaginationModel}
+          onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
+          sx={{ backgroundColor: "#fff" }}
+          disableRowSelectionOnClick
+          loading={loading}
+          loadingOverlay={
+            <Box>
+              <CircularProgress />
+            </Box>
+          }
+        />
       </Box>
-    </form>
+
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          "& button": { marginTop: 2, marginLeft: 2 },
+        }}
+      >
+        <Button
+          color="warning"
+          size="medium"
+          variant="outlined"
+          onClick={() => {
+            setFilterData({})
+            setselectOptions(null)
+            // setPaginationModel({ page: 1, pageSize: 25 });
+            // fetchAllPurchases();
+          }}
+          sx={{ borderRadius: 8 }}
+        >
+          Clear
+        </Button>
+        <Button
+          color="secondary"
+          size="medium"
+          variant="outlined"
+          sx={{ borderRadius: 8 }}
+        >
+          Print
+        </Button>
+        <Button
+          color="primary"
+          size="medium"
+          variant="contained"
+          // onClick={fetchAllPurchases}
+          sx={{ borderRadius: 8 }}
+        >
+          Display
+        </Button>
+      </Box>
+    </Box>
   );
 };
 
