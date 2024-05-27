@@ -52,9 +52,41 @@ export const getItemPurchaseDetails = async (entryNo) => {
   }
 };
 
-export const getItemWisePurchaseDetails = async () => {
+export const getItemWisePurchaseDetails = async (filterOptions) => {
   try {
-    const apiURL = `/purchases/all-item-reports`;
+    const {
+      page,
+      limit,
+      fromDate,
+      toDate,
+      itemName,
+      supplierName,
+      brandName,
+      categoryName,
+      volume,
+      itemCode,
+      // batchNo
+    } = filterOptions;
+
+    let apiURL = `/purchases/all-item-reports?page=${page}&limit=${limit}`;
+
+    const filters = {
+      fromDate,
+      toDate,
+      itemName,
+      supplierName,
+      brandName,
+      categoryName,
+      volume,
+      itemCode,
+      // batchNo
+    };
+
+    Object.keys(filters).forEach((key) => {
+      if (filters[key]) {
+        apiURL += `&${key}=${encodeURIComponent(filters[key])}`;
+      }
+    });
     const getItemPurchaseData = await axiosInstance.get(apiURL);
     return getItemPurchaseData;
   } catch (error) {
@@ -64,7 +96,9 @@ export const getItemWisePurchaseDetails = async () => {
 
 export const searchAllPurchasesByItemName = async (itemName) => {
   try {
-    const apiURL = `/purchases/item-search?name=${encodeURIComponent(itemName)}`;
+    const apiURL = `/purchases/item-search?name=${encodeURIComponent(
+      itemName
+    )}`;
     const allPurchasesData = await axiosInstance.get(apiURL);
     return allPurchasesData;
   } catch (error) {
@@ -74,7 +108,7 @@ export const searchAllPurchasesByItemName = async (itemName) => {
 
 export const searchAllPurchasesByItemCode = async (itemCode) => {
   try {
-    const apiURL = `/purchases/item-code/${encodeURIComponent(itemCode)}`;
+    const apiURL = `/purchases/item-itemCode/${encodeURIComponent(itemCode)}`;
     const allPurchasesData = await axiosInstance.get(apiURL);
     return allPurchasesData;
   } catch (error) {

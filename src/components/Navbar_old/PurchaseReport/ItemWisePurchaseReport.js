@@ -8,15 +8,8 @@ import {
   Grid,
   InputLabel,
   MenuItem,
-  Paper,
   Radio,
   RadioGroup,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   TextField,
   Typography,
 } from "@mui/material";
@@ -34,7 +27,7 @@ import { getAllBrands } from "../../../services/brandService";
 
 const ItemWisePurchaseReport = () => {
   const [selectedSupplier, setSelectedSupplier] = useState("");
-  const [code, setCode] = useState("");
+  const [itemCode, setItemCode] = useState("");
   const [dateFrom, setDateFrom] = useState(null);
   const [dateTo, setDateTo] = useState(null);
   const [filter1, setFilter1] = useState("");
@@ -52,25 +45,31 @@ const ItemWisePurchaseReport = () => {
   const [brandName, setBrandName] = useState("");
   const [categoryName, setCategoryName] = useState("");
   const [itemName, setItemName] = useState("");
-  const [packing, setPacking] = useState("");
+  const [volume, setVolume] = useState("");
   const [loading, setLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
-    page: 1,
+    page: 0,
     pageSize: 25,
   });
+
+  const [batch, setBatch] = useState("");
 
   const formatDate = (date) => {
     if (!date) return null;
     return dayjs(date).format("DD/MM/YYYY");
   };
 
-  const packingOptions = [750, 700, 650, 550, 450, 350, 250, 180];
-
   const columns = [
     {
       field: "sNo",
       headerName: "S. No.",
       width: 90,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "itemCode",
+      headerName: "Item Code",
+      width: 150,
       headerClassName: "custom-header",
     },
     {
@@ -91,12 +90,7 @@ const ItemWisePurchaseReport = () => {
       width: 150,
       headerClassName: "custom-header",
     },
-    {
-      field: "itemCode",
-      headerName: "Item Code",
-      width: 120,
-      headerClassName: "custom-header",
-    },
+
     {
       field: "batchNo",
       headerName: "Batch No.",
@@ -135,6 +129,12 @@ const ItemWisePurchaseReport = () => {
       headerClassName: "custom-header",
     },
     {
+      field: "volume",
+      headerName: "Volume",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+    {
       field: "caseNo",
       headerName: "Case No.",
       width: 120,
@@ -168,26 +168,39 @@ const ItemWisePurchaseReport = () => {
   ];
 
   const fetchAllPurchases = async () => {
+    const fromDate = dateFrom ? formatDate(dateFrom) : null;
+    const toDate = dateTo ? formatDate(dateTo) : null;
+
     setLoading(true);
     try {
       const filterOptions = {
-        // page:
-        //   paginationModel.page === 0
-        //     ? paginationModel.page + 1
-        //     : paginationModel.page,
-        // limit: paginationModel.pageSize,
-        // fromDate: fromDate,
-        // toDate: toDate,
-        // supplierName: selectedSupplier,
+        page: paginationModel.page,
+        limit: paginationModel.pageSize,
+        fromDate: fromDate,
+        toDate: toDate,
+        itemName: itemName,
+        supplierName: selectedSupplier,
+        brandName,
+        categoryName,
+        volume,
+        itemCode,
+        // batchNo: batch
       };
-      const response = await getItemWisePurchaseDetails();
-      setAllPurchases(response?.data?.data || []);
-      setTotalCount(response.data.data.length || 0);
+      const response = await getItemWisePurchaseDetails(filterOptions);
+
+      if (response.status === 200) {
+        setAllPurchases(response?.data?.data || []);
+        setTotalCount(response.data.data.length || 0);
+      } else {
+        console.log("Error", response);
+        return;
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching purchases. Please try again later.",
         "Error"
       );
+      console.log("Error fetching purchases", error);
     } finally {
       setLoading(false);
     }
@@ -249,20 +262,33 @@ const ItemWisePurchaseReport = () => {
     fetchAllBrands();
   }, []);
 
-  // const debounce = (func, delay) => {
-  //   let timeout;
-  //   return (...args) => {
-  //     clearTimeout(timeout);
-  //     timeout = setTimeout(() => {
-  //       func(...args);
-  //     }, delay);
-  //   };
-  // };
+  const debounce = (func, delay) => {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        func(...args);
+      }, delay);
+    };
+  };
 
-  // useEffect(() => {
-  //   const debouncedFetch = debounce(fetchAllPurchases, 300);
-  //   debouncedFetch();
-  // }, [paginationModel, dateFrom, dateTo, selectedSupplier]);
+  useEffect(() => {
+    const debouncedFetch = debounce(fetchAllPurchases, 300);
+    debouncedFetch();
+  }, [
+    paginationModel,
+    dateFrom,
+    dateTo,
+    selectedSupplier,
+    dateFrom,
+    dateTo,
+    itemName,
+    brandName,
+    categoryName,
+    volume,
+    itemCode,
+    // batch
+  ]);
 
   return (
     <Box sx={{ p: 2, width: "900px" }}>
@@ -289,22 +315,33 @@ const ItemWisePurchaseReport = () => {
               label="Supplier"
             />
             <FormControlLabel value="item" control={<Radio />} label="Item" />
+
+
             <FormControlLabel
               value="supplier/item"
               control={<Radio />}
               label="Supplier/Item"
             />
+
+            <FormControlLabel
+              value="itemCode"
+              control={<Radio />}
+              label="Item Code"
+            />
+            
+            <FormControlLabel value="brand" control={<Radio />} label="Brand" />
+
             <FormControlLabel
               value="category"
               control={<Radio />}
               label="Category"
             />
 
-            <FormControlLabel value="brand" control={<Radio />} label="Brand" />
-
-            <FormControlLabel value="code" control={<Radio />} label="Code" />
-
-            <FormControlLabel value="pack" control={<Radio />} label="Pack" />
+            <FormControlLabel
+              value="volume"
+              control={<Radio />}
+              label="Volume"
+            />
           </RadioGroup>
         </Grid>
 
@@ -358,7 +395,7 @@ const ItemWisePurchaseReport = () => {
         <Grid item xs={3}>
           <div className="input-wrapper">
             <InputLabel htmlFor="dateFrom" className="input-label">
-              Bill date from:
+              Date from:
             </InputLabel>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
@@ -377,7 +414,7 @@ const ItemWisePurchaseReport = () => {
         <Grid item xs={3}>
           <div className="input-wrapper">
             <InputLabel htmlFor="dateTo" className="input-label">
-              Bill date to:
+              Date to:
             </InputLabel>
 
             <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -468,6 +505,23 @@ const ItemWisePurchaseReport = () => {
 
         <Grid item xs={3}>
           <div className="input-wrapper">
+            <InputLabel htmlFor="itemCode" className="input-label">
+              ItemCode:
+            </InputLabel>
+            <TextField
+              fullWidth
+              name="itemCode"
+              size="small"
+              className="input-field"
+              value={itemCode}
+              onChange={(e) => setItemCode(e.target.value)}
+              disabled={filter1 === "itemCode" ? false : true}
+            />
+          </div>
+        </Grid>
+
+        <Grid item xs={3}>
+          <div className="input-wrapper">
             <InputLabel htmlFor="brandName" className="input-label">
               Brand:
             </InputLabel>
@@ -532,52 +586,36 @@ const ItemWisePurchaseReport = () => {
           </div>
         </Grid>
 
-        <Grid item xs={3}>
+        {/* <Grid item xs={3}>
           <div className="input-wrapper">
-            <InputLabel htmlFor="packing" className="input-label">
-              Pack:
+            <InputLabel htmlFor="batch" className="input-label">
+              batch:
             </InputLabel>
             <TextField
-              select
               fullWidth
               size="small"
-              name="packing"
+              name="batch"
               className="input-field"
-              value={packing}
-              onChange={(e) => setPacking(e.target.value)}
-              disabled={filter1 === "pack" ? false : true}
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
-                    },
-                  },
-                },
-              }}
-            >
-              {packingOptions.map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
-                </MenuItem>
-              ))}
-            </TextField>
+              value={batch}
+              onChange={(e) => setBatch(e.target.value)}
+              // disabled={filter1 === "volume" ? false : true}
+            />
           </div>
-        </Grid>
+        </Grid> */}
 
         <Grid item xs={3}>
           <div className="input-wrapper">
-            <InputLabel htmlFor="code" className="input-label">
-              Code:
+            <InputLabel htmlFor="volume" className="input-label">
+              Volume:
             </InputLabel>
             <TextField
               fullWidth
-              name="code"
               size="small"
+              name="volume"
               className="input-field"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              disabled={filter1 === "code" ? false : true}
+              value={volume}
+              onChange={(e) => setVolume(e.target.value)}
+              disabled={filter1 === "volume" ? false : true}
             />
           </div>
         </Grid>
@@ -592,44 +630,44 @@ const ItemWisePurchaseReport = () => {
           "& .custom-cell": { paddingLeft: 4 },
         }}
       >
-        {allPurchases.length > 0 ? (
-          <DataGrid
-            rows={(allPurchases || [])?.map((item, index) => ({
-              id: index,
-              sNo: index + 1,
-              itemCode: item.itemCode || "No Data",
-              itemName: item?.item?.name || "No Data",
-              brandName: item?.item?.brand?.name || "No Data",
-              categoryName: item?.item?.category?.categoryName || "No Data",
-              batchNo: item.batchNo || "No Data",
-              brokenNo: item.brokenNo || "No Data",
-              caseNo: item.caseNo || "No Data",
-              pcs: item.pcs || "No Data",
-              // updatedAt: new Date(item.updatedAt).toLocaleDateString("en-GB"),
-              mrp: item.mrp || "No Data",
-              gro: item.gro || "No Data",
-              sp: item.sp || "No Data",
-              purchaseRate: item.purchaseRate || "No Data",
-              saleRate: item.saleRate || "No Data",
-              itemAmount: item.itemAmount || "No Data",
-              createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
-            }))}
-            columns={columns}
-            pageSize={5}
-            rowsPerPageOptions={[10, 25, 50]}
-            sx={{ backgroundColor: "#fff" }}
-            loading={loading}
-            loadingOverlay={
-              <Box>
-                <CircularProgress />
-              </Box>
-            }
-          />
-        ) : (
-          <Typography variant="body1" align="center">
-            No purchased items to display.
-          </Typography>
-        )}
+        <DataGrid
+          rows={(allPurchases || [])?.map((item, index) => ({
+            id: index,
+            sNo: index + 1,
+            itemCode: item.itemCode || "No Data",
+            itemName: item?.item?.name || "No Data",
+            brandName: item?.item?.brand?.name || "No Data",
+            categoryName: item?.item?.category?.categoryName || "No Data",
+            batchNo: item.batchNo || "No Data",
+            brokenNo: item.brokenNo || "No Data",
+            caseNo: item.caseNo || "No Data",
+            pcs: item.pcs || "No Data",
+            volume: item?.item?.volume || "No Data",
+            // updatedAt: new Date(item.updatedAt).toLocaleDateString("en-GB"),
+            mrp: item.mrp || "No Data",
+            gro: item.gro || "No Data",
+            sp: item.sp || "No Data",
+            purchaseRate: item.purchaseRate || "No Data",
+            saleRate: item.saleRate || "No Data",
+            itemAmount: item.itemAmount || "No Data",
+            createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
+          }))}
+          columns={columns}
+          rowCount={totalCount}
+          pagination
+          paginationMode="server"
+          pageSizeOptions={[10, 25, 50, 100]}
+          // onPaginationModelChange={setPaginationModel}
+          onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
+          sx={{ backgroundColor: "#fff" }}
+          disableRowSelectionOnClick
+          loading={loading}
+          loadingOverlay={
+            <Box>
+              <CircularProgress />
+            </Box>
+          }
+        />
       </Box>
 
       <Box
@@ -650,9 +688,10 @@ const ItemWisePurchaseReport = () => {
             setItemName("");
             setBrandName("");
             setCategoryName("");
-            setPacking("");
-            setCode("");
+            setVolume("");
+            setItemCode("");
             setFilter1("");
+            setBatch("");
             setPaginationModel({ page: 1, pageSize: 25 });
             fetchAllPurchases();
           }}
