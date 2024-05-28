@@ -230,7 +230,7 @@ const SaleReportSummary = () => {
         setTotalCount(allSalesResponse?.data.data?.length);
       } else {
         NotificationManager.error("No items found.", "Error");
-        setAllSalesData([])
+        setAllSalesData([]);
       }
     } catch (error) {
       NotificationManager.error(
@@ -481,14 +481,14 @@ const SaleReportSummary = () => {
       <Box
         sx={{
           display: "flex",
-          justifyContent: "flex-end",
-          "& button": { marginTop: 2, marginLeft: 2 },
+          justifyContent: "space-between",
+          "& button": { marginTop: 2 },
         }}
       >
         <Button
-          color="error"
-          size="medium"
-          variant="outlined"
+          color="inherit"
+          size="small"
+          variant="contained"
           onClick={() => {
             setFilterData({
               dateFrom: null,
@@ -504,28 +504,30 @@ const SaleReportSummary = () => {
             setPaginationModel({ page: 0, pageSize: 25 });
             // fetchAllSales();
           }}
-          sx={{ borderRadius: 8 }}
+          // sx={{ borderRadius: 8 }}
         >
-          Clear
+          Clear Filters
         </Button>
-        <Button
-          color="secondary"
-          size="medium"
-          variant="outlined"
-          onClick={() => {}}
-          sx={{ borderRadius: 8 }}
-        >
-          Print
-        </Button>
-        <Button
-          color="primary"
-          size="medium"
-          variant="contained"
-          onClick={() => fetchAllSales()}
-          sx={{ borderRadius: 8 }}
-        >
-          Display
-        </Button>
+        <div>
+          <Button
+            color="inherit"
+            size="small"
+            variant="contained"
+            onClick={() => {}}
+            // sx={{ borderRadius: 8 }}
+          >
+            Print
+          </Button>
+          <Button
+            color="info"
+            size="small"
+            variant="contained"
+            onClick={() => fetchAllSales()}
+            sx={{ marginLeft: 2 }}
+          >
+            Display
+          </Button>
+        </div>
       </Box>
 
       <Box
