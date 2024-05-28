@@ -72,6 +72,18 @@ import CompanyRegister from "./components/Sidebar_old/CompanyRegister";
 import ItemRegister from "./components/Navbar_old/MasterFile/ItemRegister";
 import NotFound from "./components/Others/NotFound";
 import UnAuthorized from "./components/Others/UnAuthorized";
+import TransferReport from "./components/Navbar_old/InventoryReport/TransferReport";
+import UrgentOrder from "./components/Navbar_old/InventoryReport/UrgentOrder";
+import GodownShowroomLedger from "./components/Navbar_old/InventoryReport/GodownShowroomLedger";
+import GodownLedger from "./components/Navbar_old/InventoryReport/GodownLedger";
+import ShowroomLedger from "./components/Navbar_old/InventoryReport/ShowroomLedger";
+import FLBeerCsLedger from "./components/Navbar_old/InventoryReport/FLBeerCsLedger";
+import StockStatement from "./components/Navbar_old/InventoryReport/StockStatement";
+import OnDateReport from "./components/Navbar_old/InventoryReport/OnDateReport";
+import BrandPackLedgerByMrpRange from "./components/Navbar_old/InventoryReport/BrandPackLedgerByMrpRange";
+import ItemRateChart from "./components/Navbar_old/InventoryReport/ItemRateChart";
+import BarCodeList from "./components/Navbar_old/InventoryReport/BarCodeList";
+
 
 const PrivateRoute = ({ element, authenticatedUser }) => {
   return authenticatedUser ? element : <Navigate to="/login" />;
@@ -97,11 +109,7 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp }) => {
         path="/login"
         element={
           <PublicRoute
-            element={
-              <LoginForm
-                handleLogin={handleLogin}
-              />
-            }
+            element={<LoginForm handleLogin={handleLogin} />}
             authenticatedUser={authenticatedUser}
           />
         }
@@ -118,10 +126,10 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp }) => {
       <Route path="*" element={<NotFound />} />
 
       {/* Navbar items */}
-      <Route
+      {/* <Route
         path="/inventory-report"
         element={authenticatedUser ? <InventoryReport /> : <UnAuthorized />}
-      />
+      /> */}
       <Route
         path="/excise-report"
         element={authenticatedUser ? <ExciseReport /> : <UnAuthorized />}
@@ -353,6 +361,60 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp }) => {
         }
       />
 
+      {/* Inverntory Report Submenu items */}
+      <Route
+        path="/transfer-report"
+        element={authenticatedUser ? <TransferReport /> : <UnAuthorized />}
+      />
+      <Route
+        path="/urgent-order"
+        element={authenticatedUser ? <UrgentOrder /> : <UnAuthorized />}
+      />
+      <Route
+        path="/stock-report"
+        element={authenticatedUser ? <StockReport /> : <UnAuthorized />}
+      />
+      <Route
+        path="/godown-showroom-ledger"
+        element={
+          authenticatedUser ? <GodownShowroomLedger /> : <UnAuthorized />
+        }
+      />
+      <Route
+        path="/godown-ledger"
+        element={authenticatedUser ? <GodownLedger /> : <UnAuthorized />}
+      />
+      <Route
+        path="/showroom-ledger"
+        element={authenticatedUser ? <ShowroomLedger /> : <UnAuthorized />}
+      />
+      <Route
+        path="/fl-beer-cs-ledger"
+        element={authenticatedUser ? <FLBeerCsLedger /> : <UnAuthorized />}
+      />
+      <Route
+        path="/stock-statement"
+        element={authenticatedUser ? <StockStatement /> : <UnAuthorized />}
+      />
+      <Route
+        path="/on-date-report"
+        element={authenticatedUser ? <OnDateReport /> : <UnAuthorized />}
+      />
+      <Route
+        path="/brand-pack-ledger-by-mrp-range"
+        element={
+          authenticatedUser ? <BrandPackLedgerByMrpRange /> : <UnAuthorized />
+        }
+      />
+      <Route
+        path="/item-rate-chart"
+        element={authenticatedUser ? <ItemRateChart /> : <UnAuthorized />}
+      />
+      <Route
+        path="/bar-code-list"
+        element={authenticatedUser ? <BarCodeList /> : <UnAuthorized />}
+      />
+
       {/* Sidebar items */}
       <Route
         path="/daily-status"
@@ -386,9 +448,7 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp }) => {
       />
       <Route
         path="/stock-report"
-        element={
-          authenticatedUser ? <StockReport /> : <UnAuthorized />
-        }
+        element={authenticatedUser ? <StockReport /> : <UnAuthorized />}
       />
       <Route
         path="/category-sale-status"

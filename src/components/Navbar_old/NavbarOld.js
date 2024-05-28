@@ -12,12 +12,15 @@ const NavbarOld = () => {
     useState(false);
   const [isPurchaseReportDropdownOpen, setIsPurchaseReportDropdownOpen] =
     useState(false);
+  const [isInventoryReportDropdownOpen, setIsInventoryReportDropdownOpen] = useState(false);
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const masterFileDropdownRef = useRef(null);
   const dataEntryDropdownRef = useRef(null);
   const saleReportDropdownRef = useRef(null);
   const saleStatusReportDropdownRef = useRef(null);
   const purchaseReportDropdownRef = useRef(null);
+  const inventoryReportDropdownRef = useRef(null);
 
   const toggleMasterFileDropdown = () => {
     setIsMasterFileDropdownOpen((prevState) => !prevState);
@@ -39,6 +42,10 @@ const NavbarOld = () => {
     setIsPurchaseReportDropdownOpen((prevState) => !prevState);
   };
 
+  const toggleInventoryReportDropdown = () => {
+    setIsInventoryReportDropdownOpen((prevState) => !prevState);
+  };
+
   const toggleSidebar = () => {
     setIsSidebarOpen((prevState) => !prevState);
   };
@@ -49,6 +56,7 @@ const NavbarOld = () => {
     setIsSaleReportDropdownOpen(false);
     setIsSaleStatusReportDropdownOpen(false);
     setIsPurchaseReportDropdownOpen(false);
+    setIsInventoryReportDropdownOpen(false);
   };
 
   useEffect(() => {
@@ -82,6 +90,12 @@ const NavbarOld = () => {
         !purchaseReportDropdownRef.current.contains(event.target)
       ) {
         setIsPurchaseReportDropdownOpen(false);
+      }
+      if (
+        inventoryReportDropdownRef.current &&
+        !inventoryReportDropdownRef.current.contains(event.target)
+      ) {
+        setIsInventoryReportDropdownOpen(false);
       }
     };
 
@@ -337,15 +351,57 @@ const NavbarOld = () => {
             </div>
           </li>
 
-          <li className="nav-item">
-            <Link
-              to="/inventory-report"
-              className="nav-link"
-              onClick={closeAllDropdowns}
+          <li className="nav-item dropdown" ref={inventoryReportDropdownRef}>
+            <span
+              className="dropdown-toggle nav-link"
+              onClick={toggleInventoryReportDropdown}
             >
-              Inventory Report
-            </Link>
+              Inventory Report <i className="fas fa-caret-down"></i>
+            </span>
+            <div
+              className={`dropdown-content ${
+                isInventoryReportDropdownOpen ? "open" : ""
+              }`}
+            >
+              <Link to="/transfer-report" onClick={closeAllDropdowns}>
+                Transfer Report
+              </Link>
+              <Link to="/urgent-order" onClick={closeAllDropdowns}>
+                Urgent Order
+              </Link>
+              <Link to="/stock-report" onClick={closeAllDropdowns}>
+                Stock Report
+              </Link>
+              <Link to="/godown-showroom-ledger" onClick={closeAllDropdowns}>
+                Godown/showroom Ledger
+              </Link>
+              <Link to="/showroom-ledger" onClick={closeAllDropdowns}>
+                Showroom Ledger
+              </Link>
+              <Link to="/fl-beer-cs-ledger" onClick={closeAllDropdowns}>
+                FL, Beer Cs Ledger
+              </Link>
+              <Link to="/stock-statement" onClick={closeAllDropdowns}>
+                Stock Statement
+              </Link>
+              <Link to="/on-date-report" onClick={closeAllDropdowns}>
+                On Date Report
+              </Link>
+              <Link
+                to="/brand-pack-ledger-by-mrp-range"
+                onClick={closeAllDropdowns}
+              >
+                Brand/pack Ledger By Mrp Range
+              </Link>
+              <Link to="/item-rate-chart" onClick={closeAllDropdowns}>
+                Item Rate Chart
+              </Link>
+              <Link to="/bar-code-list" onClick={closeAllDropdowns}>
+                Bar Code List
+              </Link>
+            </div>
           </li>
+
           <li className="nav-item">
             <Link
               to="/excise-report"
