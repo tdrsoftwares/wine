@@ -42,8 +42,34 @@ export const getItemSaleDetails = async (billNo) => {
 
 export const getAllSales = async (filterOptions) => {
   try {
-    const { page, limit, supplierName, fromDate, toDate } = filterOptions;
-    const apiURL = `/sales/reports?page=${page}&limit=${limit}`;
+    const {
+      page,
+      limit,
+      fromDate,
+      toDate,
+      customerName,
+      series, 
+      phoneNo, 
+      customerType, 
+    } = filterOptions;
+
+    let apiURL = `/sales/reports?page=${page}&limit=${limit}`;
+
+    const filters = {
+      fromDate,
+      toDate,
+      customerName,
+      series, 
+      phoneNo, 
+      customerType, 
+    };
+
+    Object.keys(filters).forEach((key) => {
+      if (filters[key]) {
+        apiURL += `&${key}=${encodeURIComponent(filters[key])}`;
+      }
+    });
+    
     const allSalesData = await axiosInstance.get(apiURL);
     return allSalesData;
   } catch (error) {

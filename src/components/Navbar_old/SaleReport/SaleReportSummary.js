@@ -18,14 +18,19 @@ import { getAllSales } from "../../../services/saleBillService";
 import { DataGrid } from "@mui/x-data-grid";
 import { NotificationManager } from "react-notifications";
 import SalesDetailsModal from "./SalesDetailsModal";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { getAllCustomer } from "../../../services/customerService";
+import dayjs from "dayjs";
 
 const SaleReportSummary = () => {
   const [selectOptions, setselectOptions] = useState(null);
   const [allSalesData, setAllSalesData] = useState([]);
+  const [allCustomerData, setAllCustomerData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filterData, setFilterData] = useState({
-    dateFrom: "mm/dd/yyyy",
-    dateTo: "mm/dd/yyyy",
+    dateFrom: null,
+    dateTo: null,
     customerName: "",
     userName: "",
     series: "",
@@ -35,12 +40,16 @@ const SaleReportSummary = () => {
   });
   const [selectedRowData, setSelectedRowData] = useState(null);
   const [paginationModel, setPaginationModel] = useState({
-    page: 1,
+    page: 0,
     pageSize: 25,
   });
   const [totalCount, setTotalCount] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const seriesOptions = ["A", "B", "C", "D", "E", "ALL"];
+
+  const formatDate = (date) => {
+    if (!date) return null;
+    return dayjs(date).format("DD/MM/YYYY");
+  };
 
   const columns = [
     {
@@ -88,6 +97,20 @@ const SaleReportSummary = () => {
       headerClassName: "custom-header",
     },
     {
+      field: "customerType",
+      headerName: "Customer Type",
+      width: 160,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "phoneNumber",
+      headerName: "Phone No.",
+      width: 180,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
       field: "volume",
       headerName: "Volume",
       width: 180,
@@ -108,34 +131,28 @@ const SaleReportSummary = () => {
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
+    // {
+    //   field: "discAmount",
+    //   headerName: "Discount Amt.",
+    //   width: 150,
+    //   cellClassName: "custom-cell",
+    //   headerClassName: "custom-header",
+    // },
+
     {
-      field: "discAmount",
-      headerName: "Discount Amt.",
-      width: 150,
+      field: "splDiscAmount",
+      headerName: "S. Discount Amt.",
+      width: 160,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     // {
-    //   field: "splDisc",
-    //   headerName: "Special Discount",
-    //   width: 160,
+    //   field: "taxAmount",
+    //   headerName: "Tax Amt.",
+    //   width: 150,
     //   cellClassName: "custom-cell",
     //   headerClassName: "custom-header",
     // },
-    // {
-    //   field: "splDiscAmount",
-    //   headerName: "S. Discount Amt.",
-    //   width: 160,
-    //   cellClassName: "custom-cell",
-    //   headerClassName: "custom-header",
-    // },
-    {
-      field: "taxAmount",
-      headerName: "Tax Amt.",
-      width: 150,
-      cellClassName: "custom-cell",
-      headerClassName: "custom-header",
-    },
     {
       field: "adjustment",
       headerName: "Adjustment",
@@ -177,30 +194,44 @@ const SaleReportSummary = () => {
       ),
     [columns]
   );
-  
+
   const handleViewClick = (row) => {
     setSelectedRowData(row);
     setIsModalOpen(true);
   };
 
   const fetchAllSales = async () => {
+    const fromDate = filterData.dateFrom
+      ? formatDate(filterData.dateFrom)
+      : null;
+    const toDate = filterData.dateTo ? formatDate(filterData.dateTo) : null;
+
     setLoading(true);
     console.log("Fetching data...");
     try {
       const filterOptions = {
-        page:
-          paginationModel.page === 0
-            ? paginationModel.page + 1
-            : paginationModel.page,
+        // page:
+        //   paginationModel.page === 0
+        //     ? paginationModel.page + 1
+        //     : paginationModel.page,
+        page: paginationModel.page + 1,
         limit: paginationModel.pageSize,
-        // supplierName: selectedSupplier,
-        // fromDate: dateFrom,
-        // toDate: dateTo,
+        customerName: filterData.customerName,
+        fromDate: fromDate,
+        toDate: toDate,
+        series: filterData.series,
+        phoneNo: filterData.phone,
+        customerType: filterData.customerType,
       };
       const allSalesResponse = await getAllSales(filterOptions);
       console.log("allSalesResponse ---> ", allSalesResponse?.data?.data);
-      setAllSalesData(allSalesResponse?.data?.data);
-      setTotalCount(allSalesResponse?.data.data?.length);
+      if (allSalesResponse.status === 200) {
+        setAllSalesData(allSalesResponse?.data?.data);
+        setTotalCount(allSalesResponse?.data.data?.length);
+      } else {
+        NotificationManager.error("No items found.", "Error");
+        setAllSalesData([])
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching sales. Please try again later.",
@@ -213,19 +244,51 @@ const SaleReportSummary = () => {
     }
   };
 
+  const fetchAllCustomers = async () => {
+    try {
+      const allCustomerResponse = await getAllCustomer();
+      console.log("allCustomerResponse ---> ", allCustomerResponse);
+      setAllCustomerData(allCustomerResponse?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching brands. Please try again later.",
+        "Error"
+      );
+      console.error("Error fetching brands:", error);
+    }
+  };
+
   useEffect(() => {
     fetchAllSales();
+    fetchAllCustomers();
   }, []);
 
-  return (
-    <form>
-      <Box sx={{ p: 2, width: "900px" }}>
-        <Typography variant="subtitle1" sx={{ marginBottom: 2 }}>
-          Sale Report Summary:
-        </Typography>
+  const debounce = (func, delay) => {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        func(...args);
+      }, delay);
+    };
+  };
 
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
+  useEffect(() => {
+    const debouncedFetch = debounce(fetchAllSales, 300);
+    debouncedFetch();
+  }, [paginationModel, filterData]);
+
+  return (
+    <Box sx={{ p: 2, width: "900px" }}>
+      <Typography variant="h6" sx={{ marginBottom: 2 }}>
+        Sale Report Summary:
+      </Typography>
+      <Typography variant="subtitle1" gutterBottom>
+        Filter By:
+      </Typography>
+
+      <Grid container spacing={2}>
+        {/* <Grid item xs={9.5}>
             <RadioGroup
               row
               name="selectOptions"
@@ -233,36 +296,34 @@ const SaleReportSummary = () => {
               value={selectOptions}
               onChange={(e) => setselectOptions(e.target.value)}
             >
+              <FormControlLabel value="date" control={<Radio />} label="Date" />
+
               <FormControlLabel
-                value="date-wise-sale"
+                value="series"
                 control={<Radio />}
-                label="Date Wise Sale"
+                label="Bill Series"
+              />
+
+              <FormControlLabel
+                value="customerName"
+                control={<Radio />}
+                label="Customer Name"
               />
               <FormControlLabel
-                value="customer"
-                control={<Radio />}
-                label="Customer"
-              />
-              <FormControlLabel value="user" control={<Radio />} label="User" />
-              <FormControlLabel
-                value="customer-type"
+                value="customerType"
                 control={<Radio />}
                 label="Customer Type"
               />
+
               <FormControlLabel
-                value="receipt-mode"
+                value="phone"
                 control={<Radio />}
-                label="Receipt Mode"
-              />
-              <FormControlLabel
-                value="customer-phone"
-                control={<Radio />}
-                label="Customer/Phone"
+                label="Phone No."
               />
             </RadioGroup>
           </Grid>
 
-          <Grid item xs={3}>
+          <Grid item xs={2.5}>
             <FormControlLabel
               control={
                 <Checkbox
@@ -278,280 +339,269 @@ const SaleReportSummary = () => {
               }
               label="Only Disc. Bills"
             />
-          </Grid>
+          </Grid> */}
 
-          <Grid item xs={3}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="dateFrom" className="input-label">
-                Date from :
-              </InputLabel>
-              <TextField
-                fullWidth
-                type="date"
-                size="small"
-                className="input-field"
-                name="dateFrom"
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="dateFrom" className="input-label">
+              Bill date from:
+            </InputLabel>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                id="dateFrom"
+                format="DD/MM/YYYY"
                 value={filterData.dateFrom}
-                onChange={(e) =>
-                  setFilterData({ ...filterData, dateFrom: e.target.value })
+                className="input-field date-picker"
+                onChange={(date) =>
+                  setFilterData({ ...filterData, dateFrom: date })
                 }
+                renderInput={(params) => <TextField {...params} />}
               />
-            </div>
-          </Grid>
-
-          <Grid item xs={3}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="dateFrom" className="input-label">
-                Date To :
-              </InputLabel>
-              <TextField
-                fullWidth
-                type="date"
-                size="small"
-                className="input-field"
-                name="dateTo"
-                value={filterData.dateTo}
-                onChange={(e) =>
-                  setFilterData({ ...filterData, dateTo: e.target.value })
-                }
-              />
-            </div>
-          </Grid>
-
-          <Grid item xs={3}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="customerName" className="input-label">
-                Customer Name :
-              </InputLabel>
-              <TextField
-                select
-                fullWidth
-                size="small"
-                name="customerName"
-                className="input-field"
-                value={filterData.customerName}
-                onChange={(e) =>
-                  setFilterData({ ...filterData, customerName: e.target.value })
-                }
-              >
-                {["CASH BILL", "DEALER"].map((option, i) => (
-                  <MenuItem key={i} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </div>
-          </Grid>
-
-          <Grid item xs={3}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="customerType" className="input-label">
-                Customer Type :
-              </InputLabel>
-              <TextField
-                select
-                fullWidth
-                size="small"
-                name="customerType"
-                className="input-field"
-                value={filterData.customerType}
-                onChange={(e) =>
-                  setFilterData({ ...filterData, customerType: e.target.value })
-                }
-              >
-                {["Cash", "Online"].map((item, id) => (
-                  <MenuItem key={id} value={item}>
-                    {item}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </div>
-          </Grid>
-
-          <Grid item xs={3}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="userName" className="input-label">
-                User Name :
-              </InputLabel>
-              <TextField
-                select
-                fullWidth
-                size="small"
-                name="userName"
-                className="input-field"
-                value={filterData.userName}
-                onChange={(e) =>
-                  setFilterData({ ...filterData, userName: e.target.value })
-                }
-              >
-                {["admin"].map((pack, id) => (
-                  <MenuItem key={id} value={pack}>
-                    {pack}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </div>
-          </Grid>
-
-          <Grid item xs={3}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="series" className="input-label">
-                Series :
-              </InputLabel>
-              <TextField
-                select
-                fullWidth
-                size="small"
-                name="series"
-                className="input-field"
-                value={filterData.series}
-                onChange={(e) =>
-                  setFilterData({ ...filterData, series: e.target.value })
-                }
-              >
-                {seriesOptions.map((item, id) => (
-                  <MenuItem key={id} value={item}>
-                    {item}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </div>
-          </Grid>
-
-          <Grid item xs={3}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="phone" className="input-label">
-                Phone :
-              </InputLabel>
-              <TextField
-                select
-                fullWidth
-                size="small"
-                name="phone"
-                className="input-field"
-                value={filterData.phone}
-                onChange={(e) =>
-                  setFilterData({ ...filterData, phone: e.target.value })
-                }
-              >
-                {["0", "Cash", "Online"].map((item, id) => (
-                  <MenuItem key={id} value={item}>
-                    {item}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </div>
-          </Grid>
+            </LocalizationProvider>
+          </div>
         </Grid>
 
-        <Box
-          sx={{
-            height: 500,
-            width: "100%",
-            marginTop: 4,
-            "& .custom-header": {
-              backgroundColor: "#dae4ed",
-              paddingLeft: 4,
-            },
-            "& .custom-cell": {
-              paddingLeft: 4,
-            },
-          }}
-        >
-          <DataGrid
-            rows={(allSalesData || [])?.map((sale, index) => ({
-              id: index,
-              sNo: index + 1,
-              billNo: sale.billNo || "No Data",
-              billDate: sale.billDate || "No Data",
-              // new Date(sale.billDate).toLocaleDateString("en-GB"),
-              billType: sale.billType || "No Data",
-              billSeries: sale.billSeries || "No Data",
-              customer: sale.customer?.name || "No Data",
-              volume: sale.volume || "No Data",
-              totalPcs: sale.totalPcs || "No Data",
-              grossAmount: sale.grossAmount || "No Data",
-              discAmount: sale.discAmount || "No Data",
-              // splDisc: sale.splDisc,
-              // splDiscAmount: sale.splDiscAmount,
-              // taxAmount: sale.taxAmount || "No Data",
-              adjustment: sale.adjustment || "No Data",
-              netAmount: sale.netAmount || "No Data",
-              action: (
-                <Button
-                  variant="contained"
-                  size="small"
-                  onClick={() => handleViewClick(sale)}
-                >
-                  View
-                </Button>
-              ),
-            }))}
-            columns={columnsData}
-            rowCount={totalCount}
-            pagination
-            paginationMode="server"
-            pageSizeOptions={[10, 25, 50, 100]}
-            onPaginationModelChange={setPaginationModel}
-            sx={{ backgroundColor: "#fff" }}
-            loadingOverlay={
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: "50%",
-                  left: "50%",
-                  transform: "translate(-50%, -50%)",
-                }}
-              >
-                <CircularProgress />
-              </Box>
-            }
-            loading={loading}
-          />
-          <SalesDetailsModal
-            open={isModalOpen}
-            handleClose={() => setIsModalOpen(false)}
-            rowData={selectedRowData}
-          />
-        </Box>
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="dateTo" className="input-label">
+              Bill date to:
+            </InputLabel>
 
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            "& button": { marginTop: 2, marginLeft: 2 },
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                id="dateTo"
+                format="DD/MM/YYYY"
+                value={filterData.dateTo}
+                className="input-field date-picker"
+                onChange={(date) =>
+                  setFilterData({ ...filterData, dateTo: date })
+                }
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </LocalizationProvider>
+          </div>
+        </Grid>
+
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="series" className="input-label">
+              Bill Series:
+            </InputLabel>
+            <TextField
+              fullWidth
+              size="small"
+              name="series"
+              className="input-field"
+              value={filterData.series}
+              onChange={(e) =>
+                setFilterData({ ...filterData, series: e.target.value })
+              }
+            />
+          </div>
+        </Grid>
+
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="customerName" className="input-label">
+              Customer Name:
+            </InputLabel>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              name="customerName"
+              className="input-field"
+              value={filterData.customerName}
+              onChange={(e) =>
+                setFilterData({ ...filterData, customerName: e.target.value })
+              }
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200,
+                    },
+                  },
+                },
+              }}
+            >
+              {allCustomerData?.map((item) => (
+                <MenuItem key={item._id} value={item.name}>
+                  {item.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </div>
+        </Grid>
+
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="customerType" className="input-label">
+              Customer Type:
+            </InputLabel>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              name="customerType"
+              className="input-field"
+              value={filterData.customerType}
+              onChange={(e) =>
+                setFilterData({ ...filterData, customerType: e.target.value })
+              }
+            >
+              {["cash", "online"].map((item, id) => (
+                <MenuItem key={id} value={item}>
+                  {item}
+                </MenuItem>
+              ))}
+            </TextField>
+          </div>
+        </Grid>
+
+        <Grid item xs={4}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="phone" className="input-label">
+              Phone No.:
+            </InputLabel>
+            <TextField
+              fullWidth
+              size="small"
+              name="phone"
+              className="input-field"
+              value={filterData.phone}
+              onChange={(e) =>
+                setFilterData({ ...filterData, phone: e.target.value })
+              }
+            />
+          </div>
+        </Grid>
+      </Grid>
+
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          "& button": { marginTop: 2, marginLeft: 2 },
+        }}
+      >
+        <Button
+          color="error"
+          size="medium"
+          variant="outlined"
+          onClick={() => {
+            setFilterData({
+              dateFrom: null,
+              dateTo: null,
+              customerName: "",
+              userName: "",
+              series: "",
+              customerType: "",
+              phone: "",
+              isChecked: false,
+            });
+            setselectOptions(null);
+            setPaginationModel({ page: 0, pageSize: 25 });
+            // fetchAllSales();
           }}
+          sx={{ borderRadius: 8 }}
         >
-          <Button
-            color="primary"
-            size="medium"
-            variant="contained"
-            onClick={() => {}}
-            sx={{ borderRadius: 8 }}
-          >
-            Display
-          </Button>
-          <Button
-            color="secondary"
-            size="medium"
-            variant="contained"
-            onClick={() => {}}
-            sx={{ borderRadius: 8 }}
-          >
-            Print
-          </Button>
-          <Button
-            color="error"
-            size="medium"
-            variant="outlined"
-            onClick={() => {}}
-            sx={{ borderRadius: 8 }}
-          >
-            Clear
-          </Button>
-        </Box>
+          Clear
+        </Button>
+        <Button
+          color="secondary"
+          size="medium"
+          variant="outlined"
+          onClick={() => {}}
+          sx={{ borderRadius: 8 }}
+        >
+          Print
+        </Button>
+        <Button
+          color="primary"
+          size="medium"
+          variant="contained"
+          onClick={() => fetchAllSales()}
+          sx={{ borderRadius: 8 }}
+        >
+          Display
+        </Button>
       </Box>
-    </form>
+
+      <Box
+        sx={{
+          height: 500,
+          width: "100%",
+          marginTop: 2,
+          "& .custom-header": {
+            backgroundColor: "#dae4ed",
+            paddingLeft: 4,
+          },
+          "& .custom-cell": {
+            paddingLeft: 4,
+          },
+        }}
+      >
+        <DataGrid
+          rows={(allSalesData || [])?.map((sale, index) => ({
+            id: index,
+            sNo: index + 1,
+            billNo: sale.billNo || "No Data",
+            billDate: sale.billDate || "No Data",
+            // new Date(sale.billDate).toLocaleDateString("en-GB"),
+            billType: sale.billType || "No Data",
+            billSeries: sale.billSeries || "No Data",
+            customer: sale.customer?.name || "No Data",
+            customerType: sale.customer?.type || "No Data",
+            phoneNumber: sale.customer?.contactNo || "No Data",
+            volume: sale.volume || "No Data",
+            totalPcs: sale.totalPcs || "No Data",
+            grossAmount: sale.grossAmount || "No Data",
+            // discAmount: sale.discAmount || "No Data",
+            // splDisc: sale.splDisc,
+            splDiscAmount: sale.splDiscAmount || "No Data",
+            // taxAmount: sale.taxAmount || "No Data",
+            adjustment: sale.adjustment || "No Data",
+            netAmount: sale.netAmount || "No Data",
+            action: (
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => handleViewClick(sale)}
+              >
+                View
+              </Button>
+            ),
+          }))}
+          columns={columnsData}
+          rowCount={totalCount}
+          pagination
+          paginationMode="server"
+          paginationModel={paginationModel}
+          pageSizeOptions={[10, 25, 50, 100]}
+          onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
+          sx={{ backgroundColor: "#fff" }}
+          loading={loading}
+          loadingOverlay={
+            <Box
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          }
+        />
+        <SalesDetailsModal
+          open={isModalOpen}
+          handleClose={() => setIsModalOpen(false)}
+          rowData={selectedRowData}
+        />
+      </Box>
+    </Box>
   );
 };
 
