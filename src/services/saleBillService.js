@@ -48,9 +48,9 @@ export const getAllSales = async (filterOptions) => {
       fromDate,
       toDate,
       customerName,
-      series, 
-      phoneNo, 
-      customerType, 
+      series,
+      phoneNo,
+      customerType,
     } = filterOptions;
 
     let apiURL = `/sales/reports?page=${page}&limit=${limit}`;
@@ -59,9 +59,9 @@ export const getAllSales = async (filterOptions) => {
       fromDate,
       toDate,
       customerName,
-      series, 
-      phoneNo, 
-      customerType, 
+      series,
+      phoneNo,
+      customerType,
     };
 
     Object.keys(filters).forEach((key) => {
@@ -69,9 +69,57 @@ export const getAllSales = async (filterOptions) => {
         apiURL += `&${key}=${encodeURIComponent(filters[key])}`;
       }
     });
-    
+
     const allSalesData = await axiosInstance.get(apiURL);
     return allSalesData;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const getItemWiseSaleDetails = async (filterOptions) => {
+  try {
+    const {
+      page,
+      limit,
+      fromDate,
+      toDate,
+      customerName,
+      brandName,
+      itemName,
+      itemCode,
+      supplierName,
+      batchNo,
+      series,
+      groupName,
+      billNo,
+      volume,
+    } = filterOptions;
+
+    let apiURL = `/sales/all-item-reports?page=${page}&limit=${limit}`;
+
+    const filters = {
+      fromDate,
+      toDate,
+      customerName,
+      brandName,
+      itemName,
+      itemCode,
+      supplierName,
+      batchNo,
+      series,
+      groupName,
+      billNo,
+      volume,
+    };
+
+    Object.keys(filters).forEach((key) => {
+      if (filters[key]) {
+        apiURL += `&${key}=${encodeURIComponent(filters[key])}`;
+      }
+    });
+    const getItemSalesData = await axiosInstance.get(apiURL);
+    return getItemSalesData;
   } catch (error) {
     return error;
   }

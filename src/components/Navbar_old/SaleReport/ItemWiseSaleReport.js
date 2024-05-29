@@ -28,9 +28,12 @@ import { getAllItems } from "../../../services/itemService";
 import { getAllBrands } from "../../../services/brandService";
 import { getAllSuppliers } from "../../../services/supplierService";
 import { DataGrid } from "@mui/x-data-grid";
+import dayjs from "dayjs";
+import { getItemWiseSaleDetails } from "../../../services/saleBillService";
 
 const ItemWiseSaleReport = () => {
   const [selectOptions, setselectOptions] = useState(null);
+  const [allSalesData, setAllSalesData] = useState([]);
   const [allCustomerData, setAllCustomerData] = useState([]);
   const [allBrands, setAllBrands] = useState([]);
   const [allSuppliers, setAllSuppliers] = useState([]);
@@ -49,8 +52,6 @@ const ItemWiseSaleReport = () => {
     billNo: "",
     pack: "",
     phone: "",
-    isShortChecked: false,
-    isBrkSummaryChecked: false,
   });
   const [allItems, setAllItems] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -65,113 +66,195 @@ const ItemWiseSaleReport = () => {
       field: "sNo",
       headerName: "S. No.",
       width: 90,
-      headerClassName: "custom-header",
-    },
-    {
-      field: "itemCode",
-      headerName: "Item Code",
-      width: 150,
-      headerClassName: "custom-header",
-    },
-    {
-      field: "itemName",
-      headerName: "Item Name",
-      width: 150,
-      headerClassName: "custom-header",
-    },
-    {
-      field: "brandName",
-      headerName: "Brand",
-      width: 150,
-      headerClassName: "custom-header",
-    },
-    {
-      field: "customerName",
-      headerName: "Customer",
-      width: 150,
-      headerClassName: "custom-header",
-    },
-    {
-      field: "supplierName",
-      headerName: "Supplier",
-      width: 150,
-      headerClassName: "custom-header",
-    },
-    {
-      field: "batchNo",
-      headerName: "Batch No.",
-      width: 120,
-      headerClassName: "custom-header",
-    },
-    {
-      field: "series",
-      headerName: "Series",
-      width: 120,
-      headerClassName: "custom-header",
-    },
-    {
-      field: "group",
-      headerName: "Group",
-      width: 120,
-      headerClassName: "custom-header",
-    },
-    {
-      field: "billNo",
-      headerName: "Bill No.",
-      width: 120,
-      headerClassName: "custom-header",
-    },
-
-    {
-      field: "mrp",
-      headerName: "MRP",
-      width: 120,
-      headerClassName: "custom-header",
-    },
-    {
-      field: "pcs",
-      headerName: "Pcs.",
-      width: 120,
-      headerClassName: "custom-header",
-    },
-    {
-      field: "pack",
-      headerName: "Pack",
-      width: 120,
-      headerClassName: "custom-header",
-    },
-    // {
-    //   field: "caseNo",
-    //   headerName: "Case No.",
-    //   width: 120,
-    //   headerClassName: "custom-header",
-    // },
-    // {
-    //   field: "purchaseRate",
-    //   headerName: "Purchase Rate",
-    //   width: 150,
-    //   headerClassName: "custom-header",
-    // },
-    {
-      field: "rate",
-      headerName: "Rate",
-      width: 120,
-      headerClassName: "custom-header",
-    },
-
-    {
-      field: "itemAmount",
-      headerName: "Amount",
-      width: 120,
+      cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "createdAt",
       headerName: "Created Date",
       width: 150,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "billDate",
+      headerName: "Bill Date",
+      width: 120,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "billNo",
+      headerName: "Bill No.",
+      width: 120,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "billType",
+      headerName: "Bill Type",
+      width: 120,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "itemCode",
+      headerName: "Item Code",
+      width: 150,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "itemName",
+      headerName: "Item Name",
+      width: 150,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "brandName",
+      headerName: "Brand",
+      width: 150,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "customerName",
+      headerName: "Customer",
+      width: 150,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    // {
+    //   field: "supplierName",
+    //   headerName: "Supplier",
+    //   width: 150,
+    //   cellClassName: "custom-cell",
+    //   headerClassName: "custom-header",
+    // },
+    {
+      field: "batchNo",
+      headerName: "Batch No.",
+      width: 120,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "series",
+      headerName: "Series",
+      width: 120,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "group",
+      headerName: "Group",
+      width: 120,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "mrp",
+      headerName: "MRP",
+      width: 120,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "pcs",
+      headerName: "Pcs.",
+      width: 120,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "pack",
+      headerName: "Pack",
+      width: 120,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+
+    {
+      field: "rate",
+      headerName: "Rate",
+      width: 120,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "broken",
+      headerName: "Break",
+      width: 120,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "split",
+      headerName: "Split",
+      width: 150,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "itemAmount",
+      headerName: "Amount",
+      width: 120,
+      cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
   ];
+
+  const formatDate = (date) => {
+    if (!date) return null;
+    return dayjs(date).format("DD/MM/YYYY");
+  };
+
+  const fetchAllSales = async () => {
+    const fromDate = filterData.dateFrom
+      ? formatDate(filterData.dateFrom)
+      : null;
+    const toDate = filterData.dateTo ? formatDate(filterData.dateTo) : null;
+
+    setLoading(true);
+    try {
+      const filterOptions = {
+        page: paginationModel.page + 1,
+        limit: paginationModel.pageSize,
+        fromDate: fromDate,
+        toDate: toDate,
+        customerName: filterData.customerName,
+        brandName: filterData.brandName,
+        itemName: filterData.itemName,
+        itemCode: filterData.itemCode,
+        supplierName: filterData.supplierName,
+        batchNo: filterData.batchNo,
+        series: filterData.series,
+        groupName: filterData.group,
+        billNo: filterData.billNo,
+        volume: filterData.pack,
+      };
+      const response = await getItemWiseSaleDetails(filterOptions);
+      console.log("Response salesData: ", response);
+
+      if (response.status === 200) {
+        setAllSalesData(response?.data?.data || []);
+        setTotalCount(response.data.data.length || 0);
+      } else {
+        console.log("Error", response);
+        NotificationManager.error("No items found.", "Error");
+        setAllSalesData([]);
+      }
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching sales. Please try again later.",
+        "Error"
+      );
+      console.log("Error fetching sales", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchAllCustomers = async () => {
     try {
@@ -224,11 +307,27 @@ const ItemWiseSaleReport = () => {
   };
 
   useEffect(() => {
-    fetchAllSuppliers()
-    fetchAllBrands()
-    fetchAllItems()
+    fetchAllSuppliers();
+    fetchAllBrands();
+    fetchAllItems();
     fetchAllCustomers();
-  },[])
+    fetchAllSales();
+  }, []);
+
+  const debounce = (func, delay) => {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        func(...args);
+      }, delay);
+    };
+  };
+
+  useEffect(() => {
+    const debouncedFetch = debounce(fetchAllSales, 300);
+    debouncedFetch();
+  }, [paginationModel, filterData]);
 
   return (
     <Box sx={{ p: 2, width: "900px" }}>
@@ -240,50 +339,6 @@ const ItemWiseSaleReport = () => {
       </Typography>
 
       <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <RadioGroup
-            row
-            name="selectOptions"
-            aria-labelledby="selectOptions"
-            value={selectOptions}
-            onChange={(e) => setselectOptions(e.target.value)}
-          >
-            <FormControlLabel value="date" control={<Radio />} label="Date" />
-            <FormControlLabel
-              value="customer"
-              control={<Radio />}
-              label="Customer"
-            />
-
-            <FormControlLabel value="brand" control={<Radio />} label="Brand" />
-            <FormControlLabel
-              value="itemName"
-              control={<Radio />}
-              label="Item Name"
-            />
-            <FormControlLabel
-              value="itemCode"
-              control={<Radio />}
-              label="Item Code"
-            />
-            <FormControlLabel
-              value="supplier"
-              control={<Radio />}
-              label="Supplier"
-            />
-            <FormControlLabel value="batch" control={<Radio />} label="Batch" />
-            <FormControlLabel
-              value="series"
-              control={<Radio />}
-              label="Series"
-            />
-            <FormControlLabel value="group" control={<Radio />} label="Group" />
-            <FormControlLabel value="billNo" control={<Radio />} label="Bill" />
-            <FormControlLabel value="pack" control={<Radio />} label="Pack" />
-
-          </RadioGroup>
-        </Grid>
-
         <Grid item xs={3}>
           <div className="input-wrapper">
             <InputLabel htmlFor="dateFrom" className="input-label">
@@ -299,7 +354,6 @@ const ItemWiseSaleReport = () => {
                   setFilterData({ ...filterData, dateFrom: newDate })
                 }
                 renderInput={(params) => <TextField {...params} />}
-                disabled={selectOptions === "date" ? false : true}
               />
             </LocalizationProvider>
           </div>
@@ -321,7 +375,6 @@ const ItemWiseSaleReport = () => {
                   setFilterData({ ...filterData, dateTo: newDate })
                 }
                 renderInput={(params) => <TextField {...params} />}
-                disabled={selectOptions === "date" ? false : true}
               />
             </LocalizationProvider>
           </div>
@@ -342,7 +395,6 @@ const ItemWiseSaleReport = () => {
               onChange={(e) =>
                 setFilterData({ ...filterData, customerName: e.target.value })
               }
-              disabled={selectOptions === "customer" ? false : true}
               SelectProps={{
                 MenuProps: {
                   PaperProps: {
@@ -377,7 +429,6 @@ const ItemWiseSaleReport = () => {
               onChange={(e) =>
                 setFilterData({ ...filterData, brandName: e.target.value })
               }
-              disabled={selectOptions === "brand" ? false : true}
               SelectProps={{
                 MenuProps: {
                   PaperProps: {
@@ -412,7 +463,6 @@ const ItemWiseSaleReport = () => {
               onChange={(e) =>
                 setFilterData({ ...filterData, itemName: e.target.value })
               }
-              disabled={selectOptions === "itemName" ? false : true}
               SelectProps={{
                 MenuProps: {
                   PaperProps: {
@@ -446,12 +496,11 @@ const ItemWiseSaleReport = () => {
               onChange={(e) =>
                 setFilterData({ ...filterData, itemCode: e.target.value })
               }
-              disabled={selectOptions === "itemCode" ? false : true}
             />
           </div>
         </Grid>
 
-        <Grid item xs={3}>
+        {/* <Grid item xs={3}>
           <div className="input-wrapper">
             <InputLabel htmlFor="Supplier" className="input-label">
               Supplier:
@@ -466,7 +515,6 @@ const ItemWiseSaleReport = () => {
               onChange={(e) =>
                 setFilterData({ ...filterData, supplierName: e.target.value })
               }
-              disabled={selectOptions === "supplier" ? false : true}
               SelectProps={{
                 MenuProps: {
                   PaperProps: {
@@ -484,7 +532,7 @@ const ItemWiseSaleReport = () => {
               ))}
             </TextField>
           </div>
-        </Grid>
+        </Grid> */}
 
         <Grid item xs={3}>
           <div className="input-wrapper">
@@ -500,7 +548,6 @@ const ItemWiseSaleReport = () => {
               onChange={(e) =>
                 setFilterData({ ...filterData, batchNo: e.target.value })
               }
-              disabled={selectOptions === "batch" ? false : true}
             />
           </div>
         </Grid>
@@ -519,7 +566,6 @@ const ItemWiseSaleReport = () => {
               onChange={(e) =>
                 setFilterData({ ...filterData, series: e.target.value })
               }
-              disabled={selectOptions === "series" ? false : true}
             />
           </div>
         </Grid>
@@ -539,7 +585,6 @@ const ItemWiseSaleReport = () => {
               onChange={(e) =>
                 setFilterData({ ...filterData, group: e.target.value })
               }
-              disabled={selectOptions === "group" ? false : true}
             >
               {["FL", "BEER", "IML"].map((option, i) => (
                 <MenuItem key={i} value={option}>
@@ -564,7 +609,6 @@ const ItemWiseSaleReport = () => {
               onChange={(e) =>
                 setFilterData({ ...filterData, billNo: e.target.value })
               }
-              disabled={selectOptions === "billNo" ? false : true}
             />
           </div>
         </Grid>
@@ -583,7 +627,6 @@ const ItemWiseSaleReport = () => {
               onChange={(e) =>
                 setFilterData({ ...filterData, pack: e.target.value })
               }
-              disabled={selectOptions === "pack" ? false : true}
             />
           </div>
         </Grid>
@@ -627,41 +670,102 @@ const ItemWiseSaleReport = () => {
 
       <Box
         sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          "& button": { marginTop: 2 },
+        }}
+      >
+        <Button
+          color="inherit"
+          size="small"
+          variant="contained"
+          onClick={() => {
+            setFilterData({
+              dateFrom: null,
+              dateTo: null,
+              batchNo: "",
+              customerName: "",
+              brandName: "",
+              itemName: "",
+              itemCode: "",
+              supplierName: "",
+              series: "",
+              group: "",
+              userName: "",
+              billNo: "",
+              pack: "",
+              phone: "",
+            });
+            setPaginationModel({ page: 0, pageSize: 25 });
+            // fetchAllSales();
+          }}
+          // sx={{ borderRadius: 8 }}
+        >
+          Clear Filters
+        </Button>
+        <div>
+          <Button
+            color="inherit"
+            size="small"
+            variant="contained"
+            // sx={{ borderRadius: 8 }}
+          >
+            Print
+          </Button>
+          <Button
+            color="info"
+            size="small"
+            variant="contained"
+            onClick={fetchAllSales}
+            sx={{ marginLeft: 2 }}
+          >
+            Display
+          </Button>
+        </div>
+      </Box>
+
+      <Box
+        sx={{
           height: 500,
           width: "100%",
-          marginTop: 4,
+          marginTop: 2,
           "& .custom-header": { backgroundColor: "#dae4ed", paddingLeft: 4 },
           "& .custom-cell": { paddingLeft: 4 },
         }}
       >
         <DataGrid
-          rows={([])?.map((item, index) => ({
+          rows={(allSalesData || [])?.map((item, index) => ({
             id: index,
             sNo: index + 1,
-            itemCode: item.itemCode || "No Data",
-            itemName: item?.item?.name || "No Data",
-            brandName: item?.item?.brand?.name || "No Data",
+            createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
+            billDate: item.billDate || "No Data",
+            billNo: item.billNo || "No Data",
+            billType: item.billType || "No Data",
+            itemCode: item.salesItems?.itemCode || "No Data",
+            itemName: item?.salesItems?.item?.name || "No Data",
+            brandName: item.salesItems?.item?.brand?.name || "No Data",
             categoryName: item?.item?.category?.categoryName || "No Data",
-            batchNo: item.batchNo || "No Data",
+            customerName: item?.customer?.name || "No Data",
+            batchNo: item.salesItems?.batchNo || "No Data",
             brokenNo: item.brokenNo || "No Data",
             caseNo: item.caseNo || "No Data",
-            pcs: item.pcs || "No Data",
-            volume: item?.item?.volume || "No Data",
+            pcs: item.salesItems?.pcs || "No Data",
+            pack: item.salesItems?.item?.volume || "No Data",
+            series: item.billSeries || "No Data",
+            group: item.salesItems?.item?.group || "No Data",
             // updatedAt: new Date(item.updatedAt).toLocaleDateString("en-GB"),
-            mrp: item.mrp || "No Data",
-            gro: item.gro || "No Data",
-            sp: item.sp || "No Data",
-            purchaseRate: item.purchaseRate || "No Data",
-            saleRate: item.saleRate || "No Data",
-            itemAmount: item.itemAmount || "No Data",
-            createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
+            mrp: item.salesItems?.mrp || "No Data",
+            rate: item.salesItems?.rate || "No Data",
+            broken: item.salesItems?.break || "No Data",
+            split: item.salesItems?.split || "No Data",
+            itemAmount: item.salesItems?.amount || "No Data",
           }))}
           columns={columns}
           rowCount={totalCount}
           pagination
           paginationMode="server"
+          paginationModel={paginationModel}
           pageSizeOptions={[10, 25, 50, 100]}
-          // onPaginationModelChange={setPaginationModel}
           onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
           sx={{ backgroundColor: "#fff" }}
           disableRowSelectionOnClick
@@ -672,46 +776,6 @@ const ItemWiseSaleReport = () => {
             </Box>
           }
         />
-      </Box>
-
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "flex-end",
-          "& button": { marginTop: 2, marginLeft: 2 },
-        }}
-      >
-        <Button
-          color="warning"
-          size="medium"
-          variant="outlined"
-          onClick={() => {
-            setFilterData({})
-            setselectOptions(null)
-            // setPaginationModel({ page: 1, pageSize: 25 });
-            // fetchAllPurchases();
-          }}
-          sx={{ borderRadius: 8 }}
-        >
-          Clear
-        </Button>
-        <Button
-          color="secondary"
-          size="medium"
-          variant="outlined"
-          sx={{ borderRadius: 8 }}
-        >
-          Print
-        </Button>
-        <Button
-          color="primary"
-          size="medium"
-          variant="contained"
-          // onClick={fetchAllPurchases}
-          sx={{ borderRadius: 8 }}
-        >
-          Display
-        </Button>
       </Box>
     </Box>
   );
