@@ -64,30 +64,63 @@ const ItemWisePurchaseReport = () => {
       field: "sNo",
       headerName: "S. No.",
       width: 90,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "createdAt",
+      headerName: "Created Date",
+      width: 150,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    // {
+    //   field: "billDate",
+    //   headerName: "Bill Date",
+    //   width: 150,
+    //   cellClassName: "custom-cell",
+    //   headerClassName: "custom-header",
+    // },
+    {
+      field: "entryNo",
+      headerName: "Entry No.",
+      width: 150,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "billNo",
+      headerName: "Bill No.",
+      width: 150,
+      cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "itemCode",
       headerName: "Item Code",
       width: 150,
+      cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "itemName",
       headerName: "Item Name",
       width: 180,
+      cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "brandName",
       headerName: "Brand Name",
       width: 150,
+      cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "categoryName",
       headerName: "Category",
       width: 150,
+      cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
 
@@ -95,24 +128,28 @@ const ItemWisePurchaseReport = () => {
       field: "batchNo",
       headerName: "Batch No.",
       width: 120,
+      cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "brokenNo",
       headerName: "Broken",
       width: 120,
+      cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "gro",
       headerName: "G.R.O.",
       width: 120,
+      cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "sp",
       headerName: "S. Purposes",
       width: 120,
+      cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
 
@@ -120,49 +157,56 @@ const ItemWisePurchaseReport = () => {
       field: "mrp",
       headerName: "MRP",
       width: 120,
+      cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "pcs",
       headerName: "Pcs.",
       width: 120,
+      cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "volume",
       headerName: "Volume",
       width: 120,
+      cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "caseNo",
       headerName: "Case No.",
       width: 120,
+      cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "purchaseRate",
       headerName: "Purchase Rate",
       width: 150,
+      cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "saleRate",
       headerName: "Sale Rate",
       width: 120,
+      cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
-
+    {
+      field: "supplierName",
+      headerName: "Supplier Name",
+      width: 150,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
     {
       field: "itemAmount",
       headerName: "Amount",
       width: 120,
-      headerClassName: "custom-header",
-    },
-    {
-      field: "createdAt",
-      headerName: "Created Date",
-      width: 150,
+      cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
   ];
@@ -174,7 +218,7 @@ const ItemWisePurchaseReport = () => {
     setLoading(true);
     try {
       const filterOptions = {
-        page: paginationModel.page,
+        page: paginationModel.page + 1,
         limit: paginationModel.pageSize,
         fromDate: fromDate,
         toDate: toDate,
@@ -187,13 +231,15 @@ const ItemWisePurchaseReport = () => {
         // batchNo: batch
       };
       const response = await getItemWisePurchaseDetails(filterOptions);
+      // console.log("Response: ", response);
 
       if (response.status === 200) {
         setAllPurchases(response?.data?.data || []);
         setTotalCount(response.data.data.length || 0);
       } else {
         console.log("Error", response);
-        return;
+        NotificationManager.error("No items found.", "Error");
+        setAllPurchases([]);
       }
     } catch (error) {
       NotificationManager.error(
@@ -300,98 +346,6 @@ const ItemWisePurchaseReport = () => {
       </Typography>
 
       <Grid container spacing={2}>
-        <Grid item xs={9}>
-          <RadioGroup
-            row
-            name="filter1"
-            aria-label="filter1"
-            value={filter1}
-            onChange={(e) => setFilter1(e.target.value)}
-          >
-            <FormControlLabel value="date" control={<Radio />} label="Date" />
-            <FormControlLabel
-              value="supplier"
-              control={<Radio />}
-              label="Supplier"
-            />
-            <FormControlLabel value="item" control={<Radio />} label="Item" />
-
-
-            <FormControlLabel
-              value="supplier/item"
-              control={<Radio />}
-              label="Supplier/Item"
-            />
-
-            <FormControlLabel
-              value="itemCode"
-              control={<Radio />}
-              label="Item Code"
-            />
-            
-            <FormControlLabel value="brand" control={<Radio />} label="Brand" />
-
-            <FormControlLabel
-              value="category"
-              control={<Radio />}
-              label="Category"
-            />
-
-            <FormControlLabel
-              value="volume"
-              control={<Radio />}
-              label="Volume"
-            />
-          </RadioGroup>
-        </Grid>
-
-        <Grid item xs={3} display="flex" justifyContent="center">
-          <FormGroup row>
-            <FormControlLabel
-              label="FL"
-              control={
-                <Checkbox
-                  checked={checkController.fl}
-                  onChange={(e) =>
-                    setCheckController((prev) => ({
-                      ...prev,
-                      fl: e.target.checked,
-                    }))
-                  }
-                />
-              }
-            />
-            <FormControlLabel
-              label="Beer"
-              control={
-                <Checkbox
-                  checked={checkController.beer}
-                  onChange={(e) =>
-                    setCheckController((prev) => ({
-                      ...prev,
-                      beer: e.target.checked,
-                    }))
-                  }
-                />
-              }
-            />
-            <FormControlLabel
-              label="CS/IML"
-              control={
-                <Checkbox
-                  checked={checkController.cs_iml}
-                  onChange={(e) =>
-                    setCheckController((prev) => ({
-                      ...prev,
-                      cs_iml: e.target.checked,
-                    }))
-                  }
-                />
-              }
-            />
-          </FormGroup>
-        </Grid>
-
         <Grid item xs={3}>
           <div className="input-wrapper">
             <InputLabel htmlFor="dateFrom" className="input-label">
@@ -405,7 +359,6 @@ const ItemWisePurchaseReport = () => {
                 className="input-field date-picker"
                 onChange={(date) => setDateFrom(date)}
                 renderInput={(params) => <TextField {...params} />}
-                disabled={filter1 === "date" ? false : true}
               />
             </LocalizationProvider>
           </div>
@@ -425,7 +378,7 @@ const ItemWisePurchaseReport = () => {
                 className="input-field date-picker"
                 onChange={(date) => setDateTo(date)}
                 renderInput={(params) => <TextField {...params} />}
-                disabled={filter1 === "date" ? false : true}
+
               />
             </LocalizationProvider>
           </div>
@@ -444,11 +397,7 @@ const ItemWisePurchaseReport = () => {
               className="input-field"
               value={selectedSupplier}
               onChange={(e) => setSelectedSupplier(e.target.value)}
-              disabled={
-                filter1 === "supplier" || filter1 === "supplier/item"
-                  ? false
-                  : true
-              }
+
               SelectProps={{
                 MenuProps: {
                   PaperProps: {
@@ -481,9 +430,7 @@ const ItemWisePurchaseReport = () => {
               className="input-field"
               value={itemName}
               onChange={(e) => setItemName(e.target.value)}
-              disabled={
-                filter1 === "item" || filter1 === "supplier/item" ? false : true
-              }
+
               SelectProps={{
                 MenuProps: {
                   PaperProps: {
@@ -515,7 +462,6 @@ const ItemWisePurchaseReport = () => {
               className="input-field"
               value={itemCode}
               onChange={(e) => setItemCode(e.target.value)}
-              disabled={filter1 === "itemCode" ? false : true}
             />
           </div>
         </Grid>
@@ -533,7 +479,6 @@ const ItemWisePurchaseReport = () => {
               className="input-field"
               value={brandName}
               onChange={(e) => setBrandName(e.target.value)}
-              disabled={filter1 === "brand" ? false : true}
               SelectProps={{
                 MenuProps: {
                   PaperProps: {
@@ -566,7 +511,6 @@ const ItemWisePurchaseReport = () => {
               className="input-field"
               value={categoryName}
               onChange={(e) => setCategoryName(e.target.value)}
-              disabled={filter1 === "category" ? false : true}
               SelectProps={{
                 MenuProps: {
                   PaperProps: {
@@ -586,23 +530,6 @@ const ItemWisePurchaseReport = () => {
           </div>
         </Grid>
 
-        {/* <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="batch" className="input-label">
-              batch:
-            </InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              name="batch"
-              className="input-field"
-              value={batch}
-              onChange={(e) => setBatch(e.target.value)}
-              // disabled={filter1 === "volume" ? false : true}
-            />
-          </div>
-        </Grid> */}
-
         <Grid item xs={3}>
           <div className="input-wrapper">
             <InputLabel htmlFor="volume" className="input-label">
@@ -615,7 +542,6 @@ const ItemWisePurchaseReport = () => {
               className="input-field"
               value={volume}
               onChange={(e) => setVolume(e.target.value)}
-              disabled={filter1 === "volume" ? false : true}
             />
           </div>
         </Grid>
@@ -623,64 +549,15 @@ const ItemWisePurchaseReport = () => {
 
       <Box
         sx={{
-          height: 500,
-          width: "100%",
-          marginTop: 4,
-          "& .custom-header": { backgroundColor: "#dae4ed", paddingLeft: 4 },
-          "& .custom-cell": { paddingLeft: 4 },
-        }}
-      >
-        <DataGrid
-          rows={(allPurchases || [])?.map((item, index) => ({
-            id: index,
-            sNo: index + 1,
-            itemCode: item.itemCode || "No Data",
-            itemName: item?.item?.name || "No Data",
-            brandName: item?.item?.brand?.name || "No Data",
-            categoryName: item?.item?.category?.categoryName || "No Data",
-            batchNo: item.batchNo || "No Data",
-            brokenNo: item.brokenNo || "No Data",
-            caseNo: item.caseNo || "No Data",
-            pcs: item.pcs || "No Data",
-            volume: item?.item?.volume || "No Data",
-            // updatedAt: new Date(item.updatedAt).toLocaleDateString("en-GB"),
-            mrp: item.mrp || "No Data",
-            gro: item.gro || "No Data",
-            sp: item.sp || "No Data",
-            purchaseRate: item.purchaseRate || "No Data",
-            saleRate: item.saleRate || "No Data",
-            itemAmount: item.itemAmount || "No Data",
-            createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
-          }))}
-          columns={columns}
-          rowCount={totalCount}
-          pagination
-          paginationMode="server"
-          pageSizeOptions={[10, 25, 50, 100]}
-          // onPaginationModelChange={setPaginationModel}
-          onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
-          sx={{ backgroundColor: "#fff" }}
-          disableRowSelectionOnClick
-          loading={loading}
-          loadingOverlay={
-            <Box>
-              <CircularProgress />
-            </Box>
-          }
-        />
-      </Box>
-
-      <Box
-        sx={{
           display: "flex",
-          justifyContent: "flex-end",
-          "& button": { marginTop: 2, marginLeft: 2 },
+          justifyContent: "space-between",
+          "& button": { marginTop: 2 },
         }}
       >
         <Button
-          color="warning"
-          size="medium"
-          variant="outlined"
+          color="inherit"
+          size="small"
+          variant="contained"
           onClick={() => {
             setDateFrom(null);
             setDateTo(null);
@@ -690,32 +567,85 @@ const ItemWisePurchaseReport = () => {
             setCategoryName("");
             setVolume("");
             setItemCode("");
-            setFilter1("");
+            // setFilter1("");
             setBatch("");
-            setPaginationModel({ page: 1, pageSize: 25 });
-            fetchAllPurchases();
+            setPaginationModel({ page: 0, pageSize: 25 });
+            // fetchAllPurchases();
           }}
-          sx={{ borderRadius: 8 }}
+          // sx={{ borderRadius: 8 }}
         >
-          Clear
+          Clear Filters
         </Button>
-        <Button
-          color="secondary"
-          size="medium"
-          variant="outlined"
-          sx={{ borderRadius: 8 }}
-        >
-          Print
-        </Button>
-        <Button
-          color="primary"
-          size="medium"
-          variant="contained"
-          onClick={fetchAllPurchases}
-          sx={{ borderRadius: 8 }}
-        >
-          Display
-        </Button>
+        <div>
+          <Button
+            color="inherit"
+            size="small"
+            variant="contained"
+            // sx={{ borderRadius: 8 }}
+          >
+            Print
+          </Button>
+          <Button
+            color="info"
+            size="small"
+            variant="contained"
+            onClick={() => fetchAllPurchases()}
+            sx={{ marginLeft: 2 }}
+          >
+            Display
+          </Button>
+        </div>
+      </Box>
+
+      <Box
+        sx={{
+          height: 500,
+          width: "100%",
+          marginTop: 2,
+          "& .custom-header": { backgroundColor: "#dae4ed", paddingLeft: 4 },
+          "& .custom-cell": { paddingLeft: 4 },
+        }}
+      >
+        <DataGrid
+          rows={(allPurchases || [])?.map((item, index) => ({
+            id: index,
+            sNo: index + 1,
+            createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
+            // billDate: item.billDate || "No Data",
+            entryNo: item.entryNo || "No Data",
+            billNo: item.billNo || "No Data",
+            itemCode: item.purchaseItems?.itemCode || "No Data",
+            itemName: item.purchaseItems?.item?.name || "No Data",
+            brandName: item.purchaseItems?.item?.brand?.name || "No Data",
+            categoryName: item.purchaseItems?.item?.category?.categoryName || "No Data",
+            batchNo: item.purchaseItems.batchNo || "No Data",
+            brokenNo: item.purchaseItems?.brokenNo || "No Data",
+            caseNo: item.purchaseItems?.caseNo || "No Data",
+            pcs: item.purchaseItems?.pcs || "No Data",
+            volume: item.purchaseItems?.item?.volume || "No Data",
+            mrp: item.purchaseItems?.mrp || "No Data",
+            gro: item.purchaseItems?.gro || "No Data", // item er gro lagbe
+            sp: item.purchaseItems?.sp || "No Data", // item er sp lagbe
+            supplierName: item.supplierName || "No Data",
+            purchaseRate: item.purchaseItems?.purchaseRate || "No Data",
+            saleRate: item.purchaseItems?.saleRate || "No Data",
+            itemAmount: item.purchaseItems?.itemAmount || "No Data",
+          }))}
+          columns={columns}
+          rowCount={totalCount}
+          pagination
+          paginationMode="server"
+          paginationModel={paginationModel}
+          pageSizeOptions={[10, 25, 50, 100]}
+          onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
+          sx={{ backgroundColor: "#fff" }}
+          loading={loading}
+          loadingOverlay={
+            <Box>
+              <CircularProgress />
+            </Box>
+          }
+        />
       </Box>
     </Box>
   );
