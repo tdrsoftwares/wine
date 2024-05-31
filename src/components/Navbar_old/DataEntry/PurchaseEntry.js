@@ -362,6 +362,12 @@ const PurchaseEntry = () => {
       sp: selectedRow.sp || 0,
       amount: selectedRow.amount || 0,
     });
+
+    if (!selectedRow.itemCode) {
+      itemCodeRef.current.focus();
+    } else {
+      batchRef.current.focus();
+    }
     // calculateMRPValue(formData);
   };
 
@@ -747,7 +753,11 @@ const PurchaseEntry = () => {
           });
           setSearchMode(false);
           setSelectedRowIndex(null);
-          caseRef.current.focus();
+          if(!selectedRow.itemCode){
+            itemCodeRef.current.focus();
+          } else {
+            batchRef.current.focus();
+          }
         }
       }
     };
@@ -911,7 +921,7 @@ const PurchaseEntry = () => {
 
   return (
     <Box component="form" sx={{ p: 2, width: "900px" }}>
-      <Grid container spacing={2}>
+      <Grid container spacing={1}>
         <Grid item xs={6}>
           <div className="input-wrapper">
             <InputLabel
@@ -1062,7 +1072,7 @@ const PurchaseEntry = () => {
       </Grid>
 
       <Box
-        sx={{ p: 2, boxShadow: 2, borderRadius: 1, marginTop: 4 }}
+        sx={{ p: 2, boxShadow: 2, borderRadius: 1, marginTop: 1 }}
         className="table-header"
       >
         <Grid container spacing={1}>
@@ -1310,7 +1320,7 @@ const PurchaseEntry = () => {
                         cursor: "pointer",
                         backgroundColor:
                           index === selectedRowIndex
-                            ? "rgba(25, 118, 210, 0.08) !important"
+                            ? "rgba(25, 118, 210, 0.2) !important"
                             : "#fff !important",
                       }}
                     >
@@ -1615,7 +1625,7 @@ const PurchaseEntry = () => {
         sx={{
           width: "100%",
           p: 2,
-          marginTop: 3,
+          marginTop: 2,
           borderRadius: 1,
           boxShadow: 2,
         }}
@@ -1794,7 +1804,7 @@ const PurchaseEntry = () => {
           size="medium"
           variant="contained"
           onClick={() => setIsModalOpen(true)}
-          sx={{ marginTop: 3, marginRight: 2, borderRadius: 8 }}
+          sx={{ marginTop: 2, marginRight: 2, borderRadius: 8 }}
         >
           CREATE ITEM
         </Button>
@@ -1808,7 +1818,7 @@ const PurchaseEntry = () => {
             size="medium"
             variant="outlined"
             onClick={clearAllFields}
-            sx={{ marginTop: 3, marginRight: 2, borderRadius: 8 }}
+            sx={{ marginTop: 2, marginRight: 2, borderRadius: 8 }}
           >
             CLEAR
           </Button>
@@ -1818,7 +1828,7 @@ const PurchaseEntry = () => {
             size="medium"
             variant="outlined"
             onClick={() => {}}
-            sx={{ marginTop: 3, marginRight: 2, borderRadius: 8 }}
+            sx={{ marginTop: 2, marginRight: 2, borderRadius: 8 }}
           >
             PREV PAGE
           </Button>
@@ -1827,7 +1837,7 @@ const PurchaseEntry = () => {
             size="medium"
             variant="outlined"
             onClick={() => {}}
-            sx={{ marginTop: 3, marginRight: 2, borderRadius: 8 }}
+            sx={{ marginTop: 2, marginRight: 2, borderRadius: 8 }}
           >
             NEXT PAGE
           </Button>
@@ -1837,7 +1847,7 @@ const PurchaseEntry = () => {
             size="medium"
             variant="outlined"
             onClick={() => {}}
-            sx={{ marginTop: 3, marginRight: 2, borderRadius: 8 }}
+            sx={{ marginTop: 2, marginRight: 2, borderRadius: 8 }}
           >
             EDIT
           </Button>
@@ -1846,7 +1856,7 @@ const PurchaseEntry = () => {
             size="medium"
             variant="contained"
             onClick={() => {}}
-            sx={{ marginTop: 3, marginRight: 2, borderRadius: 8 }}
+            sx={{ marginTop: 2, marginRight: 2, borderRadius: 8 }}
           >
             DELETE
           </Button>
@@ -1855,7 +1865,7 @@ const PurchaseEntry = () => {
             size="medium"
             variant="contained"
             onClick={handlePurchaseOpen}
-            sx={{ marginTop: 3, marginRight: 2, borderRadius: 8 }}
+            sx={{ marginTop: 2, marginRight: 2, borderRadius: 8 }}
           >
             OPEN
           </Button>
@@ -1865,7 +1875,7 @@ const PurchaseEntry = () => {
             size="medium"
             variant="contained"
             onClick={handleCreatePurchase}
-            sx={{ marginTop: 3, borderRadius: 8 }}
+            sx={{ marginTop: 2, borderRadius: 8 }}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 handleCreatePurchase();
