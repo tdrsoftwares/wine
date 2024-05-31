@@ -1,21 +1,10 @@
 import {
   Box,
   Button,
-  Checkbox,
   CircularProgress,
-  FormControlLabel,
   Grid,
   InputLabel,
   MenuItem,
-  Paper,
-  Radio,
-  RadioGroup,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   TextField,
   Typography,
 } from "@mui/material";
@@ -26,17 +15,14 @@ import { getAllCustomer } from "../../../services/customerService";
 import { NotificationManager } from "react-notifications";
 import { getAllItems } from "../../../services/itemService";
 import { getAllBrands } from "../../../services/brandService";
-import { getAllSuppliers } from "../../../services/supplierService";
 import { DataGrid } from "@mui/x-data-grid";
 import dayjs from "dayjs";
 import { getItemWiseSaleDetails } from "../../../services/saleBillService";
 
 const ItemWiseSaleReport = () => {
-  const [selectOptions, setselectOptions] = useState(null);
   const [allSalesData, setAllSalesData] = useState([]);
   const [allCustomerData, setAllCustomerData] = useState([]);
   const [allBrands, setAllBrands] = useState([]);
-  const [allSuppliers, setAllSuppliers] = useState([]);
   const [filterData, setFilterData] = useState({
     dateFrom: null,
     dateTo: null,
@@ -125,13 +111,6 @@ const ItemWiseSaleReport = () => {
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
-    // {
-    //   field: "supplierName",
-    //   headerName: "Supplier",
-    //   width: 150,
-    //   cellClassName: "custom-cell",
-    //   headerClassName: "custom-header",
-    // },
     {
       field: "batchNo",
       headerName: "Batch No.",
@@ -294,20 +273,7 @@ const ItemWiseSaleReport = () => {
     }
   };
 
-  const fetchAllSuppliers = async () => {
-    try {
-      const response = await getAllSuppliers();
-      setAllSuppliers(response?.data?.data || []);
-    } catch (error) {
-      NotificationManager.error(
-        "Error fetching suppliers. Please try again later.",
-        "Error"
-      );
-    }
-  };
-
   useEffect(() => {
-    fetchAllSuppliers();
     fetchAllBrands();
     fetchAllItems();
     fetchAllCustomers();
@@ -500,40 +466,6 @@ const ItemWiseSaleReport = () => {
           </div>
         </Grid>
 
-        {/* <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="Supplier" className="input-label">
-              Supplier:
-            </InputLabel>
-            <TextField
-              select
-              fullWidth
-              size="small"
-              name="Supplier"
-              className="input-field"
-              value={filterData.supplierName}
-              onChange={(e) =>
-                setFilterData({ ...filterData, supplierName: e.target.value })
-              }
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
-                    },
-                  },
-                },
-              }}
-            >
-              {allSuppliers?.map((item) => (
-                <MenuItem key={item.id} value={item.name}>
-                  {item.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
-        </Grid> */}
-
         <Grid item xs={3}>
           <div className="input-wrapper">
             <InputLabel htmlFor="batchNo" className="input-label">
@@ -597,7 +529,7 @@ const ItemWiseSaleReport = () => {
 
         <Grid item xs={3}>
           <div className="input-wrapper">
-            <InputLabel htmlFor="group" className="input-label">
+            <InputLabel htmlFor="billNo" className="input-label">
               Bill No:
             </InputLabel>
             <TextField
@@ -630,42 +562,6 @@ const ItemWiseSaleReport = () => {
             />
           </div>
         </Grid>
-
-        {/* <Grid item xs={2}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={filterData.isShortChecked}
-                inputProps={{ "aria-label": "controlled" }}
-                onChange={(e) =>
-                  setFilterData({
-                    ...filterData,
-                    isShortChecked: e.target.checked,
-                  })
-                }
-              />
-            }
-            label="Short"
-          />
-        </Grid>
-
-        <Grid item xs={2}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={filterData.isBrkSummaryChecked}
-                inputProps={{ "aria-label": "controlled" }}
-                onChange={(e) =>
-                  setFilterData({
-                    ...filterData,
-                    isBrkSummaryChecked: e.target.checked,
-                  })
-                }
-              />
-            }
-            label="Brake Summary"
-          />
-        </Grid> */}
       </Grid>
 
       <Box

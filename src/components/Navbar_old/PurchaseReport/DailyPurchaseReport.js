@@ -1,8 +1,10 @@
 import {
   Box,
   Button,
+  CircularProgress,
   FormControlLabel,
   Grid,
+  InputLabel,
   MenuItem,
   Paper,
   Radio,
@@ -16,510 +18,516 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import React, { useEffect, useState } from "react";
+import { getAllCustomer } from "../../../services/customerService";
+import { getAllItemCategory } from "../../../services/categoryService";
+import { getAllItems } from "../../../services/itemService";
+import { getAllBrands } from "../../../services/brandService";
+import { NotificationManager } from "react-notifications";
+import { getAllSuppliers } from "../../../services/supplierService";
+import dayjs from "dayjs";
+import { DataGrid } from "@mui/x-data-grid";
 
 const DailyPurchaseReport = () => {
-  const [selectOptions, setselectOptions] = useState(null);
-
   const [filterData, setFilterData] = useState({
-    dateFrom: "mm/dd/yyyy",
-    dateTo: "mm/dd/yyyy",
+    dateFrom: null,
+    dateTo: null,
     brandName: "",
     categoryName: "",
     itemName: "",
-    billFrom: "",
-    billTo: "",
     series: "",
     billType: "",
     pack: "",
     supplier: "",
-    user: "",
   });
-
-  const [tableData, setTableData] = useState([
-    {
-      items: "",
-      rate: "",
-      pcs: "",
-      blLpl: "",
-      casePcs: "",
-      amt: "",
-    },
-  ]);
-
-  const brandNameOptions = [
-    "100 Pipers",
-    "100 Pipers 12Yr",
-    "8Pm Black",
-    "Absolut",
-    "Absolut Citron",
-    "Absolut Raspberry",
-    "Amrut",
-    "Antiquity Blue",
-    "B Pride",
-  ];
-
-  const categories = [
-    "50up IML",
-    "60UP Country Spirit",
-    "60up IML",
-    "70up IML",
-    "Beer(India)",
-    "Brandy (IMFL)",
-  ];
-
-  const itemsOptions = [
-    "100 Pipers 375",
-    "100 Pipers 12Yr 750",
-    "100 Pipers W180",
-  ];
-  const billFromOptions = [
-    "A0",
-    "A1",
-    "A2",
-    "A3",
-    "A4",
-    "A5",
-    "A6",
-    "A7",
-    "A8",
-  ];
-  const billToOptions = ["A0", "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8"];
-  const seriesOptions = ["A", "B", "C", "D", "E", "ALL"];
-  const packingOptions = ["750", "650", "550", "320", "250", "180"];
+  const [allItems, setAllItems] = useState([]);
+  const [allBrands, setAllBrands] = useState([]);
+  const [allCategory, setAllCategory] = useState([]);
+  const [allSuppliers, setAllSuppliers] = useState([]);
+  const [allCustomerData, setAllCustomerData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 25,
+  });
+  const [totalCount, setTotalCount] = useState(0);
   
 
+  const columns = [
+    {
+      field: "sNo",
+      headerName: "S. No.",
+      width: 100,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "itemName",
+      headerName: "Item Name",
+      width: 180,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+
+    {
+      field: "totalPcs",
+      headerName: "Total Pcs.",
+      width: 150,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+
+    {
+      field: "rate",
+      headerName: "Rate",
+      width: 150,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+
+    {
+      field: "totalVolumeLiters",
+      headerName: "Total Vol. Ltr.",
+      width: 180,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "totalAmount",
+      headerName: "Total Amount",
+      width: 180,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+  ];
+  
+  const formatDate = (date) => {
+    if (!date) return null;
+    return dayjs(date).format("DD/MM/YYYY");
+  };
+
+  const fetchAllBrands = async () => {
+    try {
+      const allBrandResponse = await getAllBrands();
+      setAllBrands(allBrandResponse?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching brands. Please try again later.",
+        "Error"
+      );
+    }
+  };
+
+  const fetchAllItems = async () => {
+    try {
+      const allItemsResponse = await getAllItems();
+      setAllItems(allItemsResponse?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching items. Please try again later.",
+        "Error"
+      );
+    }
+  };
+
+  const fetchAllItemCategory = async () => {
+    try {
+      const allCategoryResponse = await getAllItemCategory();
+      setAllCategory(allCategoryResponse?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching categories. Please try again later.",
+        "Error"
+      );
+    }
+  };
+
+  const fetchAllCustomers = async () => {
+    try {
+      const allCustomerResponse = await getAllCustomer();
+      // console.log("allCustomerResponse ---> ", allCustomerResponse);
+      setAllCustomerData(allCustomerResponse?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching brands. Please try again later.",
+        "Error"
+      );
+      console.error("Error fetching brands:", error);
+    }
+  };
+
+  const fetchAllSuppliers = async () => {
+    try {
+      const response = await getAllSuppliers();
+      setAllSuppliers(response?.data?.data || []);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching suppliers. Please try again later.",
+        "Error"
+      );
+    }
+  };
+
+  useEffect(() => {
+    fetchAllItems();
+    fetchAllBrands();
+    fetchAllCustomers();
+    fetchAllItemCategory();
+    fetchAllSuppliers();
+  }, [])
+
   return (
-    <form>
-      <Box sx={{ p: 2, width: "900px" }}>
-        <Typography variant="h5" component="div" gutterBottom>
-          Daily Purchase Report - DSR
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          Daily Purchase Report (Item Total)
-        </Typography>
+    <Box sx={{ p: 2, width: "900px" }}>
+      <Typography variant="h6" sx={{ marginBottom: 2 }}>
+        Daily Sale Report
+      </Typography>
+      <Typography variant="subtitle1" gutterBottom>
+        Filter By:
+      </Typography>
 
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <RadioGroup
-              row
-              name="selectOptions"
-              aria-labelledby="selectOptions"
-              value={selectOptions}
-              onChange={(e) => setselectOptions(e.target.value)}
-            >
-              <FormControlLabel value="bill-date" control={<Radio />} label="Bill Date" />
-              <FormControlLabel
-                value="brand"
-                control={<Radio />}
-                label="Brand"
+      <Grid container spacing={2}>
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="dateFrom" className="input-label">
+              Date from:
+            </InputLabel>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                id="dateFrom"
+                format="DD/MM/YYYY"
+                value={filterData.dateFrom}
+                className="input-field date-picker"
+                onChange={(newDate) =>
+                  setFilterData({ ...filterData, dateFrom: newDate })
+                }
+                renderInput={(params) => <TextField {...params} />}
               />
-              <FormControlLabel
-                value="category"
-                control={<Radio />}
-                label="Category"
-              />
-              <FormControlLabel
-                value="item"
-                control={<Radio />}
-                label="Item"
-              />
-              <FormControlLabel
-                value="bill-type"
-                control={<Radio />}
-                label="Bill Type"
-              />
-              <FormControlLabel
-                value="all-brand"
-                control={<Radio />}
-                label="All Brand"
-              />
-              <FormControlLabel
-                value="all-category"
-                control={<Radio />}
-                label="All Category"
-              />
-              <FormControlLabel
-                value="bill-range"
-                control={<Radio />}
-                label="Bill Range"
-              />
-              <FormControlLabel
-                value="user"
-                control={<Radio />}
-                label="User"
-              />
-              <FormControlLabel
-                value="supplier"
-                control={<Radio />}
-                label="Supplier"
-              />
-              <FormControlLabel
-                value="category/pack"
-                control={<Radio />}
-                label="Category/Pack"
-              />
-            </RadioGroup>
-          </Grid>
+            </LocalizationProvider>
+          </div>
+        </Grid>
 
-          <Grid item xs={2}>
-            <TextField
-              fullWidth
-              type="date"
-              label="Date from"
-              name="dateFrom"
-              value={filterData.dateFrom}
-              onChange={(e) =>
-                setFilterData({ ...filterData, dateFrom: e.target.value })
-              }
-            />
-          </Grid>
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="dateTo" className="input-label">
+              Date to:
+            </InputLabel>
 
-          <Grid item xs={2}>
-            <TextField
-              fullWidth
-              type="date"
-              label="Date to"
-              name="dateTo"
-              value={filterData.dateTo}
-              onChange={(e) =>
-                setFilterData({ ...filterData, dateTo: e.target.value })
-              }
-            />
-          </Grid>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                id="dateTo"
+                format="DD/MM/YYYY"
+                value={filterData.dateTo}
+                className="input-field date-picker"
+                onChange={(newDate) =>
+                  setFilterData({ ...filterData, dateTo: newDate })
+                }
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </LocalizationProvider>
+          </div>
+        </Grid>
 
-          <Grid item xs={2}>
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="brandName" className="input-label">
+              Brand:
+            </InputLabel>
             <TextField
               select
               fullWidth
-              name="brand"
-              label="Brand"
-              variant="outlined"
+              size="small"
+              name="brandName"
+              className="input-field"
               value={filterData.brandName}
               onChange={(e) =>
                 setFilterData({ ...filterData, brandName: e.target.value })
               }
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200,
+                    },
+                  },
+                },
+              }}
             >
-              {brandNameOptions.map((option, i) => (
-                <MenuItem key={i} value={option}>
-                  {option}
+              {allBrands?.map((brand) => (
+                <MenuItem key={brand._id} value={brand.name}>
+                  {brand.name}
                 </MenuItem>
               ))}
             </TextField>
-          </Grid>
+          </div>
+        </Grid>
 
-          <Grid item xs={2}>
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="categoryName" className="input-label">
+              Category:
+            </InputLabel>
             <TextField
               select
               fullWidth
-              name="category"
-              label="Category"
-              variant="outlined"
+              size="small"
+              name="categoryName"
               className="input-field"
               value={filterData.categoryName}
               onChange={(e) =>
                 setFilterData({ ...filterData, categoryName: e.target.value })
               }
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200,
+                    },
+                  },
+                },
+              }}
             >
-              {categories.map((category, id) => (
-                <MenuItem key={id} value={category}>
-                  {category}
+              {allCategory?.map((category) => (
+                <MenuItem key={category._id} value={category.categoryName}>
+                  {category.categoryName}
                 </MenuItem>
               ))}
             </TextField>
-          </Grid>
+          </div>
+        </Grid>
 
-          <Grid item xs={2}>
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="itemName" className="input-label">
+              Item:
+            </InputLabel>
             <TextField
               select
               fullWidth
-              name="item"
-              label="Item"
-              variant="outlined"
+              size="small"
+              name="itemName"
+              className="input-field"
               value={filterData.itemName}
               onChange={(e) =>
                 setFilterData({ ...filterData, itemName: e.target.value })
               }
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200,
+                    },
+                  },
+                },
+              }}
             >
-              {itemsOptions.map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
+              {allItems?.map((item) => (
+                <MenuItem key={item._id} value={item.name}>
+                  {item.name}
                 </MenuItem>
               ))}
             </TextField>
-          </Grid>
+          </div>
+        </Grid>
 
-          <Grid item xs={2}>
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="Supplier" className="input-label">
+              Supplier:
+            </InputLabel>
             <TextField
               select
               fullWidth
-              name="billFrom"
-              label="Bill from"
-              variant="outlined"
-              className="input-field"
-              value={filterData.billFrom}
-              onChange={(e) =>
-                setFilterData({ ...filterData, billFrom: e.target.value })
-              }
-            >
-              {billFromOptions.map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-
-          <Grid item xs={2}>
-            <TextField
-              select
-              fullWidth
-              name="billTo"
-              label="Bill to"
-              variant="outlined"
-              className="input-field"
-              value={filterData.billTo}
-              onChange={(e) =>
-                setFilterData({ ...filterData, billTo: e.target.value })
-              }
-            >
-              {billToOptions.map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-
-          <Grid item xs={2}>
-            <TextField
-              select
-              fullWidth
-              name="series"
-              label="Series"
-              variant="outlined"
-              className="input-field"
-              value={filterData.series}
-              onChange={(e) =>
-                setFilterData({ ...filterData, series: e.target.value })
-              }
-            >
-              {seriesOptions.map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-
-          <Grid item xs={2}>
-            <TextField
-              select
-              fullWidth
-              name="billType"
-              label="Bill Type"
-              variant="outlined"
-              className="input-field"
-              value={filterData.billType}
-              onChange={(e) =>
-                setFilterData({ ...filterData, billType: e.target.value })
-              }
-            >
-              {["cash","dealer"].map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-
-
-          <Grid item xs={2}>
-            <TextField
-              select
-              fullWidth
-              name="packing"
-              label="Packing"
-              variant="outlined"
-              value={filterData.pack}
-              onChange={(e) =>
-                setFilterData({ ...filterData, pack: e.target.value })
-              }
-            >
-              {packingOptions?.map((option, i) => (
-                <MenuItem key={i} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-
-          <Grid item xs={2}>
-            <TextField
-              select
-              fullWidth
-              name="supplier"
-              label="supplier"
-              variant="outlined"
+              size="small"
+              name="Supplier"
               className="input-field"
               value={filterData.supplier}
               onChange={(e) =>
                 setFilterData({ ...filterData, supplier: e.target.value })
               }
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200,
+                    },
+                  },
+                },
+              }}
             >
-              {["Asansol","Bevco", "Diamond", "ABc"].map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
+              {allSuppliers?.map((item) => (
+                <MenuItem key={item.id} value={item.name}>
+                  {item.name}
                 </MenuItem>
               ))}
             </TextField>
-          </Grid>
-
-          <Grid item xs={2}>
-            <TextField
-              select
-              fullWidth
-              name="user"
-              label="User"
-              variant="outlined"
-              className="input-field"
-              value={filterData.user}
-              onChange={(e) =>
-                setFilterData({ ...filterData, user: e.target.value })
-              }
-            >
-              {["admin","..."].map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
+          </div>
         </Grid>
 
-        <TableContainer
-          component={Paper}
-          sx={{ marginTop: 4, maxHeight: 300, overflowY: "auto" }}
-        >
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>S. No.</TableCell>
-                <TableCell>Items</TableCell>
-                <TableCell>Rate</TableCell>
-                <TableCell>Pcs</TableCell>
-                <TableCell>Bl/Lpl</TableCell>
-                <TableCell>Case/Pcs</TableCell>
-                <TableCell>Amt.</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {tableData.map((row, index) => (
-                <TableRow key={index}>
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={index + 1}
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="series" className="input-label">
+              Series:
+            </InputLabel>
+            <TextField
+              fullWidth
+              size="small"
+              name="series"
+              className="input-field"
+              value={filterData.series}
+              onChange={(e) =>
+                setFilterData({ ...filterData, series: e.target.value })
+              }
+            />
+          </div>
+        </Grid>
 
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.items}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.rate}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.pcs || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.blLpl || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.casePcs || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.amt || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            marginTop: 2,
-          }}
-        >
-          <Button
-            color="primary"
-            size="large"
+        {/* <Grid item xs={2}>
+          <TextField
+            select
+            fullWidth
+            name="billType"
+            label="Bill Type"
             variant="outlined"
-            onClick={() => {}}
-            sx={{ marginTop: 2, marginRight: 2 }}
+            className="input-field"
+            value={filterData.billType}
+            onChange={(e) =>
+              setFilterData({ ...filterData, billType: e.target.value })
+            }
           >
-            Display
-          </Button>
+            {["cash", "dealer"].map((item, id) => (
+              <MenuItem key={id} value={item}>
+                {item}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid> */}
+
+        <Grid item xs={3}>
+          <div className="input-wrapper">
+            <InputLabel htmlFor="volume" className="input-label">
+              Volume:
+            </InputLabel>
+            <TextField
+              fullWidth
+              size="small"
+              name="volume"
+              className="input-field"
+              value={filterData.pack}
+              onChange={(e) =>
+                setFilterData({ ...filterData, pack: e.target.value })
+              }
+            />
+          </div>
+        </Grid>
+      </Grid>
+
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          "& button": { marginTop: 2 },
+        }}
+      >
+        <Button
+          color="inherit"
+          size="small"
+          variant="contained"
+          onClick={() => {
+            setFilterData({
+              dateFrom: null,
+              dateTo: null,
+              brandName: "",
+              categoryName: "",
+              itemName: "",
+              series: "",
+              billType: "",
+              pack: "",
+              supplier: "",
+            });
+            setPaginationModel({ page: 0, pageSize: 25 });
+            // fetchAllSales();
+          }}
+          // sx={{ borderRadius: 8 }}
+        >
+          Clear Filters
+        </Button>
+        <div>
           <Button
-            color="secondary"
-            size="large"
-            variant="outlined"
-            onClick={() => {}}
-            sx={{ marginTop: 2, marginRight: 2 }}
+            color="inherit"
+            size="small"
+            variant="contained"
+            // sx={{ borderRadius: 8 }}
           >
             Print
           </Button>
           <Button
-            color="error"
-            size="large"
-            variant="outlined"
-            onClick={() => {}}
-            sx={{ marginTop: 2 }}
+            color="info"
+            size="small"
+            variant="contained"
+            // onClick={fetchAllSales}
+            sx={{ marginLeft: 2 }}
           >
-            Clear
+            Display
           </Button>
-        </Box>
+        </div>
       </Box>
-    </form>
+
+      <Box
+        sx={{
+          height: 500,
+          width: "80%",
+          marginTop: 2,
+          "& .custom-header": { backgroundColor: "#dae4ed", paddingLeft: 4 },
+          "& .custom-cell": { paddingLeft: 4 },
+        }}
+      >
+        <DataGrid
+          rows={([])?.map((item, index) => ({
+            id: index,
+            sNo: index + 1,
+            // createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
+            // billDate: item.billDate || "No Data",
+            // billNo: item.billNo || "No Data",
+            // billType: item.billType || "No Data",
+            // itemCode: item.salesItems?.itemCode || "No Data",
+            // itemName: item?.salesItems?.item?.name || "No Data",
+            // brandName: item.salesItems?.item?.brand?.name || "No Data",
+            // categoryName: item?.item?.category?.categoryName || "No Data",
+            // customerName: item?.customer?.name || "No Data",
+            // batchNo: item.salesItems?.batchNo || "No Data",
+            // brokenNo: item.brokenNo || "No Data",
+            // caseNo: item.caseNo || "No Data",
+            // pcs: item.salesItems?.pcs || "No Data",
+            // pack: item.salesItems?.item?.volume || "No Data",
+            // series: item.billSeries || "No Data",
+            // group: item.salesItems?.item?.group || "No Data",
+            // updatedAt: new Date(item.updatedAt).toLocaleDateString("en-GB"),
+            // mrp: item.salesItems?.mrp || "No Data",
+            // rate: item.salesItems?.rate || "No Data",
+            // broken: item.salesItems?.break || "No Data",
+            // split: item.salesItems?.split || "No Data",
+            // itemAmount: item.salesItems?.amount || "No Data",
+          }))}
+          columns={columns}
+          rowCount={totalCount}
+          pagination
+          paginationMode="server"
+          paginationModel={paginationModel}
+          pageSizeOptions={[10, 25, 50, 100]}
+          onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
+          sx={{ backgroundColor: "#fff" }}
+          disableRowSelectionOnClick
+          loading={loading}
+          loadingOverlay={
+            <Box>
+              <CircularProgress />
+            </Box>
+          }
+        />
+      </Box>
+    </Box>
   );
 };
 
