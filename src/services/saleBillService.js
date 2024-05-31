@@ -124,3 +124,45 @@ export const getItemWiseSaleDetails = async (filterOptions) => {
     return error;
   }
 };
+
+
+export const getDailySalesDetails = async (filterOptions) => {
+  try {
+    const {
+      page,
+      limit,
+      fromDate,
+      toDate,
+      brandName,
+      customerName,
+      categoryName,
+      group,
+      itemName,
+      volume,
+    } = filterOptions;
+
+    let apiURL = `/sales/daily-sales-reports?page=${page}&limit=${limit}`;
+
+    const filters = {
+      fromDate,
+      toDate,
+      brandName,
+      customerName,
+      categoryName,
+      group,
+      itemName,
+      volume,
+    };
+
+    Object.keys(filters).forEach((key) => {
+      if (filters[key]) {
+        apiURL += `&${key}=${encodeURIComponent(filters[key])}`;
+      }
+    });
+    const getItemSalesData = await axiosInstance.get(apiURL);
+    return getItemSalesData;
+  } catch (error) {
+    return error;
+  }
+};
+
