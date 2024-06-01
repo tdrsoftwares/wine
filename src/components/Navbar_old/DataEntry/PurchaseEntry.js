@@ -36,7 +36,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 const PurchaseEntry = () => {
   const [allSuppliers, setAllSuppliers] = useState([]);
   const [allStores, setAllStores] = useState([]);
-
+  const [itemName, setItemName] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [purchases, setPurchases] = useState([]);
   const [searchMode, setSearchMode] = useState(false);
@@ -151,9 +151,11 @@ const PurchaseEntry = () => {
 
   useEffect(() => {
     const handleKeyDown = (event) => {
+      const {supplierName, passNo, passDate, stockIn, billNo, billDate} = formData;
       if (event.keyCode === 120) {
         // 120 F9 key
-        handleCreatePurchase();
+        // console.log("formdata when executing f9: ", formData);
+        if (supplierName && passNo && passDate && stockIn && billNo && billDate && purchases.length > 0) handleCreatePurchase();
       }
     };
 
@@ -161,7 +163,7 @@ const PurchaseEntry = () => {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [formData]);
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
@@ -171,15 +173,15 @@ const PurchaseEntry = () => {
   }, []);
 
   const handleItemNameChange = (event) => {
-    const itemName = event.target.value;
-    // console.log("itemName: ", itemName);
-    itemNameSearch(itemName);
+    const itemNameValue = event.target.value;
+    // console.log("itemNameValue: ", itemNameValue);
+    itemNameSearch(itemNameValue);
     setFormData({
       ...formData,
-      itemName,
+      itemName: itemNameValue,
     });
     setSearchMode(true);
-    if (!itemName) {
+    if (!itemNameValue) {
       setSearchMode(false);
       resetMiddleFormData();
     }
@@ -287,19 +289,19 @@ const PurchaseEntry = () => {
     }
   };
 
-  const itemNameSearch = debounce(async (itemName) => {
+  const itemNameSearch = debounce(async (item) => {
     try {
       setIsLoading(true);
-      const response = await searchAllPurchasesByItemName(itemName);
+      const response = await searchAllPurchasesByItemName(item);
       // console.log("itemNameSearch response: ", response);
       if (response?.data?.data) {
         setSearchResults(response?.data?.data);
         // console.log("ami itemNameSearch res ", searchResults);
-      } else if (response.response.data.message === "No matching items found") {
+      } else {
         NotificationManager.error("No matching items found");
         setSearchResults([]);
-      } else {
-        setSearchResults([]);
+        setIsModalOpen(true);
+        setItemName(item)
       }
       setIsLoading(false);
     } catch (error) {
@@ -1836,6 +1838,8 @@ const PurchaseEntry = () => {
           <ItemRegisterModal
             isModalOpen={isModalOpen}
             setIsModalOpen={setIsModalOpen}
+            itemName={itemName}
+            setItemName={setItemName}
           />
           <Button
             ref={clearButtonRef}

@@ -19,8 +19,8 @@ import CreateCompanyModal from "./CreateCompanyModal";
 import CreateBrandModal from "./CreateBrandModal";
 import CategoryModal from "./CategoryModal";
 
-const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
-  const [itemName, setItemName] = useState("");
+const ItemRegisterModal = ({ isModalOpen, setIsModalOpen, itemName, setItemName }) => {
+  
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [allCategory, setAllCategory] = useState([]);
