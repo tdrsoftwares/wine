@@ -108,7 +108,7 @@ export const searchAllPurchasesByItemName = async (itemName) => {
 
 export const searchAllPurchasesByItemCode = async (itemCode) => {
   try {
-    const apiURL = `/purchases/item-itemCode/${encodeURIComponent(itemCode)}`;
+    const apiURL = `/purchases/item-code/${encodeURIComponent(itemCode)}`;
     const allPurchasesData = await axiosInstance.get(apiURL);
     return allPurchasesData;
   } catch (error) {

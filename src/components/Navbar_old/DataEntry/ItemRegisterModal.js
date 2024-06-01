@@ -12,11 +12,12 @@ import {
 } from "@mui/material";
 import { NotificationManager } from "react-notifications";
 import { createItem, getAllItems } from "../../../services/itemService";
-import { getAllItemCategory } from "../../../services/categoryService";
+import { createItemCategory, getAllItemCategory } from "../../../services/categoryService";
 import { createBrand, getAllBrands } from "../../../services/brandService";
 import { createCompany, getAllCompanies } from "../../../services/companyService";
 import CreateCompanyModal from "./CreateCompanyModal";
 import CreateBrandModal from "./CreateBrandModal";
+import CategoryModal from "./CategoryModal";
 
 const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
   const [itemName, setItemName] = useState("");
@@ -35,12 +36,19 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
 
   const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
   const [isBrandModalOpen, setIsBrandModalOpen] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
 
   const [companyName, setCompanyName] = useState("");
   const [companyType, setCompanyType] = useState("");
   const [brandName, setBrandName] = useState("");
   const [type, setType] = useState("");
   const [indexNumber, setIndexNumber] = useState("");
+
+  const [categoryName, setCategoryName] = useState("");
+  // const [allCategory, setAllCategory] = useState([]);
+  const [indexNoCate, setIndexNoCate] = useState("");
+  const [groupNameCate, setGroupNameCate] = useState("");
+  const [groupNoCate, setGroupNoCate] = useState("");
 
   const clearForm = () => {
     setItemName("");
@@ -52,6 +60,13 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
     setVolume("");
     setGroup("");
     setCaseValue("");
+  };
+
+  const handleCategoriesClear = () => {
+    setCategoryName("");
+    setIndexNoCate("");
+    setGroupNoCate("");
+    setGroupNameCate("");
   };
 
   const handleCreateItem = async () => {
@@ -89,6 +104,7 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
         NotificationManager.success("Item created successfully", "Success");
         clearForm();
         fetchAllItems();
+        setIsModalOpen(false)
       } else {
         NotificationManager.error(
           "Error creating item. Please try again later.",
@@ -150,6 +166,19 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
       );
     }
   };
+
+  // const fetchAllCategory = async () => {
+  //   try {
+  //     const getAllCategoryResponse = await getAllItemCategory();
+  //     console.log("getAllCategoryResponse: ", getAllCategoryResponse);
+  //     setAllCategory(getAllCategoryResponse?.data?.data);
+  //   } catch (err) {
+  //     NotificationManager.error(
+  //       "Something went Wrong, Please try again later.",
+  //       "Error"
+  //     );
+  //   }
+  // };
 
   const handleCreateCompany = async () => {
     console.log("Creating company:", { companyName, companyType });
@@ -223,18 +252,42 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
     }
   };
 
-  useEffect(() => {
-    const loadCompanies = async () => {
-      try {
-        const companies = await getAllCompanies();
-        setAllCompanies(companies?.data.data);
-      } catch (error) {
-        console.error("Failed to fetch companies", error);
-      }
+  const handleCreateCategory = async () => {
+    const payload = {
+      categoryName: categoryName,
+      mainGroup: groupNameCate,
+      indexNo: indexNoCate,
+      groupNo: groupNoCate,
     };
 
-    loadCompanies();
-  }, []);
+    try {
+      const createCategoryResponse = await createItemCategory(payload);
+      if (createCategoryResponse.status === 200) {
+        NotificationManager.success("Category created successfully", "Success");
+        setIsCategoryModalOpen(false);
+        handleCategoriesClear();
+        fetchAllItemCategory();
+      }
+    } catch (err) {
+      NotificationManager.error(
+        "Something went Wrong, Please try again later.",
+        "Error"
+      );
+    }
+  };
+
+  // useEffect(() => {
+  //   const loadCompanies = async () => {
+  //     try {
+  //       const companies = await getAllCompanies();
+  //       setAllCompanies(companies?.data.data);
+  //     } catch (error) {
+  //       console.error("Failed to fetch companies", error);
+  //     }
+  //   };
+
+  //   loadCompanies();
+  // }, []);
 
   useEffect(() => {
     fetchAllItems();
@@ -246,7 +299,8 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
   useEffect(() => {
     fetchAllCompanies();
     fetchAllBrands();
-  }, [isBrandModalOpen, isCompanyModalOpen])
+    fetchAllItemCategory();
+  }, [isBrandModalOpen, isCategoryModalOpen, isCompanyModalOpen]);
 
   return (
     <>
@@ -286,31 +340,45 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
               />
             </Grid>
             <Grid item xs={12}>
-              <TextField
-                select
-                fullWidth
-                size="small"
-                label="Category"
-                value={categoryId}
-                SelectProps={{
-                  MenuProps: {
-                    PaperProps: {
-                      style: {
-                        maxHeight: 200,
+              <Grid container spacing={1}>
+                <Grid item xs={10}>
+                  <TextField
+                    select
+                    fullWidth
+                    size="small"
+                    label="Category"
+                    value={categoryId}
+                    SelectProps={{
+                      MenuProps: {
+                        PaperProps: {
+                          style: {
+                            maxHeight: 200,
+                          },
+                        },
                       },
-                    },
-                  },
-                }}
-                onChange={(e) => setCategoryId(e.target.value)}
-                variant="outlined"
-                required
-              >
-                {allCategory?.map((category) => (
-                  <MenuItem key={category._id} value={category._id}>
-                    {category.categoryName}
-                  </MenuItem>
-                ))}
-              </TextField>
+                    }}
+                    onChange={(e) => setCategoryId(e.target.value)}
+                    variant="outlined"
+                    required
+                  >
+                    {allCategory?.map((category) => (
+                      <MenuItem key={category._id} value={category._id}>
+                        {category.categoryName}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+                <Grid item xs={2}>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    onClick={() => setIsCategoryModalOpen(true)}
+                  >
+                    Add
+                  </Button>
+                </Grid>
+              </Grid>
             </Grid>
             <Grid item xs={12}>
               <TextField
@@ -496,6 +564,21 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen }) => {
         setAllCompanies={setAllCompanies}
         handleCreateBrand={handleCreateBrand}
         handleClose={() => setIsBrandModalOpen(false)}
+      />
+      <CategoryModal 
+        isOpen={isCategoryModalOpen}
+        fetchAllCategory={fetchAllItemCategory}
+        categoryName={categoryName}
+        setCategoryName={setCategoryName}
+        indexNoCate={indexNoCate}
+        setIndexNoCate={setIndexNoCate}
+        groupNoCate={groupNoCate}
+        setGroupNoCate={setGroupNoCate}
+        groupNameCate={groupNameCate}
+        setGroupNameCate={setGroupNameCate}
+        handleCreateCategory={handleCreateCategory}
+        handleClose={() => setIsCategoryModalOpen(false)}
+        handleCategoriesClear={handleCategoriesClear}
       />
     </>
   );

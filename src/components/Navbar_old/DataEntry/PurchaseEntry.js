@@ -89,6 +89,13 @@ const PurchaseEntry = () => {
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
 
   const tableRef = useRef(null);
+  const supplierNameRef = useRef(null);
+  const passNoRef = useRef(null);
+  const passDateRef = useRef(null);
+  const storeNameRef = useRef(null);
+  const entryNoRef = useRef(null);
+  const billNoRef = useRef(null);
+  const billDateRef = useRef(null);
   const itemCodeRef = useRef(null);
   const itemNameRef = useRef(null);
   const mrpRef = useRef(null);
@@ -113,6 +120,7 @@ const PurchaseEntry = () => {
   const adjustmentRef = useRef(null);
   const netAmountRef = useRef(null);
   const saveButtonRef = useRef(null);
+  const clearButtonRef = useRef(null);
 
   const resetMiddleFormData = () => {
     setFormData((prevFormData) => ({
@@ -330,6 +338,7 @@ const PurchaseEntry = () => {
           sp: searchedItem.sp || 0,
           amount: searchedItem.amount || 0,
         });
+        batchRef.current.focus();
       } else {
         setSearchResults([]);
       }
@@ -384,39 +393,9 @@ const PurchaseEntry = () => {
 
   const handleEnterKey = (event, nextInputRef) => {
     if (event.key === "Enter" || event.key === "Tab") {
-      switch (nextInputRef.current) {
-        case itemCodeRef:
-        case itemNameRef:
-        // handleItemNameChange(event);
-        // break;
-        case mrpRef:
-        case batchRef:
-        case caseRef:
-        case pcsRef:
-        case brkRef:
-        case purRateRef:
-        case btlRateRef:
-        case groRef:
-        case spRef:
-        case amountRef:
-          handleSubmitIntoDataTable(event);
-          break;
-        case totalGroRef:
-        case totalSPRef:
-        case tcsPercentRef:
-        case tcsAmtRef:
-        case grossAmountRef:
-        case totalDiscountRef:
-        case otherChargesRef:
-        case adjustmentRef:
-        case netAmountRef:
-          handleFocusOnSave();
-          break;
-        case saveButtonRef:
-          break;
-        default:
-          nextInputRef.current.focus();
-      }
+      event.preventDefault();
+
+      nextInputRef.current.focus();
     }
   };
 
@@ -677,6 +656,7 @@ const PurchaseEntry = () => {
 
   const handlePurchaseOpen = () => {
     setEntryNoEditable(false);
+    entryNoRef.current.focus();
   };
 
   const formatDate = (dateString) => {
@@ -753,7 +733,7 @@ const PurchaseEntry = () => {
           });
           setSearchMode(false);
           setSelectedRowIndex(null);
-          if(!selectedRow.itemCode){
+          if (!selectedRow.itemCode) {
             itemCodeRef.current.focus();
           } else {
             batchRef.current.focus();
@@ -869,6 +849,19 @@ const PurchaseEntry = () => {
     }));
   }, [purchases]);
 
+  useEffect(() => {
+    if (passDateRef.current) {
+      passDateRef.current.addEventListener("keydown", (e) =>
+        handleEnterKey(e, storeNameRef)
+      );
+    }
+    if (billDateRef.current) {
+      billDateRef.current.addEventListener("keydown", (e) =>
+        handleEnterKey(e, itemCodeRef)
+      );
+    }
+  }, []);
+
   const clearAllFields = () => {
     setFormData({
       supplierName: "",
@@ -921,7 +914,7 @@ const PurchaseEntry = () => {
 
   return (
     <Box component="form" sx={{ p: 2, width: "900px" }}>
-      <Grid container spacing={1}>
+      <Grid container >
         <Grid item xs={6}>
           <div className="input-wrapper">
             <InputLabel
@@ -933,12 +926,23 @@ const PurchaseEntry = () => {
             <TextField
               select
               fullWidth
+              inputRef={supplierNameRef}
               id="supplierName"
               size="small"
               type="text"
               className="input-field"
               value={formData.supplierName}
               onChange={handleSupplierNameChange}
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200,
+                    },
+                  },
+                },
+              }}
+              onKeyDown={(e) => handleEnterKey(e, passNoRef)}
             >
               {allSuppliers?.map((item) => (
                 <MenuItem key={item._id} value={item.name}>
@@ -954,6 +958,7 @@ const PurchaseEntry = () => {
               Pass No :
             </InputLabel>
             <TextField
+              inputRef={passNoRef}
               id="passNo"
               size="small"
               className="input-field"
@@ -964,6 +969,7 @@ const PurchaseEntry = () => {
                   setFormData({ ...formData, passNo: e.target.value });
                 }
               }}
+              onKeyDown={(e) => handleEnterKey(e, passDateRef)}
             />
           </div>
         </Grid>
@@ -974,12 +980,14 @@ const PurchaseEntry = () => {
             </InputLabel>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
+                inputRef={passDateRef}
                 id="passDate"
                 format="DD/MM/YYYY"
                 value={formData.passDate}
                 className="input-field date-picker"
                 onChange={handlePassDateChange}
                 renderInput={(params) => <TextField {...params} />}
+                onKeyDown={(e) => handleEnterKey(e, storeNameRef)}
               />
             </LocalizationProvider>
           </div>
@@ -994,11 +1002,22 @@ const PurchaseEntry = () => {
             </InputLabel>
             <TextField
               select
+              inputRef={storeNameRef}
               id="stockIn"
               size="small"
               className="input-field"
               value={formData.stockIn}
               onChange={handleStockInChange}
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200,
+                    },
+                  },
+                },
+              }}
+              onKeyDown={(e) => handleEnterKey(e, billNoRef)}
             >
               {allStores?.map((store) => (
                 <MenuItem key={store._id} value={store.name}>
@@ -1017,6 +1036,7 @@ const PurchaseEntry = () => {
               Entry No :
             </InputLabel>
             <TextField
+              inputRef={entryNoRef}
               id="entryNo"
               size="small"
               type="number"
@@ -1029,6 +1049,7 @@ const PurchaseEntry = () => {
                   setEntryNumber(e.target.value);
                 }
               }}
+              onKeyDown={(e) => handleEnterKey(e, billNoRef)}
             />
           </div>
         </Grid>
@@ -1038,6 +1059,7 @@ const PurchaseEntry = () => {
               Bill No :
             </InputLabel>
             <TextField
+              inputRef={billNoRef}
               id="billNo"
               size="small"
               className="input-field"
@@ -1048,6 +1070,7 @@ const PurchaseEntry = () => {
                   setFormData({ ...formData, billNo: e.target.value });
                 }
               }}
+              onKeyDown={(e) => handleEnterKey(e, billDateRef)}
             />
           </div>
         </Grid>
@@ -1059,6 +1082,7 @@ const PurchaseEntry = () => {
 
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
+                inputRef={billDateRef}
                 id="billDate"
                 format="DD/MM/YYYY"
                 value={formData.billDate}
@@ -1072,7 +1096,7 @@ const PurchaseEntry = () => {
       </Grid>
 
       <Box
-        sx={{ p: 2, boxShadow: 2, borderRadius: 1, marginTop: 1 }}
+        sx={{ p: 2, boxShadow: 2, borderRadius: 1, marginTop: .5 }}
         className="table-header"
       >
         <Grid container spacing={1}>
@@ -1274,7 +1298,7 @@ const PurchaseEntry = () => {
             component={Paper}
             ref={tableRef}
             sx={{
-              marginTop: 1,
+              marginTop: .8,
               height: 300,
               width: 850,
               overflowY: "unset",
@@ -1625,7 +1649,7 @@ const PurchaseEntry = () => {
         sx={{
           width: "100%",
           p: 2,
-          marginTop: 2,
+          marginTop: 1,
           borderRadius: 1,
           boxShadow: 2,
         }}
@@ -1787,7 +1811,7 @@ const PurchaseEntry = () => {
               InputProps={{ readOnly: true }}
               onKeyDown={(e) => {
                 handleEnterKey(e, saveButtonRef);
-                handleFocusOnSave();
+                // handleFocusOnSave();
               }}
             />
           </Grid>
@@ -1804,7 +1828,7 @@ const PurchaseEntry = () => {
           size="medium"
           variant="contained"
           onClick={() => setIsModalOpen(true)}
-          sx={{ marginTop: 2, marginRight: 2, borderRadius: 8 }}
+          sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
         >
           CREATE ITEM
         </Button>
@@ -1814,11 +1838,15 @@ const PurchaseEntry = () => {
             setIsModalOpen={setIsModalOpen}
           />
           <Button
+            ref={clearButtonRef}
             color="inherit"
             size="medium"
             variant="outlined"
-            onClick={clearAllFields}
-            sx={{ marginTop: 2, marginRight: 2, borderRadius: 8 }}
+            onClick={(e) => {
+              clearAllFields();
+              handleEnterKey(e, itemCodeRef);
+            }}
+            sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
           >
             CLEAR
           </Button>
@@ -1828,7 +1856,7 @@ const PurchaseEntry = () => {
             size="medium"
             variant="outlined"
             onClick={() => {}}
-            sx={{ marginTop: 2, marginRight: 2, borderRadius: 8 }}
+            sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
           >
             PREV PAGE
           </Button>
@@ -1837,7 +1865,7 @@ const PurchaseEntry = () => {
             size="medium"
             variant="outlined"
             onClick={() => {}}
-            sx={{ marginTop: 2, marginRight: 2, borderRadius: 8 }}
+            sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
           >
             NEXT PAGE
           </Button>
@@ -1847,7 +1875,7 @@ const PurchaseEntry = () => {
             size="medium"
             variant="outlined"
             onClick={() => {}}
-            sx={{ marginTop: 2, marginRight: 2, borderRadius: 8 }}
+            sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
           >
             EDIT
           </Button>
@@ -1856,7 +1884,7 @@ const PurchaseEntry = () => {
             size="medium"
             variant="contained"
             onClick={() => {}}
-            sx={{ marginTop: 2, marginRight: 2, borderRadius: 8 }}
+            sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
           >
             DELETE
           </Button>
@@ -1865,7 +1893,7 @@ const PurchaseEntry = () => {
             size="medium"
             variant="contained"
             onClick={handlePurchaseOpen}
-            sx={{ marginTop: 2, marginRight: 2, borderRadius: 8 }}
+            sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
           >
             OPEN
           </Button>
@@ -1875,11 +1903,11 @@ const PurchaseEntry = () => {
             size="medium"
             variant="contained"
             onClick={handleCreatePurchase}
-            sx={{ marginTop: 2, borderRadius: 8 }}
+            sx={{ marginTop: 1, borderRadius: 8 }}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 handleCreatePurchase();
-                handleEnterKey(e, itemCodeRef);
+                handleEnterKey(e, clearButtonRef);
               }
             }}
           >
