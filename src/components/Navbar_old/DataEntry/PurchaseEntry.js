@@ -298,7 +298,7 @@ const PurchaseEntry = () => {
         setSearchResults(response?.data?.data);
         // console.log("ami itemNameSearch res ", searchResults);
       } else {
-        NotificationManager.error("No matching items found");
+        // NotificationManager.error("No matching items found");
         setSearchResults([]);
         setIsModalOpen(true);
         setItemName(item)

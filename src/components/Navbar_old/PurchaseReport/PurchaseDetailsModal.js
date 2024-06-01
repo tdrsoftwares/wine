@@ -28,12 +28,23 @@ const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
     //   headerClassName: "custom-header",
     // },
     {
+      field: "createdAt",
+      headerName: "Created Date",
+      width: 150,
+      headerClassName: "custom-header",
+    },
+    {
       field: "itemCode",
       headerName: "Item Code",
       width: 120,
       headerClassName: "custom-header",
     },
-
+    {
+      field: "itemName",
+      headerName: "Item Name",
+      width: 150,
+      headerClassName: "custom-header",
+    },
     {
       field: "batchNo",
       headerName: "Batch No.",
@@ -44,7 +55,6 @@ const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
       field: "brokenNo",
       headerName: "Broken",
       width: 120,
-
       headerClassName: "custom-header",
     },
     {
@@ -53,18 +63,13 @@ const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
       width: 120,
       headerClassName: "custom-header",
     },
-    {
-      field: "createdAt",
-      headerName: "Created Date",
-      width: 150,
-      headerClassName: "custom-header",
-    },
-    {
-      field: "updatedAt",
-      headerName: "Updated Date",
-      width: 150,
-      headerClassName: "custom-header",
-    },
+    
+    // {
+    //   field: "updatedAt",
+    //   headerName: "Updated Date",
+    //   width: 150,
+    //   headerClassName: "custom-header",
+    // },
 
     {
       field: "mrp",
@@ -93,6 +98,12 @@ const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
     {
       field: "sp",
       headerName: "S. Purposes",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "gro",
+      headerName: "GRO",
       width: 120,
       headerClassName: "custom-header",
     },
@@ -163,18 +174,20 @@ const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
             rows={(itemPurchaseDetails || [])?.map((item, index) => ({
               id: index,
               sNo: index + 1,
-              itemCode: item.itemCode || "No Data",
-              batchNo: item.batchNo || "No Data",
-              brokenNo: item.brokenNo || "No Data",
-              caseNo: item.caseNo || "No Data",
               createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
-              updatedAt: new Date(item.updatedAt).toLocaleDateString("en-GB"),
-              mrp: item.mrp || "No Data",
-              pcs: item.pcs || "No Data",
-              purchaseRate: item.purchaseRate || "No Data",
-              saleRate: item.saleRate || "No Data",
-              sp: item.sp || "No Data",
-              itemAmount: item.itemAmount || "No Data",
+              itemCode: item.purchaseItems.itemCode || "No Data",
+              itemName: item.purchaseItems.item.name || "No Data",
+              batchNo: item.purchaseItems.batchNo || "No Data",
+              brokenNo: item.purchaseItems.brokenNo || "No Data",
+              caseNo: item.purchaseItems.caseNo || "No Data",
+              // updatedAt: new Date(item.updatedAt).toLocaleDateString("en-GB"),
+              mrp: item.purchaseItems.mrp || "No Data",
+              pcs: item.purchaseItems.pcs || "No Data",
+              purchaseRate: item.purchaseItems.purchaseRate || "No Data",
+              saleRate: item.purchaseItems.saleRate || "No Data",
+              gro: item.purchaseItems.gro || "No Data",
+              sp: item.purchaseItems.sp || "No Data",
+              itemAmount: item.purchaseItems.itemAmount || "No Data",
             }))}
             columns={columns}
             pageSize={5}

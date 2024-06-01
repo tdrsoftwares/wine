@@ -206,7 +206,7 @@ const PurchaseReportSummary = () => {
       };
       const response = await getAllPurchases(filterOptions);
       setAllPurchases(response?.data?.data || []);
-      setTotalCount(response.data.data.length || 0);
+      setTotalCount(response?.data?.data?.length || 0);
     } catch (error) {
       NotificationManager.error(
         "Error fetching purchases. Please try again later.",
@@ -377,7 +377,8 @@ const PurchaseReportSummary = () => {
           pagination
           paginationMode="server"
           pageSizeOptions={[10, 25, 50, 100]}
-          onPaginationModelChange={setPaginationModel}
+          paginationModel={paginationModel}
+          onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
           sx={{ backgroundColor: "#fff" }}
           loading={loading}
           components={{

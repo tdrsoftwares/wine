@@ -118,6 +118,7 @@ const SaleBill = () => {
   const rectMode2AmtRef = useRef(null);
   const sDiscPercentRef = useRef(null);
   const sDiscAmtRef = useRef(null);
+  const discAmtRef = useRef(null);
   const taxAmtRef = useRef(null);
   const adjustmentRef = useRef(null);
   const netAmtRef = useRef(null);
@@ -219,10 +220,7 @@ const SaleBill = () => {
       if (response?.data?.data) {
         setSearchResults(response?.data?.data);
         console.log("ami serc res ", searchResults);
-      } else if (response.response.data.message === "No matching items found") {
-        NotificationManager.error("No matching items found");
-        setSearchResults([]);
-      } else {
+      }  else {
         setSearchResults([]);
       }
       setIsLoading(false);
@@ -360,7 +358,7 @@ const SaleBill = () => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [formData]);
 
   useEffect(() => {
     if (formData.customerName) {
@@ -616,7 +614,7 @@ const SaleBill = () => {
   
     
     const totalDiscount = updatedSales.reduce((total, item) => {
-      return total + parseFloat(item.discount || 0);
+      return total + parseFloat(item.discount * item.pcs || 0);
     }, 0);
   
     const splDiscAmount = (calculatedGrossAmt * parseFloat(totalValues.splDiscount || 0)) / 100;
@@ -632,6 +630,7 @@ const SaleBill = () => {
       totalVolume: calculatedTotalVolume.toFixed(0),
       totalPcs: calculatedTotalPcs,
       grossAmt: calculatedGrossAmt.toFixed(0),
+      discountAmt: totalDiscount.toFixed(0),
       splDiscAmount: (splDiscAmount + totalDiscount).toFixed(0),
       netAmt: netAmt.toFixed(2),
     });
@@ -730,7 +729,7 @@ const SaleBill = () => {
           splDisc: totalValues.splDiscount,
           splDiscAmount: totalValues.splDiscAmount,
           grossAmount: totalValues.grossAmt,
-          discAmount: "",
+          discAmount: totalValues.discountAmt,
           taxAmount: totalValues.taxAmt,
           adjustment: totalValues.adjustment,
           netAmount: totalValues.netAmt,
@@ -848,13 +847,12 @@ const SaleBill = () => {
 
     if (e.key === "Enter" || e.key === "Tab") {
       e.preventDefault();
-      const originalAmount =
-        parseFloat(formData.rate) * parseFloat(formData.pcs);
-      let newAmount = originalAmount - discount || 0;
+      const totalDiscount = parseFloat(discount) * parseFloat(formData.pcs);
+      let newAmount = totalValues.netAmt - totalDiscount || 0;
       if (newAmount < 0) {
         newAmount = 0;
       }
-      setFormData({ ...formData, amount: newAmount });
+      setTotalValues({ ...totalValues, netAmt: newAmount });
       amountRef.current.focus();
     }
   };
@@ -903,7 +901,7 @@ const SaleBill = () => {
     );
 
     const totalDiscount = salesData.reduce(
-      (total, item) => total + parseFloat(item.discount || 0),
+      (total, item) => total + parseFloat(item.discount * item.pcs || 0),
       0
     );
 
@@ -923,7 +921,8 @@ const SaleBill = () => {
       grossAmt: grossAmt.toFixed(2),
       receiptMode1: calculateGrossAmt(),
       splDiscAmount: (splDiscAmount + totalDiscount).toFixed(0),
-      netAmt: netAmt.toFixed(2),
+      discountAmt: totalDiscount.toFixed(0),
+      netAmt: (netAmt - totalDiscount).toFixed(0),
     });
   };
 
@@ -933,13 +932,14 @@ const SaleBill = () => {
   }, [
     salesData,
     totalValues.splDiscount,
+    totalValues.discountAmt,
     totalValues.taxAmt,
     totalValues.adjustment,
   ]);
 
   return (
     <Box sx={{ p: 2, width: "900px" }}>
-      <Grid container spacing={2}>
+      <Grid container>
         <Grid item xs={12}>
           <div className="radio-buttons-wrapper">
             <InputLabel htmlFor="billType" sx={{ marginRight: "10px" }}>
@@ -1101,7 +1101,7 @@ const SaleBill = () => {
       </Grid>
 
       <Box
-        sx={{ p: 2, boxShadow: 2, borderRadius: 1, marginTop: 4 }}
+        sx={{ p: 2, boxShadow: 2, borderRadius: 1, marginTop: .5 }}
         className="table-header"
       >
         <Grid container spacing={1}>
@@ -1587,7 +1587,7 @@ const SaleBill = () => {
         sx={{
           width: "100%",
           p: 2,
-          marginTop: 3,
+          marginTop: .5,
           borderRadius: 1,
           boxShadow: 2,
         }}
@@ -1632,7 +1632,7 @@ const SaleBill = () => {
               onKeyDown={(e) => handleEnterKey(e, rectMode1Ref)}
             />
           </Grid>
-          <Grid item xs={1.2}>
+          <Grid item xs={1}>
             <InputLabel className="input-label-2">Rect. Mode 1</InputLabel>
             <TextField
               inputRef={rectMode1Ref}
@@ -1682,7 +1682,7 @@ const SaleBill = () => {
               onKeyDown={(e) => handleEnterKey(e, sDiscPercentRef)}
             />
           </Grid>
-          <Grid item xs={1}>
+          <Grid item xs={.8}>
             <InputLabel className="input-label-2">S Disc(%)</InputLabel>
             <TextField
               inputRef={sDiscPercentRef}
@@ -1697,7 +1697,7 @@ const SaleBill = () => {
               onKeyDown={(e) => handleEnterKey(e, sDiscAmtRef)}
             />
           </Grid>
-          <Grid item xs={1.1}>
+          <Grid item xs={1}>
             <InputLabel className="input-label-2">S Disc Amt.</InputLabel>
             <TextField
               inputRef={sDiscAmtRef}
@@ -1707,10 +1707,23 @@ const SaleBill = () => {
               fullWidth
               value={totalValues.splDiscAmount}
               InputProps={{ readOnly: true }}
+              onKeyDown={(e) => handleEnterKey(e, discAmtRef)}
+            />
+          </Grid>
+          <Grid item xs={1}>
+            <InputLabel className="input-label-2">Discount</InputLabel>
+            <TextField
+              inputRef={discAmtRef}
+              variant="outlined"
+              className="input-field"
+              size="small"
+              fullWidth
+              value={totalValues.discountAmt}
+              InputProps={{ readOnly: true }}
               onKeyDown={(e) => handleEnterKey(e, taxAmtRef)}
             />
           </Grid>
-          <Grid item xs={1.1}>
+          <Grid item xs={.8}>
             <InputLabel className="input-label-2">Tax Amt.</InputLabel>
             <TextField
               inputRef={taxAmtRef}
@@ -1724,7 +1737,7 @@ const SaleBill = () => {
             />
           </Grid>
 
-          <Grid item xs={1.1}>
+          <Grid item xs={.8}>
             <InputLabel className="input-label-2">Adjustment</InputLabel>
             <TextField
               inputRef={adjustmentRef}
@@ -1737,7 +1750,7 @@ const SaleBill = () => {
               onKeyDown={(e) => handleEnterKey(e, netAmtRef)}
             />
           </Grid>
-          <Grid item xs={1.1}>
+          <Grid item xs={1.2}>
             <InputLabel className="input-label-2">Net Amount</InputLabel>
             <TextField
               inputRef={netAmtRef}
@@ -1759,21 +1772,27 @@ const SaleBill = () => {
           justifyContent: "flex-end",
         }}
       >
-        {/* <Button
-          color="inherit"
-          size="medium"
-          variant="outlined"
-          // onClick={() => setIsModalOpen(true)}
-          sx={{ marginTop: 3, marginRight: 2 }}
-        >
-          CREATE ITEM
-        </Button> */}
+        <Button
+            color="inherit"
+            size="medium"
+            variant="outlined"
+            onClick={(e) => {
+              resetTopFormData()
+              resetMiddleFormData()
+              resetTotalValues()
+              setSalesData([])
+              handleEnterKey(e, itemCodeRef);
+            }}
+            sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
+          >
+            CLEAR
+          </Button>
         <Button
           color="success"
           size="medium"
           variant="outlined"
           onClick={() => {}}
-          sx={{ marginTop: 3, marginRight: 2 }}
+          sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
         >
           PREV PAGE
         </Button>
@@ -1782,7 +1801,7 @@ const SaleBill = () => {
           size="medium"
           variant="outlined"
           onClick={() => {}}
-          sx={{ marginTop: 3, marginRight: 2 }}
+          sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
         >
           NEXT PAGE
         </Button>
@@ -1792,7 +1811,7 @@ const SaleBill = () => {
           size="medium"
           variant="outlined"
           onClick={() => {}}
-          sx={{ marginTop: 3, marginRight: 2 }}
+          sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
         >
           EDIT
         </Button>
@@ -1801,7 +1820,7 @@ const SaleBill = () => {
           size="medium"
           variant="contained"
           onClick={() => {}}
-          sx={{ marginTop: 3, marginRight: 2 }}
+          sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
         >
           DELETE
         </Button>
@@ -1810,7 +1829,7 @@ const SaleBill = () => {
           size="medium"
           variant="contained"
           onClick={() => setBillNoEditable(true)}
-          sx={{ marginTop: 3, marginRight: 2 }}
+          sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
         >
           OPEN
         </Button>
@@ -1820,7 +1839,7 @@ const SaleBill = () => {
           size="medium"
           variant="contained"
           onClick={handleCreateSale}
-          sx={{ marginTop: 3 }}
+          sx={{ marginTop: 1, borderRadius: 8 }}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               handleCreateSale();
