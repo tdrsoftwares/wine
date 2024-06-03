@@ -18,16 +18,19 @@ import { getAllBrands } from "../../../services/brandService";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import dayjs from "dayjs";
 import { getItemWiseSaleDetails } from "../../../services/saleBillService";
+import { getAllItemCategory } from "../../../services/categoryService";
 
 const ItemWiseSaleReport = () => {
   const [allSalesData, setAllSalesData] = useState([]);
   const [allCustomerData, setAllCustomerData] = useState([]);
   const [allBrands, setAllBrands] = useState([]);
+  const [allCategory, setAllCategory] = useState([]);
   const [filterData, setFilterData] = useState({
     dateFrom: null,
     dateTo: null,
     batchNo: "",
     customerName: "",
+    categoryName: "",
     brandName: "",
     itemName: "",
     itemCode: "",
@@ -43,7 +46,7 @@ const ItemWiseSaleReport = () => {
   const [loading, setLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
-    pageSize: 25,
+    pageSize: 10,
   });
   const [totalCount, setTotalCount] = useState(0);
 
@@ -100,6 +103,13 @@ const ItemWiseSaleReport = () => {
     {
       field: "brandName",
       headerName: "Brand",
+      width: 150,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "categoryName",
+      headerName: "Category",
       width: 150,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
@@ -168,13 +178,13 @@ const ItemWiseSaleReport = () => {
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
-    {
-      field: "split",
-      headerName: "Split",
-      width: 150,
-      cellClassName: "custom-cell",
-      headerClassName: "custom-header",
-    },
+    // {
+    //   field: "split",
+    //   headerName: "Split",
+    //   width: 150,
+    //   cellClassName: "custom-cell",
+    //   headerClassName: "custom-header",
+    // },
     {
       field: "itemAmount",
       headerName: "Amount",
@@ -199,10 +209,11 @@ const ItemWiseSaleReport = () => {
     try {
       const filterOptions = {
         page: paginationModel.page + 1,
-        limit: paginationModel.pageSize,
+        pageSize: paginationModel.pageSize,
         fromDate: fromDate,
         toDate: toDate,
         customerName: filterData.customerName,
+        categoryName: filterData.categoryName,
         brandName: filterData.brandName,
         itemName: filterData.itemName,
         itemCode: filterData.itemCode,
@@ -273,11 +284,24 @@ const ItemWiseSaleReport = () => {
     }
   };
 
+  const fetchAllCategory = async () => {
+    try {
+      const getAllCategoryResponse = await getAllItemCategory();
+      setAllCategory(getAllCategoryResponse?.data?.data);
+    } catch (err) {
+      NotificationManager.error(
+        "Something went Wrong, Please try again later.",
+        "Error"
+      );
+    }
+  };
+
   useEffect(() => {
     fetchAllBrands();
     fetchAllItems();
     fetchAllCustomers();
     fetchAllSales();
+    fetchAllCategory();
   }, []);
 
   const debounce = (func, delay) => {
@@ -503,6 +527,39 @@ const ItemWiseSaleReport = () => {
         </Grid>
 
         <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="categoryName" className="input-label">
+                Category :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="categoryName"
+                className="input-field"
+                variant="outlined"
+                value={filterData.categoryName}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
+                    },
+                  },
+                }}
+                onChange={e => setFilterData({ ...filterData, categoryName: e.target.value })}
+              >
+                {allCategory?.map((item) => (
+                  <MenuItem key={item._id} value={item.categoryName}>
+                    {item.categoryName}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </Grid>
+
+        <Grid item xs={3}>
           <div className="input-wrapper">
             <InputLabel htmlFor="group" className="input-label">
               Group:
@@ -592,7 +649,7 @@ const ItemWiseSaleReport = () => {
               pack: "",
               phone: "",
             });
-            setPaginationModel({ page: 0, pageSize: 25 });
+            setPaginationModel({ page: 0, pageSize: 10 });
             // fetchAllSales();
           }}
           // sx={{ borderRadius: 8 }}
@@ -653,7 +710,7 @@ const ItemWiseSaleReport = () => {
             mrp: item.salesItems?.mrp || "No Data",
             rate: item.salesItems?.rate || "No Data",
             broken: item.salesItems?.break || "No Data",
-            split: item.salesItems?.split || "No Data",
+            // split: item.salesItems?.split || "No Data",
             itemAmount: item.salesItems?.amount || "No Data",
           }))}
           columns={columns}

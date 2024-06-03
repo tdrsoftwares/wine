@@ -81,10 +81,11 @@ export const getItemWiseSaleDetails = async (filterOptions) => {
   try {
     const {
       page,
-      limit,
+      pageSize,
       fromDate,
       toDate,
       customerName,
+      categoryName,
       brandName,
       itemName,
       itemCode,
@@ -96,12 +97,13 @@ export const getItemWiseSaleDetails = async (filterOptions) => {
       volume,
     } = filterOptions;
 
-    let apiURL = `/sales/all-item-reports?page=${page}&limit=${limit}`;
+    let apiURL = `/sales/all-item-reports?page=${page}&pageSize=${pageSize}`;
 
     const filters = {
       fromDate,
       toDate,
       customerName,
+      categoryName,
       brandName,
       itemName,
       itemCode,
@@ -130,7 +132,7 @@ export const getDailySalesDetails = async (filterOptions) => {
   try {
     const {
       page,
-      limit,
+      pageSize,
       fromDate,
       toDate,
       brandName,
@@ -141,7 +143,7 @@ export const getDailySalesDetails = async (filterOptions) => {
       volume,
     } = filterOptions;
 
-    let apiURL = `/sales/daily-sales-reports?page=${page}&limit=${limit}`;
+    let apiURL = `/sales/daily-sales-reports?page=${page}&pageSize=${pageSize}`;
 
     const filters = {
       fromDate,
