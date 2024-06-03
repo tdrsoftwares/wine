@@ -6,6 +6,7 @@ import {
   Grid,
   InputLabel,
   MenuItem,
+  Pagination,
   Radio,
   RadioGroup,
   TextField,
@@ -36,7 +37,7 @@ const PurchaseReportSummary = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
-    pageSize: 25,
+    pageSize: 10,
   });
 
   const [totalCount, setTotalCount] = useState(0);
@@ -196,7 +197,10 @@ const PurchaseReportSummary = () => {
     setLoading(true);
     try {
       const filterOptions = {
-        page: paginationModel.page + 1,
+        page:
+          paginationModel.page === 0
+            ? paginationModel.page + 1
+            : paginationModel.page,
         limit: paginationModel.pageSize,
         fromDate: fromDate,
         toDate: toDate,
@@ -362,7 +366,7 @@ const PurchaseReportSummary = () => {
             setDateTo(null);
             setSelectedSupplier("");
             setFilter1("date");
-            setPaginationModel({ page: 0, pageSize: 25 });
+            setPaginationModel({ page: 0, pageSize: 10 });
             fetchAllPurchases();
           }}
           // sx={{ borderRadius: 8 }}
@@ -421,7 +425,7 @@ const PurchaseReportSummary = () => {
           paginationMode="server"
           pageSizeOptions={[10, 25, 50, 100]}
           paginationModel={paginationModel}
-          onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
+          onPaginationModelChange={setPaginationModel}
           sx={{ backgroundColor: "#fff" }}
           loading={loading}
           components={{
@@ -439,8 +443,12 @@ const PurchaseReportSummary = () => {
             ),
           }}
           slots={{
-            toolbar: GridToolbar
+            toolbar: GridToolbar,
+            // pagination: Pagination
           }}
+          // initialState={{
+          //   pagination: paginationModel,
+          // }}
         />
 
         <PurchaseDetailsModal
