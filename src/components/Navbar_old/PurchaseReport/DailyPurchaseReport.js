@@ -181,7 +181,7 @@ const DailyPurchaseReport = () => {
   return (
     <Box sx={{ p: 2, width: "900px" }}>
       <Typography variant="h6" sx={{ marginBottom: 2 }}>
-        Daily Sale Report
+        Daily Purchase Report
       </Typography>
       <Typography variant="subtitle1" gutterBottom>
         Filter By:
