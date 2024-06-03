@@ -18,7 +18,7 @@ import {
 } from "../../../services/purchaseService";
 import { NotificationManager } from "react-notifications";
 import { getAllSuppliers } from "../../../services/supplierService";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import PurchaseDetailsModal from "./PurchaseDetailsModal";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -35,7 +35,7 @@ const PurchaseReportSummary = () => {
   const [selectedRowData, setSelectedRowData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
-    page: 1,
+    page: 0,
     pageSize: 25,
   });
 
@@ -170,6 +170,7 @@ const PurchaseReportSummary = () => {
           View
         </Button>
       ),
+      disableExport: true
     },
   ];
 
@@ -195,10 +196,7 @@ const PurchaseReportSummary = () => {
     setLoading(true);
     try {
       const filterOptions = {
-        page:
-          paginationModel.page === 0
-            ? paginationModel.page + 1
-            : paginationModel.page,
+        page: paginationModel.page + 1,
         limit: paginationModel.pageSize,
         fromDate: fromDate,
         toDate: toDate,
@@ -350,9 +348,54 @@ const PurchaseReportSummary = () => {
 
       <Box
         sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          "& button": { marginTop: 2 },
+        }}
+      >
+        <Button
+          color="inherit"
+          size="small"
+          variant="contained"
+          onClick={() => {
+            setDateFrom(null);
+            setDateTo(null);
+            setSelectedSupplier("");
+            setFilter1("date");
+            setPaginationModel({ page: 0, pageSize: 25 });
+            fetchAllPurchases();
+          }}
+          // sx={{ borderRadius: 8 }}
+        >
+          Clear Filters
+        </Button>
+        <div>
+
+        <Button
+          color="inherit"
+          size="small"
+          variant="contained"
+          // sx={{ borderRadius: 8 }}
+        >
+          Print
+        </Button>
+        <Button
+          color="info"
+          size="small"
+          variant="contained"
+          onClick={fetchAllPurchases}
+          sx={{ marginLeft: 2 }}
+        >
+          Display
+        </Button>
+        </div>
+      </Box>
+
+      <Box
+        sx={{
           height: 500,
           width: "100%",
-          marginTop: 4,
+          marginTop: 2,
           "& .custom-header": { backgroundColor: "#dae4ed", paddingLeft: 4 },
           "& .custom-cell": { paddingLeft: 4 },
         }}
@@ -395,6 +438,9 @@ const PurchaseReportSummary = () => {
               </Box>
             ),
           }}
+          slots={{
+            toolbar: GridToolbar
+          }}
         />
 
         <PurchaseDetailsModal
@@ -402,48 +448,6 @@ const PurchaseReportSummary = () => {
           handleClose={() => setIsModalOpen(false)}
           rowData={selectedRowData}
         />
-      </Box>
-
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "flex-end",
-          "& button": { marginTop: 2, marginLeft: 2 },
-        }}
-      >
-        <Button
-          color="warning"
-          size="medium"
-          variant="outlined"
-          onClick={() => {
-            setDateFrom(null);
-            setDateTo(null);
-            setSelectedSupplier("");
-            setFilter1("date");
-            setPaginationModel({ page: 1, pageSize: 25 });
-            fetchAllPurchases();
-          }}
-          sx={{ borderRadius: 8 }}
-        >
-          Clear
-        </Button>
-        <Button
-          color="secondary"
-          size="medium"
-          variant="outlined"
-          sx={{ borderRadius: 8 }}
-        >
-          Print
-        </Button>
-        <Button
-          color="primary"
-          size="medium"
-          variant="contained"
-          onClick={fetchAllPurchases}
-          sx={{ borderRadius: 8 }}
-        >
-          Display
-        </Button>
       </Box>
     </Box>
   );

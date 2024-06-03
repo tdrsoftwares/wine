@@ -17,7 +17,7 @@ import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import { getItemWisePurchaseDetails } from "../../../services/purchaseService";
 import { NotificationManager } from "react-notifications";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { getAllSuppliers } from "../../../services/supplierService";
@@ -645,6 +645,9 @@ const ItemWisePurchaseReport = () => {
               <CircularProgress />
             </Box>
           }
+          slots={{
+            toolbar: GridToolbar
+          }}
         />
       </Box>
     </Box>

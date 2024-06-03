@@ -15,7 +15,7 @@ import { NotificationManager } from "react-notifications";
 import { getAllBrands } from "../../../services/brandService";
 import { getAllItemCategory } from "../../../services/categoryService";
 import { getAllCustomer } from "../../../services/customerService";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridFooterContainer, GridFooter, GridToolbar } from "@mui/x-data-grid";
 import { getDailySalesDetails } from "../../../services/saleBillService";
 import dayjs from "dayjs";
 import { getAllItems } from "../../../services/itemService";
@@ -43,6 +43,9 @@ const DailySaleReport = () => {
     pageSize: 25,
   });
   const [totalCount, setTotalCount] = useState(0);
+  const [totalVolume, setTotalVolume] = useState(0);
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [totalPcs, setTotalPcs] = useState(0);
 
   const columns = [
     {
@@ -59,23 +62,20 @@ const DailySaleReport = () => {
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
-
     {
       field: "totalPcs",
       headerName: "Total Pcs.",
-      width: 120,
+      width: 150,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
-
     {
       field: "rate",
       headerName: "Rate",
-      width: 120,
+      width: 150,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
-
     {
       field: "totalVolumeLiters",
       headerName: "Total Vol. Ltr.",
@@ -196,7 +196,6 @@ const DailySaleReport = () => {
     fetchAllItems();
   }, []);
 
-
   const debounce = (func, delay) => {
     let timeout;
     return (...args) => {
@@ -211,6 +210,43 @@ const DailySaleReport = () => {
     const debouncedFetch = debounce(fetchAllSales, 300);
     debouncedFetch();
   }, [paginationModel, filterData]);
+
+  useEffect(() => {
+    const calculateSums = (data) => {
+      let totalVolume = 0;
+      let totalAmount = 0;
+      let totalPcs = 0;
+
+      data.forEach((item) => {
+        totalVolume += item.totalVolumeLiters || 0;
+        totalAmount += item.totalAmount || 0;
+        totalPcs += item.totalPcs || 0;
+      });
+
+      console.log("total data: ", data);
+      console.log("calculated totalVolume: ", totalVolume);
+      console.log("calculated totalAmount: ", totalAmount);
+      console.log("calculated totalPcs: ", totalPcs);
+
+      return { totalVolume, totalAmount, totalPcs };
+    };
+
+
+    const { totalVolume, totalAmount, totalPcs } = calculateSums(allSalesData);
+    setTotalVolume(totalVolume);
+    setTotalAmount(totalAmount);
+    setTotalPcs(totalPcs);
+  }, [allSalesData]);
+
+  const CustomFooter = () => {
+    return (
+      <GridFooterContainer sx={{margin: "0 14px"}}>
+        <span>Total Volume: {totalVolume.toFixed(2) + "ltr"}</span>
+        <span>Total Amount: {totalAmount.toFixed(2)}</span>
+        <span>Total Pcs: {totalPcs.toFixed(0)}</span>
+      </GridFooterContainer>
+    );
+  };
 
   return (
     <Box sx={{ p: 2, width: "900px" }}>
@@ -490,7 +526,7 @@ const DailySaleReport = () => {
       <Box
         sx={{
           height: 500,
-          width: "70%",
+          width: "80%",
           marginTop: 2,
           "& .custom-header": { backgroundColor: "#dae4ed", paddingLeft: 4 },
           "& .custom-cell": { paddingLeft: 4 },
@@ -521,6 +557,10 @@ const DailySaleReport = () => {
               <CircularProgress />
             </Box>
           }
+          slots={{
+            footer: CustomFooter,
+            toolbar: GridToolbar
+          }}
         />
       </Box>
     </Box>

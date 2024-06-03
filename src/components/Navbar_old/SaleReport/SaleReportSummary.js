@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
 import { getAllSales } from "../../../services/saleBillService";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { NotificationManager } from "react-notifications";
 import SalesDetailsModal from "./SalesDetailsModal";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -182,6 +182,7 @@ const SaleReportSummary = () => {
           View
         </Button>
       ),
+      disableExport: true
     },
   ];
 
@@ -596,6 +597,9 @@ const SaleReportSummary = () => {
               <CircularProgress />
             </Box>
           }
+          slots={{
+            toolbar: GridToolbar
+          }}
         />
         <SalesDetailsModal
           open={isModalOpen}

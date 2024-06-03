@@ -15,7 +15,7 @@ import { getAllCustomer } from "../../../services/customerService";
 import { NotificationManager } from "react-notifications";
 import { getAllItems } from "../../../services/itemService";
 import { getAllBrands } from "../../../services/brandService";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import dayjs from "dayjs";
 import { getItemWiseSaleDetails } from "../../../services/saleBillService";
 
@@ -671,6 +671,9 @@ const ItemWiseSaleReport = () => {
               <CircularProgress />
             </Box>
           }
+          slots={{
+            toolbar: GridToolbar
+          }}
         />
       </Box>
     </Box>
