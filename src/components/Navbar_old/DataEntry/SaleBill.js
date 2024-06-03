@@ -59,6 +59,7 @@ const SaleBill = () => {
     billno: "",
     billDate: todaysDate,
     itemId: "",
+    itemDetailsId: "",
     itemCode: "",
     itemName: "",
     mrp: "",
@@ -100,6 +101,12 @@ const SaleBill = () => {
   console.log("totalValues: ", totalValues);
 
   const tableRef = useRef(null);
+  const customerNameRef = useRef(null);
+  const addressRef = useRef(null);
+  const phoneNoRef = useRef(null);
+  const seriesRef = useRef(null);
+  const billNoRef = useRef(null);
+  const billDateRef = useRef(null);
   const itemCodeRef = useRef(null);
   const itemNameRef = useRef(null);
   const mrpRef = useRef(null);
@@ -261,6 +268,7 @@ const SaleBill = () => {
               ...salesData,
               {
                 itemId: searchedItem?.itemId,
+                itemDetailsId: searchedItem?._id,
                 itemCode: searchedItem?.itemCode || 0,
                 itemName: searchedItem?.item[0]?.name || 0,
                 mrp: searchedItem?.mrp || 0,
@@ -283,6 +291,7 @@ const SaleBill = () => {
           setFormData({
             ...formData,
             itemId: searchedItem?.itemId,
+            itemDetailsId: searchedItem?._id,
             itemCode: searchedItem?.itemCode || 0,
             itemName: searchedItem?.item[0]?.name || 0,
             mrp: searchedItem?.mrp || 0,
@@ -415,6 +424,7 @@ const SaleBill = () => {
           setFormData({
             ...formData,
             itemId: selectedRow.item[0]._id,
+            itemDetailsId: selectedRow._id,
             itemCode: selectedRow.itemCode || 0,
             itemName: selectedRow.item[0].name || 0,
             mrp: selectedRow.mrp || 0,
@@ -479,41 +489,6 @@ const SaleBill = () => {
     if (event.key === "Enter" || event.key === "Tab") {
       event.preventDefault();
       nextInputRef.current.focus();
-
-      switch (nextInputRef.current) {
-        case itemCodeRef:
-          handleItemCodeChange(event);
-        case itemNameRef:
-          handleItemNameChange(event);
-          break;
-        case mrpRef:
-        case batchRef:
-        case pcsRef:
-        case rateRef:
-        case discountRef:
-        case amountRef:
-        case brkRef:
-        case splitRef:
-          handleSubmitIntoDataTable(event);
-          break;
-        case totalVolRef:
-        case totalPcsRef:
-        case grossAmtRef:
-        case rectMode1Ref:
-        case rectMode2Ref:
-        case rectMode2AmtRef:
-        case sDiscPercentRef:
-        case sDiscAmtRef:
-        case taxAmtRef:
-        case adjustmentRef:
-        case netAmtRef:
-        case saveButtonRef:
-          handleCreateSale();
-          break;
-        default:
-          nextInputRef.current.focus();
-          break;
-      }
     }
   };
 
@@ -566,6 +541,7 @@ const SaleBill = () => {
     setFormData({
       ...formData,
       itemId: selectedRow.item[0]._id,
+      itemDetailsId: selectedRow._id,
       itemCode: selectedRow.itemCode || 0,
       itemName: selectedRow.item[0].name || 0,
       mrp: selectedRow.mrp || 0,
@@ -740,6 +716,7 @@ const SaleBill = () => {
           receiptMode2: totalValues.receiptMode2,
           salesItem: [
             {
+              itemDetailsId: formData.itemDetailsId,
               itemCode: item.itemCode,
               itemId: item.itemId,
               batchNo: item.batch,
@@ -955,6 +932,14 @@ const SaleBill = () => {
     totalValues.adjustment,
   ]);
 
+  useEffect(() => {
+    if (billDateRef.current) {
+      billDateRef.current.addEventListener("keydown", (e) =>
+        handleEnterKey(e, itemCodeRef)
+      );
+    }
+  }, []);
+
   return (
     <Box sx={{ p: 2, width: "900px" }}>
       <Grid container>
@@ -998,12 +983,14 @@ const SaleBill = () => {
             <TextField
               select
               fullWidth
+              inputRef={customerNameRef}
               size="small"
               type="text"
               name="customerName"
               className="input-field"
               value={formData.customerName}
               onChange={handleCustomerNameChange}
+              onKeyDown={e => handleEnterKey(e, addressRef)}
             >
               {allCustomerData.map((item) => (
                 <MenuItem key={item._id} value={item}>
@@ -1021,6 +1008,7 @@ const SaleBill = () => {
             </InputLabel>
             <TextField
               fullWidth
+              inputRef={addressRef}
               size="small"
               name="address"
               className="input-field"
@@ -1028,6 +1016,7 @@ const SaleBill = () => {
               onChange={(e) =>
                 setFormData({ ...formData, address: e.target.value })
               }
+              onKeyDown={e => handleEnterKey(e, phoneNoRef)}
             />
           </div>
         </Grid>
@@ -1039,6 +1028,7 @@ const SaleBill = () => {
             </InputLabel>
             <TextField
               fullWidth
+              inputRef={phoneNoRef}
               size="small"
               name="phoneNo"
               className="input-field"
@@ -1047,6 +1037,7 @@ const SaleBill = () => {
                 const value = e.target.value;
                 if (!isNaN(value)) setFormData({ ...formData, phoneNo: value });
               }}
+              onKeyDown={e => handleEnterKey(e, billDateRef)}
             />
           </div>
         </Grid>
@@ -1106,6 +1097,7 @@ const SaleBill = () => {
 
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
+                inputRef={billDateRef}
                 id="billDate"
                 format="DD/MM/YYYY"
                 value={formData.billDate}

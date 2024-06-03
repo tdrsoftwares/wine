@@ -8,7 +8,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import React, { useEffect, useMemo, useState } from "react";
 import { getAllStocks } from "../../services/stockService";
 import { NotificationManager } from "react-notifications";
@@ -55,6 +55,12 @@ const StockReport = () => {
       field: "sNo",
       headerName: "S. No.",
       width: 90,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "createdAt",
+      headerName: "Created Date",
+      width: 150,
       headerClassName: "custom-header",
     },
     {
@@ -136,12 +142,7 @@ const StockReport = () => {
       width: 120,
       headerClassName: "custom-header",
     },
-    {
-      field: "createdAt",
-      headerName: "Created Date",
-      width: 150,
-      headerClassName: "custom-header",
-    },
+    
   ];
 
   const columnsData = useMemo(
@@ -542,6 +543,7 @@ const StockReport = () => {
           rows={(allStocks || [])?.map((stock, index) => ({
             id: index,
             sNo: index + 1,
+            createdAt: new Date(stock.createdAt).toLocaleDateString("en-GB"),
             itemCode: stock.itemCode || "No Data",
             itemName: stock?.item?.name || "No Data",
             brandName: stock?.item?.brand?.name || "No Data",
@@ -556,7 +558,6 @@ const StockReport = () => {
             currentStock: stock.currentStock || "No Data",
             openingStock: stock.openingStock || "No Data",
             mrp: stock.mrp || "No Data",
-            createdAt: new Date(stock.createdAt).toLocaleDateString("en-GB"),
           }))}
           columns={columnsData}
           rowCount={totalCount}
@@ -578,6 +579,9 @@ const StockReport = () => {
             </Box>
           }
           loading={loading}
+          slots={{
+            toolbar: GridToolbar
+          }}
         />
       </Box>
 
