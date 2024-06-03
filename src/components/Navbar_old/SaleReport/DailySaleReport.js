@@ -5,9 +5,11 @@ import {
   Grid,
   InputLabel,
   MenuItem,
+  TablePagination,
   TextField,
   Typography,
 } from "@mui/material";
+import MuiPagination from '@mui/material/Pagination';
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import React, { useEffect, useState } from "react";
@@ -15,10 +17,41 @@ import { NotificationManager } from "react-notifications";
 import { getAllBrands } from "../../../services/brandService";
 import { getAllItemCategory } from "../../../services/categoryService";
 import { getAllCustomer } from "../../../services/customerService";
-import { DataGrid, GridFooterContainer, GridFooter, GridToolbar } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  GridFooterContainer,
+  GridFooter,
+  GridToolbar,
+  gridPageCountSelector,
+  useGridApiContext,
+  useGridSelector,
+  GridPagination,
+  useGridApiRef,
+} from "@mui/x-data-grid";
 import { getDailySalesDetails } from "../../../services/saleBillService";
 import dayjs from "dayjs";
 import { getAllItems } from "../../../services/itemService";
+
+function Pagination({ page, onPageChange, className }) {
+  const apiRef = useGridApiContext();
+  const pageCount = useGridSelector(apiRef, gridPageCountSelector);
+
+  return (
+    <MuiPagination
+      color="primary"
+      className={className}
+      count={pageCount}
+      page={page + 1}
+      onChange={(event, newPage) => {
+        onPageChange(event, newPage - 1);
+      }}
+    />
+  );
+}
+
+function CustomPagination(props) {
+  return <GridPagination ActionsComponent={Pagination} {...props} />;
+}
 
 const DailySaleReport = () => {
   const [allBrands, setAllBrands] = useState([]);
@@ -39,54 +72,56 @@ const DailySaleReport = () => {
   });
   const [loading, setLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
-    page: 0,
-    pageSize: 25,
+    page: 1,
+    pageSize: 10,
   });
   const [totalCount, setTotalCount] = useState(0);
   const [totalVolume, setTotalVolume] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
   const [totalPcs, setTotalPcs] = useState(0);
 
+  const apiRef = useGridApiRef();
+
   const columns = [
     {
       field: "sNo",
       headerName: "S. No.",
-      width: 90,
+      flex: 1,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "itemName",
       headerName: "Item Name",
-      width: 180,
+      flex: 2,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "totalPcs",
       headerName: "Total Pcs.",
-      width: 150,
+      flex: 1,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "rate",
       headerName: "Rate",
-      width: 150,
+      flex: 1,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "totalVolumeLiters",
       headerName: "Total Vol. Ltr.",
-      width: 150,
+      flex: 1,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "totalAmount",
       headerName: "Total Amount",
-      width: 150,
+      flex: 1,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
@@ -156,8 +191,8 @@ const DailySaleReport = () => {
     setLoading(true);
     try {
       const filterOptions = {
-        page: paginationModel.page + 1,
-        limit: paginationModel.pageSize,
+        page: paginationModel.page === 0 ? paginationModel.page +1 : paginationModel.page,
+        pageSize: paginationModel.pageSize,
         fromDate: fromDate,
         toDate: toDate,
         brandName: filterData.brandName,
@@ -223,14 +258,8 @@ const DailySaleReport = () => {
         totalPcs += item.totalPcs || 0;
       });
 
-      console.log("total data: ", data);
-      console.log("calculated totalVolume: ", totalVolume);
-      console.log("calculated totalAmount: ", totalAmount);
-      console.log("calculated totalPcs: ", totalPcs);
-
       return { totalVolume, totalAmount, totalPcs };
     };
-
 
     const { totalVolume, totalAmount, totalPcs } = calculateSums(allSalesData);
     setTotalVolume(totalVolume);
@@ -240,10 +269,20 @@ const DailySaleReport = () => {
 
   const CustomFooter = () => {
     return (
-      <GridFooterContainer sx={{margin: "0 14px"}}>
-        <span>Total Volume: {totalVolume.toFixed(2) + "ltr"}</span>
-        <span>Total Amount: {totalAmount.toFixed(2)}</span>
-        <span>Total Pcs: {totalPcs.toFixed(0)}</span>
+      <GridFooterContainer>
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            justifyContent: "space-around",
+            // margin: "0 20px",
+          }}
+        >
+          <span>Total Volume: {totalVolume.toFixed(2) + "ltr"}</span>
+          <span>Total Amount: {totalAmount.toFixed(2)}</span>
+          <span>Total Pcs: {totalPcs.toFixed(0)}</span>
+        </div>
+        <GridFooter />
       </GridFooterContainer>
     );
   };
@@ -502,7 +541,7 @@ const DailySaleReport = () => {
               billNo: "",
               volume: "",
             });
-            setPaginationModel({ page: 0, pageSize: 25 });
+            setPaginationModel({ page: 1, pageSize: 10 });
           }}
         >
           Clear Filters
@@ -526,7 +565,7 @@ const DailySaleReport = () => {
       <Box
         sx={{
           height: 500,
-          width: "80%",
+          width: "100%",
           marginTop: 2,
           "& .custom-header": { backgroundColor: "#dae4ed", paddingLeft: 4 },
           "& .custom-cell": { paddingLeft: 4 },
@@ -544,11 +583,12 @@ const DailySaleReport = () => {
           }))}
           columns={columns}
           rowCount={totalCount}
+          apiRef={apiRef}
           pagination
           paginationMode="server"
           paginationModel={paginationModel}
           pageSizeOptions={[10, 25, 50, 100]}
-          onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
+          onPaginationModelChange={setPaginationModel}
           sx={{ backgroundColor: "#fff" }}
           disableRowSelectionOnClick
           loading={loading}
@@ -559,8 +599,12 @@ const DailySaleReport = () => {
           }
           slots={{
             footer: CustomFooter,
-            toolbar: GridToolbar
+            toolbar: GridToolbar,
+            // pagination: CustomPagination,
           }}
+          // slotProps={{
+          //   toolbar: { csvOptions: { GridFooter: true } },
+          // }}
         />
       </Box>
     </Box>
