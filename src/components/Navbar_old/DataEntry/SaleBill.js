@@ -532,15 +532,17 @@ const SaleBill = () => {
         updatedRow.amount = parseFloat(updatedRow.rate) * parseFloat(value);
       } else if (field === "rate") {
         updatedRow.amount = parseFloat(updatedRow.pcs) * parseFloat(value);
-      } else if (field === "discount") {
-        const originalAmount =
-          parseFloat(updatedRow.rate) * parseFloat(updatedRow.pcs);
-        let newAmount = originalAmount - parseFloat(value);
-        if (newAmount < 0) {
-          newAmount = 0;
-        }
-        updatedRow.amount = newAmount;
-      } else if (field === "amount") {
+      } 
+      // else if (field === "discount") {
+      //   const originalAmount =
+      //     parseFloat(updatedRow.rate) * parseFloat(updatedRow.pcs);
+      //   let newAmount = originalAmount - parseFloat(value);
+      //   if (newAmount < 0) {
+      //     newAmount = 0;
+      //   }
+      //   updatedRow.amount = newAmount;
+      // } 
+      else if (field === "amount") {
         if (parseFloat(updatedRow.pcs) !== 0) {
           updatedRow.rate = parseFloat(value) / parseFloat(updatedRow.pcs);
         }
@@ -878,7 +880,7 @@ const SaleBill = () => {
     setTotalValues({
       ...totalValues,
       receiptMode1: value,
-      receiptAmt: parseInt(totalValues.grossAmt) - parseInt(value),
+      receiptAmt: parseInt(totalValues.netAmt) - parseInt(value),
     });
   };
 
@@ -914,16 +916,31 @@ const SaleBill = () => {
 
     const netAmt = grossAmt - splDiscAmount + taxAmt - adjustment;
 
-    setTotalValues({
-      ...totalValues,
-      totalVolume: totalVolume.toFixed(2),
-      totalPcs: totalPcs,
-      grossAmt: grossAmt.toFixed(2),
-      receiptMode1: calculateGrossAmt(),
-      splDiscAmount: (splDiscAmount + totalDiscount).toFixed(0),
-      discountAmt: totalDiscount.toFixed(0),
-      netAmt: (netAmt - totalDiscount).toFixed(0),
-    });
+    const newNetAmount = netAmt - totalDiscount;
+
+    // if(totalValues.receiptMode2){
+    //   setTotalValues({
+    //     ...totalValues,
+    //     totalVolume: totalVolume.toFixed(2),
+    //     totalPcs: totalPcs,
+    //     grossAmt: grossAmt.toFixed(2),
+    //     receiptMode1: calculateGrossAmt(),
+    //     splDiscAmount: (splDiscAmount + totalDiscount).toFixed(0),
+    //     discountAmt: totalDiscount.toFixed(0),
+    //     netAmt: parseFloat(newNetAmount - receiptMode1).toFixed(0),
+    //   });
+    // } else {
+      setTotalValues({
+        ...totalValues,
+        totalVolume: totalVolume.toFixed(2),
+        totalPcs: totalPcs,
+        grossAmt: grossAmt.toFixed(2),
+        receiptMode1: newNetAmount.toFixed(2),
+        splDiscAmount: (splDiscAmount + totalDiscount).toFixed(0),
+        discountAmt: totalDiscount.toFixed(0),
+        netAmt: newNetAmount.toFixed(2),
+      });
+    // }
   };
 
 
@@ -933,6 +950,7 @@ const SaleBill = () => {
     salesData,
     totalValues.splDiscount,
     totalValues.discountAmt,
+    totalValues.receiptMode2,
     totalValues.taxAmt,
     totalValues.adjustment,
   ]);
