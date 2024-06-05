@@ -125,3 +125,14 @@ export const deletePurchase = async (id) => {
     return error;
   }
 };
+
+
+export const getPurchaseDetailsByEntryNo = async (entryNo) => {
+  try {
+    const apiURL = `/purchases/bill/${entryNo}`;
+    const getPurchaseDetailsData = await axiosInstance.get(apiURL);
+    return getPurchaseDetailsData;
+  } catch (error){
+    return error
+  }
+}

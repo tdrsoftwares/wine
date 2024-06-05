@@ -21,6 +21,7 @@ import { getAllSuppliers } from "../../../services/supplierService";
 import { getAllStores } from "../../../services/storeService";
 import {
   createPurchase,
+  getPurchaseDetailsByEntryNo,
   searchAllPurchasesByItemCode,
   searchAllPurchasesByItemName,
 } from "../../../services/purchaseService";
@@ -32,6 +33,9 @@ import ItemRegisterModal from "./ItemRegisterModal";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from "dayjs";
+import utc from 'dayjs/plugin/utc';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 
 const PurchaseEntry = () => {
   const [allSuppliers, setAllSuppliers] = useState([]);
@@ -68,6 +72,9 @@ const PurchaseEntry = () => {
     sp: "",
     amount: "",
   });
+
+  dayjs.extend(utc);
+  dayjs.extend(customParseFormat);
 
   const [totalValues, setTotalValues] = useState({
     totalMrp: "",
@@ -122,6 +129,19 @@ const PurchaseEntry = () => {
   const saveButtonRef = useRef(null);
   const clearButtonRef = useRef(null);
 
+  const resetTopFormData = () => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      supplierName: "",
+      passNo: "",
+      passDate: null,
+      address: "",
+      billNo: "",
+      billDate: null,
+      stockIn: "",
+    }));
+  }
+
   const resetMiddleFormData = () => {
     setFormData((prevFormData) => ({
       ...prevFormData,
@@ -140,6 +160,57 @@ const PurchaseEntry = () => {
       sp: "",
       amount: "",
     }));
+  };
+
+  const resetTotalValuesData = () => {
+    setTotalValues({
+      totalMrp: "",
+      totalSDiscount: "",
+      govtRate: "",
+      spcPurpose: "",
+      sTax: "",
+      tcs: "",
+      tcsAmt: "",
+      grossAmt: "",
+      discount: "",
+      otherCharges: "",
+      adjustment: "",
+      netAmt: "",
+    });
+  }
+
+  const clearAllFields = () => {
+    setFormData({
+      supplierName: "",
+      passNo: "",
+      passDate: null,
+      address: "",
+      billNo: "",
+      billDate: null,
+      stockIn: "",
+    });
+    setEntryNumber("");
+    setEntryNoEditable(true);
+    resetMiddleFormData();
+    setPurchases([]);
+    setEditedRow({});
+    setSelectedRowIndex(null);
+    setSearchMode(false);
+    setEditableIndex(-1);
+    setTotalValues({
+      totalMrp: "",
+      totalSDiscount: "",
+      govtRate: "",
+      spcPurpose: "",
+      sTax: "",
+      tcs: "",
+      tcsAmt: "",
+      grossAmt: "",
+      discount: "",
+      otherCharges: "",
+      adjustment: "",
+      netAmt: "",
+    });
   };
 
   const handleClickOutside = (event) => {
@@ -353,6 +424,88 @@ const PurchaseEntry = () => {
     }
   }, 700);
 
+  const convertToDayjsObject = (dateStr) => {
+    return dayjs(dateStr, 'DD/MM/YYYY').utc();
+};
+
+  const entryNumberSearch = debounce(async (entryNumber) => {
+    console.log("entryNumber search: ", entryNumber);
+    try {
+      if (entryNumber > 0) {
+        const response = await getPurchaseDetailsByEntryNo(entryNumber);
+        // console.log("allPurchasesData response: ", response.data.data);
+
+        if (response?.data?.data) {
+          const receivedData = response.data.data;
+          // console.log("receivedData > passDate: ", receivedData.passDate);
+
+          const passDateObject = convertToDayjsObject(receivedData.passDate);
+          const billDateObject = convertToDayjsObject(receivedData.billDate);
+          // console.log("passDateObject: ", passDateObject);
+
+          setFormData({
+            supplierName: receivedData.supplierName,
+            passNo: receivedData.passNo,
+            passDate: passDateObject,
+            stockIn: receivedData.storeName,
+            billNo: receivedData.billNo,
+            billDate: billDateObject,
+          });
+
+          const purchaseItems = receivedData?.purchaseItems;
+          // console.log("purchaseItems: ", purchaseItems);
+
+          const newPurchaseItems = purchaseItems.map((purchase) => ({
+            itemCode: purchase?.itemCode,
+            itemName: purchase?.itemId?.name,
+            mrp: purchase?.mrp,
+            batch: purchase?.batchNo,
+            case: purchase?.caseNo,
+            pcs: purchase?.pcs,
+            brk: purchase?.brokenNo,
+            purchaseRate: purchase?.purchaseRate,
+            btlRate: purchase?.saleRate,
+            gro: purchase?.gro,
+            sp: purchase?.sp,
+            amount: purchase?.itemAmount,
+          }));
+
+          // console.log("newPurchaseItems: ", newPurchaseItems);
+
+          setPurchases([...newPurchaseItems]);
+
+          setTotalValues({
+            totalMrp: receivedData.mrpValue,
+            totalSDiscount: receivedData.splDisc,
+            govtRate: receivedData.govtROff,
+            spcPurpose: receivedData.specialPurpose,
+            sTax: receivedData.sTaxAmount,
+            tcs: receivedData.tcsP,
+            tcsAmt: receivedData.tcsAmount,
+            grossAmt: receivedData.grossAmount,
+            discount: receivedData.discountAmount,
+            otherCharges: receivedData.otherCharges,
+            adjustment: receivedData.adjustment,
+            netAmt: receivedData.netAmount,
+          });
+        } else {
+          resetTopFormData();
+          resetMiddleFormData();
+          resetTotalValuesData();
+          setPurchases([]);
+          NotificationManager.error("No purchase details found!");
+        }
+      }
+    } catch (error) {
+      resetTopFormData();
+      resetMiddleFormData();
+      resetTotalValuesData();
+      setPurchases([]);
+      NotificationManager.error("Error fetching purchase details!");
+      console.error("Error fetching items:", error);
+    }
+  }, 700);
+
   const handleRowClick = (index) => {
     const selectedRow = searchResults[index];
 
@@ -401,7 +554,7 @@ const PurchaseEntry = () => {
     }
   };
 
-  // console.log("purchases: ", purchases);
+  // console.log("formData passDate: ", formData.passDate);
 
   const handleSubmitIntoDataTable = (e) => {
     // console.log("handleSubmitIntoDataTable formData: ", formData);
@@ -493,15 +646,16 @@ const PurchaseEntry = () => {
       splDisc: parseFloat(totalValues.totalSDiscount) || 0,
       govtROff: parseFloat(totalValues.govtRate) || 0,
       specialPurpose: parseFloat(totalValues.spcPurpose) || 0,
-      sTaxP: parseFloat(totalValues.sTax) || 0,
-      sTaxAmount: 0,
+      // sTaxP: parseFloat(totalValues.sTax) || 0,
+      // sTaxAmount: 0,
       tcsP: parseFloat(totalValues.tcs) || 1,
       tcsAmount: parseFloat(totalValues.tcsAmt) || 0,
       grossAmount: parseFloat(totalValues.grossAmt) || 0,
-      discountAmount: parseFloat(totalValues.discount) || 0,
+      discount: parseFloat(totalValues.discount) || 0,
       taxAmount: parseFloat(totalValues.taxAmt) || 0,
       adjustment: parseFloat(totalValues.adjustment) || 0,
       netAmount: parseFloat(totalValues.netAmt) || 0,
+      otherCharges: parseInt(totalValues.otherCharges) || 0,
       purchaseItems: purchases.map((item) => ({
         itemCode: item.itemCode.toString(),
         itemId: item.itemId,
@@ -657,8 +811,8 @@ const PurchaseEntry = () => {
   };
 
   const handlePurchaseOpen = () => {
-    setEntryNoEditable(false);
     entryNoRef.current.focus();
+    setEntryNoEditable(false);
   };
 
   const formatDate = (dateString) => {
@@ -864,39 +1018,6 @@ const PurchaseEntry = () => {
     }
   }, []);
 
-  const clearAllFields = () => {
-    setFormData({
-      supplierName: "",
-      passNo: "",
-      passDate: null,
-      address: "",
-      billNo: "",
-      billDate: null,
-      stockIn: "",
-    });
-    setEntryNumber("");
-    resetMiddleFormData();
-    setPurchases([]);
-    setEditedRow({});
-    setSelectedRowIndex(null);
-    setSearchMode(false);
-    setEditableIndex(-1);
-    setTotalValues({
-      totalMrp: "",
-      totalSDiscount: "",
-      govtRate: "",
-      spcPurpose: "",
-      sTax: "",
-      tcs: "",
-      tcsAmt: "",
-      grossAmt: "",
-      discount: "",
-      otherCharges: "",
-      adjustment: "",
-      netAmt: "",
-    });
-  };
-
   const handleItemCodeChange = async (e) => {
     const itemCode = e.target.value;
 
@@ -914,9 +1035,33 @@ const PurchaseEntry = () => {
     setEditableIndex(-1);
   };
 
+  const handleEntryNumberChange = (e) => {
+    const value = e.target.value;
+    // console.log("handleEntryNo change value: ", value);
+    const regex = /^\d*\.?\d*$/;
+    if (regex.test(value) || value === "") {
+      setEntryNumber(value);
+    }
+  }
+
+  const handlePreviousEntryChange = () => {
+    setEntryNumber(parseInt(entryNumber) - 1);
+  };
+
+  const handleNextEntryChange = () => {
+    setEntryNumber(parseInt(entryNumber) + 1);
+  };
+
+  useEffect(() => {
+    if(entryNumber > 0){
+      entryNumberSearch(entryNumber);
+    }
+  }, [entryNumber]);
+
+
   return (
     <Box component="form" sx={{ p: 2, width: "900px" }}>
-      <Grid container >
+      <Grid container>
         <Grid item xs={6}>
           <div className="input-wrapper">
             <InputLabel
@@ -965,12 +1110,9 @@ const PurchaseEntry = () => {
               size="small"
               className="input-field"
               value={formData.passNo}
-              onChange={(e) => {
-                const regex = /^\d*\.?\d*$/;
-                if (regex.test(e.target.value) || e.target.value === "") {
-                  setFormData({ ...formData, passNo: e.target.value });
-                }
-              }}
+              onChange={(e) =>
+                setFormData({ ...formData, passNo: e.target.value })
+              }
               onKeyDown={(e) => handleEnterKey(e, passDateRef)}
             />
           </div>
@@ -1041,16 +1183,10 @@ const PurchaseEntry = () => {
               inputRef={entryNoRef}
               id="entryNo"
               size="small"
-              type="number"
               className="input-field entryNo-adjustment"
               value={entryNumber}
               disabled={entryNoEditable}
-              onChange={(e) => {
-                const regex = /^\d*\.?\d*$/;
-                if (regex.test(e.target.value) || e.target.value === "") {
-                  setEntryNumber(e.target.value);
-                }
-              }}
+              onChange={handleEntryNumberChange}
               onKeyDown={(e) => handleEnterKey(e, billNoRef)}
             />
           </div>
@@ -1067,10 +1203,7 @@ const PurchaseEntry = () => {
               className="input-field"
               value={formData.billNo}
               onChange={(e) => {
-                const regex = /^\d*\.?\d*$/;
-                if (regex.test(e.target.value) || e.target.value === "") {
-                  setFormData({ ...formData, billNo: e.target.value });
-                }
+                setFormData({ ...formData, billNo: e.target.value });
               }}
               onKeyDown={(e) => handleEnterKey(e, billDateRef)}
             />
@@ -1098,7 +1231,7 @@ const PurchaseEntry = () => {
       </Grid>
 
       <Box
-        sx={{ p: 2, boxShadow: 2, borderRadius: 1, marginTop: .5 }}
+        sx={{ p: 2, boxShadow: 2, borderRadius: 1, marginTop: 0.5 }}
         className="table-header"
       >
         <Grid container spacing={1}>
@@ -1300,7 +1433,7 @@ const PurchaseEntry = () => {
             component={Paper}
             ref={tableRef}
             sx={{
-              marginTop: .8,
+              marginTop: 0.8,
               height: 300,
               width: 850,
               overflowY: "unset",
@@ -1859,7 +1992,7 @@ const PurchaseEntry = () => {
             color="success"
             size="medium"
             variant="outlined"
-            onClick={() => {}}
+            onClick={handlePreviousEntryChange}
             sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
           >
             PREV PAGE
@@ -1868,7 +2001,7 @@ const PurchaseEntry = () => {
             color="secondary"
             size="medium"
             variant="outlined"
-            onClick={() => {}}
+            onClick={handleNextEntryChange}
             sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
           >
             NEXT PAGE
