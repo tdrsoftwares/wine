@@ -136,3 +136,13 @@ export const getPurchaseDetailsByEntryNo = async (entryNo) => {
     return error
   }
 }
+
+export const updatePurchaseDetailsByEntryNo = async (payload) => {
+  try {
+    const apiURL = ``;
+    const updateDetails = await axiosInstance.post(apiURL, payload);
+    return updateDetails;
+  } catch (error) {
+    return error;
+  }
+};
