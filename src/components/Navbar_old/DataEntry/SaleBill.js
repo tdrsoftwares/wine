@@ -244,6 +244,7 @@ const SaleBill = () => {
       setIsLoading(true);
       const response = await searchAllSalesByItemCode(itemCode);
       const searchedItem = response?.data?.data[0];
+      // console.log("searchedItem: ", searchedItem);
 
       if (searchedItem) {
         const existingItemIndex = salesData.findIndex(
@@ -657,6 +658,7 @@ const SaleBill = () => {
           ...salesData,
           {
             itemId: formData.itemId,
+            itemDetailsId: formData.itemDetailsId,
             itemCode: formData.itemCode || 0,
             itemName: formData.itemName || 0,
             mrp: formData.mrp || 0,
