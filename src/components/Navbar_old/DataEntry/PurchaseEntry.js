@@ -1150,11 +1150,12 @@ const PurchaseEntry = () => {
   }
 
   const handlePreviousEntryChange = () => {
-    if(entryNumber) setEntryNumber(parseInt(entryNumber) - 1);
+    console.log(entryNoEditable);
+    if(entryNumber && !entryNoEditable) setEntryNumber(parseInt(entryNumber) - 1);
   };
 
   const handleNextEntryChange = () => {
-    if(entryNumber) setEntryNumber(parseInt(entryNumber) + 1);
+    if(entryNumber && !entryNoEditable) setEntryNumber(parseInt(entryNumber) + 1);
   };
 
   useEffect(() => {
