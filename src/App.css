@@ -332,6 +332,7 @@ body {
 }
 
 .MuiTypography-root,
+.radio-buttons-wrapper.MuiInputLabel-root,
 .input-wrapper.MuiInputLabel-root {
   font-size: 12px !important;
 }

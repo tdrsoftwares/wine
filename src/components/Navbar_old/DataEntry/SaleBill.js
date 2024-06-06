@@ -34,7 +34,7 @@ import { getAllLedgers } from "../../../services/ledgerService";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 
 const SaleBill = () => {
   const [allCustomerData, setAllCustomerData] = useState([]);
@@ -131,7 +131,6 @@ const SaleBill = () => {
   const netAmtRef = useRef(null);
   const saveButtonRef = useRef(null);
 
-
   const fetchAllCustomers = async () => {
     try {
       const allCustomerResponse = await getAllCustomer();
@@ -227,7 +226,7 @@ const SaleBill = () => {
       if (response?.data?.data) {
         setSearchResults(response?.data?.data);
         console.log("ami serc res ", searchResults);
-      }  else {
+      } else {
         setSearchResults([]);
       }
       setIsLoading(false);
@@ -286,9 +285,7 @@ const SaleBill = () => {
             ]);
           }
           resetMiddleFormData();
-        }
-
-        else {
+        } else {
           setFormData({
             ...formData,
             itemId: searchedItem?.itemId,
@@ -306,7 +303,6 @@ const SaleBill = () => {
           pcsRef.current.focus();
         }
 
-
         // setTotalValues({
         //   ...totalValues,
         //   totalVolume: formData.volume,
@@ -314,8 +310,6 @@ const SaleBill = () => {
         //   receiptMode1: formData.amount,
         //   netAmt: formData.amount,
         // });
-
-        
       } else {
         setSearchResults([]);
       }
@@ -328,18 +322,17 @@ const SaleBill = () => {
     }
   }, 500);
 
-
   // const updateTotalDiscounts = (salesData) => {
   //   const totalDiscounts = salesData.reduce((total, item) => {
   //     const discountValue = parseFloat(item.discount) || 0;
   //     return total + discountValue;
   //   }, 0);
-  
+
   //   setTotalValues((prevTotalValues) => ({
   //     ...prevTotalValues,
   //     splDiscAmount: totalDiscounts.toFixed(2),
   //   }));
-  // };  
+  // };
 
   useEffect(() => {
     const newPcs = parseInt(formData.pcs) * parseInt(formData.mrp);
@@ -363,10 +356,10 @@ const SaleBill = () => {
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, [formData]);
 
@@ -375,7 +368,7 @@ const SaleBill = () => {
       const selectedCustomer = allCustomerData.find(
         (customer) => customer._id === formData.customerName._id
       );
-      console.log("selectedCustomer: ", selectedCustomer)
+      console.log("selectedCustomer: ", selectedCustomer);
       if (selectedCustomer) {
         setFormData({
           ...formData,
@@ -495,9 +488,9 @@ const SaleBill = () => {
 
   const handleEdit = (index, field, value) => {
     const updatedRow = { ...salesData[index] };
-  
+
     updatedRow[field] = value;
-  
+
     if (
       field === "rate" ||
       field === "pcs" ||
@@ -508,7 +501,7 @@ const SaleBill = () => {
         updatedRow.amount = parseFloat(updatedRow.rate) * parseFloat(value);
       } else if (field === "rate") {
         updatedRow.amount = parseFloat(updatedRow.pcs) * parseFloat(value);
-      } 
+      }
       // else if (field === "discount") {
       //   const originalAmount =
       //     parseFloat(updatedRow.rate) * parseFloat(updatedRow.pcs);
@@ -517,17 +510,17 @@ const SaleBill = () => {
       //     newAmount = 0;
       //   }
       //   updatedRow.amount = newAmount;
-      // } 
+      // }
       else if (field === "amount") {
         if (parseFloat(updatedRow.pcs) !== 0) {
           updatedRow.rate = parseFloat(value) / parseFloat(updatedRow.pcs);
         }
       }
     }
-  
+
     const updatedSalesData = [...salesData];
     updatedSalesData[index] = updatedRow;
-  
+
     setSalesData(updatedSalesData);
   };
 
@@ -565,45 +558,45 @@ const SaleBill = () => {
   const handleSaveClick = (index) => {
     const updatedSales = [...salesData];
     const updatedRow = { ...updatedSales[index] };
-  
+
     for (const key in editedRow) {
       if (editedRow.hasOwnProperty(key)) {
         updatedRow[key] = editedRow[key];
       }
     }
-  
+
     updatedSales[index] = updatedRow;
     setSalesData(updatedSales);
-  
+
     setEditedRow({});
     setEditableIndex(-1);
-  
+
     // Recalculate total values
     const calculatedTotalVolume = updatedSales.reduce((total, item) => {
       return total + parseFloat(item.volume || 0) * parseInt(item.pcs || 1);
     }, 0);
-  
+
     const calculatedTotalPcs = updatedSales.reduce((total, item) => {
       return total + parseInt(item.pcs || 0);
     }, 0);
-  
+
     const calculatedGrossAmt = updatedSales.reduce((total, item) => {
       return total + parseFloat(item.amount || 0) * parseInt(item.pcs || 1);
     }, 0);
-  
-    
+
     const totalDiscount = updatedSales.reduce((total, item) => {
       return total + parseFloat(item.discount * item.pcs || 0);
     }, 0);
-  
-    const splDiscAmount = (calculatedGrossAmt * parseFloat(totalValues.splDiscount || 0)) / 100;
-  
+
+    const splDiscAmount =
+      (calculatedGrossAmt * parseFloat(totalValues.splDiscount || 0)) / 100;
+
     const netAmt =
       parseFloat(calculatedGrossAmt || 0) -
       parseFloat(splDiscAmount || 0) -
       parseFloat(totalValues.adjustment || 0) +
       parseFloat(totalValues.taxAmt || 0);
-  
+
     setTotalValues({
       ...totalValues,
       totalVolume: calculatedTotalVolume.toFixed(0),
@@ -614,7 +607,7 @@ const SaleBill = () => {
       netAmt: netAmt.toFixed(2),
     });
   };
-  
+
   const handleRemoveClick = (index) => {
     const updatedSales = [...salesData];
     updatedSales.splice(index, 1);
@@ -684,7 +677,7 @@ const SaleBill = () => {
   const handleCreateSale = async () => {
     let payload = [];
     const billDateObj = formatDate(formData.billDate);
-    const todaysDateObj = formatDate(new Date);
+    const todaysDateObj = formatDate(new Date());
 
     if (formData.billType === "CREDITBILL" && !formData.customerName) {
       NotificationManager.warning("Customer name is required", "Warning");
@@ -736,8 +729,6 @@ const SaleBill = () => {
       });
     }
     console.log("payload: --> ", payload);
-
-    
 
     try {
       const response = await createSale(payload);
@@ -864,7 +855,6 @@ const SaleBill = () => {
   };
 
   const calculateNetAmount = () => {
-
     const totalVolume = salesData.reduce(
       (total, item) =>
         total + (parseFloat(item.volume) || 0) * (parseInt(item.pcs) || 0),
@@ -909,19 +899,18 @@ const SaleBill = () => {
     //     netAmt: parseFloat(newNetAmount - receiptMode1).toFixed(0),
     //   });
     // } else {
-      setTotalValues({
-        ...totalValues,
-        totalVolume: totalVolume.toFixed(2),
-        totalPcs: totalPcs,
-        grossAmt: grossAmt.toFixed(2),
-        receiptMode1: newNetAmount.toFixed(2),
-        splDiscAmount: (splDiscAmount + totalDiscount).toFixed(0),
-        discountAmt: totalDiscount.toFixed(0),
-        netAmt: newNetAmount.toFixed(2),
-      });
+    setTotalValues({
+      ...totalValues,
+      totalVolume: totalVolume.toFixed(2),
+      totalPcs: totalPcs,
+      grossAmt: grossAmt.toFixed(2),
+      receiptMode1: newNetAmount.toFixed(2),
+      splDiscAmount: (splDiscAmount + totalDiscount).toFixed(0),
+      discountAmt: totalDiscount.toFixed(0),
+      netAmt: newNetAmount.toFixed(2),
+    });
     // }
   };
-
 
   useEffect(() => {
     calculateNetAmount();
@@ -943,11 +932,11 @@ const SaleBill = () => {
   }, []);
 
   return (
-    <Box sx={{ p: 2, width: "900px" }}>
+    <Box component="form" sx={{ p: 2, width: "900px" }}>
       <Grid container>
         <Grid item xs={12}>
           <div className="radio-buttons-wrapper">
-            <InputLabel htmlFor="billType" sx={{ marginRight: "10px" }}>
+            <InputLabel htmlFor="billType" sx={{ marginRight: "22px" }}>
               Select Bill Type:
             </InputLabel>
             <RadioGroup
@@ -992,7 +981,7 @@ const SaleBill = () => {
               className="input-field"
               value={formData.customerName}
               onChange={handleCustomerNameChange}
-              onKeyDown={e => handleEnterKey(e, addressRef)}
+              onKeyDown={(e) => handleEnterKey(e, addressRef)}
             >
               {allCustomerData.map((item) => (
                 <MenuItem key={item._id} value={item}>
@@ -1018,7 +1007,7 @@ const SaleBill = () => {
               onChange={(e) =>
                 setFormData({ ...formData, address: e.target.value })
               }
-              onKeyDown={e => handleEnterKey(e, phoneNoRef)}
+              onKeyDown={(e) => handleEnterKey(e, phoneNoRef)}
             />
           </div>
         </Grid>
@@ -1039,7 +1028,7 @@ const SaleBill = () => {
                 const value = e.target.value;
                 if (!isNaN(value)) setFormData({ ...formData, phoneNo: value });
               }}
-              onKeyDown={e => handleEnterKey(e, billDateRef)}
+              onKeyDown={(e) => handleEnterKey(e, billDateRef)}
             />
           </div>
         </Grid>
@@ -1113,7 +1102,7 @@ const SaleBill = () => {
       </Grid>
 
       <Box
-        sx={{ p: 2, boxShadow: 2, borderRadius: 1, marginTop: .5 }}
+        sx={{ p: 2, boxShadow: 2, borderRadius: 1, marginTop: 0.5 }}
         className="table-header"
       >
         <Grid container spacing={1}>
@@ -1310,7 +1299,7 @@ const SaleBill = () => {
               },
             }}
           >
-            <Table>
+            <Table size="small">
               <TableHead className="table-head">
                 <TableRow>
                   <TableCell align="center">S. No.</TableCell>
@@ -1411,7 +1400,7 @@ const SaleBill = () => {
               },
             }}
           >
-            <Table>
+            <Table size="small">
               <TableHead className="table-head">
                 <TableRow>
                   <TableCell>S. No.</TableCell>
@@ -1599,7 +1588,7 @@ const SaleBill = () => {
         sx={{
           width: "100%",
           p: 2,
-          marginTop: .5,
+          marginTop: 0.5,
           borderRadius: 1,
           boxShadow: 2,
         }}
@@ -1694,7 +1683,7 @@ const SaleBill = () => {
               onKeyDown={(e) => handleEnterKey(e, sDiscPercentRef)}
             />
           </Grid>
-          <Grid item xs={.8}>
+          <Grid item xs={0.8}>
             <InputLabel className="input-label-2">S Disc(%)</InputLabel>
             <TextField
               inputRef={sDiscPercentRef}
@@ -1735,7 +1724,7 @@ const SaleBill = () => {
               onKeyDown={(e) => handleEnterKey(e, taxAmtRef)}
             />
           </Grid>
-          <Grid item xs={.8}>
+          <Grid item xs={0.8}>
             <InputLabel className="input-label-2">Tax Amt.</InputLabel>
             <TextField
               inputRef={taxAmtRef}
@@ -1749,7 +1738,7 @@ const SaleBill = () => {
             />
           </Grid>
 
-          <Grid item xs={.8}>
+          <Grid item xs={0.8}>
             <InputLabel className="input-label-2">Adjustment</InputLabel>
             <TextField
               inputRef={adjustmentRef}
@@ -1785,26 +1774,38 @@ const SaleBill = () => {
         }}
       >
         <Button
-            color="inherit"
-            size="medium"
-            variant="outlined"
-            onClick={(e) => {
-              resetTopFormData()
-              resetMiddleFormData()
-              resetTotalValues()
-              setSalesData([])
-              handleEnterKey(e, itemCodeRef);
-            }}
-            sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
-          >
-            CLEAR
-          </Button>
+          color="inherit"
+          size="medium"
+          variant="outlined"
+          onClick={(e) => {
+            resetTopFormData();
+            resetMiddleFormData();
+            resetTotalValues();
+            setSalesData([]);
+            handleEnterKey(e, itemCodeRef);
+          }}
+          sx={{
+            marginTop: 1,
+            marginRight: 1,
+            borderRadius: 8,
+            padding: "4px 10px",
+            fontSize: "11px",
+          }}
+        >
+          CLEAR
+        </Button>
         <Button
           color="success"
           size="medium"
           variant="outlined"
           onClick={() => {}}
-          sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
+          sx={{
+            marginTop: 1,
+            marginRight: 1,
+            borderRadius: 8,
+            padding: "4px 10px",
+            fontSize: "11px",
+          }}
         >
           PREV PAGE
         </Button>
@@ -1813,7 +1814,13 @@ const SaleBill = () => {
           size="medium"
           variant="outlined"
           onClick={() => {}}
-          sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
+          sx={{
+            marginTop: 1,
+            marginRight: 1,
+            borderRadius: 8,
+            padding: "4px 10px",
+            fontSize: "11px",
+          }}
         >
           NEXT PAGE
         </Button>
@@ -1823,7 +1830,13 @@ const SaleBill = () => {
           size="medium"
           variant="outlined"
           onClick={() => {}}
-          sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
+          sx={{
+            marginTop: 1,
+            marginRight: 1,
+            borderRadius: 8,
+            padding: "4px 10px",
+            fontSize: "11px",
+          }}
         >
           EDIT
         </Button>
@@ -1832,7 +1845,13 @@ const SaleBill = () => {
           size="medium"
           variant="contained"
           onClick={() => {}}
-          sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
+          sx={{
+            marginTop: 1,
+            marginRight: 1,
+            borderRadius: 8,
+            padding: "4px 10px",
+            fontSize: "11px",
+          }}
         >
           DELETE
         </Button>
@@ -1841,7 +1860,13 @@ const SaleBill = () => {
           size="medium"
           variant="contained"
           onClick={() => setBillNoEditable(true)}
-          sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
+          sx={{
+            marginTop: 1,
+            marginRight: 1,
+            borderRadius: 8,
+            padding: "4px 10px",
+            fontSize: "11px",
+          }}
         >
           OPEN
         </Button>
@@ -1851,7 +1876,12 @@ const SaleBill = () => {
           size="medium"
           variant="contained"
           onClick={handleCreateSale}
-          sx={{ marginTop: 1, borderRadius: 8 }}
+          sx={{
+            marginTop: 1,
+            borderRadius: 8,
+            padding: "4px 10px",
+            fontSize: "11px",
+          }}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               handleCreateSale();
