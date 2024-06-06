@@ -292,8 +292,9 @@ body {
   background-color: #dae4ed !important;
 }
 
+.purchase-data-table tr td,
 .purchase-data-table tr td input {
-  font-size: 12.5px;
+  font-size: 10.5px;
 }
 
 .custom-datagrid {
@@ -323,28 +324,21 @@ body {
   height: 29px;
 }
 
-
-.css-4c4itl-MuiTableRow-root th,
-.css-4c4itl-MuiTableRow-root td,
-.css-leh523-MuiTableRow-root td,
-.css-1p72hwd-MuiTableRow-root td,
-.css-bz5ng3-MuiInputBase-root-MuiInput-root input,
-.css-3dzjca-MuiPaper-root-MuiPopover-paper-MuiMenu-paper li {
+.MuiPaper-root.MuiList-root.MuiMenuItem-root,
+.MuiTable-root.MuiTableHead-root.MuiTableRow-root.MuiTableCell-root, /*for table head*/
+.MuiTableBody-root.MuiTableRow-root.MuiTableCell-root, /*for table body td*/
+.MuiInputBase-root.MuiInput-input {
   font-size: 11px !important;
 }
 
-.css-fgdtu1-MuiTableCell-root,
-.css-ahj2mt-MuiTypography-root,
-.css-3yt8yv-MuiFormLabel-root-MuiInputLabel-root,
-.css-1wfjobk-MuiTableCell-root,
-.css-ghyu38-MuiTableCell-root {
+.MuiTypography-root,
+.input-wrapper.MuiInputLabel-root {
   font-size: 12px !important;
 }
 
 .input-field.css-1v4ccyo,
-.input-field.MuiOutlinedInput-root,
-.css-1n4twyu-MuiInputBase-input-MuiOutlinedInput-input,
-.css-jedpe8-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input {
+.input-field.MuiOutlinedInput-root.MuiOutlinedInput-input,
+.input-field.MuiOutlinedInput-root.MuiSelect-select {
   padding: 6px 8px !important;
 }
 
