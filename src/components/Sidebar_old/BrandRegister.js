@@ -42,7 +42,7 @@ const BrandRegister = () => {
   const [sortBy, setSortBy] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const tableRef = useRef(null);
 
   const handleClickOutside = (event) => {
@@ -241,7 +241,7 @@ const BrandRegister = () => {
 
   return (
     <Box sx={{ p: 2, width: "900px" }}>
-      <Typography variant="subtitle1" sx={{ marginBottom: 2 }}>
+      <Typography variant="subtitle2" sx={{ marginBottom: 2 }}>
         Create Brand:
       </Typography>
 
@@ -383,7 +383,7 @@ const BrandRegister = () => {
             },
           }}
         >
-          <Table>
+          <Table size="small">
             <TableHead>
               <TableRow className="table-head-2">
                 <TableCell align="center" sx={{ minWidth: "80px" }}>

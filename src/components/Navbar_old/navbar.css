@@ -2,7 +2,7 @@
 
 .navbar {
     background-image: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
-    padding: 16px;
+    padding: 12px 0;
 }
 
 .navbar ul {
@@ -13,7 +13,7 @@
     align-items: center;
     justify-content: space-between;
     text-wrap: nowrap;
-    font-size: 15px;
+    font-size: 14px;
 }
 
 .navbar ul li.nav-item {
@@ -28,17 +28,14 @@
 .navbar ul li.nav-item.dropdown .dropdown-toggle {
     color: #fff;
     text-decoration: none;
-    padding: 16px;
+    padding: 14px;
     border-radius: 4px;
     transition: background-color 0.3s;
-}
-.nav-item .dropdown .sale-status-dropdown-toggle{
-
 }
 
 .navbar ul li a.nav-link:hover,
 .navbar ul li.nav-item .nav-link:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: #ffe60042;
 }
 
 .dropdown-content, .sale-status-dropdown-content {
@@ -49,7 +46,7 @@
     box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
     z-index: 2;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .dropdown-content.open {
@@ -76,7 +73,7 @@
 .dropdown-content a:hover,
 .dropdown-content .nav-item span:hover,
 .sale-status-dropdown-content li:hover {
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.8);
   cursor: pointer;
 }
 

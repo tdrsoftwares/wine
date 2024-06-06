@@ -24,6 +24,7 @@ import {
   getPurchaseDetailsByEntryNo,
   searchAllPurchasesByItemCode,
   searchAllPurchasesByItemName,
+  updatePurchaseDetailsByEntryNo,
 } from "../../../services/purchaseService";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
@@ -395,7 +396,7 @@ const PurchaseEntry = () => {
         setSearchResults(searchedItem);
         setFormData({
           ...formData,
-          itemId: searchedItem._id,
+          itemId: searchedItem.itemId._id,
           itemCode: searchedItem.itemCode || 0,
           itemName: searchedItem.itemId.name || "",
           mrp: searchedItem.mrp || 0,
@@ -646,8 +647,6 @@ const PurchaseEntry = () => {
       splDisc: parseFloat(totalValues.totalSDiscount) || 0,
       govtROff: parseFloat(totalValues.govtRate) || 0,
       specialPurpose: parseFloat(totalValues.spcPurpose) || 0,
-      // sTaxP: parseFloat(totalValues.sTax) || 0,
-      // sTaxAmount: 0,
       tcsP: parseFloat(totalValues.tcs) || 1,
       tcsAmount: parseFloat(totalValues.tcsAmt) || 0,
       grossAmount: parseFloat(totalValues.grossAmt) || 0,
@@ -698,6 +697,112 @@ const PurchaseEntry = () => {
       console.error("Error creating purchase:", error);
     }
   };
+
+  const handleUpdatePurchase = async () => {
+    const missingFields = [];
+
+    if (!formData.supplierName) {
+      missingFields.push("Supplier Name");
+    }
+
+    if (!formData.stockIn) {
+      missingFields.push("Stock In");
+    }
+
+    if (!formData.passNo) {
+      missingFields.push("Pass Number");
+    }
+
+    if (!formData.passDate) {
+      missingFields.push("Pass Date");
+    }
+
+    if (!formData.billNo) {
+      missingFields.push("Bill Number");
+    }
+
+    if (!formData.billDate) {
+      missingFields.push("Bill Date");
+    }
+
+    if (purchases.length === 0) {
+      missingFields.push("Item Purchase");
+    }
+
+    if (missingFields.length > 0) {
+      const missingFieldsMessage = missingFields.join(", ");
+      NotificationManager.warning(
+        `Please fill in the necessary details for: ${missingFieldsMessage}.`,
+        "Warning"
+      );
+      return;
+    }
+
+    const passDateObj = formatDate(formData.passDate);
+    const billDateObj = formatDate(formData.billDate);
+
+    const payload = {
+      supplierName: formData.supplierName,
+      storeName: formData.stockIn,
+      passNo: formData.passNo,
+      passDate: passDateObj,
+      billNo: formData.billNo,
+      billDate: billDateObj,
+      mrpValue: parseFloat(totalValues.totalMrp) || 0,
+      splDisc: parseFloat(totalValues.totalSDiscount) || 0,
+      govtROff: parseFloat(totalValues.govtRate) || 0,
+      specialPurpose: parseFloat(totalValues.spcPurpose) || 0,
+      tcsP: parseFloat(totalValues.tcs) || 1,
+      tcsAmount: parseFloat(totalValues.tcsAmt) || 0,
+      grossAmount: parseFloat(totalValues.grossAmt) || 0,
+      discount: parseFloat(totalValues.discount) || 0,
+      taxAmount: parseFloat(totalValues.taxAmt) || 0,
+      adjustment: parseFloat(totalValues.adjustment) || 0,
+      netAmount: parseFloat(totalValues.netAmt) || 0,
+      otherCharges: parseInt(totalValues.otherCharges) || 0,
+      purchaseItems: purchases.map((item) => ({
+        itemCode: item.itemCode.toString(),
+        itemId: item.itemId,
+        mrp: parseFloat(item.mrp) || 0,
+        batchNo: item.batch.toString(),
+        caseNo: parseFloat(item.case) || 0,
+        pcs: parseFloat(item.pcs) || 0,
+        brokenNo: parseFloat(item.brk) || 0,
+        purchaseRate: parseFloat(item.purchaseRate) || 0,
+        saleRate: parseFloat(item.btlRate) || 0,
+        gro: parseFloat(item.gro) || 0,
+        sp: parseFloat(item.sp) || 0,
+        itemAmount: parseFloat(item.amount) || 0,
+      })),
+    };
+
+    try {
+      console.log("update try block executing...");
+      const response = await updatePurchaseDetailsByEntryNo(payload);
+      console.log("Purchase created successfully:", response);
+
+      if (response.status === 200) {
+        NotificationManager.success("Purchase created successfully", "Success");
+        // setEntryNumber(response?.data?.data?.purchase?.entryNo);
+        setSearchMode(false);
+      } else if (response.response.status === 400) {
+        // console.log("executing ...")
+        const errorMessage = response.response.data.message;
+        NotificationManager.error(errorMessage, "Error");
+      } else {
+        NotificationManager.error(
+          "Error creating Purchase. Please try again later.",
+          "Error"
+        );
+      }
+    } catch (error) {
+      NotificationManager.error(
+        "Error creating Purchase. Please try again later.",
+        "Error"
+      );
+      console.error("Error creating purchase:", error);
+    }
+  }
 
   const handlePurRatePcsChange = () => {
     const purRate = parseFloat(formData.purchaseRate) || 0;
@@ -1045,15 +1150,15 @@ const PurchaseEntry = () => {
   }
 
   const handlePreviousEntryChange = () => {
-    setEntryNumber(parseInt(entryNumber) - 1);
+    if(entryNumber) setEntryNumber(parseInt(entryNumber) - 1);
   };
 
   const handleNextEntryChange = () => {
-    setEntryNumber(parseInt(entryNumber) + 1);
+    if(entryNumber) setEntryNumber(parseInt(entryNumber) + 1);
   };
 
   useEffect(() => {
-    if(entryNumber > 0){
+    if(entryNumber > 0 && !entryNoEditable){
       entryNumberSearch(entryNumber);
     }
   }, [entryNumber]);
@@ -1062,12 +1167,9 @@ const PurchaseEntry = () => {
   return (
     <Box component="form" sx={{ p: 2, width: "900px" }}>
       <Grid container>
-        <Grid item xs={6}>
+        <Grid item xs={3}>
           <div className="input-wrapper">
-            <InputLabel
-              htmlFor="supplierName"
-              className="input-label supplier-adjustment"
-            >
+            <InputLabel htmlFor="supplierName" className="input-label">
               Supplier Name :
             </InputLabel>
             <TextField
@@ -1173,10 +1275,7 @@ const PurchaseEntry = () => {
         </Grid>
         <Grid item xs={3}>
           <div className="input-wrapper">
-            <InputLabel
-              htmlFor="entryNo"
-              className="input-label entryno-adjustment"
-            >
+            <InputLabel htmlFor="entryNo" className="input-label">
               Entry No :
             </InputLabel>
             <TextField
@@ -1228,10 +1327,27 @@ const PurchaseEntry = () => {
             </LocalizationProvider>
           </div>
         </Grid>
+
+        <Grid item xs={3}>
+          <Button
+            color="inherit"
+            size="medium"
+            variant="contained"
+            onClick={() => setIsModalOpen(true)}
+            sx={{
+              float: "right",
+              borderRadius: 8,
+              padding: "4px 14px",
+              fontSize: "12px",
+            }}
+          >
+            CREATE ITEM
+          </Button>
+        </Grid>
       </Grid>
 
       <Box
-        sx={{ p: 2, boxShadow: 2, borderRadius: 1, marginTop: 0.5 }}
+        sx={{ p: 1.5, boxShadow: 2, borderRadius: 1, marginTop: 0.5 }}
         className="table-header"
       >
         <Grid container spacing={1}>
@@ -1451,7 +1567,7 @@ const PurchaseEntry = () => {
               },
             }}
           >
-            <Table>
+            <Table size="small">
               <TableHead className="table-head">
                 <TableRow>
                   <TableCell align="center">S. No.</TableCell>
@@ -1568,7 +1684,7 @@ const PurchaseEntry = () => {
               },
             }}
           >
-            <Table>
+            <Table size="small">
               <TableHead className="table-head">
                 <TableRow>
                   <TableCell align="center">S. No.</TableCell>
@@ -1783,7 +1899,7 @@ const PurchaseEntry = () => {
         component="form"
         sx={{
           width: "100%",
-          p: 2,
+          p: 1.2,
           marginTop: 1,
           borderRadius: 1,
           boxShadow: 2,
@@ -1830,7 +1946,7 @@ const PurchaseEntry = () => {
               onKeyDown={(e) => handleEnterKey(e, totalSPRef)}
             />
           </Grid>
-          <Grid item xs={1}>
+          <Grid item xs={1.2}>
             <InputLabel className="input-label-2">Special Purposes</InputLabel>
             <TextField
               inputRef={totalSPRef}
@@ -1843,18 +1959,7 @@ const PurchaseEntry = () => {
               onKeyDown={(e) => handleEnterKey(e, tcsPercentRef)}
             />
           </Grid>
-          {/* <Grid item xs={1}>
-            <InputLabel className="input-label-2">Service Tax</InputLabel>
-            <TextField
-              type="text"
-              size="small"
-              className="input-field"
-              fullWidth
-              value={totalValues.sTax}
-              InputProps={{ readOnly: true }}
-            />
-          </Grid> */}
-          <Grid item xs={1}>
+          <Grid item xs={0.8}>
             <InputLabel className="input-label-2">Tcs(%)</InputLabel>
             <TextField
               inputRef={tcsPercentRef}
@@ -1955,19 +2060,10 @@ const PurchaseEntry = () => {
       <Box
         sx={{
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "flex-end",
         }}
       >
-        <Button
-          color="inherit"
-          size="medium"
-          variant="contained"
-          onClick={() => setIsModalOpen(true)}
-          sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
-        >
-          CREATE ITEM
-        </Button>
-        <div>
+
           <ItemRegisterModal
             isModalOpen={isModalOpen}
             setIsModalOpen={setIsModalOpen}
@@ -1983,7 +2079,13 @@ const PurchaseEntry = () => {
               clearAllFields();
               handleEnterKey(e, itemCodeRef);
             }}
-            sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
+            sx={{
+              marginTop: 1,
+              marginRight: 1,
+              borderRadius: 8,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
           >
             CLEAR
           </Button>
@@ -1993,7 +2095,13 @@ const PurchaseEntry = () => {
             size="medium"
             variant="outlined"
             onClick={handlePreviousEntryChange}
-            sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
+            sx={{
+              marginTop: 1,
+              marginRight: 1,
+              borderRadius: 8,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
           >
             PREV PAGE
           </Button>
@@ -2002,26 +2110,44 @@ const PurchaseEntry = () => {
             size="medium"
             variant="outlined"
             onClick={handleNextEntryChange}
-            sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
+            sx={{
+              marginTop: 1,
+              marginRight: 1,
+              borderRadius: 8,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
           >
             NEXT PAGE
           </Button>
 
-          <Button
+          {/* <Button
             color="primary"
             size="medium"
             variant="outlined"
             onClick={() => {}}
-            sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
+            sx={{
+              marginTop: 1,
+              marginRight: 1,
+              borderRadius: 8,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
           >
             EDIT
-          </Button>
+          </Button> */}
           <Button
             color="error"
             size="medium"
             variant="contained"
             onClick={() => {}}
-            sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
+            sx={{
+              marginTop: 1,
+              marginRight: 1,
+              borderRadius: 8,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
           >
             DELETE
           </Button>
@@ -2030,7 +2156,13 @@ const PurchaseEntry = () => {
             size="medium"
             variant="contained"
             onClick={handlePurchaseOpen}
-            sx={{ marginTop: 1, marginRight: 2, borderRadius: 8 }}
+            sx={{
+              marginTop: 1,
+              marginRight: 1,
+              borderRadius: 8,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
           >
             OPEN
           </Button>
@@ -2039,18 +2171,32 @@ const PurchaseEntry = () => {
             color="success"
             size="medium"
             variant="contained"
-            onClick={handleCreatePurchase}
-            sx={{ marginTop: 1, borderRadius: 8 }}
+            onClick={() => {
+              if (!entryNumber) handleCreatePurchase();
+              else handleUpdatePurchase();
+            }}
+            sx={{
+              marginTop: 1,
+              borderRadius: 8,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
             onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleCreatePurchase();
-                handleEnterKey(e, clearButtonRef);
+              if (!entryNumber) {
+                if (e.key === "Enter") {
+                  handleCreatePurchase();
+                  handleEnterKey(e, clearButtonRef);
+                }
+              } else {
+                if (e.key === "Enter") {
+                  handleUpdatePurchase();
+                  handleEnterKey(e, clearButtonRef);
+                }
               }
             }}
           >
             SAVE
           </Button>
-        </div>
       </Box>
     </Box>
   );
