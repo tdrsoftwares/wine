@@ -23,6 +23,7 @@ import { getAllStores } from "../../../services/storeService";
 import {
   createPurchase,
   getPurchaseDetailsByEntryNo,
+  removePurchaseDetails,
   searchAllPurchasesByItemCode,
   searchAllPurchasesByItemName,
   updatePurchaseDetailsByEntryNo,
@@ -438,7 +439,7 @@ const PurchaseEntry = () => {
   }, 700);
 
   const convertToDayjsObject = (dateStr) => {
-    return dayjs(dateStr, "DD/MM/YYYY").utc();
+    return dayjs(dateStr, "DD/MM/YYYY");
   };
 
   const entryNumberSearch = debounce(async (entryNumber) => {
@@ -930,6 +931,40 @@ const PurchaseEntry = () => {
   const handlePurchaseOpen = () => {
     entryNoRef.current.focus();
     setEntryNoEditable(false);
+  };
+
+  const handleDeletePurchase = async () => {
+    try {
+      const response = await removePurchaseDetails(entryNumber);
+      if (response.status === 200) {
+        NotificationManager.success(
+          "Purchase deleted successfully.",
+          "Success"
+        );
+        resetTopFormData();
+        resetMiddleFormData();
+        resetTotalValuesData();
+        setEntryNumber("");
+        setEntryNoEditable(true);
+        resetMiddleFormData();
+        setPurchases([]);
+        setEditedRow({});
+        setSelectedRowIndex(null);
+        setSearchMode(false);
+        setEditableIndex(-1);
+      } else {
+        NotificationManager.warning(
+          "Error deleting Purchase. Please try again later.",
+          "Error"
+        );
+      }
+    } catch (error) {
+      NotificationManager.error(
+        "Error deleting Purchase. Please try again later.",
+        "Error"
+      );
+      console.log(error);
+    }
   };
 
   const formatDate = (dateString) => {
@@ -2156,7 +2191,7 @@ const PurchaseEntry = () => {
             color="error"
             size="medium"
             variant="contained"
-            onClick={() => {}}
+            onClick={handleDeletePurchase}
             sx={{
               marginTop: 1,
               marginRight: 1,

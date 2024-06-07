@@ -146,3 +146,13 @@ export const updatePurchaseDetailsByEntryNo = async (payload) => {
     return error;
   }
 };
+
+export const removePurchaseDetails = async (entryNo) => {
+  try {
+    const apiURL = `/purchases/delete-bill/${entryNo}`;
+    const removeDetails = await axiosInstance.delete(apiURL, entryNo);
+    return removeDetails;
+  } catch (error) {
+    return error;
+  }
+};
