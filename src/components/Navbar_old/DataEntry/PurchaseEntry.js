@@ -215,6 +215,7 @@ const PurchaseEntry = () => {
       adjustment: "",
       netAmt: "",
     });
+    itemCodeRef.current.focus()
   };
 
   const handleClickOutside = (event) => {
@@ -611,30 +612,37 @@ const PurchaseEntry = () => {
 
     if (!formData.supplierName) {
       missingFields.push("Supplier Name");
+      supplierNameRef.current.focus();
     }
 
     if (!formData.stockIn) {
-      missingFields.push("Stock In");
+      missingFields.push("Store Name");
+      storeNameRef.current.focus();
     }
 
     if (!formData.passNo) {
       missingFields.push("Pass Number");
+      passNoRef.current.focus();
     }
 
     if (!formData.passDate) {
       missingFields.push("Pass Date");
+      passDateRef.current.focus();
     }
 
     if (!formData.billNo) {
       missingFields.push("Bill Number");
+      billNoRef.current.focus();
     }
 
     if (!formData.billDate) {
       missingFields.push("Bill Date");
+      billDateRef.current.focus();
     }
 
     if (purchases.length === 0) {
       missingFields.push("Item Purchase");
+      itemCodeRef.current.focus();
     }
 
     if (missingFields.length > 0) {
@@ -691,6 +699,7 @@ const PurchaseEntry = () => {
       if (response.status === 200) {
         NotificationManager.success("Purchase created successfully", "Success");
         setEntryNumber(response?.data?.data?.purchase?.entryNo);
+        clearButtonRef.current.focus();
         setSearchMode(false);
       } else if (response.response.status === 400) {
         // console.log("executing ...")
@@ -719,7 +728,7 @@ const PurchaseEntry = () => {
     }
 
     if (!formData.stockIn) {
-      missingFields.push("Stock In");
+      missingFields.push("Store Name");
     }
 
     if (!formData.passNo) {
@@ -935,8 +944,10 @@ const PurchaseEntry = () => {
 
   const handleDeletePurchase = async () => {
     try {
-      const response = await removePurchaseDetails(entryNumber);
-      if (response.status === 200) {
+      
+      if (!entryNoEditable && entryNumber) {
+        const response = await removePurchaseDetails(entryNumber);
+        console.log("entryNoEditable: ", entryNoEditable);
         NotificationManager.success(
           "Purchase deleted successfully.",
           "Success"
@@ -953,10 +964,15 @@ const PurchaseEntry = () => {
         setSearchMode(false);
         setEditableIndex(-1);
       } else {
-        NotificationManager.warning(
-          "Error deleting Purchase. Please try again later.",
-          "Error"
-        );
+        // if (!entryNoEditable && entryNumber) {
+        //   NotificationManager.warning(
+        //     "Entry No field is disabled.",
+        //     "Please click on Open Button first"
+        //   );
+        // }
+        // if (entryNoEditable && !entryNumber) {
+        //   NotificationManager.warning("Please input something in Entry No. field.")
+        // }
       }
     } catch (error) {
       NotificationManager.error(
@@ -1212,6 +1228,19 @@ const PurchaseEntry = () => {
       entryNumberSearch(entryNumber);
     }
   }, [entryNumber]);
+
+  const handleCreatePurchaseKeyDown = (e) =>  {
+    if (!entryNumber) {
+      if (e.key === "Enter") {
+        handleCreatePurchase(e);
+      }
+    } else {
+      if (e.key === "Enter") {
+        handleUpdatePurchase();
+        handleEnterKey(e, clearButtonRef);
+      }
+    }
+  }
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -2232,19 +2261,7 @@ const PurchaseEntry = () => {
               padding: "4px 10px",
               fontSize: "11px",
             }}
-            onKeyDown={(e) => {
-              if (!entryNumber) {
-                if (e.key === "Enter") {
-                  handleCreatePurchase();
-                  handleEnterKey(e, clearButtonRef);
-                }
-              } else {
-                if (e.key === "Enter") {
-                  handleUpdatePurchase();
-                  handleEnterKey(e, clearButtonRef);
-                }
-              }
-            }}
+            onKeyDown={handleCreatePurchaseKeyDown}
           >
             SAVE
           </Button>
