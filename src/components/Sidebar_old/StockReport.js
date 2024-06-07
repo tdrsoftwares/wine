@@ -81,6 +81,12 @@ const StockReport = () => {
       headerClassName: "custom-header",
     },
     {
+      field: "currentStock",
+      headerName: "Current Stock",
+      width: 120,
+      headerClassName: "custom-header",
+    },
+    {
       field: "brandName",
       headerName: "Brand",
       width: 180,
@@ -121,12 +127,6 @@ const StockReport = () => {
       field: "stockAt",
       headerName: "Stock In",
       width: 180,
-      headerClassName: "custom-header",
-    },
-    {
-      field: "currentStock",
-      headerName: "Current Stock",
-      width: 150,
       headerClassName: "custom-header",
     },
     {
@@ -624,6 +624,7 @@ const StockReport = () => {
               createdAt: new Date(stock.createdAt).toLocaleDateString("en-GB"),
               itemCode: stock.itemCode || "No Data",
               itemName: stock?.item?.name || "No Data",
+              currentStock: stock.currentStock || "No Data",
               brandName: stock?.item?.brand?.name || "No Data",
               categoryName: stock?.item?.category?.categoryName || "No Data",
               companyName: stock?.item?.company?.name || "No Data",
@@ -633,7 +634,6 @@ const StockReport = () => {
               purchaseRate: stock.purchaseRate || "No Data",
               stockRate: stock.stockRate || "No Data",
               stockAt: stock.stockAt || "No Data",
-              currentStock: stock.currentStock || "No Data",
               openingStock: stock.openingStock || "No Data",
               mrp: stock.mrp || "No Data",
             }))}
