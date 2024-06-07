@@ -308,7 +308,7 @@ body {
 .radio-buttons-wrapper {
   display: flex;
   align-items: center;
-  gap: 25px;
+  /* gap: 16px; */
 }
 
 .pcs-input .MuiOutlinedInput-input:focus {

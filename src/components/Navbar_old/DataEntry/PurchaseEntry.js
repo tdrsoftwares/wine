@@ -15,6 +15,7 @@ import {
   InputLabel,
   Input,
   CircularProgress,
+  ThemeProvider,
 } from "@mui/material";
 import { NotificationManager } from "react-notifications";
 import { getAllSuppliers } from "../../../services/supplierService";
@@ -35,8 +36,9 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
-import utc from 'dayjs/plugin/utc';
-import customParseFormat from 'dayjs/plugin/customParseFormat';
+import utc from "dayjs/plugin/utc";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import { customTheme } from "../../../utils/customTheme";
 
 const PurchaseEntry = () => {
   const [allSuppliers, setAllSuppliers] = useState([]);
@@ -141,7 +143,7 @@ const PurchaseEntry = () => {
       billDate: null,
       stockIn: "",
     }));
-  }
+  };
 
   const resetMiddleFormData = () => {
     setFormData((prevFormData) => ({
@@ -178,7 +180,7 @@ const PurchaseEntry = () => {
       adjustment: "",
       netAmt: "",
     });
-  }
+  };
 
   const clearAllFields = () => {
     setFormData({
@@ -223,11 +225,21 @@ const PurchaseEntry = () => {
 
   useEffect(() => {
     const handleKeyDown = (event) => {
-      const {supplierName, passNo, passDate, stockIn, billNo, billDate} = formData;
+      const { supplierName, passNo, passDate, stockIn, billNo, billDate } =
+        formData;
       if (event.keyCode === 120) {
         // 120 F9 key
         // console.log("formdata when executing f9: ", formData);
-        if (supplierName && passNo && passDate && stockIn && billNo && billDate && purchases.length > 0) handleCreatePurchase();
+        if (
+          supplierName &&
+          passNo &&
+          passDate &&
+          stockIn &&
+          billNo &&
+          billDate &&
+          purchases.length > 0
+        )
+          handleCreatePurchase();
       }
     };
 
@@ -373,7 +385,7 @@ const PurchaseEntry = () => {
         // NotificationManager.error("No matching items found");
         setSearchResults([]);
         setIsModalOpen(true);
-        setItemName(item)
+        setItemName(item);
       }
       setIsLoading(false);
     } catch (error) {
@@ -426,8 +438,8 @@ const PurchaseEntry = () => {
   }, 700);
 
   const convertToDayjsObject = (dateStr) => {
-    return dayjs(dateStr, 'DD/MM/YYYY').utc();
-};
+    return dayjs(dateStr, "DD/MM/YYYY").utc();
+  };
 
   const entryNumberSearch = debounce(async (entryNumber) => {
     console.log("entryNumber search: ", entryNumber);
@@ -802,7 +814,7 @@ const PurchaseEntry = () => {
       );
       console.error("Error creating purchase:", error);
     }
-  }
+  };
 
   const handlePurRatePcsChange = () => {
     const purRate = parseFloat(formData.purchaseRate) || 0;
@@ -1147,924 +1159,927 @@ const PurchaseEntry = () => {
     if (regex.test(value) || value === "") {
       setEntryNumber(value);
     }
-  }
+  };
 
   const handlePreviousEntryChange = () => {
     console.log(entryNoEditable);
-    if(entryNumber && !entryNoEditable) setEntryNumber(parseInt(entryNumber) - 1);
+    if (entryNumber && !entryNoEditable)
+      setEntryNumber(parseInt(entryNumber) - 1);
   };
 
   const handleNextEntryChange = () => {
-    if(entryNumber && !entryNoEditable) setEntryNumber(parseInt(entryNumber) + 1);
+    if (entryNumber && !entryNoEditable)
+      setEntryNumber(parseInt(entryNumber) + 1);
   };
 
   useEffect(() => {
-    if(entryNumber > 0 && !entryNoEditable){
+    if (entryNumber > 0 && !entryNoEditable) {
       entryNumberSearch(entryNumber);
     }
   }, [entryNumber]);
 
-
   return (
-    <Box component="form" sx={{ p: 2, width: "900px" }}>
-      <Grid container>
-        <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="supplierName" className="input-label">
-              Supplier Name :
-            </InputLabel>
-            <TextField
-              select
-              fullWidth
-              inputRef={supplierNameRef}
-              id="supplierName"
-              size="small"
-              type="text"
-              className="input-field"
-              value={formData.supplierName}
-              onChange={handleSupplierNameChange}
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
+    <ThemeProvider theme={customTheme}>
+      <Box component="form" sx={{ p: 2, width: "900px" }}>
+        <Grid container>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="supplierName" className="input-label">
+                Supplier Name :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                inputRef={supplierNameRef}
+                id="supplierName"
+                size="small"
+                type="text"
+                className="input-field"
+                value={formData.supplierName}
+                onChange={handleSupplierNameChange}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
                     },
                   },
-                },
-              }}
-              onKeyDown={(e) => handleEnterKey(e, passNoRef)}
-            >
-              {allSuppliers?.map((item) => (
-                <MenuItem key={item._id} value={item.name}>
-                  {item.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
-        </Grid>
-        <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="passNo" className="input-label">
-              Pass No :
-            </InputLabel>
-            <TextField
-              inputRef={passNoRef}
-              id="passNo"
-              size="small"
-              className="input-field"
-              value={formData.passNo}
-              onChange={(e) =>
-                setFormData({ ...formData, passNo: e.target.value })
-              }
-              onKeyDown={(e) => handleEnterKey(e, passDateRef)}
-            />
-          </div>
-        </Grid>
-        <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="passDate" className="input-label">
-              Pass Date :
-            </InputLabel>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                inputRef={passDateRef}
-                id="passDate"
-                format="DD/MM/YYYY"
-                value={formData.passDate}
-                className="input-field date-picker"
-                onChange={handlePassDateChange}
-                renderInput={(params) => <TextField {...params} />}
-                onKeyDown={(e) => handleEnterKey(e, storeNameRef)}
-              />
-            </LocalizationProvider>
-          </div>
-        </Grid>
-        <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel
-              htmlFor="stockIn"
-              className="input-label store-adjustment"
-            >
-              Store Name :
-            </InputLabel>
-            <TextField
-              select
-              inputRef={storeNameRef}
-              id="stockIn"
-              size="small"
-              className="input-field"
-              value={formData.stockIn}
-              onChange={handleStockInChange}
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
-                    },
-                  },
-                },
-              }}
-              onKeyDown={(e) => handleEnterKey(e, billNoRef)}
-            >
-              {allStores?.map((store) => (
-                <MenuItem key={store._id} value={store.name}>
-                  {store.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
-        </Grid>
-        <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="entryNo" className="input-label">
-              Entry No :
-            </InputLabel>
-            <TextField
-              inputRef={entryNoRef}
-              id="entryNo"
-              size="small"
-              className="input-field entryNo-adjustment"
-              value={entryNumber}
-              disabled={entryNoEditable}
-              onChange={handleEntryNumberChange}
-              onKeyDown={(e) => handleEnterKey(e, billNoRef)}
-            />
-          </div>
-        </Grid>
-        <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="billNo" className="input-label">
-              Bill No :
-            </InputLabel>
-            <TextField
-              inputRef={billNoRef}
-              id="billNo"
-              size="small"
-              className="input-field"
-              value={formData.billNo}
-              onChange={(e) => {
-                setFormData({ ...formData, billNo: e.target.value });
-              }}
-              onKeyDown={(e) => handleEnterKey(e, billDateRef)}
-            />
-          </div>
-        </Grid>
-        <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="billDate" className="input-label">
-              Bill Date :
-            </InputLabel>
-
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                inputRef={billDateRef}
-                id="billDate"
-                format="DD/MM/YYYY"
-                value={formData.billDate}
-                className="input-field date-picker"
-                onChange={handleBillDateChange}
-                renderInput={(params) => <TextField {...params} />}
-              />
-            </LocalizationProvider>
-          </div>
-        </Grid>
-
-        <Grid item xs={3}>
-          <Button
-            color="inherit"
-            size="medium"
-            variant="contained"
-            onClick={() => setIsModalOpen(true)}
-            sx={{
-              float: "right",
-              borderRadius: 8,
-              padding: "4px 14px",
-              fontSize: "12px",
-            }}
-          >
-            CREATE ITEM
-          </Button>
-        </Grid>
-      </Grid>
-
-      <Box
-        sx={{ p: 1.5, boxShadow: 2, borderRadius: 1, marginTop: 0.5 }}
-        className="table-header"
-      >
-        <Grid container spacing={1}>
-          <Grid item xs={1.5}>
-            <InputLabel className="input-label-2">Item Code</InputLabel>
-            <TextField
-              inputRef={itemCodeRef}
-              type="text"
-              size="small"
-              className="input-field"
-              fullWidth
-              value={formData.itemCode}
-              onChange={handleItemCodeChange}
-              onKeyDown={(e) => handleEnterKey(e, itemNameRef)}
-            />
+                }}
+                onKeyDown={(e) => handleEnterKey(e, passNoRef)}
+              >
+                {allSuppliers?.map((item) => (
+                  <MenuItem key={item._id} value={item.name}>
+                    {item.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
           </Grid>
-          <Grid item xs={1.8}>
-            <InputLabel className="input-label-2">Item Name</InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              inputRef={itemNameRef}
-              type="text"
-              className="input-field"
-              value={formData.itemName}
-              onChange={handleItemNameChange}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === "Tab") {
-                  if (
-                    purchases.length > 0 &&
-                    formData.itemCode.trim() === "" &&
-                    formData.itemName.trim() === ""
-                  ) {
-                    handleEnterKey(e, totalGroRef);
-                  } else if (!formData.itemCode) {
-                    handleEnterKey(e, itemCodeRef);
-                  } else {
-                    handleEnterKey(e, mrpRef);
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="passNo" className="input-label">
+                Pass No :
+              </InputLabel>
+              <TextField
+                inputRef={passNoRef}
+                id="passNo"
+                size="small"
+                className="input-field"
+                value={formData.passNo}
+                onChange={(e) =>
+                  setFormData({ ...formData, passNo: e.target.value })
+                }
+                onKeyDown={(e) => handleEnterKey(e, passDateRef)}
+              />
+            </div>
+          </Grid>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="passDate" className="input-label">
+                Pass Date :
+              </InputLabel>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  inputRef={passDateRef}
+                  id="passDate"
+                  format="DD/MM/YYYY"
+                  value={formData.passDate}
+                  className="input-field date-picker"
+                  onChange={handlePassDateChange}
+                  renderInput={(params) => <TextField {...params} />}
+                  onKeyDown={(e) => handleEnterKey(e, storeNameRef)}
+                />
+              </LocalizationProvider>
+            </div>
+          </Grid>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel
+                htmlFor="stockIn"
+                className="input-label store-adjustment"
+              >
+                Store Name :
+              </InputLabel>
+              <TextField
+                select
+                inputRef={storeNameRef}
+                id="stockIn"
+                size="small"
+                className="input-field"
+                value={formData.stockIn}
+                onChange={handleStockInChange}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
+                    },
+                  },
+                }}
+                onKeyDown={(e) => handleEnterKey(e, billNoRef)}
+              >
+                {allStores?.map((store) => (
+                  <MenuItem key={store._id} value={store.name}>
+                    {store.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </Grid>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="entryNo" className="input-label">
+                Entry No :
+              </InputLabel>
+              <TextField
+                inputRef={entryNoRef}
+                id="entryNo"
+                size="small"
+                className="input-field entryNo-adjustment"
+                value={entryNumber}
+                disabled={entryNoEditable}
+                onChange={handleEntryNumberChange}
+                onKeyDown={(e) => handleEnterKey(e, billNoRef)}
+              />
+            </div>
+          </Grid>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="billNo" className="input-label">
+                Bill No :
+              </InputLabel>
+              <TextField
+                inputRef={billNoRef}
+                id="billNo"
+                size="small"
+                className="input-field"
+                value={formData.billNo}
+                onChange={(e) => {
+                  setFormData({ ...formData, billNo: e.target.value });
+                }}
+                onKeyDown={(e) => handleEnterKey(e, billDateRef)}
+              />
+            </div>
+          </Grid>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="billDate" className="input-label">
+                Bill Date :
+              </InputLabel>
+
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  inputRef={billDateRef}
+                  id="billDate"
+                  format="DD/MM/YYYY"
+                  value={formData.billDate}
+                  className="input-field date-picker"
+                  onChange={handleBillDateChange}
+                  renderInput={(params) => <TextField {...params} />}
+                />
+              </LocalizationProvider>
+            </div>
+          </Grid>
+
+          <Grid item xs={3}>
+            <Button
+              color="inherit"
+              size="medium"
+              variant="contained"
+              onClick={() => setIsModalOpen(true)}
+              sx={{
+                float: "right",
+                borderRadius: 8,
+                padding: "4px 14px",
+                fontSize: "12px",
+              }}
+            >
+              CREATE ITEM
+            </Button>
+          </Grid>
+        </Grid>
+
+        <Box
+          sx={{ p: 1.5, boxShadow: 2, borderRadius: 1, marginTop: 0.5 }}
+          className="table-header"
+        >
+          <Grid container spacing={1}>
+            <Grid item xs={1.5}>
+              <InputLabel className="input-label-2">Item Code</InputLabel>
+              <TextField
+                inputRef={itemCodeRef}
+                type="text"
+                size="small"
+                className="input-field"
+                fullWidth
+                value={formData.itemCode}
+                onChange={handleItemCodeChange}
+                onKeyDown={(e) => handleEnterKey(e, itemNameRef)}
+              />
+            </Grid>
+            <Grid item xs={1.8}>
+              <InputLabel className="input-label-2">Item Name</InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                inputRef={itemNameRef}
+                type="text"
+                className="input-field"
+                value={formData.itemName}
+                onChange={handleItemNameChange}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === "Tab") {
+                    if (
+                      purchases.length > 0 &&
+                      formData.itemCode.trim() === "" &&
+                      formData.itemName.trim() === ""
+                    ) {
+                      handleEnterKey(e, totalGroRef);
+                    } else if (!formData.itemCode) {
+                      handleEnterKey(e, itemCodeRef);
+                    } else {
+                      handleEnterKey(e, mrpRef);
+                    }
                   }
+                }}
+              />
+            </Grid>
+            <Grid item xs={0.8}>
+              <InputLabel className="input-label-2">MRP</InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                inputRef={mrpRef}
+                className="input-field"
+                value={formData.mrp}
+                onChange={(e) => {
+                  const regex = /^\d*\.?\d*$/;
+                  if (regex.test(e.target.value) || e.target.value === "") {
+                    setFormData({ ...formData, mrp: e.target.value });
+                  }
+                }}
+                onKeyDown={(e) => handleEnterKey(e, batchRef)}
+              />
+            </Grid>
+            <Grid item xs={1}>
+              <InputLabel className="input-label-2">Batch</InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                inputRef={batchRef}
+                className="input-field"
+                value={formData.batch}
+                onChange={(e) =>
+                  setFormData({ ...formData, batch: e.target.value })
                 }
-              }}
-            />
+                onKeyDown={(e) => handleEnterKey(e, caseRef)}
+              />
+            </Grid>
+            <Grid item xs={0.8}>
+              <InputLabel className="input-label-2">Case</InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                inputRef={caseRef}
+                className="input-field"
+                value={formData.case}
+                onChange={(e) => handleCaseChange(e)}
+                onKeyDown={(e) => handleEnterKey(e, pcsRef)}
+              />
+            </Grid>
+            <Grid item xs={0.8}>
+              <InputLabel className="input-label-2">Pcs</InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                inputRef={pcsRef}
+                className="input-field"
+                value={formData.pcs}
+                onChange={handlePcsChanges}
+                onKeyDown={(e) => handleEnterKey(e, brkRef)}
+              />
+            </Grid>
+            <Grid item xs={0.8}>
+              <InputLabel className="input-label-2">Brk</InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                inputRef={brkRef}
+                className="input-field"
+                value={formData.brk}
+                onChange={(e) => {
+                  const regex = /^\d*\.?\d*$/;
+                  if (regex.test(e.target.value) || e.target.value === "") {
+                    setFormData({ ...formData, brk: e.target.value });
+                  }
+                }}
+                onKeyDown={(e) => handleEnterKey(e, purRateRef)}
+              />
+            </Grid>
+            <Grid item xs={0.9}>
+              <InputLabel className="input-label-2">Pur. Rate</InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                inputRef={purRateRef}
+                className="input-field"
+                value={formData.purchaseRate}
+                onChange={(e) => {
+                  const regex = /^\d*\.?\d*$/;
+                  if (regex.test(e.target.value) || e.target.value === "") {
+                    setFormData({ ...formData, purchaseRate: e.target.value });
+                  }
+                }}
+                onKeyDown={(e) => handleEnterKey(e, btlRateRef)}
+              />
+            </Grid>
+            <Grid item xs={0.9}>
+              <InputLabel className="input-label-2">Btl. Rate</InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                inputRef={btlRateRef}
+                className="input-field"
+                value={formData.mrp}
+                onChange={(e) => {
+                  const regex = /^\d*\.?\d*$/;
+                  if (regex.test(e.target.value) || e.target.value === "") {
+                    setFormData({ ...formData, btlRate: e.target.value });
+                  }
+                }}
+                onKeyDown={(e) => handleEnterKey(e, groRef)}
+              />
+            </Grid>
+            <Grid item xs={0.8}>
+              <InputLabel className="input-label-2">GRO</InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                inputRef={groRef}
+                className="input-field"
+                value={formData.gro}
+                onChange={handleGROChange}
+                onKeyDown={(e) => handleEnterKey(e, spRef)}
+              />
+            </Grid>
+            <Grid item xs={0.8}>
+              <InputLabel className="input-label-2">SP</InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                inputRef={spRef}
+                className="input-field"
+                value={formData.sp}
+                onChange={handleSPChange}
+                onKeyDown={(e) => handleEnterKey(e, amountRef)}
+              />
+            </Grid>
+            <Grid item xs={1}>
+              <InputLabel className="input-label-2">Amt(₹)</InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                inputRef={amountRef}
+                className="input-field"
+                value={formData.amount}
+                aria-readonly
+                onChange={(e) => handleAmountChange(e)}
+                InputProps={{ readOnly: true }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleSubmitIntoDataTable(e);
+                  } else {
+                    handleEnterKey(e, amountRef);
+                  }
+                }}
+              />
+            </Grid>
           </Grid>
-          <Grid item xs={0.8}>
-            <InputLabel className="input-label-2">MRP</InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              inputRef={mrpRef}
-              className="input-field"
-              value={formData.mrp}
-              onChange={(e) => {
-                const regex = /^\d*\.?\d*$/;
-                if (regex.test(e.target.value) || e.target.value === "") {
-                  setFormData({ ...formData, mrp: e.target.value });
-                }
-              }}
-              onKeyDown={(e) => handleEnterKey(e, batchRef)}
-            />
-          </Grid>
-          <Grid item xs={1}>
-            <InputLabel className="input-label-2">Batch</InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              inputRef={batchRef}
-              className="input-field"
-              value={formData.batch}
-              onChange={(e) =>
-                setFormData({ ...formData, batch: e.target.value })
-              }
-              onKeyDown={(e) => handleEnterKey(e, caseRef)}
-            />
-          </Grid>
-          <Grid item xs={0.8}>
-            <InputLabel className="input-label-2">Case</InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              inputRef={caseRef}
-              className="input-field"
-              value={formData.case}
-              onChange={(e) => handleCaseChange(e)}
-              onKeyDown={(e) => handleEnterKey(e, pcsRef)}
-            />
-          </Grid>
-          <Grid item xs={0.8}>
-            <InputLabel className="input-label-2">Pcs</InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              inputRef={pcsRef}
-              className="input-field"
-              value={formData.pcs}
-              onChange={handlePcsChanges}
-              onKeyDown={(e) => handleEnterKey(e, brkRef)}
-            />
-          </Grid>
-          <Grid item xs={0.8}>
-            <InputLabel className="input-label-2">Brk</InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              inputRef={brkRef}
-              className="input-field"
-              value={formData.brk}
-              onChange={(e) => {
-                const regex = /^\d*\.?\d*$/;
-                if (regex.test(e.target.value) || e.target.value === "") {
-                  setFormData({ ...formData, brk: e.target.value });
-                }
-              }}
-              onKeyDown={(e) => handleEnterKey(e, purRateRef)}
-            />
-          </Grid>
-          <Grid item xs={0.9}>
-            <InputLabel className="input-label-2">Pur. Rate</InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              inputRef={purRateRef}
-              className="input-field"
-              value={formData.purchaseRate}
-              onChange={(e) => {
-                const regex = /^\d*\.?\d*$/;
-                if (regex.test(e.target.value) || e.target.value === "") {
-                  setFormData({ ...formData, purchaseRate: e.target.value });
-                }
-              }}
-              onKeyDown={(e) => handleEnterKey(e, btlRateRef)}
-            />
-          </Grid>
-          <Grid item xs={0.9}>
-            <InputLabel className="input-label-2">Btl. Rate</InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              inputRef={btlRateRef}
-              className="input-field"
-              value={formData.mrp}
-              onChange={(e) => {
-                const regex = /^\d*\.?\d*$/;
-                if (regex.test(e.target.value) || e.target.value === "") {
-                  setFormData({ ...formData, btlRate: e.target.value });
-                }
-              }}
-              onKeyDown={(e) => handleEnterKey(e, groRef)}
-            />
-          </Grid>
-          <Grid item xs={0.8}>
-            <InputLabel className="input-label-2">GRO</InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              inputRef={groRef}
-              className="input-field"
-              value={formData.gro}
-              onChange={handleGROChange}
-              onKeyDown={(e) => handleEnterKey(e, spRef)}
-            />
-          </Grid>
-          <Grid item xs={0.8}>
-            <InputLabel className="input-label-2">SP</InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              inputRef={spRef}
-              className="input-field"
-              value={formData.sp}
-              onChange={handleSPChange}
-              onKeyDown={(e) => handleEnterKey(e, amountRef)}
-            />
-          </Grid>
-          <Grid item xs={1}>
-            <InputLabel className="input-label-2">Amt(₹)</InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              inputRef={amountRef}
-              className="input-field"
-              value={formData.amount}
-              aria-readonly
-              onChange={(e) => handleAmountChange(e)}
-              InputProps={{ readOnly: true }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  handleSubmitIntoDataTable(e);
-                } else {
-                  handleEnterKey(e, amountRef);
-                }
-              }}
-            />
-          </Grid>
-        </Grid>
 
-        {searchMode ? (
-          <TableContainer
-            component={Paper}
-            ref={tableRef}
-            sx={{
-              marginTop: 0.8,
-              height: 300,
-              width: 850,
-              overflowY: "unset",
-              overflowX: "auto",
-              "&::-webkit-scrollbar": {
-                width: 10,
-                height: 10,
-              },
-              "&::-webkit-scrollbar-track": {
-                backgroundColor: "#fff",
-              },
-              "&::-webkit-scrollbar-thumb": {
-                backgroundColor: "#d5d8df",
-                borderRadius: 2,
-              },
-            }}
-          >
-            <Table size="small">
-              <TableHead className="table-head">
-                <TableRow>
-                  <TableCell align="center">S. No.</TableCell>
-                  <TableCell align="center">Item Code</TableCell>
-                  <TableCell align="center">Item Name</TableCell>
-                  <TableCell align="center">MRP</TableCell>
-                  <TableCell align="center">Batch</TableCell>
-                  <TableCell align="center">Case Value</TableCell>
-                  <TableCell align="center">Pur Rate</TableCell>
-                  <TableCell align="center">Btl Rate</TableCell>
-                  <TableCell align="center">GRO</TableCell>
-                  <TableCell align="center">SP</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {Array.isArray(searchResults) && searchResults.length > 0 ? (
-                  searchResults.map((row, index) => (
-                    <TableRow
-                      key={index}
-                      onClick={() => {
-                        handleRowClick(index);
-                        setSearchMode(false);
-                      }}
-                      sx={{
-                        cursor: "pointer",
-                        backgroundColor:
-                          index === selectedRowIndex
-                            ? "rgba(25, 118, 210, 0.2) !important"
-                            : "#fff !important",
-                      }}
-                    >
-                      <TableCell
-                        align="center"
-                        sx={{ padding: "14px", paddingLeft: 2 }}
+          {searchMode ? (
+            <TableContainer
+              component={Paper}
+              ref={tableRef}
+              sx={{
+                marginTop: 0.8,
+                height: 300,
+                width: 850,
+                overflowY: "unset",
+                overflowX: "auto",
+                "&::-webkit-scrollbar": {
+                  width: 10,
+                  height: 10,
+                },
+                "&::-webkit-scrollbar-track": {
+                  backgroundColor: "#fff",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  backgroundColor: "#d5d8df",
+                  borderRadius: 2,
+                },
+              }}
+            >
+              <Table size="small">
+                <TableHead className="table-head">
+                  <TableRow>
+                    <TableCell align="center">S. No.</TableCell>
+                    <TableCell align="center">Item Code</TableCell>
+                    <TableCell align="center">Item Name</TableCell>
+                    <TableCell align="center">MRP</TableCell>
+                    <TableCell align="center">Batch</TableCell>
+                    <TableCell align="center">Case Value</TableCell>
+                    <TableCell align="center">Pur Rate</TableCell>
+                    <TableCell align="center">Btl Rate</TableCell>
+                    <TableCell align="center">GRO</TableCell>
+                    <TableCell align="center">SP</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {Array.isArray(searchResults) && searchResults.length > 0 ? (
+                    searchResults.map((row, index) => (
+                      <TableRow
+                        key={index}
+                        onClick={() => {
+                          handleRowClick(index);
+                          setSearchMode(false);
+                        }}
+                        sx={{
+                          cursor: "pointer",
+                          backgroundColor:
+                            index === selectedRowIndex
+                              ? "rgba(25, 118, 210, 0.2) !important"
+                              : "#fff !important",
+                        }}
                       >
-                        {index + 1}
-                      </TableCell>
-                      <TableCell align="center" sx={{ padding: "14px" }}>
-                        {row?.itemCode || "No Data"}
-                      </TableCell>
-                      <TableCell align="center" sx={{ padding: "14px" }}>
-                        {row?.item?.name || "No Data"}
-                      </TableCell>
-                      <TableCell align="center" sx={{ padding: "14px" }}>
-                        {row?.mrp || 0}
-                      </TableCell>
-                      <TableCell align="center" sx={{ padding: "14px" }}>
-                        {row?.batchNo || 0}
-                      </TableCell>
-                      <TableCell align="center" sx={{ padding: "14px" }}>
-                        {row?.item?.caseValue || 0}
-                      </TableCell>
-                      <TableCell align="center" sx={{ padding: "14px" }}>
-                        {row?.purchaseRate || 0}
-                      </TableCell>
-                      <TableCell align="center" sx={{ padding: "14px" }}>
-                        {row?.saleRate || 0}
-                      </TableCell>
-                      <TableCell align="center" sx={{ padding: "14px" }}>
-                        {row?.gro || 0}
-                      </TableCell>
-                      <TableCell align="center" sx={{ padding: "14px" }}>
-                        {row?.sp || 0}
+                        <TableCell
+                          align="center"
+                          sx={{ padding: "14px", paddingLeft: 2 }}
+                        >
+                          {index + 1}
+                        </TableCell>
+                        <TableCell align="center" sx={{ padding: "14px" }}>
+                          {row?.itemCode || "No Data"}
+                        </TableCell>
+                        <TableCell align="center" sx={{ padding: "14px" }}>
+                          {row?.item?.name || "No Data"}
+                        </TableCell>
+                        <TableCell align="center" sx={{ padding: "14px" }}>
+                          {row?.mrp || 0}
+                        </TableCell>
+                        <TableCell align="center" sx={{ padding: "14px" }}>
+                          {row?.batchNo || 0}
+                        </TableCell>
+                        <TableCell align="center" sx={{ padding: "14px" }}>
+                          {row?.item?.caseValue || 0}
+                        </TableCell>
+                        <TableCell align="center" sx={{ padding: "14px" }}>
+                          {row?.purchaseRate || 0}
+                        </TableCell>
+                        <TableCell align="center" sx={{ padding: "14px" }}>
+                          {row?.saleRate || 0}
+                        </TableCell>
+                        <TableCell align="center" sx={{ padding: "14px" }}>
+                          {row?.gro || 0}
+                        </TableCell>
+                        <TableCell align="center" sx={{ padding: "14px" }}>
+                          {row?.sp || 0}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : isLoading ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={10}
+                        align="center"
+                        sx={{
+                          backgroundColor: "#fff !important",
+                        }}
+                      >
+                        <CircularProgress />
                       </TableCell>
                     </TableRow>
-                  ))
-                ) : isLoading ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={10}
-                      align="center"
-                      sx={{
-                        backgroundColor: "#fff !important",
-                      }}
-                    >
-                      <CircularProgress />
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={10}
-                      align="center"
-                      sx={{
-                        backgroundColor: "#fff !important",
-                      }}
-                    >
-                      No Data
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        ) : (
-          <TableContainer
-            component={Paper}
-            ref={tableRef}
-            sx={{
-              marginTop: 1,
-              height: 300,
-              width: "100%",
-              overflowY: "auto",
-              "&::-webkit-scrollbar": {
-                width: 10,
-                height: 10,
-              },
-              "&::-webkit-scrollbar-track": {
-                backgroundColor: "#fff",
-              },
-              "&::-webkit-scrollbar-thumb": {
-                backgroundColor: "#d5d8df",
-                borderRadius: 2,
-              },
-            }}
-          >
-            <Table size="small">
-              <TableHead className="table-head">
-                <TableRow>
-                  <TableCell align="center">S. No.</TableCell>
-                  <TableCell align="center">Item Code</TableCell>
-                  <TableCell align="center">Item Name</TableCell>
-                  <TableCell align="center">MRP</TableCell>
-                  <TableCell align="center">Batch</TableCell>
-                  <TableCell align="center">Case</TableCell>
-                  <TableCell align="center">Pcs</TableCell>
-                  <TableCell align="center">Brk</TableCell>
-                  <TableCell align="center">Pur Rate</TableCell>
-                  <TableCell align="center">Btl Rate</TableCell>
-                  <TableCell align="center">GRO</TableCell>
-                  <TableCell align="center">SP</TableCell>
-                  <TableCell align="center">Amt(₹)</TableCell>
-                  <TableCell align="center">Action</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody className="purchase-data-table">
-                {purchases.map((row, index) => (
-                  <TableRow
-                    key={index}
-                    sx={{
-                      backgroundColor: "#fff",
-                    }}
-                  >
-                    <TableCell align="center">{index + 1}</TableCell>
-                    <TableCell align="center">
-                      {editableIndex === index ? (
-                        <Input
-                          type="text"
-                          value={editedRow.itemCode || row.itemCode}
-                          onChange={(e) =>
-                            handleEdit(index, "itemCode", e.target.value)
-                          }
-                        />
-                      ) : (
-                        row.itemCode
-                      )}
-                    </TableCell>
-                    <TableCell align="center">
-                      {editableIndex === index ? (
-                        <Input
-                          type="text"
-                          value={editedRow.itemName || row.itemName}
-                          onChange={(e) =>
-                            handleEdit(index, "itemName", e.target.value)
-                          }
-                        />
-                      ) : (
-                        row.itemName
-                      )}
-                    </TableCell>
-                    <TableCell align="center">
-                      {editableIndex === index ? (
-                        <Input
-                          value={editedRow.mrp || row.mrp}
-                          onChange={(e) =>
-                            handleEdit(index, "mrp", e.target.value)
-                          }
-                        />
-                      ) : (
-                        row.mrp
-                      )}
-                    </TableCell>
-
-                    <TableCell align="center">
-                      {editableIndex === index ? (
-                        <Input
-                          type="text"
-                          value={editedRow.batch || row.batch}
-                          onChange={(e) =>
-                            handleEdit(index, "batch", e.target.value)
-                          }
-                        />
-                      ) : (
-                        row.batch
-                      )}
-                    </TableCell>
-
-                    <TableCell align="center">
-                      {editableIndex === index ? (
-                        <Input
-                          value={editedRow.case || row.case}
-                          onChange={(e) =>
-                            handleEdit(index, "case", e.target.value)
-                          }
-                        />
-                      ) : (
-                        row.case
-                      )}
-                    </TableCell>
-
-                    <TableCell align="center">
-                      {editableIndex === index ? (
-                        <Input
-                          value={editedRow.pcs || row.pcs}
-                          onChange={(e) =>
-                            handleEdit(index, "pcs", e.target.value)
-                          }
-                        />
-                      ) : (
-                        row.pcs
-                      )}
-                    </TableCell>
-
-                    <TableCell align="center">
-                      {editableIndex === index ? (
-                        <Input
-                          value={editedRow.brk || row.brk}
-                          onChange={(e) =>
-                            handleEdit(index, "brk", e.target.value)
-                          }
-                        />
-                      ) : (
-                        row.brk
-                      )}
-                    </TableCell>
-
-                    <TableCell align="center">
-                      {editableIndex === index ? (
-                        <Input
-                          value={editedRow.purchaseRate || row.purchaseRate}
-                          onChange={(e) =>
-                            handleEdit(index, "purchaseRate", e.target.value)
-                          }
-                        />
-                      ) : (
-                        row.purchaseRate
-                      )}
-                    </TableCell>
-
-                    <TableCell align="center">
-                      {editableIndex === index ? (
-                        <Input
-                          value={editedRow.btlRate || row.btlRate}
-                          onChange={(e) =>
-                            handleEdit(index, "btlRate", e.target.value)
-                          }
-                        />
-                      ) : (
-                        row.btlRate
-                      )}
-                    </TableCell>
-
-                    <TableCell align="center">
-                      {editableIndex === index ? (
-                        <Input
-                          value={editedRow.gro || row.gro}
-                          onChange={(e) =>
-                            handleEdit(index, "gro", e.target.value)
-                          }
-                        />
-                      ) : (
-                        row.gro
-                      )}
-                    </TableCell>
-
-                    <TableCell align="center">
-                      {editableIndex === index ? (
-                        <Input
-                          value={editedRow.sp || row.sp}
-                          onChange={(e) =>
-                            handleEdit(index, "sp", e.target.value)
-                          }
-                        />
-                      ) : (
-                        row.sp
-                      )}
-                    </TableCell>
-
-                    <TableCell align="center">
-                      {editableIndex === index ? (
-                        <Input
-                          size="medium"
-                          value={editedRow.amount || row.amount}
-                          onChange={(e) =>
-                            handleEdit(index, "amount", e.target.value)
-                          }
-                        />
-                      ) : (
-                        row.amount
-                      )}
-                    </TableCell>
-
-                    <TableCell align="center">
-                      {editableIndex !== index ? (
-                        <EditIcon
-                          sx={{ cursor: "pointer", color: "blue" }}
-                          onClick={() => handleEditClick(index)}
-                        />
-                      ) : (
-                        <SaveIcon
-                          sx={{ cursor: "pointer", color: "green" }}
-                          onClick={() => handleSaveClick(index)}
-                        />
-                      )}
-                      <CloseIcon
-                        sx={{ cursor: "pointer", color: "red" }}
-                        onClick={() => handleRemovePurchasesTableRow(index)}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
-      </Box>
-
-      <Box
-        component="form"
-        sx={{
-          width: "100%",
-          p: 1.2,
-          marginTop: 1,
-          borderRadius: 1,
-          boxShadow: 2,
-        }}
-      >
-        <Grid container spacing={1}>
-          <Grid item xs={1.2}>
-            <InputLabel className="input-label-2">MRP Value</InputLabel>
-            <TextField
-              inputRef={totalMrpRef}
-              type="text"
-              size="small"
-              className="input-field"
-              fullWidth
-              value={totalValues.totalMrp}
-              InputProps={{ readOnly: true }}
-              // onChange={handleTotalMRPChanges}
-              onKeyDown={(e) => handleEnterKey(e, sDiscountRef)}
-            />
-          </Grid>
-          <Grid item xs={1}>
-            <InputLabel className="input-label-2">S. Discount</InputLabel>
-            <TextField
-              inputRef={sDiscountRef}
-              type="text"
-              size="small"
-              className="input-field"
-              fullWidth
-              value={totalValues.totalSDiscount}
-              onChange={handleSDiscountChange}
-              onKeyDown={(e) => handleEnterKey(e, totalGroRef)}
-            />
-          </Grid>
-          <Grid item xs={1}>
-            <InputLabel className="input-label-2">Govt. Rate Off</InputLabel>
-            <TextField
-              inputRef={totalGroRef}
-              type="text"
-              size="small"
-              className="input-field"
-              fullWidth
-              value={totalValues.govtRate}
-              onChange={handleGovtRateChange}
-              onKeyDown={(e) => handleEnterKey(e, totalSPRef)}
-            />
-          </Grid>
-          <Grid item xs={1.2}>
-            <InputLabel className="input-label-2">Special Purposes</InputLabel>
-            <TextField
-              inputRef={totalSPRef}
-              type="text"
-              size="small"
-              className="input-field"
-              fullWidth
-              value={totalValues.spcPurpose}
-              onChange={handleSpcPurchasesChange}
-              onKeyDown={(e) => handleEnterKey(e, tcsPercentRef)}
-            />
-          </Grid>
-          <Grid item xs={0.8}>
-            <InputLabel className="input-label-2">Tcs(%)</InputLabel>
-            <TextField
-              inputRef={tcsPercentRef}
-              type="text"
-              size="small"
-              className="input-field"
-              fullWidth
-              value={totalValues.tcs || 1}
-              // onChange={handleTcsChange}
-              InputProps={{ readOnly: true }}
-              onKeyDown={(e) => handleEnterKey(e, tcsAmtRef)}
-            />
-          </Grid>
-          <Grid item xs={1.1}>
-            <InputLabel className="input-label-2">Tcs Amt.</InputLabel>
-            <TextField
-              inputRef={tcsAmtRef}
-              type="text"
-              size="small"
-              className="input-field"
-              fullWidth
-              value={totalValues.tcsAmt}
-              InputProps={{ readOnly: true }}
-              onKeyDown={(e) => handleEnterKey(e, grossAmountRef)}
-            />
-          </Grid>
-          <Grid item xs={1.2}>
-            <InputLabel className="input-label-2">Gross Amt.</InputLabel>
-            <TextField
-              inputRef={grossAmountRef}
-              type="text"
-              size="small"
-              className="input-field"
-              fullWidth
-              value={totalValues.grossAmt}
-              InputProps={{ readOnly: true }}
-              onKeyDown={(e) => handleEnterKey(e, totalDiscountRef)}
-            />
-          </Grid>
-          <Grid item xs={1}>
-            <InputLabel className="input-label-2">Discount(%)</InputLabel>
-            <TextField
-              inputRef={totalDiscountRef}
-              type="text"
-              size="small"
-              className="input-field"
-              fullWidth
-              value={totalValues.discount}
-              onChange={handleDiscountChange}
-              onKeyDown={(e) => handleEnterKey(e, otherChargesRef)}
-            />
-          </Grid>
-          <Grid item xs={1.2}>
-            <InputLabel className="input-label-2">Other Charges</InputLabel>
-            <TextField
-              inputRef={otherChargesRef}
-              type="text"
-              size="small"
-              className="input-field"
-              fullWidth
-              value={totalValues.otherCharges}
-              InputProps={{ readOnly: true }}
-              onKeyDown={(e) => handleEnterKey(e, adjustmentRef)}
-            />
-          </Grid>
-          <Grid item xs={1.1}>
-            <InputLabel className="input-label-2">Adjustment</InputLabel>
-            <TextField
-              inputRef={adjustmentRef}
-              type="text"
-              size="small"
-              className="input-field"
-              fullWidth
-              value={totalValues.adjustment}
-              InputProps={{ readOnly: true }}
-              // onChange={handleAdjustmentChange}
-              onKeyDown={(e) => handleEnterKey(e, netAmountRef)}
-            />
-          </Grid>
-          <Grid item xs={1.2}>
-            <InputLabel className="input-label-2">Net Amount</InputLabel>
-            <TextField
-              inputRef={netAmountRef}
-              type="text"
-              size="small"
-              className="input-field"
-              fullWidth
-              value={totalValues.netAmt}
-              InputProps={{ readOnly: true }}
-              onKeyDown={(e) => {
-                handleEnterKey(e, saveButtonRef);
-                // handleFocusOnSave();
+                  ) : (
+                    <TableRow>
+                      <TableCell
+                        colSpan={10}
+                        align="center"
+                        sx={{
+                          backgroundColor: "#fff !important",
+                        }}
+                      >
+                        No Data
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          ) : (
+            <TableContainer
+              component={Paper}
+              ref={tableRef}
+              sx={{
+                marginTop: 1,
+                height: 300,
+                width: "100%",
+                overflowY: "auto",
+                "&::-webkit-scrollbar": {
+                  width: 10,
+                  height: 10,
+                },
+                "&::-webkit-scrollbar-track": {
+                  backgroundColor: "#fff",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  backgroundColor: "#d5d8df",
+                  borderRadius: 2,
+                },
               }}
-            />
-          </Grid>
-        </Grid>
-      </Box>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "flex-end",
-        }}
-      >
+            >
+              <Table size="small">
+                <TableHead className="table-head">
+                  <TableRow>
+                    <TableCell align="center">S. No.</TableCell>
+                    <TableCell align="center">Item Code</TableCell>
+                    <TableCell align="center">Item Name</TableCell>
+                    <TableCell align="center">MRP</TableCell>
+                    <TableCell align="center">Batch</TableCell>
+                    <TableCell align="center">Case</TableCell>
+                    <TableCell align="center">Pcs</TableCell>
+                    <TableCell align="center">Brk</TableCell>
+                    <TableCell align="center">Pur Rate</TableCell>
+                    <TableCell align="center">Btl Rate</TableCell>
+                    <TableCell align="center">GRO</TableCell>
+                    <TableCell align="center">SP</TableCell>
+                    <TableCell align="center">Amt(₹)</TableCell>
+                    <TableCell align="center">Action</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody className="purchase-data-table">
+                  {purchases.map((row, index) => (
+                    <TableRow
+                      key={index}
+                      sx={{
+                        backgroundColor: "#fff",
+                      }}
+                    >
+                      <TableCell align="center">{index + 1}</TableCell>
+                      <TableCell align="center">
+                        {editableIndex === index ? (
+                          <Input
+                            type="text"
+                            value={editedRow.itemCode || row.itemCode}
+                            onChange={(e) =>
+                              handleEdit(index, "itemCode", e.target.value)
+                            }
+                          />
+                        ) : (
+                          row.itemCode
+                        )}
+                      </TableCell>
+                      <TableCell align="center">
+                        {editableIndex === index ? (
+                          <Input
+                            type="text"
+                            value={editedRow.itemName || row.itemName}
+                            onChange={(e) =>
+                              handleEdit(index, "itemName", e.target.value)
+                            }
+                          />
+                        ) : (
+                          row.itemName
+                        )}
+                      </TableCell>
+                      <TableCell align="center">
+                        {editableIndex === index ? (
+                          <Input
+                            value={editedRow.mrp || row.mrp}
+                            onChange={(e) =>
+                              handleEdit(index, "mrp", e.target.value)
+                            }
+                          />
+                        ) : (
+                          row.mrp
+                        )}
+                      </TableCell>
 
+                      <TableCell align="center">
+                        {editableIndex === index ? (
+                          <Input
+                            type="text"
+                            value={editedRow.batch || row.batch}
+                            onChange={(e) =>
+                              handleEdit(index, "batch", e.target.value)
+                            }
+                          />
+                        ) : (
+                          row.batch
+                        )}
+                      </TableCell>
+
+                      <TableCell align="center">
+                        {editableIndex === index ? (
+                          <Input
+                            value={editedRow.case || row.case}
+                            onChange={(e) =>
+                              handleEdit(index, "case", e.target.value)
+                            }
+                          />
+                        ) : (
+                          row.case
+                        )}
+                      </TableCell>
+
+                      <TableCell align="center">
+                        {editableIndex === index ? (
+                          <Input
+                            value={editedRow.pcs || row.pcs}
+                            onChange={(e) =>
+                              handleEdit(index, "pcs", e.target.value)
+                            }
+                          />
+                        ) : (
+                          row.pcs
+                        )}
+                      </TableCell>
+
+                      <TableCell align="center">
+                        {editableIndex === index ? (
+                          <Input
+                            value={editedRow.brk || row.brk}
+                            onChange={(e) =>
+                              handleEdit(index, "brk", e.target.value)
+                            }
+                          />
+                        ) : (
+                          row.brk
+                        )}
+                      </TableCell>
+
+                      <TableCell align="center">
+                        {editableIndex === index ? (
+                          <Input
+                            value={editedRow.purchaseRate || row.purchaseRate}
+                            onChange={(e) =>
+                              handleEdit(index, "purchaseRate", e.target.value)
+                            }
+                          />
+                        ) : (
+                          row.purchaseRate
+                        )}
+                      </TableCell>
+
+                      <TableCell align="center">
+                        {editableIndex === index ? (
+                          <Input
+                            value={editedRow.btlRate || row.btlRate}
+                            onChange={(e) =>
+                              handleEdit(index, "btlRate", e.target.value)
+                            }
+                          />
+                        ) : (
+                          row.btlRate
+                        )}
+                      </TableCell>
+
+                      <TableCell align="center">
+                        {editableIndex === index ? (
+                          <Input
+                            value={editedRow.gro || row.gro}
+                            onChange={(e) =>
+                              handleEdit(index, "gro", e.target.value)
+                            }
+                          />
+                        ) : (
+                          row.gro
+                        )}
+                      </TableCell>
+
+                      <TableCell align="center">
+                        {editableIndex === index ? (
+                          <Input
+                            value={editedRow.sp || row.sp}
+                            onChange={(e) =>
+                              handleEdit(index, "sp", e.target.value)
+                            }
+                          />
+                        ) : (
+                          row.sp
+                        )}
+                      </TableCell>
+
+                      <TableCell align="center">
+                        {editableIndex === index ? (
+                          <Input
+                            size="medium"
+                            value={editedRow.amount || row.amount}
+                            onChange={(e) =>
+                              handleEdit(index, "amount", e.target.value)
+                            }
+                          />
+                        ) : (
+                          row.amount
+                        )}
+                      </TableCell>
+
+                      <TableCell align="center">
+                        {editableIndex !== index ? (
+                          <EditIcon
+                            sx={{ cursor: "pointer", color: "blue" }}
+                            onClick={() => handleEditClick(index)}
+                          />
+                        ) : (
+                          <SaveIcon
+                            sx={{ cursor: "pointer", color: "green" }}
+                            onClick={() => handleSaveClick(index)}
+                          />
+                        )}
+                        <CloseIcon
+                          sx={{ cursor: "pointer", color: "red" }}
+                          onClick={() => handleRemovePurchasesTableRow(index)}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </Box>
+
+        <Box
+          component="form"
+          sx={{
+            width: "100%",
+            p: 1.2,
+            marginTop: 1,
+            borderRadius: 1,
+            boxShadow: 2,
+          }}
+        >
+          <Grid container spacing={1}>
+            <Grid item xs={1.2}>
+              <InputLabel className="input-label-2">MRP Value</InputLabel>
+              <TextField
+                inputRef={totalMrpRef}
+                type="text"
+                size="small"
+                className="input-field"
+                fullWidth
+                value={totalValues.totalMrp}
+                InputProps={{ readOnly: true }}
+                // onChange={handleTotalMRPChanges}
+                onKeyDown={(e) => handleEnterKey(e, sDiscountRef)}
+              />
+            </Grid>
+            <Grid item xs={1}>
+              <InputLabel className="input-label-2">S. Discount</InputLabel>
+              <TextField
+                inputRef={sDiscountRef}
+                type="text"
+                size="small"
+                className="input-field"
+                fullWidth
+                value={totalValues.totalSDiscount}
+                onChange={handleSDiscountChange}
+                onKeyDown={(e) => handleEnterKey(e, totalGroRef)}
+              />
+            </Grid>
+            <Grid item xs={1}>
+              <InputLabel className="input-label-2">Govt. Rate Off</InputLabel>
+              <TextField
+                inputRef={totalGroRef}
+                type="text"
+                size="small"
+                className="input-field"
+                fullWidth
+                value={totalValues.govtRate}
+                onChange={handleGovtRateChange}
+                onKeyDown={(e) => handleEnterKey(e, totalSPRef)}
+              />
+            </Grid>
+            <Grid item xs={1.2}>
+              <InputLabel className="input-label-2">
+                Special Purposes
+              </InputLabel>
+              <TextField
+                inputRef={totalSPRef}
+                type="text"
+                size="small"
+                className="input-field"
+                fullWidth
+                value={totalValues.spcPurpose}
+                onChange={handleSpcPurchasesChange}
+                onKeyDown={(e) => handleEnterKey(e, tcsPercentRef)}
+              />
+            </Grid>
+            <Grid item xs={0.8}>
+              <InputLabel className="input-label-2">Tcs(%)</InputLabel>
+              <TextField
+                inputRef={tcsPercentRef}
+                type="text"
+                size="small"
+                className="input-field"
+                fullWidth
+                value={totalValues.tcs || 1}
+                // onChange={handleTcsChange}
+                InputProps={{ readOnly: true }}
+                onKeyDown={(e) => handleEnterKey(e, tcsAmtRef)}
+              />
+            </Grid>
+            <Grid item xs={1.1}>
+              <InputLabel className="input-label-2">Tcs Amt.</InputLabel>
+              <TextField
+                inputRef={tcsAmtRef}
+                type="text"
+                size="small"
+                className="input-field"
+                fullWidth
+                value={totalValues.tcsAmt}
+                InputProps={{ readOnly: true }}
+                onKeyDown={(e) => handleEnterKey(e, grossAmountRef)}
+              />
+            </Grid>
+            <Grid item xs={1.2}>
+              <InputLabel className="input-label-2">Gross Amt.</InputLabel>
+              <TextField
+                inputRef={grossAmountRef}
+                type="text"
+                size="small"
+                className="input-field"
+                fullWidth
+                value={totalValues.grossAmt}
+                InputProps={{ readOnly: true }}
+                onKeyDown={(e) => handleEnterKey(e, totalDiscountRef)}
+              />
+            </Grid>
+            <Grid item xs={1}>
+              <InputLabel className="input-label-2">Discount(%)</InputLabel>
+              <TextField
+                inputRef={totalDiscountRef}
+                type="text"
+                size="small"
+                className="input-field"
+                fullWidth
+                value={totalValues.discount}
+                onChange={handleDiscountChange}
+                onKeyDown={(e) => handleEnterKey(e, otherChargesRef)}
+              />
+            </Grid>
+            <Grid item xs={1.2}>
+              <InputLabel className="input-label-2">Other Charges</InputLabel>
+              <TextField
+                inputRef={otherChargesRef}
+                type="text"
+                size="small"
+                className="input-field"
+                fullWidth
+                value={totalValues.otherCharges}
+                InputProps={{ readOnly: true }}
+                onKeyDown={(e) => handleEnterKey(e, adjustmentRef)}
+              />
+            </Grid>
+            <Grid item xs={1.1}>
+              <InputLabel className="input-label-2">Adjustment</InputLabel>
+              <TextField
+                inputRef={adjustmentRef}
+                type="text"
+                size="small"
+                className="input-field"
+                fullWidth
+                value={totalValues.adjustment}
+                InputProps={{ readOnly: true }}
+                // onChange={handleAdjustmentChange}
+                onKeyDown={(e) => handleEnterKey(e, netAmountRef)}
+              />
+            </Grid>
+            <Grid item xs={1.2}>
+              <InputLabel className="input-label-2">Net Amount</InputLabel>
+              <TextField
+                inputRef={netAmountRef}
+                type="text"
+                size="small"
+                className="input-field"
+                fullWidth
+                value={totalValues.netAmt}
+                InputProps={{ readOnly: true }}
+                onKeyDown={(e) => {
+                  handleEnterKey(e, saveButtonRef);
+                  // handleFocusOnSave();
+                }}
+              />
+            </Grid>
+          </Grid>
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+          }}
+        >
           <ItemRegisterModal
             isModalOpen={isModalOpen}
             setIsModalOpen={setIsModalOpen}
@@ -2198,8 +2213,9 @@ const PurchaseEntry = () => {
           >
             SAVE
           </Button>
+        </Box>
       </Box>
-    </Box>
+    </ThemeProvider>
   );
 };
 

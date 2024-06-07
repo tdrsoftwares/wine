@@ -28,6 +28,15 @@ export const customTheme = createTheme({
         },
       },
     },
+    MuiFormControlLabel: {
+      styleOverrides: {
+        root: {
+          '& .MuiFormControlLabel-label': {
+            fontSize: '12px'
+          },
+        }
+      }
+    },
     MuiMenuItem: {
       styleOverrides: {
         root: {
@@ -88,6 +97,23 @@ export const customTheme = createTheme({
             backgroundColor: '#d5d8df',
             borderRadius: 2,
           },
+        },
+      },
+    },
+    MuiRadio: {
+      styleOverrides: {
+        root: {
+          '& .MuiRadio-root, .PrivateSwitchBase-input' : {
+            fontSize: '12px'
+          }
+        }
+      }
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          padding: "4px 10px",
+            fontSize: "11px",
         },
       },
     },
