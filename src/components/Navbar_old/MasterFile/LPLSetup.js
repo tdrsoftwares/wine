@@ -29,7 +29,7 @@ const LPLSetup = () => {
         <Typography variant="h5" component="div" gutterBottom>
           LPL Calculation Settings
         </Typography>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle2" gutterBottom>
           Item Details
         </Typography>
 
@@ -103,7 +103,7 @@ const LPLSetup = () => {
           </Box>
         </Grid>
 
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle2" gutterBottom>
           Change Category
         </Typography>
         <Grid container spacing={2}>

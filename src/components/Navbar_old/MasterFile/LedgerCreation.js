@@ -198,7 +198,7 @@ const LedgerCreation = () => {
   return (
     <form>
       <Box sx={{ p: 2, width: "900px" }}>
-        <Typography variant="subtitle1" sx={{ marginBottom: 2 }}>
+        <Typography variant="subtitle2" sx={{ marginBottom: 2 }}>
           Create Ledger:
         </Typography>
 

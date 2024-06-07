@@ -52,7 +52,7 @@ const SalesmanReport = () => {
         <Typography variant="h5" component="div" gutterBottom>
           Salesman Report
         </Typography>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle2" gutterBottom>
           Salesman Sale Report
         </Typography>
 

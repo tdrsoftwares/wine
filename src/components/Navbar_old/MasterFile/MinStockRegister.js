@@ -29,7 +29,7 @@ const MinStockRegister = () => {
         <Typography variant="h5" component="div" gutterBottom>
           Minimum Stock Register
         </Typography>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle2" gutterBottom>
           Item Details
         </Typography>
 

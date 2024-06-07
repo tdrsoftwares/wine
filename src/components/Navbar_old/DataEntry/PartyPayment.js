@@ -68,7 +68,7 @@ const PartyPayment = () => {
         <Typography variant="h5" component="div" gutterBottom>
           Supplier Payment
         </Typography>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle2" gutterBottom>
           Supplier Details
         </Typography>
 
@@ -240,7 +240,7 @@ const PartyPayment = () => {
         </TableContainer>
 
         <Box sx={{ marginTop: "12px" }}>
-          <Typography variant="subtitle1" gutterBottom>
+          <Typography variant="subtitle2" gutterBottom>
             Payment Details
           </Typography>
 

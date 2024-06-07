@@ -311,7 +311,7 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen, itemName, setItemName 
         aria-describedby="modal-modal-description"
       >
         <Box sx={modalStyles}>
-          <Typography variant="h6" component="h2" align="center" mb={3}>
+          <Typography variant="h6" component="h2" align="center" mb={2}>
             Register Item
           </Typography>
           <Grid container spacing={2}>

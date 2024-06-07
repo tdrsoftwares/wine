@@ -57,7 +57,7 @@ const DailySaleOrder = () => {
         <Typography variant="h5" component="div" gutterBottom>
         Order on Daily Sales
         </Typography>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle2" gutterBottom>
         Daily Sale Order
         </Typography>
 

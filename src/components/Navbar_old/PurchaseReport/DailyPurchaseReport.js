@@ -183,7 +183,7 @@ const DailyPurchaseReport = () => {
       <Typography variant="h6" sx={{ marginBottom: 2 }}>
         Daily Purchase Report
       </Typography>
-      <Typography variant="subtitle1" gutterBottom>
+      <Typography variant="subtitle2" gutterBottom>
         Filter By:
       </Typography>
 

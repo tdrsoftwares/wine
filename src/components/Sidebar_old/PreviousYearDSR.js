@@ -75,7 +75,7 @@ const PreviousYearDSR = () => {
         <Typography variant="h5" component="div" gutterBottom>
           Daily Sale Report
         </Typography>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle2" gutterBottom>
           Item Total
         </Typography>
 

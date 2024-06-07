@@ -7,7 +7,7 @@ const AuditAndAccounts = () => {
       <Typography variant="h5" component="div" gutterBottom>
         Audit and Accounts
       </Typography>
-      <Typography variant="subtitle1" gutterBottom>
+      <Typography variant="subtitle2" gutterBottom>
         Audit and Accounts Details
       </Typography>
     </Box>

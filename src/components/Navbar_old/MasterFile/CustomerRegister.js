@@ -267,7 +267,7 @@ const CustomerRegister = () => {
   return (
     <form>
       <Box sx={{ p: 2, width: "900px" }}>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle2" gutterBottom>
           Create Customer:
         </Typography>
 

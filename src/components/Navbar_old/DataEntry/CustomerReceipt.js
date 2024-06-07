@@ -51,7 +51,7 @@ const CustomerReceipt = () => {
         <Typography variant="h5" component="div" gutterBottom>
           Customer Receipt
         </Typography>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle2" gutterBottom>
           Customer Details
         </Typography>
 
@@ -212,7 +212,7 @@ const CustomerReceipt = () => {
         </TableContainer>
 
         <Box sx={{ marginTop: "12px" }}>
-          <Typography variant="subtitle1" gutterBottom>
+          <Typography variant="subtitle2" gutterBottom>
             Payment Details
           </Typography>
 

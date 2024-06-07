@@ -87,7 +87,7 @@ const DsrBrandStock = () => {
         <Typography variant="h5" component="div" gutterBottom>
           DSR With Stock
         </Typography>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle2" gutterBottom>
           Brand DSR Item Total
         </Typography>
 
@@ -238,7 +238,7 @@ const DsrBrandStock = () => {
         </Grid>
 
         <Box gutterBottom>
-          <Typography variant="subtitle1" gutterBottom sx={{ marginTop: 2 }}>
+          <Typography variant="subtitle2" gutterBottom sx={{ marginTop: 2 }}>
             Company Create
           </Typography>
           <Grid container spacing={2}>

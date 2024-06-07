@@ -7,7 +7,7 @@ const InventoryReport = () => {
       <Typography variant="h5" component="div" gutterBottom>
         Inventory Report
       </Typography>
-      <Typography variant="subtitle1" gutterBottom>
+      <Typography variant="subtitle2" gutterBottom>
         Inventory Report Details
       </Typography>
     </Box>

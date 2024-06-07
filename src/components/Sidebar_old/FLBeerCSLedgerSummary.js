@@ -55,7 +55,7 @@ const FLBeerCSLedgerSummary = () => {
         <Typography variant="h5" component="div" gutterBottom>
           Group Ledger Summary
         </Typography>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle2" gutterBottom>
           FL Beer CS Ledger Summary
         </Typography>
 

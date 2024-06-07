@@ -44,7 +44,7 @@ const CustomerTransactionDetails = () => {
         <Typography variant="h5" component="div" gutterBottom>
           Transaction Details
         </Typography>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle2" gutterBottom>
           Customer Transaction Details
         </Typography>
 

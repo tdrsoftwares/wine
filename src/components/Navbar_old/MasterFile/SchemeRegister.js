@@ -28,7 +28,7 @@ const SchemeRegister = () => {
         <Typography variant="h5" component="div" gutterBottom>
           Scheme Register
         </Typography>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle2" gutterBottom>
           Scheme Details
         </Typography>
 

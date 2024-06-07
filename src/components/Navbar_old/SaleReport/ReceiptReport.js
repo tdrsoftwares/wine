@@ -51,7 +51,7 @@ const ReceiptReport = () => {
         <Typography variant="h5" component="div" gutterBottom>
           Receipt Report
         </Typography>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle2" gutterBottom>
           Receipt Report
         </Typography>
 

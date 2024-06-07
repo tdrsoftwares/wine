@@ -7,6 +7,7 @@ import {
   InputLabel,
   MenuItem,
   TextField,
+  ThemeProvider,
   Typography,
 } from "@mui/material";
 import { NotificationManager } from "react-notifications";
@@ -16,6 +17,7 @@ import {
   getAllCompanies,
   updateCompany,
 } from "../../services/companyService";
+import { customTheme } from "../../utils/customTheme";
 
 const CompanyRegister = () => {
   const [companyName, setCompanyName] = useState("");
@@ -145,41 +147,39 @@ const CompanyRegister = () => {
   }, []);
 
   return (
-    <form>
+    <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, width: "900px" }}>
-        <Typography variant="subtitle1" sx={{ marginBottom: 2 }}>
+        <Typography variant="subtitle2" sx={{ marginBottom: 1 }}>
           Create Company:
         </Typography>
 
         <Grid container spacing={2}>
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="companyName" className="input-label">
-                Company Name :
+                Name :
               </InputLabel>
               <TextField
                 fullWidth
                 size="small"
                 type="text"
                 name="companyName"
-                className="input-field"
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
               />
             </div>
           </Grid>
 
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="companyType" className="input-label">
-                Company Type :
+                Type :
               </InputLabel>
               <TextField
                 select
                 fullWidth
                 size="small"
                 name="companyType"
-                className="input-field"
                 value={companyType}
                 onChange={(e) => setCompanyType(e.target.value)}
               >
@@ -190,49 +190,59 @@ const CompanyRegister = () => {
               </TextField>
             </div>
           </Grid>
+          <Grid item xs={3}></Grid>
+          <Grid item xs={3}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+              }}
+            >
+              <Button
+                color="warning"
+                size="small"
+                variant="outlined"
+                sx={{
+                  marginRight: 1,
+                  borderRadius: 8,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+                onClick={clearForm}
+              >
+                Clear
+              </Button>
+              <Button
+                color="primary"
+                size="small"
+                variant="contained"
+                sx={{
+                  borderRadius: 8,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+                onClick={handleCreateCompany}
+              >
+                Create
+              </Button>
+            </Box>
+          </Grid>
         </Grid>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            "& button": { marginTop: 2, marginLeft: 2 },
-          }}
-        >
-          <Button
-            color="primary"
-            size="medium"
-            variant="contained"
-            sx={{ borderRadius: 8 }}
-            onClick={handleCreateCompany}
-          >
-            Create
-          </Button>
-          <Button
-            color="warning"
-            size="medium"
-            variant="outlined"
-            sx={{ borderRadius: 8 }}
-            onClick={clearForm}
-          >
-            Clear
-          </Button>
-        </Box>
 
-        <Typography variant="subtitle1" sx={{ marginBottom: 2, marginTop: 4 }}>
+        <Typography variant="subtitle2" sx={{ marginBottom: 1, marginTop: 4 }}>
           Update Company:
         </Typography>
         <Grid container spacing={2}>
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="indexNo" className="input-label">
-                Index Number :
+                Company :
               </InputLabel>
               <TextField
                 select
                 fullWidth
                 name="existingCompanyUpdate"
                 size="small"
-                className="input-field"
                 value={existingCompanyUpdate}
                 variant="outlined"
                 SelectProps={{
@@ -255,86 +265,95 @@ const CompanyRegister = () => {
             </div>
           </Grid>
 
-          {existingCompanyUpdate && (
-            <>
-              <Grid item xs={4}>
-                <div className="input-wrapper">
-                  <InputLabel htmlFor="newCompanyName" className="input-label">
-                    Company Name :
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    type="text"
-                    name="newCompanyName"
-                    size="small"
-                    className="input-field"
-                    value={newCompanyName}
-                    variant="outlined"
-                    onChange={(e) => setNewCompanyName(e.target.value)}
-                  />
-                </div>
-              </Grid>
-              <Grid item xs={4}>
-                <div className="input-wrapper">
-                  <InputLabel htmlFor="newCompanyType" className="input-label">
-                    Company Type :
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    type="text"
-                    size="small"
-                    className="input-field"
-                    name="newCompanyType"
-                    value={newCompanyType}
-                    variant="outlined"
-                    onChange={(e) => setNewCompanyType(e.target.value)}
-                  />
-                </div>
-              </Grid>
-            </>
-          )}
-        </Grid>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            "& button": { marginTop: 2, marginLeft: 2 },
-          }}
-        >
-          <Button
-            color="info"
-            size="medium"
-            variant="contained"
-            onClick={handleUpdateCompany}
-            sx={{ borderRadius: 8 }}
-          >
-            Change
-          </Button>
-          <Button
-            color="warning"
-            size="medium"
-            variant="outlined"
-            sx={{ borderRadius: 8 }}
-            onClick={() => {
-              setExistingCompanyUpdate("");
-              setNewCompanyName("");
-            }}
-          >
-            Clear
-          </Button>
-        </Box>
+          <Grid item xs={3}>
+            {existingCompanyUpdate && (
+              <div className="input-wrapper">
+                <InputLabel htmlFor="newCompanyName" className="input-label">
+                  Name :
+                </InputLabel>
+                <TextField
+                  fullWidth
+                  type="text"
+                  name="newCompanyName"
+                  size="small"
+                  value={newCompanyName}
+                  variant="outlined"
+                  onChange={(e) => setNewCompanyName(e.target.value)}
+                />
+              </div>
+            )}
+          </Grid>
+          <Grid item xs={3}>
+            {existingCompanyUpdate && (
+              <div className="input-wrapper">
+                <InputLabel htmlFor="newCompanyType" className="input-label">
+                  Type :
+                </InputLabel>
+                <TextField
+                  fullWidth
+                  type="text"
+                  size="small"
+                  name="newCompanyType"
+                  value={newCompanyType}
+                  variant="outlined"
+                  onChange={(e) => setNewCompanyType(e.target.value)}
+                />
+              </div>
+            )}
+          </Grid>
 
-        <Typography variant="subtitle1" sx={{ marginBottom: 2, marginTop: 2 }}>
+          <Grid item xs={3}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+              }}
+            >
+              <Button
+                color="warning"
+                size="medium"
+                variant="outlined"
+                sx={{
+                  marginRight: 1,
+                  borderRadius: 8,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+                onClick={() => {
+                  setExistingCompanyUpdate("");
+                  setNewCompanyName("");
+                }}
+              >
+                Clear
+              </Button>
+              <Button
+                color="info"
+                size="medium"
+                variant="contained"
+                onClick={handleUpdateCompany}
+                sx={{
+                  borderRadius: 8,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+              >
+                Change
+              </Button>
+            </Box>
+          </Grid>
+        </Grid>
+
+        <Typography variant="subtitle2" sx={{ marginBottom: 1, marginTop: 2 }}>
           Delete Company
         </Typography>
         <Grid container spacing={2}>
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel
                 htmlFor="existingCompanyDelete"
                 className="input-label"
               >
-                Select Company :
+                Company :
               </InputLabel>
               <TextField
                 select
@@ -342,7 +361,6 @@ const CompanyRegister = () => {
                 name="existingCompanyDelete"
                 value={existingCompanyDelete}
                 size="small"
-                className="input-field"
                 SelectProps={{
                   MenuProps: {
                     PaperProps: {
@@ -362,35 +380,47 @@ const CompanyRegister = () => {
               </TextField>
             </div>
           </Grid>
+
+          <Grid item xs={6}></Grid>
+          <Grid item xs={3}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+              }}
+            >
+              <Button
+                color="warning"
+                size="medium"
+                variant="outlined"
+                sx={{
+                  marginRight: 1,
+                  borderRadius: 8,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+                onClick={() => setExistingCompanyDelete("")}
+              >
+                Clear
+              </Button>
+              <Button
+                color="error"
+                size="small"
+                variant="contained"
+                sx={{
+                  borderRadius: 8,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+                onClick={handleDeleteCompany}
+              >
+                Delete
+              </Button>
+            </Box>
+          </Grid>
         </Grid>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            "& button": { marginTop: 2, marginLeft: 2 },
-          }}
-        >
-          <Button
-            color="warning"
-            size="medium"
-            variant="contained"
-            sx={{ borderRadius: 8 }}
-            onClick={handleDeleteCompany}
-          >
-            Delete
-          </Button>
-          <Button
-            color="warning"
-            size="medium"
-            variant="outlined"
-            sx={{ borderRadius: 8 }}
-            onClick={() => setExistingCompanyDelete("")}
-          >
-            Clear
-          </Button>
-        </Box>
       </Box>
-    </form>
+    </ThemeProvider>
   );
 };
 

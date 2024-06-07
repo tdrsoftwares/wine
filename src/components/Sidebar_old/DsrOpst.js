@@ -99,7 +99,7 @@ const DsrOpst = () => {
         <Typography variant="h5" component="div" gutterBottom>
           DSR With Stock
         </Typography>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle2" gutterBottom>
           DSR Item Total
         </Typography>
 

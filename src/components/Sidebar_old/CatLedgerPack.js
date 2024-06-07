@@ -57,7 +57,7 @@ const CatLedgerPack = () => {
         <Typography variant="h5" component="div" gutterBottom>
           Category Wise Stock
         </Typography>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle2" gutterBottom>
           Category Stock
         </Typography>
 

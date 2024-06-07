@@ -72,7 +72,7 @@ const StockStatus = () => {
         <Typography variant="h5" component="div" gutterBottom>
           Daily Stock Book
         </Typography>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle2" gutterBottom>
           Category and Measure Wise Stock Status
         </Typography>
 

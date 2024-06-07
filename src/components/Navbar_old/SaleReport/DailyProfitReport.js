@@ -95,7 +95,7 @@ const DailyProfitReport = () => {
         <Typography variant="h5" component="div" gutterBottom>
           Daily Profit Report
         </Typography>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle2" gutterBottom>
           Daily Profit Report (Item Total)
         </Typography>
 
@@ -510,7 +510,7 @@ const DailyProfitReport = () => {
         </Box>
       </Box>
       {/* <Box sx={{ p: 2, marginTop: 2 }}>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle2" gutterBottom>
           Bill No. Details
         </Typography>
       </Box> */}

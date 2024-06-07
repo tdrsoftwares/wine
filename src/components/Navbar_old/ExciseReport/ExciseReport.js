@@ -7,7 +7,7 @@ const ExciseReport = () => {
       <Typography variant="h5" component="div" gutterBottom>
         Excise Report
       </Typography>
-      <Typography variant="subtitle1" gutterBottom>
+      <Typography variant="subtitle2" gutterBottom>
         Excise Report Details
       </Typography>
     </Box>

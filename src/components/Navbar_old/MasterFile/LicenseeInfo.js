@@ -62,7 +62,7 @@ const LicenseeInfo = () => {
   return (
     <form>
       <Box sx={{ p: 2, width: "900px" }}>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle2" gutterBottom>
           Application Details
         </Typography>
 
@@ -95,7 +95,7 @@ const LicenseeInfo = () => {
         <Typography variant="h5" component="div" gutterBottom>
           Information of Licensee
         </Typography>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle2" gutterBottom>
           Licensee Details
         </Typography>
 
@@ -388,7 +388,7 @@ const LicenseeInfo = () => {
       <Divider />
 
       <Box sx={{ p: 2, width: "900px" }}>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle2" gutterBottom>
           Bank Details
         </Typography>
 

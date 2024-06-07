@@ -25,7 +25,7 @@ const CashWithdrawn = () => {
           Cash Withdrawn
         </Typography>
         <Typography
-          variant="subtitle1"
+          variant="subtitle2"
           gutterBottom
           sx={{ marginBottom: "16px" }}
         >

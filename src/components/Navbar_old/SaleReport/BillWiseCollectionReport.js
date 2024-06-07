@@ -56,7 +56,7 @@ const BillWiseCollectionReport = () => {
         <Typography variant="h5" component="div" gutterBottom>
           Cash Collection Report
         </Typography>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle2" gutterBottom>
           Collection Report
         </Typography>
 

@@ -20,24 +20,11 @@ export const updatePurchase = async (payload, id) => {
   }
 };
 
-// export const getAllStocks = async (filterOptions) => {
-//   try {
-//     const { page, limit, supplierName, fromDate, toDate } = filterOptions;
-//     const apiURL = `/stocks/stock-reports?page=${page}&limit=${limit}&supplierName=${supplierName}&fromDate=${fromDate}&toDate=${toDate}`;
-//     const allStocksData = await axiosInstance.get(apiURL, {
-//       headers: { Authorization: `Bearer ${.accessToken}` },
-//     });
-//     return allStocksData;
-//   } catch (error) {
-//     return error;
-//   }
-// };
-
 export const getAllStocks = async (filterOptions) => {
   try {
     const {
       page,
-      limit,
+      pageSize,
       itemName,
       categoryName,
       volume,
@@ -48,10 +35,8 @@ export const getAllStocks = async (filterOptions) => {
       itemCode,
     } = filterOptions;
 
-    // Construct base URL with mandatory params
-    let apiURL = `/purchases/stock-reports?page=${page}&limit=${limit}`;
+    let apiURL = `/purchases/stock-reports?page=${page}&pageSize=${pageSize}`;
 
-    // Add optional filters if they are present
     const filters = {
       itemName,
       categoryName,

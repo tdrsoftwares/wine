@@ -17,6 +17,7 @@ import {
   TableRow,
   TableSortLabel,
   TextField,
+  ThemeProvider,
   Typography,
 } from "@mui/material";
 import { NotificationManager } from "react-notifications";
@@ -33,6 +34,7 @@ import { getAllCompanies } from "../../../services/companyService";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
+import { customTheme } from "../../../utils/customTheme";
 
 const ItemRegister = () => {
   const [itemName, setItemName] = useState("");
@@ -56,7 +58,7 @@ const ItemRegister = () => {
   const [sortBy, setSortBy] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const tableRef = useRef(null);
   const [loading, setLoading] = useState(false);
 
@@ -288,12 +290,12 @@ const ItemRegister = () => {
   };
 
   return (
-    <form>
-      <Box sx={{ p: 2, width: "900px" }}>
-        <Typography variant="subtitle1" sx={{ marginBottom: 2 }}>
-          Create Item:
-        </Typography>
+    <Box sx={{ p: 2, width: "900px" }}>
+      <Typography variant="subtitle2" sx={{ marginBottom: 1 }}>
+        Create Item:
+      </Typography>
 
+      <ThemeProvider theme={customTheme}>
         <Grid container spacing={2}>
           <Grid item xs={4}>
             <div className="input-wrapper">
@@ -305,7 +307,7 @@ const ItemRegister = () => {
                 size="small"
                 type="text"
                 name="itemName"
-                className="input-field"
+                // className="input-field"
                 variant="outlined"
                 value={itemName}
                 onChange={(e) => setItemName(e.target.value)}
@@ -323,7 +325,7 @@ const ItemRegister = () => {
                 size="small"
                 type="text"
                 name="description"
-                className="input-field"
+                // className="input-field"
                 variant="outlined"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -342,13 +344,13 @@ const ItemRegister = () => {
                 size="small"
                 type="text"
                 name="categoryId"
-                className="input-field"
+                // className="input-field"
                 variant="outlined"
                 value={categoryId}
                 SelectProps={{
                   MenuProps: {
                     PaperProps: {
-                      style: {
+                      sx: {
                         maxHeight: 200,
                       },
                     },
@@ -376,12 +378,19 @@ const ItemRegister = () => {
                 size="small"
                 type="text"
                 name="subCategory"
-                className="input-field"
+                // className="input-field"
                 variant="outlined"
                 value={subCategory}
                 onChange={(e) => setSubCategory(e.target.value)}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      sx: {},
+                    },
+                  },
+                }}
               >
-                {["A", "B", "C", "D"].map((item, id) => (
+                {["FL", "IMFL", "CS", "IML"].map((item, id) => (
                   <MenuItem key={id} value={item}>
                     {item}
                   </MenuItem>
@@ -401,13 +410,13 @@ const ItemRegister = () => {
                 size="small"
                 type="text"
                 name="companyId"
-                className="input-field"
+                // className="input-field"
                 variant="outlined"
                 value={companyId}
                 SelectProps={{
                   MenuProps: {
                     PaperProps: {
-                      style: {
+                      sx: {
                         maxHeight: 200,
                       },
                     },
@@ -434,13 +443,13 @@ const ItemRegister = () => {
                 fullWidth
                 size="small"
                 name="brandId"
-                className="input-field"
+                // className="input-field"
                 variant="outlined"
                 value={brandId}
                 SelectProps={{
                   MenuProps: {
                     PaperProps: {
-                      style: {
+                      sx: {
                         maxHeight: 200,
                       },
                     },
@@ -467,7 +476,7 @@ const ItemRegister = () => {
                 size="small"
                 type="number"
                 name="volume"
-                className="input-field"
+                // className="input-field"
                 variant="outlined"
                 value={volume}
                 onChange={(e) => setVolume(e.target.value)}
@@ -486,7 +495,7 @@ const ItemRegister = () => {
                 size="small"
                 type="text"
                 name="group"
-                className="input-field"
+                // className="input-field"
                 variant="outlined"
                 value={group}
                 onChange={(e) => setGroup(e.target.value)}
@@ -510,7 +519,7 @@ const ItemRegister = () => {
                 size="small"
                 type="number"
                 name="caseValue"
-                className="input-field"
+                // className="input-field"
                 variant="outlined"
                 value={caseValue}
                 onChange={(e) => setCaseValue(e.target.value)}
@@ -518,62 +527,53 @@ const ItemRegister = () => {
             </div>
           </Grid>
         </Grid>
+
         <Box
           sx={{
             display: "flex",
             justifyContent: "flex-end",
-
-            "& button": { marginTop: 2, marginLeft: 2 },
           }}
         >
           <Button
             color="primary"
-            size="medium"
+            size="small"
             variant="contained"
             onClick={handleCreateItem}
-            sx={{ borderRadius: 8 }}
+            sx={{
+              marginTop: 1,
+              marginRight: 1,
+              borderRadius: 8,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
           >
             Create
           </Button>
           <Button
             color="warning"
-            size="medium"
+            size="small"
             variant="outlined"
             onClick={clearForm}
-            sx={{ borderRadius: 8 }}
+            sx={{
+              marginTop: 1,
+              borderRadius: 8,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
           >
             Clear
           </Button>
         </Box>
 
         <Box sx={{ borderRadius: 1, marginTop: 2 }}>
-          <TableContainer
-            ref={tableRef}
-            component={Paper}
-            sx={{
-              height: 300,
-              width: "100%",
-              overflowY: "auto",
-              "&::-webkit-scrollbar": {
-                width: 10,
-                height: 10,
-              },
-              "&::-webkit-scrollbar-track": {
-                backgroundColor: "#fff",
-              },
-              "&::-webkit-scrollbar-thumb": {
-                backgroundColor: "#d5d8df",
-                borderRadius: 2,
-              },
-            }}
-          >
-            <Table>
+          <TableContainer ref={tableRef} component={Paper}>
+            <Table size="small" padding="normal" stickyHeader={true}>
               <TableHead>
                 <TableRow className="table-head-2">
                   <TableCell align="center" style={{ minWidth: "80px" }}>
                     S. No.
                   </TableCell>
-                  <TableCell style={{ minWidth: "150px" }}>
+                  <TableCell style={{ minWidth: "180px" }}>
                     <TableSortLabel
                       active={sortBy === "name"}
                       direction={sortOrder}
@@ -591,7 +591,7 @@ const ItemRegister = () => {
                       Description
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell style={{ minWidth: "100px" }}>
+                  <TableCell style={{ minWidth: "150px" }}>
                     <TableSortLabel
                       active={sortBy === "categoryId"}
                       direction={sortOrder}
@@ -645,7 +645,7 @@ const ItemRegister = () => {
                       Group
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell style={{ minWidth: "150px" }}>
+                  <TableCell style={{ minWidth: "120px" }}>
                     <TableSortLabel
                       active={sortBy === "caseValue"}
                       direction={sortOrder}
@@ -872,10 +872,16 @@ const ItemRegister = () => {
             page={page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
+            sx={{
+              "& .MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows":
+                {
+                  fontSize: "12px",
+                },
+            }}
           />
         </Box>
-      </Box>
-    </form>
+      </ThemeProvider>
+    </Box>
   );
 };
 

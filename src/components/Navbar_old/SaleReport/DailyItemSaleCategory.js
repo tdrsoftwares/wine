@@ -71,7 +71,7 @@ const DailyItemSaleCategory = () => {
         <Typography variant="h5" component="div" gutterBottom>
           Daily Sale Figure
         </Typography>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle2" gutterBottom>
           Sales Analysis
         </Typography>
 

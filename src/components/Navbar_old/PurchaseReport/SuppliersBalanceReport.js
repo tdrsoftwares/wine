@@ -71,7 +71,7 @@ const SuppliersBalanceReport = () => {
       <Typography variant="h5" component="div" gutterBottom>
         Supplier Report
       </Typography>
-      <Typography variant="subtitle1" gutterBottom>
+      <Typography variant="subtitle2" gutterBottom>
         Suppliers Balance Report
       </Typography>
 

@@ -69,7 +69,7 @@ const ItemCateSaleStatusReport = () => {
         <Typography variant="h5" component="div" gutterBottom>
           Item Category Sales Status
         </Typography>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle2" gutterBottom>
           Sales Analysis
         </Typography>
 

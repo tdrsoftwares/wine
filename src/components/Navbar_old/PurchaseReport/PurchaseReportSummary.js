@@ -257,7 +257,7 @@ const PurchaseReportSummary = () => {
       <Typography variant="h6" sx={{ marginBottom: 2 }}>
         Purchase Report Summary:
       </Typography>
-      <Typography variant="subtitle1" gutterBottom>
+      <Typography variant="subtitle2" gutterBottom>
         Filter By:
       </Typography>
 

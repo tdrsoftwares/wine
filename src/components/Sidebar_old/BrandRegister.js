@@ -16,6 +16,7 @@ import {
   TableRow,
   TableSortLabel,
   TextField,
+  ThemeProvider,
   Typography,
 } from "@mui/material";
 import { NotificationManager } from "react-notifications";
@@ -29,6 +30,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import { getAllCompanies } from "../../services/companyService";
+import { customTheme } from "../../utils/customTheme";
 
 const BrandRegister = () => {
   const [brandName, setBrandName] = useState("");
@@ -245,310 +247,298 @@ const BrandRegister = () => {
         Create Brand:
       </Typography>
 
-      <Grid container spacing={2}>
-        <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="brandName" className="input-label">
-              Brand Name :
-            </InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              type="text"
-              name="brandName"
-              className="input-field"
-              value={brandName}
-              onChange={(e) => setBrandName(e.target.value)}
-            />
-          </div>
-        </Grid>
+      <ThemeProvider theme={customTheme}>
+        <Grid container spacing={2}>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="brandName" className="input-label">
+                Brand :
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                type="text"
+                name="brandName"
+                value={brandName}
+                onChange={(e) => setBrandName(e.target.value)}
+              />
+            </div>
+          </Grid>
 
-        <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="companyName" className="input-label">
-              Company Name :
-            </InputLabel>
-            <TextField
-              select
-              fullWidth
-              size="small"
-              name="companyName"
-              className="input-field"
-              value={companyName}
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="companyName" className="input-label">
+                Company :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="companyName"
+                value={companyName}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
                     },
                   },
-                },
-              }}
-              onChange={(e) => setCompanyName(e.target.value)}
-            >
-              {allCompanies?.map((company) => (
-                <MenuItem key={company._id} value={company._id}>
-                  {company.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
+                }}
+                onChange={(e) => setCompanyName(e.target.value)}
+              >
+                {allCompanies?.map((company) => (
+                  <MenuItem key={company._id} value={company._id}>
+                    {company.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </Grid>
+
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="type" className="input-label">
+                Type :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="type"
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+              >
+                <MenuItem value="FL">FL</MenuItem>
+                <MenuItem value="BEER">BEER</MenuItem>
+                <MenuItem value="IML">IML</MenuItem>
+              </TextField>
+            </div>
+          </Grid>
+
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="indexNo" className="input-label">
+                Index No. :
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                type="number"
+                name="indexNo"
+                value={indexNo}
+                onChange={(e) => setIndexNo(e.target.value)}
+              />
+            </div>
+          </Grid>
         </Grid>
 
-        <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="type" className="input-label">
-              Type :
-            </InputLabel>
-            <TextField
-              select
-              fullWidth
-              size="small"
-              name="type"
-              className="input-field"
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-            >
-              <MenuItem value="FL">FL</MenuItem>
-              <MenuItem value="BEER">BEER</MenuItem>
-              <MenuItem value="IML">IML</MenuItem>
-            </TextField>
-          </div>
-        </Grid>
-
-        <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="indexNo" className="input-label">
-              Index Number :
-            </InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              type="number"
-              name="indexNo"
-              className="input-field"
-              value={indexNo}
-              onChange={(e) => setIndexNo(e.target.value)}
-            />
-          </div>
-        </Grid>
-      </Grid>
-
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "flex-end",
-
-          "& button": { marginTop: 2, marginLeft: 2 },
-        }}
-      >
-        <Button
-          color="primary"
-          size="medium"
-          variant="contained"
-          onClick={handleCreateBrand}
-          sx={{ borderRadius: 8 }}
-        >
-          Create
-        </Button>
-        <Button
-          color="warning"
-          size="medium"
-          variant="outlined"
-          onClick={clearForm}
-          sx={{ borderRadius: 8 }}
-        >
-          Clear
-        </Button>
-      </Box>
-
-      <Box sx={{ borderRadius: 1, marginTop: 2 }}>
-        <TableContainer
-          ref={tableRef}
-          component={Paper}
+        <Box
           sx={{
-            height: 300,
-            width: "100%",
-            overflowY: "auto",
-            "&::-webkit-scrollbar": {
-              width: 10,
-              height: 10,
-            },
-            "&::-webkit-scrollbar-track": {
-              backgroundColor: "#fff",
-            },
-            "&::-webkit-scrollbar-thumb": {
-              backgroundColor: "#d5d8df",
-              borderRadius: 2,
-            },
+            display: "flex",
+            justifyContent: "flex-end",
           }}
         >
-          <Table size="small">
-            <TableHead>
-              <TableRow className="table-head-2">
-                <TableCell align="center" sx={{ minWidth: "80px" }}>
-                  S. No.
-                </TableCell>
-                <TableCell sx={{ minWidth: "180px" }}>
-                  <TableSortLabel
-                    active={sortBy === "name"}
-                    direction={sortOrder}
-                    onClick={() => handleSort("name")}
-                  >
-                    Brand Name
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell sx={{ minWidth: "180px" }}>
-                  <TableSortLabel
-                    active={sortBy === "companyId.name"}
-                    direction={sortOrder}
-                    onClick={() => handleSort("companyId.name")}
-                  >
-                    Company Name
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell sx={{ minWidth: "180px" }}>
-                  <TableSortLabel
-                    active={sortBy === "type"}
-                    direction={sortOrder}
-                    onClick={() => handleSort("type")}
-                  >
-                    Brand Type
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell sx={{ minWidth: "180px" }}>
-                  <TableSortLabel
-                    active={sortBy === "indexNo"}
-                    direction={sortOrder}
-                    onClick={() => handleSort("indexNo")}
-                  >
-                    Index No.
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell sx={{ minWidth: "180px" }}>Action</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {allBrands ? (
-                sortedData()
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((brand, index) => (
-                    <TableRow
-                      key={brand._id}
-                      sx={{
-                        backgroundColor: "#fff",
-                      }}
+          <Button
+            color="primary"
+            size="medium"
+            variant="contained"
+            onClick={handleCreateBrand}
+            sx={{
+              marginTop: 1,
+              marginRight: 1,
+              borderRadius: 8,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
+          >
+            Create
+          </Button>
+          <Button
+            color="warning"
+            size="medium"
+            variant="outlined"
+            onClick={clearForm}
+            sx={{
+              marginTop: 1,
+              borderRadius: 8,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
+          >
+            Clear
+          </Button>
+        </Box>
+
+        <Box sx={{ borderRadius: 1, marginTop: 2 }}>
+          <TableContainer ref={tableRef} component={Paper}>
+            <Table size="small" padding="normal" stickyHeader={true}>
+              <TableHead>
+                <TableRow className="table-head-2">
+                  <TableCell align="center" sx={{ minWidth: "80px" }}>
+                    S. No.
+                  </TableCell>
+                  <TableCell sx={{ minWidth: "180px" }}>
+                    <TableSortLabel
+                      active={sortBy === "name"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("name")}
                     >
-                      <TableCell align="center">
-                        {page * rowsPerPage + index + 1}
-                      </TableCell>
-                      <TableCell>
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.name}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                name: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          brand.name
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.companyId?.name}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                companyId: { name: e.target.value },
-                              })
-                            }
-                          />
-                        ) : (
-                          brand?.companyId?.name
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.type}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                type: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          brand.type
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.indexNo}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              if (!isNaN(value)) {
+                      Brand Name
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ minWidth: "180px" }}>
+                    <TableSortLabel
+                      active={sortBy === "companyId.name"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("companyId.name")}
+                    >
+                      Company Name
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ minWidth: "180px" }}>
+                    <TableSortLabel
+                      active={sortBy === "type"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("type")}
+                    >
+                      Brand Type
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ minWidth: "180px" }}>
+                    <TableSortLabel
+                      active={sortBy === "indexNo"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("indexNo")}
+                    >
+                      Index No.
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ minWidth: "180px" }}>Action</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {allBrands ? (
+                  sortedData()
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((brand, index) => (
+                      <TableRow
+                        key={brand._id}
+                        sx={{
+                          backgroundColor: "#fff",
+                        }}
+                      >
+                        <TableCell align="center">
+                          {page * rowsPerPage + index + 1}
+                        </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.name}
+                              onChange={(e) =>
                                 setEditedRow({
                                   ...editedRow,
-                                  indexNo: value,
-                                });
+                                  name: e.target.value,
+                                })
                               }
-                            }}
+                            />
+                          ) : (
+                            brand.name
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.companyId?.name}
+                              onChange={(e) =>
+                                setEditedRow({
+                                  ...editedRow,
+                                  companyId: { name: e.target.value },
+                                })
+                              }
+                            />
+                          ) : (
+                            brand?.companyId?.name
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.type}
+                              onChange={(e) =>
+                                setEditedRow({
+                                  ...editedRow,
+                                  type: e.target.value,
+                                })
+                              }
+                            />
+                          ) : (
+                            brand.type
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.indexNo}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (!isNaN(value)) {
+                                  setEditedRow({
+                                    ...editedRow,
+                                    indexNo: value,
+                                  });
+                                }
+                              }}
+                            />
+                          ) : (
+                            brand.indexNo
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <SaveIcon
+                              sx={{ cursor: "pointer", color: "green" }}
+                              onClick={() => handleSaveClick(brand._id)}
+                            />
+                          ) : (
+                            <EditIcon
+                              sx={{ cursor: "pointer", color: "blue" }}
+                              onClick={() => handleEditClick(index, brand._id)}
+                            />
+                          )}
+                          <CloseIcon
+                            sx={{ cursor: "pointer", color: "red" }}
+                            onClick={() => handleRemoveBrand(brand._id)}
                           />
-                        ) : (
-                          brand.indexNo
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {editableIndex === index ? (
-                          <SaveIcon
-                            sx={{ cursor: "pointer", color: "green" }}
-                            onClick={() => handleSaveClick(brand._id)}
-                          />
-                        ) : (
-                          <EditIcon
-                            sx={{ cursor: "pointer", color: "blue" }}
-                            onClick={() => handleEditClick(index, brand._id)}
-                          />
-                        )}
-                        <CloseIcon
-                          sx={{ cursor: "pointer", color: "red" }}
-                          onClick={() => handleRemoveBrand(brand._id)}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))
-              ) : (
-                <TableRow
-                  sx={{
-                    backgroundColor: "#fff",
-                  }}
-                >
-                  <TableCell colSpan={11} align="center">
-                    No Data
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                ) : (
+                  <TableRow
+                    sx={{
+                      backgroundColor: "#fff",
+                    }}
+                  >
+                    <TableCell colSpan={11} align="center">
+                      No Data
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
 
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={allBrands?.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </Box>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={allBrands?.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </Box>
+      </ThemeProvider>
     </Box>
   );
 };

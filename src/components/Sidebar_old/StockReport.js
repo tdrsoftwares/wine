@@ -6,10 +6,11 @@ import {
   InputLabel,
   MenuItem,
   TextField,
+  ThemeProvider,
   Typography,
 } from "@mui/material";
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import React, { useEffect, useMemo, useState } from "react";
+import { DataGrid, GridFooter, GridFooterContainer, GridToolbar } from "@mui/x-data-grid";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { getAllStocks } from "../../services/stockService";
 import { NotificationManager } from "react-notifications";
 import { getAllItems } from "../../services/itemService";
@@ -17,13 +18,13 @@ import { getAllBrands } from "../../services/brandService";
 import { getAllCompanies } from "../../services/companyService";
 import { getAllItemCategory } from "../../services/categoryService";
 import { getAllStores } from "../../services/storeService";
+import { customTheme } from "../../utils/customTheme";
 
 const StockReport = () => {
   const [allStocks, setAllStocks] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const [filterData, setFilterData] = useState({
-    date: "mm/dd/yyyy",
     itemCode: "",
     itemName: "",
     category: "",
@@ -47,9 +48,13 @@ const StockReport = () => {
     pageSize: 10,
   });
   const [totalCount, setTotalCount] = useState(0);
-  console.log("totalCount: " + totalCount);
-  console.log("paginationModel: ", paginationModel);
-
+  const [totalPurRate, setTotalPurRate] = useState(0);
+  const [totalVolume, setTotalVolume] = useState(0);
+  const [totalAmount, setTotalStock] = useState(0);
+  const [totalPcs, setTotalMRP] = useState(0);
+  // console.log("totalCount: " + totalCount);
+  // console.log("paginationModel: ", paginationModel);
+  
   const columns = [
     {
       field: "sNo",
@@ -171,7 +176,7 @@ const StockReport = () => {
           paginationModel.page === 0
             ? paginationModel.page + 1
             : paginationModel.page,
-        limit: paginationModel.pageSize,
+        pageSize: paginationModel.pageSize,
         itemName: filterData.itemName,
         itemCode: filterData.itemCode,
         categoryName: filterData.category,
@@ -185,8 +190,8 @@ const StockReport = () => {
       const allStocksResponse = await getAllStocks(filterOptions);
       console.log("allStocksResponse: ", allStocksResponse);
 
-      setAllStocks(allStocksResponse?.data?.data);
-      setTotalCount(allStocksResponse?.data?.data?.length);
+      setAllStocks(allStocksResponse?.data?.data || []);
+      setTotalCount(allStocksResponse?.data?.data?.length || 0);
     } catch (error) {
       NotificationManager.error(
         "Error fetching stock. Please try again later.",
@@ -277,7 +282,7 @@ const StockReport = () => {
   useEffect(() => {
     const debouncedFetch = debounce(fetchAllStocks, 300);
     debouncedFetch();
-  }, [filterData]);
+  }, [paginationModel, filterData]);
 
   useEffect(() => {
     fetchAllItems();
@@ -288,9 +293,6 @@ const StockReport = () => {
     fetchAllStores();
   }, []);
 
-  useEffect(() => {
-    fetchAllStocks();
-  }, [paginationModel]);
 
   const handleClearFilters = () => {
     setFilterData({
@@ -305,333 +307,375 @@ const StockReport = () => {
       stockIn: "",
       company: "",
     });
+    setPaginationModel({ page: 1, pageSize: 10 });
+  };
+
+  useEffect(() => {
+    const calculateSums = (data) => {
+      let totalPurRate = 0;
+      let totalVolume = 0;
+      let totalStock = 0;
+      let totalMRP = 0;
+
+      data.forEach((item) => {
+        totalPurRate += item.purchaseRate || 0;
+        totalVolume += item.item?.volume || 0;
+        totalStock += item.currentStock || 0;
+        totalMRP += item.mrp || 0;
+      });
+
+      return { totalPurRate, totalVolume, totalStock, totalMRP };
+    };
+
+    const { totalPurRate,totalVolume, totalStock, totalMRP } = calculateSums(allStocks);
+    setTotalPurRate(totalPurRate);
+    setTotalVolume(totalVolume);
+    setTotalStock(totalStock);
+    setTotalMRP(totalMRP);
+  }, [allStocks]);
+
+  const CustomFooter = () => {
+    return (
+      <GridFooterContainer>
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            justifyContent: "space-around",
+            // margin: "0 20px",
+          }}
+        >
+          <span>Total Pur. Rate: {totalPurRate.toFixed(2)}</span>
+          <span>Total Volume: {totalVolume.toFixed(2) + "ltr"}</span>
+          <span>Total Amount: {totalAmount.toFixed(2)}</span>
+          <span>Total Pcs: {totalPcs.toFixed(0)}</span>
+        </div>
+        <GridFooter />
+      </GridFooterContainer>
+    );
   };
 
   return (
-    <Box sx={{ p: 2, width: "900px" }}>
-      <Typography variant="h6" sx={{ marginBottom: 2 }}>
-        Stock Report
-      </Typography>
-      <Typography variant="subtitle1" gutterBottom>
-        Filter By:
-      </Typography>
+    <ThemeProvider theme={customTheme}>
+      <Box sx={{ p: 2, width: "900px" }}>
+        <Typography variant="subtitle2" gutterBottom>
+          Stock Report
+        </Typography>
+        <Typography sx={{ fontSize: "13px" }}>
+          Filter By:
+        </Typography>
 
-      <Grid container spacing={2}>
-        <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="itemCode" className="input-label">
-              Item Code :
-            </InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              type="number"
-              name="itemCode"
-              className="input-field"
-              value={filterData.itemCode}
-              onChange={handleFilterChange}
-            />
-          </div>
-        </Grid>
+        <Grid container spacing={2}>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="itemCode" className="input-label">
+                Item Code :
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                type="number"
+                name="itemCode"
+                className="input-field"
+                value={filterData.itemCode}
+                onChange={handleFilterChange}
+              />
+            </div>
+          </Grid>
 
-        <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="itemName" className="input-label">
-              Item Name :
-            </InputLabel>
-            <TextField
-              select
-              fullWidth
-              size="small"
-              name="itemName"
-              className="input-field"
-              value={filterData.itemName}
-              onChange={handleFilterChange}
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="itemName" className="input-label">
+                Item Name :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="itemName"
+                className="input-field"
+                value={filterData.itemName}
+                onChange={handleFilterChange}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
                     },
                   },
-                },
-              }}
-            >
-              {allItems?.map((item) => (
-                <MenuItem key={item._id} value={item.name}>
-                  {item.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
-        </Grid>
+                }}
+              >
+                {allItems?.map((item) => (
+                  <MenuItem key={item._id} value={item.name}>
+                    {item.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </Grid>
 
-        <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="category" className="input-label">
-              Category :
-            </InputLabel>
-            <TextField
-              select
-              fullWidth
-              size="small"
-              type="text"
-              name="category"
-              className="input-field"
-              value={filterData.category}
-              onChange={handleFilterChange}
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="category" className="input-label">
+                Category :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                type="text"
+                name="category"
+                className="input-field"
+                value={filterData.category}
+                onChange={handleFilterChange}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
                     },
                   },
-                },
-              }}
-            >
-              {allCategory?.map((item) => (
-                <MenuItem key={item._id} value={item.categoryName}>
-                  {item.categoryName}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
-        </Grid>
+                }}
+              >
+                {allCategory?.map((item) => (
+                  <MenuItem key={item._id} value={item.categoryName}>
+                    {item.categoryName}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </Grid>
 
-        <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="volume" className="input-label">
-              Volume :
-            </InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              type="text"
-              name="volume"
-              className="input-field"
-              value={filterData.volume}
-              onChange={handleFilterChange}
-            />
-          </div>
-        </Grid>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="volume" className="input-label">
+                Volume :
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                type="text"
+                name="volume"
+                className="input-field"
+                value={filterData.volume}
+                onChange={handleFilterChange}
+              />
+            </div>
+          </Grid>
 
-        <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="batchNo" className="input-label">
-              Batch No. :
-            </InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              name="batchNo"
-              className="input-field"
-              value={filterData.batchNo}
-              onChange={handleFilterChange}
-            />
-          </div>
-        </Grid>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="batchNo" className="input-label">
+                Batch No. :
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                name="batchNo"
+                className="input-field"
+                value={filterData.batchNo}
+                onChange={handleFilterChange}
+              />
+            </div>
+          </Grid>
 
-        <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="brandName" className="input-label">
-              Brand :
-            </InputLabel>
-            <TextField
-              select
-              fullWidth
-              size="small"
-              name="brandName"
-              className="input-field"
-              value={filterData.brandName}
-              onChange={handleFilterChange}
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="brandName" className="input-label">
+                Brand :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="brandName"
+                className="input-field"
+                value={filterData.brandName}
+                onChange={handleFilterChange}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
                     },
                   },
-                },
-              }}
-            >
-              {allBrands?.map((item) => (
-                <MenuItem key={item._id} value={item.name}>
-                  {item.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
-        </Grid>
+                }}
+              >
+                {allBrands?.map((item) => (
+                  <MenuItem key={item._id} value={item.name}>
+                    {item.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </Grid>
 
-        <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="stockIn" className="input-label">
-              Stock In :
-            </InputLabel>
-            <TextField
-              select
-              fullWidth
-              size="small"
-              name="stockIn"
-              className="input-field"
-              value={filterData.stockIn}
-              onChange={handleFilterChange}
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="stockIn" className="input-label">
+                Stock In :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="stockIn"
+                className="input-field"
+                value={filterData.stockIn}
+                onChange={handleFilterChange}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
                     },
                   },
-                },
-              }}
-            >
-              {allStores?.map((store) => (
-                <MenuItem key={store._id} value={store.name}>
-                  {store.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
-        </Grid>
+                }}
+              >
+                {allStores?.map((store) => (
+                  <MenuItem key={store._id} value={store.name}>
+                    {store.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </Grid>
 
-        <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="company" className="input-label">
-              Company :
-            </InputLabel>
-            <TextField
-              select
-              fullWidth
-              size="small"
-              name="company"
-              className="input-field"
-              value={filterData.company}
-              onChange={handleFilterChange}
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="company" className="input-label">
+                Company :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="company"
+                className="input-field"
+                value={filterData.company}
+                onChange={handleFilterChange}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
                     },
                   },
-                },
-              }}
-            >
-              {allCompanies?.map((item) => (
-                <MenuItem key={item._id} value={item.name}>
-                  {item.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
+                }}
+              >
+                {allCompanies?.map((item) => (
+                  <MenuItem key={item._id} value={item.name}>
+                    {item.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </Grid>
         </Grid>
-      </Grid>
 
-      <Box
-        sx={{
-          height: 400,
-          width: "100%",
-          marginTop: 4,
-          "& .custom-header": {
-            backgroundColor: "#dae4ed",
-          },
-        }}
-      >
-        <DataGrid
-          rows={(allStocks || [])?.map((stock, index) => ({
-            id: index,
-            sNo: index + 1,
-            createdAt: new Date(stock.createdAt).toLocaleDateString("en-GB"),
-            itemCode: stock.itemCode || "No Data",
-            itemName: stock?.item?.name || "No Data",
-            brandName: stock?.item?.brand?.name || "No Data",
-            categoryName: stock?.item?.category?.categoryName || "No Data",
-            companyName: stock?.item?.company?.name || "No Data",
-            batchNo: stock.batchNo || "No Data",
-            volume: stock?.item?.volume || "No Data",
-            saleRate: stock.saleRate || "No Data",
-            purchaseRate: stock.purchaseRate || "No Data",
-            stockRate: stock.stockRate || "No Data",
-            stockAt: stock.stockAt || "No Data",
-            currentStock: stock.currentStock || "No Data",
-            openingStock: stock.openingStock || "No Data",
-            mrp: stock.mrp || "No Data",
-          }))}
-          columns={columnsData}
-          rowCount={totalCount}
-          pagination
-          paginationMode="server"
-          pageSizeOptions={[10, 25, 50, 100]}
-          onPaginationModelChange={setPaginationModel}
-          sx={{ backgroundColor: "#fff" }}
-          loadingOverlay={
-            <Box
-              sx={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-              }}
-            >
-              <CircularProgress />
-            </Box>
-          }
-          loading={loading}
-          slots={{
-            toolbar: GridToolbar
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            "& button": { marginTop: 1 },
           }}
-        />
-      </Box>
+        >
+          <Button
+            color="inherit"
+            size="small"
+            variant="contained"
+            onClick={handleClearFilters}
+            sx={{ padding: "4px 10px", fontSize: "11px" }}
+          >
+            Clear Filters
+          </Button>
 
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "flex-end",
-          "& button": { marginTop: 2, marginLeft: 2 },
-        }}
-      >
-        {/* <Button
-          color="inherit"
-          size="medium"
-          variant="contained"
-          onClick={}
-          sx={{ marginTop: 3, marginRight: 2, borderRadius: 8 }}
+          <Button
+            color="info"
+            size="small"
+            variant="contained"
+            onClick={fetchAllStocks}
+            sx={{ marginLeft: 2, padding: "4px 10px", fontSize: "11px" }}
+          >
+            Display
+          </Button>
+          {/* </div> */}
+        </Box>
+
+        <Box
+          sx={{
+            height: 400,
+            width: "100%",
+            marginTop: 1,
+            "& .custom-header": {
+              backgroundColor: "#dae4ed",
+            },
+          }}
         >
-          <ReplayOutlined />
-        </Button> */}
-        {/* <div> */}
-        <Button
-          color="warning"
-          size="medium"
-          variant="outlined"
-          onClick={handleClearFilters}
-          sx={{ borderRadius: 8 }}
-        >
-          Clear
-        </Button>
-        <Button
-          color="secondary"
-          size="medium"
-          variant="outlined"
-          onClick={() => {}}
-          sx={{ borderRadius: 8 }}
-        >
-          Print
-        </Button>
-        <Button
-          color="primary"
-          size="medium"
-          variant="contained"
-          onClick={fetchAllStocks}
-          sx={{ borderRadius: 8 }}
-        >
-          Display
-        </Button>
-        {/* </div> */}
+          <DataGrid
+            rows={(allStocks || [])?.map((stock, index) => ({
+              id: index,
+              sNo: index + 1,
+              createdAt: new Date(stock.createdAt).toLocaleDateString("en-GB"),
+              itemCode: stock.itemCode || "No Data",
+              itemName: stock?.item?.name || "No Data",
+              brandName: stock?.item?.brand?.name || "No Data",
+              categoryName: stock?.item?.category?.categoryName || "No Data",
+              companyName: stock?.item?.company?.name || "No Data",
+              batchNo: stock.batchNo || "No Data",
+              volume: stock?.item?.volume || "No Data",
+              saleRate: stock.saleRate || "No Data",
+              purchaseRate: stock.purchaseRate || "No Data",
+              stockRate: stock.stockRate || "No Data",
+              stockAt: stock.stockAt || "No Data",
+              currentStock: stock.currentStock || "No Data",
+              openingStock: stock.openingStock || "No Data",
+              mrp: stock.mrp || "No Data",
+            }))}
+            columns={columnsData}
+            rowCount={totalCount}
+            pagination
+            paginationMode="server"
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  page: paginationModel.page,
+                  pageSize: paginationModel.pageSize,
+                },
+                rowCount: totalCount,
+              },
+              density: "compact",
+            }}
+            pageSizeOptions={[10, 25, 50, 100]}
+            onPaginationModelChange={setPaginationModel}
+            sx={{ backgroundColor: "#fff", fontSize: "12px" }}
+            disableRowSelectionOnClick
+            loading={loading}
+            loadingOverlay={
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            }
+            slots={{
+              footer: CustomFooter,
+              toolbar: GridToolbar,
+            }}
+          />
+        </Box>
       </Box>
-    </Box>
+    </ThemeProvider>
   );
 };
 

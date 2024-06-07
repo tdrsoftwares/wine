@@ -324,7 +324,7 @@ const ItemWiseSaleReport = () => {
       <Typography variant="h6" sx={{ marginBottom: 2 }}>
         Item Wise Sale Report:
       </Typography>
-      <Typography variant="subtitle1" gutterBottom>
+      <Typography variant="subtitle2" gutterBottom>
         Filter By:
       </Typography>
 
