@@ -9,7 +9,12 @@ import {
   ThemeProvider,
   Typography,
 } from "@mui/material";
-import { DataGrid, GridFooter, GridFooterContainer, GridToolbar } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  GridFooter,
+  GridFooterContainer,
+  GridToolbar,
+} from "@mui/x-data-grid";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { getAllStocks } from "../../services/stockService";
 import { NotificationManager } from "react-notifications";
@@ -42,7 +47,6 @@ const StockReport = () => {
   const [allCategory, setAllCategory] = useState([]);
   const [allStores, setAllStores] = useState([]);
 
-
   const [paginationModel, setPaginationModel] = useState({
     page: 1,
     pageSize: 10,
@@ -50,11 +54,11 @@ const StockReport = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [totalPurRate, setTotalPurRate] = useState(0);
   const [totalVolume, setTotalVolume] = useState(0);
-  const [totalAmount, setTotalStock] = useState(0);
-  const [totalPcs, setTotalMRP] = useState(0);
+  const [totalStock, setTotalStock] = useState(0);
+  const [totalMRP, setTotalMRP] = useState(0);
   // console.log("totalCount: " + totalCount);
   // console.log("paginationModel: ", paginationModel);
-  
+
   const columns = [
     {
       field: "sNo",
@@ -147,7 +151,6 @@ const StockReport = () => {
       width: 120,
       headerClassName: "custom-header",
     },
-    
   ];
 
   const columnsData = useMemo(
@@ -293,7 +296,6 @@ const StockReport = () => {
     fetchAllStores();
   }, []);
 
-
   const handleClearFilters = () => {
     setFilterData({
       ...filterData,
@@ -318,16 +320,17 @@ const StockReport = () => {
       let totalMRP = 0;
 
       data.forEach((item) => {
-        totalPurRate += item.purchaseRate || 0;
-        totalVolume += item.item?.volume || 0;
+        totalPurRate += item.purchaseRate * item.currentStock || 0;
+        totalVolume += item.item?.volume * item.currentStock || 0;
         totalStock += item.currentStock || 0;
-        totalMRP += item.mrp || 0;
+        totalMRP += item.mrp * item.currentStock || 0;
       });
 
       return { totalPurRate, totalVolume, totalStock, totalMRP };
     };
 
-    const { totalPurRate,totalVolume, totalStock, totalMRP } = calculateSums(allStocks);
+    const { totalPurRate, totalVolume, totalStock, totalMRP } =
+      calculateSums(allStocks);
     setTotalPurRate(totalPurRate);
     setTotalVolume(totalVolume);
     setTotalStock(totalStock);
@@ -347,8 +350,8 @@ const StockReport = () => {
         >
           <span>Total Pur. Rate: {totalPurRate.toFixed(2)}</span>
           <span>Total Volume: {totalVolume.toFixed(2) + "ltr"}</span>
-          <span>Total Amount: {totalAmount.toFixed(2)}</span>
-          <span>Total Pcs: {totalPcs.toFixed(0)}</span>
+          <span>Total Stock: {totalStock.toFixed(0)}</span>
+          <span>Total MRP: {totalMRP.toFixed(2)}</span>
         </div>
         <GridFooter />
       </GridFooterContainer>
@@ -361,9 +364,7 @@ const StockReport = () => {
         <Typography variant="subtitle2" gutterBottom>
           Stock Report
         </Typography>
-        <Typography sx={{ fontSize: "13px" }}>
-          Filter By:
-        </Typography>
+        <Typography sx={{ fontSize: "13px" }}>Filter By:</Typography>
 
         <Grid container spacing={2}>
           <Grid item xs={3}>
@@ -376,7 +377,6 @@ const StockReport = () => {
                 size="small"
                 type="number"
                 name="itemCode"
-                className="input-field"
                 value={filterData.itemCode}
                 onChange={handleFilterChange}
               />
@@ -393,7 +393,6 @@ const StockReport = () => {
                 fullWidth
                 size="small"
                 name="itemName"
-                className="input-field"
                 value={filterData.itemName}
                 onChange={handleFilterChange}
                 SelectProps={{
@@ -426,7 +425,6 @@ const StockReport = () => {
                 size="small"
                 type="text"
                 name="category"
-                className="input-field"
                 value={filterData.category}
                 onChange={handleFilterChange}
                 SelectProps={{
@@ -458,7 +456,6 @@ const StockReport = () => {
                 size="small"
                 type="text"
                 name="volume"
-                className="input-field"
                 value={filterData.volume}
                 onChange={handleFilterChange}
               />
@@ -474,7 +471,6 @@ const StockReport = () => {
                 fullWidth
                 size="small"
                 name="batchNo"
-                className="input-field"
                 value={filterData.batchNo}
                 onChange={handleFilterChange}
               />
@@ -491,7 +487,6 @@ const StockReport = () => {
                 fullWidth
                 size="small"
                 name="brandName"
-                className="input-field"
                 value={filterData.brandName}
                 onChange={handleFilterChange}
                 SelectProps={{
@@ -523,7 +518,6 @@ const StockReport = () => {
                 fullWidth
                 size="small"
                 name="stockIn"
-                className="input-field"
                 value={filterData.stockIn}
                 onChange={handleFilterChange}
                 SelectProps={{
@@ -555,7 +549,6 @@ const StockReport = () => {
                 fullWidth
                 size="small"
                 name="company"
-                className="input-field"
                 value={filterData.company}
                 onChange={handleFilterChange}
                 SelectProps={{
