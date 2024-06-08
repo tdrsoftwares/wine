@@ -168,3 +168,13 @@ export const getDailySalesDetails = async (filterOptions) => {
   }
 };
 
+
+export const getSaleDetailsByEntryNo = async (billNo) => {
+  try {
+    const apiURL = `/sales/bill/${billNo}`;
+    const getSalesData = await axiosInstance.get(apiURL);
+    return getSalesData;
+  } catch (error){
+    return error
+  }
+}

@@ -137,10 +137,10 @@ export const getPurchaseDetailsByEntryNo = async (entryNo) => {
   }
 }
 
-export const updatePurchaseDetailsByEntryNo = async (payload) => {
+export const updatePurchaseDetailsByEntryNo = async (payload, entryNo) => {
   try {
-    const apiURL = ``;
-    const updateDetails = await axiosInstance.post(apiURL, payload);
+    const apiURL = `/purchases/update/${entryNo}`;
+    const updateDetails = await axiosInstance.put(apiURL, payload);
     return updateDetails;
   } catch (error) {
     return error;

@@ -28,6 +28,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import debounce from "lodash.debounce";
 import {
   createSale,
+  getSaleDetailsByEntryNo,
   searchAllSalesByItemCode,
   searchAllSalesByItemName,
 } from "../../../services/saleBillService";
@@ -35,7 +36,8 @@ import { getAllLedgers } from "../../../services/ledgerService";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import dayjs from "dayjs";
+import dayjs, { utc } from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { customTheme } from "../../../utils/customTheme";
 
 const SaleBill = () => {
@@ -45,8 +47,9 @@ const SaleBill = () => {
   const [salesData, setSalesData] = useState([]);
   const [allLedgers, setAllLedgers] = useState([]);
 
+
   const todaysDate = dayjs();
-  console.log("salesData: ", salesData);
+  // console.log("salesData: ", salesData);
   const [searchMode, setSearchMode] = useState(false);
   const [formData, setFormData] = useState({
     barCode: "",
@@ -100,7 +103,7 @@ const SaleBill = () => {
     receiptMode2: "",
   });
 
-  console.log("totalValues: ", totalValues);
+  // console.log("totalValues: ", totalValues);
 
   const tableRef = useRef(null);
   const customerNameRef = useRef(null);
@@ -136,7 +139,7 @@ const SaleBill = () => {
   const fetchAllCustomers = async () => {
     try {
       const allCustomerResponse = await getAllCustomer();
-      console.log("allCustomerResponse ---> ", allCustomerResponse);
+      // console.log("allCustomerResponse ---> ", allCustomerResponse);
       setAllCustomerData(allCustomerResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
@@ -370,7 +373,7 @@ const SaleBill = () => {
       const selectedCustomer = allCustomerData.find(
         (customer) => customer._id === formData.customerName._id
       );
-      console.log("selectedCustomer: ", selectedCustomer);
+      // console.log("selectedCustomer: ", selectedCustomer);
       if (selectedCustomer) {
         setFormData({
           ...formData,
@@ -451,20 +454,20 @@ const SaleBill = () => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    console.log("date: ", date);
+    // console.log("date: ", date);
 
     const day = date.getDate().toString().padStart(2, "0");
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const year = date.getFullYear().toString();
 
     const formattedDate = `${day}/${month}/${year}`;
-    console.log("formattedDate: ", formattedDate);
+    // console.log("formattedDate: ", formattedDate);
     return formattedDate;
   };
 
   const handleItemNameChange = (event) => {
     const itemName = event.target.value;
-    console.log("itemName: ", itemName);
+    // console.log("itemName: ", itemName);
     itemNameSearch(itemName);
     setFormData({
       ...formData,
@@ -533,7 +536,7 @@ const SaleBill = () => {
   const handleRowClick = (index) => {
     const selectedRow = searchResults[index];
 
-    console.log("handleRowClick selectedRow: ", selectedRow);
+    // console.log("handleRowClick selectedRow: ", selectedRow);
     setFormData({
       ...formData,
       itemId: selectedRow.item[0]._id,
@@ -551,7 +554,7 @@ const SaleBill = () => {
     pcsRef.current.focus();
   };
 
-  console.log("formData after row click: ", formData);
+  // console.log("formData after row click: ", formData);
 
   const handleEditClick = (index) => {
     setEditableIndex(index);
@@ -730,14 +733,14 @@ const SaleBill = () => {
         payload.push(newPayload);
       });
     }
-    console.log("payload: --> ", payload);
+    // console.log("payload: --> ", payload);
 
     try {
       const response = await createSale(payload);
       console.log("response: ", response);
 
       if (response.status === 200) {
-        console.log("Sale created successfully:", response);
+        // console.log("Sale created successfully:", response);
         NotificationManager.success("Sale created successfully", "Success");
         resetTopFormData();
         resetMiddleFormData();
@@ -760,7 +763,7 @@ const SaleBill = () => {
     const itemCode = e.target.value;
     setFormData({ ...formData, itemCode: itemCode });
     await itemCodeSearch(itemCode);
-    console.log("search result: ", searchResults);
+    // console.log("search result: ", searchResults);
 
     if (!itemCode) {
       resetMiddleFormData();
@@ -846,6 +849,11 @@ const SaleBill = () => {
     return grossAmt;
   };
 
+  const handleBillNoChange = (e) => {
+    const { value } = e.target;
+    setFormData({ ...formData, billno: value });
+  }
+
   const handleReceiptModeChange = (e) => {
     const value = e.target.value;
     // const receiptMode2Amt = parseInt(totalValues.receiptAmt)
@@ -855,6 +863,87 @@ const SaleBill = () => {
       receiptAmt: parseInt(totalValues.netAmt) - parseInt(value),
     });
   };
+
+  const convertToDayjsObject = (dateStr) => {
+    return dayjs(dateStr, "DD/MM/YYYY");
+  };
+
+  const billNumberSearch = debounce(async () => {
+    console.log("billNo search...: ", );
+    try {
+      if (formData.billno) {
+        const response = await getSaleDetailsByEntryNo(formData.billno);
+        console.log("allSalesData response: ", response.data.data);
+
+        if (response?.data?.data) {
+          const receivedData = response.data.data;
+
+          const billDateObject = convertToDayjsObject(receivedData.billDate);
+          console.log("billDateObject: ", billDateObject);
+
+          setFormData({
+            customerName: receivedData.customerName,
+            address: receivedData.address,
+            phoneNo: receivedData.phoneNo,
+            series: receivedData.series,
+            billNo: receivedData.billNo,
+            billDate: billDateObject,
+          });
+
+          const salesItems = receivedData?.salesItems;
+          console.log("salesItems: ", salesItems);
+
+          const newSalesItems = salesItems.map((purchase) => ({
+            itemCode: purchase?.itemCode,
+            itemName: purchase?.itemId?.name,
+            mrp: purchase?.mrp,
+            batch: purchase?.batchNo,
+            pcs: purchase?.pcs,
+            rate: purchase?.rate,
+            discount: purchase?.discount,
+            amount: purchase?.amount,
+            brk: purchase?.break,
+            split: purchase?.split
+          }));
+
+          // // console.log("newSalesItems: ", newSalesItems);
+
+          setSalesData([...newSalesItems]);
+
+          setTotalValues({
+            totalVolume: receivedData.volume || 0,
+            totalPcs: receivedData.totalPcs || 0,
+            splDiscount: receivedData.splDisc || 0,
+            splDiscAmount: receivedData.splDiscAmount,
+
+            grossAmt: receivedData.grossAmount,
+            discountAmt: receivedData.discAmount,
+            taxAmt: receivedData.taxAmount,
+            // totalMrp: receivedData.,
+            adjustment: receivedData.adjustment,
+            netAmt: receivedData.netAmount,
+
+            // receiptAmt: receivedData.,
+            // receiptMode1: receivedData.,
+            // receiptMode2: receivedData.,
+          });
+        } else {
+          resetTopFormData();
+          resetMiddleFormData();
+          resetTotalValues();
+          setSalesData([]);
+          NotificationManager.error("No sales details found!");
+        }
+      }
+    } catch (error) {
+      resetTopFormData();
+          resetMiddleFormData();
+          resetTotalValues();
+          setSalesData([]);
+      NotificationManager.error("Error fetching sales details!");
+      console.error("Error fetching sales:", error);
+    }
+  }, 700);
 
   const calculateNetAmount = () => {
     const totalVolume = salesData.reduce(
@@ -932,6 +1021,14 @@ const SaleBill = () => {
       );
     }
   }, []);
+
+  useEffect(() => {
+    console.log("--> ",billNoEditable);
+    console.log("formData.billno --> ", formData.billno);
+    if (formData.billno && billNoEditable) {
+      billNumberSearch(formData.billno);
+    }
+  }, [formData.billno]);
 
   return (
     <Box component="form" sx={{ p: 2, width: "900px" }}>
@@ -1066,14 +1163,14 @@ const SaleBill = () => {
               </InputLabel>
               <TextField
                 fullWidth
+                inputRef={billNoRef}
                 size="small"
-                type="number"
                 name="billno"
+                className="entryNo-adjustment"
                 value={formData.billno}
-                onChange={(e) =>
-                  setFormData({ ...formData, billno: e.target.value })
-                }
-                disabled={billNoEditable ? false : true}
+                onChange={handleBillNoChange}
+                disabled={!billNoEditable}
+                onKeyDown={e => billNoEditable ?? handleEnterKey(e, billDateRef)}
               />
             </div>
           </Grid>
@@ -1591,7 +1688,6 @@ const SaleBill = () => {
               <TextField
                 inputRef={totalVolRef}
                 variant="outlined"
-                className="input-field"
                 size="small"
                 fullWidth
                 value={totalValues.totalVolume}
@@ -1604,7 +1700,6 @@ const SaleBill = () => {
               <TextField
                 inputRef={totalPcsRef}
                 variant="outlined"
-                className="input-field"
                 size="small"
                 fullWidth
                 value={totalValues.totalPcs}
@@ -1617,7 +1712,6 @@ const SaleBill = () => {
               <TextField
                 inputRef={grossAmtRef}
                 variant="outlined"
-                className="input-field"
                 size="small"
                 fullWidth
                 value={totalValues.grossAmt}
@@ -1630,7 +1724,6 @@ const SaleBill = () => {
               <TextField
                 inputRef={rectMode1Ref}
                 variant="outlined"
-                className="input-field"
                 size="small"
                 fullWidth
                 value={totalValues.receiptMode1}
@@ -1644,7 +1737,6 @@ const SaleBill = () => {
                 select
                 inputRef={rectMode2Ref}
                 variant="outlined"
-                className="input-field"
                 size="small"
                 fullWidth
                 value={totalValues.receiptMode2}
@@ -1668,7 +1760,6 @@ const SaleBill = () => {
               <TextField
                 inputRef={rectMode2AmtRef}
                 variant="outlined"
-                className="input-field"
                 size="small"
                 fullWidth
                 value={totalValues.receiptAmt}
@@ -1683,7 +1774,6 @@ const SaleBill = () => {
               <TextField
                 inputRef={sDiscPercentRef}
                 variant="outlined"
-                className="input-field"
                 size="small"
                 fullWidth
                 value={totalValues.splDiscount}
@@ -1701,7 +1791,6 @@ const SaleBill = () => {
               <TextField
                 inputRef={sDiscAmtRef}
                 variant="outlined"
-                className="input-field"
                 size="small"
                 fullWidth
                 value={totalValues.splDiscAmount}
@@ -1714,7 +1803,6 @@ const SaleBill = () => {
               <TextField
                 inputRef={discAmtRef}
                 variant="outlined"
-                className="input-field"
                 size="small"
                 fullWidth
                 value={totalValues.discountAmt}
@@ -1727,7 +1815,6 @@ const SaleBill = () => {
               <TextField
                 inputRef={taxAmtRef}
                 variant="outlined"
-                className="input-field"
                 size="small"
                 fullWidth
                 value={totalValues.taxAmt}
@@ -1741,7 +1828,6 @@ const SaleBill = () => {
               <TextField
                 inputRef={adjustmentRef}
                 variant="outlined"
-                className="input-field"
                 size="small"
                 fullWidth
                 value={totalValues.adjustment}
@@ -1754,7 +1840,6 @@ const SaleBill = () => {
               <TextField
                 inputRef={netAmtRef}
                 variant="outlined"
-                className="input-field"
                 size="small"
                 fullWidth
                 value={totalValues.netAmt}
@@ -1782,6 +1867,7 @@ const SaleBill = () => {
             resetTotalValues();
             setSalesData([]);
             handleEnterKey(e, itemCodeRef);
+            setBillNoEditable(false)
           }}
           sx={{
             marginTop: 1,
@@ -1843,7 +1929,10 @@ const SaleBill = () => {
           color="warning"
           size="medium"
           variant="contained"
-          onClick={() => setBillNoEditable(true)}
+          onClick={() => {
+            billNoRef.current.focus();
+            setBillNoEditable(true)
+          }}
           sx={{
             marginTop: 1,
             marginRight: 1,
