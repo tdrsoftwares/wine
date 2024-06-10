@@ -10,6 +10,7 @@ import {
   Radio,
   RadioGroup,
   TextField,
+  ThemeProvider,
   Typography,
 } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
@@ -24,6 +25,7 @@ import PurchaseDetailsModal from "./PurchaseDetailsModal";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import { customTheme } from "../../../utils/customTheme";
 
 const PurchaseReportSummary = () => {
   const [selectedSupplier, setSelectedSupplier] = useState("");
@@ -253,211 +255,218 @@ const PurchaseReportSummary = () => {
 
 
   return (
-    <Box sx={{ p: 2, width: "900px" }}>
-      <Typography variant="h6" sx={{ marginBottom: 2 }}>
-        Purchase Report Summary:
-      </Typography>
-      <Typography variant="subtitle2" gutterBottom>
-        Filter By:
-      </Typography>
+    <ThemeProvider theme={customTheme}>
+      <Box sx={{ p: 2, width: "900px" }}>
+        <Typography variant="subtitle2" gutterBottom>
+          Purchase Report Summary:
+        </Typography>
+        <Typography sx={{ fontSize: "13px" }}>
+          Filter By:
+        </Typography>
 
-      <Grid container spacing={2}>
-        <Grid item xs={3}>
-          <RadioGroup
-            row
-            name="filter1"
-            aria-label="filter1"
-            value={filter1}
-            onChange={(e) => setFilter1(e.target.value)}
-          >
-            <FormControlLabel value="date" control={<Radio />} label="Date" />
-            <FormControlLabel
-              value="supplier-date"
-              control={<Radio />}
-              label="Supplier-Date"
-            />
-          </RadioGroup>
-        </Grid>
-
-        <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="dateFrom" className="input-label">
-              Bill date from:
-            </InputLabel>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                id="dateFrom"
-                format="DD/MM/YYYY"
-                value={dateFrom}
-                className="input-field date-picker"
-                onChange={(date) => setDateFrom(date)}
-                renderInput={(params) => <TextField {...params} />}
+        <Grid container spacing={2}>
+          <Grid item xs={3}>
+            <RadioGroup
+              row
+              name="filter1"
+              aria-label="filter1"
+              value={filter1}
+              onChange={(e) => setFilter1(e.target.value)}
+            >
+              <FormControlLabel value="date" control={<Radio />} label="Date" />
+              <FormControlLabel
+                value="supplier-date"
+                control={<Radio />}
+                label="Supplier-Date"
               />
-            </LocalizationProvider>
-          </div>
-        </Grid>
+            </RadioGroup>
+          </Grid>
 
-        <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="dateTo" className="input-label">
-              Bill date to:
-            </InputLabel>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="dateFrom" className="input-label">
+                Bill date from:
+              </InputLabel>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  id="dateFrom"
+                  format="DD/MM/YYYY"
+                  value={dateFrom}
+                  className="date-picker"
+                  onChange={(date) => setDateFrom(date)}
+                  renderInput={(params) => <TextField {...params} />}
+                />
+              </LocalizationProvider>
+            </div>
+          </Grid>
 
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                id="dateTo"
-                format="DD/MM/YYYY"
-                value={dateTo}
-                className="input-field date-picker"
-                onChange={(date) => setDateTo(date)}
-                renderInput={(params) => <TextField {...params} />}
-              />
-            </LocalizationProvider>
-          </div>
-        </Grid>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="dateTo" className="input-label">
+                Bill date to:
+              </InputLabel>
 
-        <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="supplier" className="input-label">
-              Supplier:
-            </InputLabel>
-            <TextField
-              select
-              fullWidth
-              size="small"
-              name="supplier"
-              className="input-field"
-              value={selectedSupplier}
-              disabled={filter1 === "supplier-date" ? false : true}
-              onChange={(e) => setSelectedSupplier(e.target.value)}
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  id="dateTo"
+                  format="DD/MM/YYYY"
+                  value={dateTo}
+                  className="date-picker"
+                  onChange={(date) => setDateTo(date)}
+                  renderInput={(params) => <TextField {...params} />}
+                />
+              </LocalizationProvider>
+            </div>
+          </Grid>
+
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="supplier" className="input-label">
+                Supplier:
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="supplier"
+                value={selectedSupplier}
+                disabled={filter1 === "supplier-date" ? false : true}
+                onChange={(e) => setSelectedSupplier(e.target.value)}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
                     },
                   },
-                },
-              }}
-            >
-              {allSuppliers.map((item) => (
-                <MenuItem key={item.id} value={item.name}>
-                  {item.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
-        </Grid>
-      </Grid>
-
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          "& button": { marginTop: 2 },
-        }}
-      >
-        <Button
-          color="inherit"
-          size="small"
-          variant="contained"
-          onClick={() => {
-            setDateFrom(null);
-            setDateTo(null);
-            setSelectedSupplier("");
-            setFilter1("date");
-            setPaginationModel({ page: 0, pageSize: 10 });
-            fetchAllPurchases();
-          }}
-          // sx={{ borderRadius: 8 }}
-        >
-          Clear Filters
-        </Button>
-        <div>
-
-        <Button
-          color="inherit"
-          size="small"
-          variant="contained"
-          // sx={{ borderRadius: 8 }}
-        >
-          Print
-        </Button>
-        <Button
-          color="info"
-          size="small"
-          variant="contained"
-          onClick={fetchAllPurchases}
-          sx={{ marginLeft: 2 }}
-        >
-          Display
-        </Button>
-        </div>
-      </Box>
-
-      <Box
-        sx={{
-          height: 500,
-          width: "100%",
-          marginTop: 2,
-          "& .custom-header": { backgroundColor: "#dae4ed", paddingLeft: 4 },
-          "& .custom-cell": { paddingLeft: 4 },
-        }}
-      >
-        <DataGrid
-          rows={(allPurchases || []).map((purchase, index) => ({
-            id: index,
-            sNo: index + 1,
-            ...purchase,
-            action: (
-              <Button
-                variant="contained"
-                size="small"
-                onClick={() => handleViewClick(purchase)}
-              >
-                View
-              </Button>
-            ),
-          }))}
-          columns={columnsData}
-          rowCount={totalCount}
-          pagination
-          paginationMode="server"
-          pageSizeOptions={[10, 25, 50, 100]}
-          paginationModel={paginationModel}
-          onPaginationModelChange={setPaginationModel}
-          sx={{ backgroundColor: "#fff" }}
-          loading={loading}
-          components={{
-            LoadingOverlay: () => (
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: "50%",
-                  left: "50%",
-                  transform: "translate(-50%, -50%)",
                 }}
               >
-                <CircularProgress />
-              </Box>
-            ),
-          }}
-          slots={{
-            toolbar: GridToolbar,
-            // pagination: Pagination
-          }}
-          // initialState={{
-          //   pagination: paginationModel,
-          // }}
-        />
+                {allSuppliers.map((item) => (
+                  <MenuItem key={item.id} value={item.name}>
+                    {item.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </Grid>
+        </Grid>
 
-        <PurchaseDetailsModal
-          open={isModalOpen}
-          handleClose={() => setIsModalOpen(false)}
-          rowData={selectedRowData}
-        />
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            "& button": { marginTop: 1 },
+          }}
+        >
+          <Button
+            color="inherit"
+            size="small"
+            variant="contained"
+            onClick={() => {
+              setDateFrom(null);
+              setDateTo(null);
+              setSelectedSupplier("");
+              setFilter1("date");
+              setPaginationModel({ page: 0, pageSize: 10 });
+              fetchAllPurchases();
+            }}
+            // sx={{ borderRadius: 8 }}
+          >
+            Clear Filters
+          </Button>
+          <div>
+            <Button
+              color="inherit"
+              size="small"
+              variant="contained"
+              // sx={{ borderRadius: 8 }}
+            >
+              Print
+            </Button>
+            <Button
+              color="info"
+              size="small"
+              variant="contained"
+              onClick={fetchAllPurchases}
+              sx={{ marginLeft: 2 }}
+            >
+              Display
+            </Button>
+          </div>
+        </Box>
+
+        <Box
+          sx={{
+            height: 500,
+            width: "100%",
+            marginTop: 1,
+            "& .custom-header": { backgroundColor: "#dae4ed", paddingLeft: 4 },
+            "& .custom-cell": { paddingLeft: 4 },
+          }}
+        >
+          <DataGrid
+            rows={(allPurchases || []).map((purchase, index) => ({
+              id: index,
+              sNo: index + 1,
+              ...purchase,
+              action: (
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={() => handleViewClick(purchase)}
+                >
+                  View
+                </Button>
+              ),
+            }))}
+            columns={columnsData}
+            rowCount={totalCount}
+            pagination
+            paginationMode="server"
+            pageSizeOptions={[10, 25, 50, 100]}
+            paginationModel={paginationModel}
+            onPaginationModelChange={setPaginationModel}
+            sx={{ backgroundColor: "#fff" }}
+            loading={loading}
+            components={{
+              LoadingOverlay: () => (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                  }}
+                >
+                  <CircularProgress />
+                </Box>
+              ),
+            }}
+            slots={{
+              toolbar: GridToolbar,
+              // pagination: Pagination
+            }}
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  page: paginationModel.page,
+                  pageSize: paginationModel.pageSize,
+                },
+                rowCount: totalCount,
+              },
+              density: "compact",
+            }}
+          />
+
+          <PurchaseDetailsModal
+            open={isModalOpen}
+            handleClose={() => setIsModalOpen(false)}
+            rowData={selectedRowData}
+          />
+        </Box>
       </Box>
-    </Box>
+    </ThemeProvider>
   );
 };
 

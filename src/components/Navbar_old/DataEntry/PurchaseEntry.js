@@ -360,6 +360,7 @@ const PurchaseEntry = () => {
       }
     }
 
+    console.log("updatedRow: ",updatedRow);
     updatedPurchases[index] = updatedRow;
     setPurchases(updatedPurchases);
 
@@ -490,8 +491,8 @@ const PurchaseEntry = () => {
           // console.log("purchaseItems: ", purchaseItems);
 
           const newPurchaseItems = purchaseItems.map((purchase) => ({
-            _id: purchase?.purchaseItems?._id,
-            itemId: purchase?.purchaseItems?.itemId?._id,
+            _id: purchase?._id,
+            itemId: purchase?.itemId?._id,
             itemCode: purchase?.itemCode,
             itemName: purchase?.itemId?.name,
             mrp: purchase?.mrp,
@@ -506,7 +507,7 @@ const PurchaseEntry = () => {
             amount: purchase?.itemAmount,
           }));
 
-          // console.log("newPurchaseItems: ", newPurchaseItems);
+          console.log("newPurchaseItems: ", newPurchaseItems);
 
           setPurchases([...newPurchaseItems]);
 
@@ -805,7 +806,7 @@ const PurchaseEntry = () => {
       netAmount: parseFloat(totalValues.netAmt) || 0,
       otherCharges: parseInt(totalValues.otherCharges) || 0,
       purchaseItems: purchases.map((item) => ({
-        // _id: 
+        _id: item._id,
         itemCode: item.itemCode.toString(),
         itemId: item.itemId,
         mrp: parseFloat(item.mrp) || 0,

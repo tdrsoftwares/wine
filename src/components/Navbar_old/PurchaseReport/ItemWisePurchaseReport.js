@@ -11,6 +11,7 @@ import {
   Radio,
   RadioGroup,
   TextField,
+  ThemeProvider,
   Typography,
 } from "@mui/material";
 import dayjs from "dayjs";
@@ -24,6 +25,7 @@ import { getAllSuppliers } from "../../../services/supplierService";
 import { getAllItems } from "../../../services/itemService";
 import { getAllItemCategory } from "../../../services/categoryService";
 import { getAllBrands } from "../../../services/brandService";
+import { customTheme } from "../../../utils/customTheme";
 
 const ItemWisePurchaseReport = () => {
   const [selectedSupplier, setSelectedSupplier] = useState("");
@@ -48,8 +50,8 @@ const ItemWisePurchaseReport = () => {
   const [volume, setVolume] = useState("");
   const [loading, setLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
-    page: 0,
-    pageSize: 25,
+    page: 1,
+    pageSize: 10,
   });
 
   const [batch, setBatch] = useState("");
@@ -218,8 +220,11 @@ const ItemWisePurchaseReport = () => {
     setLoading(true);
     try {
       const filterOptions = {
-        page: paginationModel.page + 1,
-        limit: paginationModel.pageSize,
+        page:
+          paginationModel.page === 0
+            ? paginationModel.page + 1
+            : paginationModel.page,
+        pageSize: paginationModel.pageSize,
         fromDate: fromDate,
         toDate: toDate,
         itemName: itemName,
@@ -337,320 +342,322 @@ const ItemWisePurchaseReport = () => {
   ]);
 
   return (
-    <Box sx={{ p: 2, width: "900px" }}>
-      <Typography variant="h6" sx={{ marginBottom: 2 }}>
-        Item Wise Purchase Report:
-      </Typography>
-      <Typography variant="subtitle2" gutterBottom>
-        Filter By:
-      </Typography>
+    <ThemeProvider theme={customTheme}>
+      <Box sx={{ p: 2, width: "900px" }}>
+        <Typography variant="subtitle2" gutterBottom>
+          Item Wise Purchase Report:
+        </Typography>
+        <Typography sx={{ fontSize: "13px" }}>Filter By:</Typography>
 
-      <Grid container spacing={2}>
-        <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="dateFrom" className="input-label">
-              Date from:
-            </InputLabel>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                id="dateFrom"
-                format="DD/MM/YYYY"
-                value={dateFrom}
-                className="input-field date-picker"
-                onChange={(date) => setDateFrom(date)}
-                renderInput={(params) => <TextField {...params} />}
+        <Grid container spacing={2}>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="dateFrom" className="input-label">
+                Date from:
+              </InputLabel>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  id="dateFrom"
+                  format="DD/MM/YYYY"
+                  value={dateFrom}
+                  className="date-picker"
+                  onChange={(date) => setDateFrom(date)}
+                  renderInput={(params) => <TextField {...params} />}
+                />
+              </LocalizationProvider>
+            </div>
+          </Grid>
+
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="dateTo" className="input-label">
+                Date to:
+              </InputLabel>
+
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  id="dateTo"
+                  format="DD/MM/YYYY"
+                  value={dateTo}
+                  className="date-picker"
+                  onChange={(date) => setDateTo(date)}
+                  renderInput={(params) => <TextField {...params} />}
+                />
+              </LocalizationProvider>
+            </div>
+          </Grid>
+
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="Supplier" className="input-label">
+                Supplier:
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="Supplier"
+                value={selectedSupplier}
+                onChange={(e) => setSelectedSupplier(e.target.value)}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
+                    },
+                  },
+                }}
+              >
+                {allSuppliers?.map((item) => (
+                  <MenuItem key={item.id} value={item.name}>
+                    {item.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </Grid>
+
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="itemName" className="input-label">
+                Item:
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="itemName"
+                value={itemName}
+                onChange={(e) => setItemName(e.target.value)}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
+                    },
+                  },
+                }}
+              >
+                {allItems?.map((item) => (
+                  <MenuItem key={item._id} value={item.name}>
+                    {item.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </Grid>
+
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="itemCode" className="input-label">
+                ItemCode:
+              </InputLabel>
+              <TextField
+                fullWidth
+                name="itemCode"
+                size="small"
+                value={itemCode}
+                onChange={(e) => setItemCode(e.target.value)}
               />
-            </LocalizationProvider>
-          </div>
-        </Grid>
+            </div>
+          </Grid>
 
-        <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="dateTo" className="input-label">
-              Date to:
-            </InputLabel>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="brandName" className="input-label">
+                Brand:
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="brandName"
+                value={brandName}
+                onChange={(e) => setBrandName(e.target.value)}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
+                    },
+                  },
+                }}
+              >
+                {allBrands.map((brand) => (
+                  <MenuItem key={brand._id} value={brand.name}>
+                    {brand.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </Grid>
 
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                id="dateTo"
-                format="DD/MM/YYYY"
-                value={dateTo}
-                className="input-field date-picker"
-                onChange={(date) => setDateTo(date)}
-                renderInput={(params) => <TextField {...params} />}
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="categoryName" className="input-label">
+                Category:
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="categoryName"
+                value={categoryName}
+                onChange={(e) => setCategoryName(e.target.value)}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
+                    },
+                  },
+                }}
+              >
+                {allCategory?.map((category) => (
+                  <MenuItem key={category._id} value={category.categoryName}>
+                    {category.categoryName}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </Grid>
 
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="volume" className="input-label">
+                Volume:
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                name="volume"
+                value={volume}
+                onChange={(e) => setVolume(e.target.value)}
               />
-            </LocalizationProvider>
-          </div>
+            </div>
+          </Grid>
         </Grid>
 
-        <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="Supplier" className="input-label">
-              Supplier:
-            </InputLabel>
-            <TextField
-              select
-              fullWidth
-              size="small"
-              name="Supplier"
-              className="input-field"
-              value={selectedSupplier}
-              onChange={(e) => setSelectedSupplier(e.target.value)}
-
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
-                    },
-                  },
-                },
-              }}
-            >
-              {allSuppliers?.map((item) => (
-                <MenuItem key={item.id} value={item.name}>
-                  {item.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
-        </Grid>
-
-        <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="itemName" className="input-label">
-              Item:
-            </InputLabel>
-            <TextField
-              select
-              fullWidth
-              size="small"
-              name="itemName"
-              className="input-field"
-              value={itemName}
-              onChange={(e) => setItemName(e.target.value)}
-
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
-                    },
-                  },
-                },
-              }}
-            >
-              {allItems?.map((item) => (
-                <MenuItem key={item._id} value={item.name}>
-                  {item.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
-        </Grid>
-
-        <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="itemCode" className="input-label">
-              ItemCode:
-            </InputLabel>
-            <TextField
-              fullWidth
-              name="itemCode"
-              size="small"
-              className="input-field"
-              value={itemCode}
-              onChange={(e) => setItemCode(e.target.value)}
-            />
-          </div>
-        </Grid>
-
-        <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="brandName" className="input-label">
-              Brand:
-            </InputLabel>
-            <TextField
-              select
-              fullWidth
-              size="small"
-              name="brandName"
-              className="input-field"
-              value={brandName}
-              onChange={(e) => setBrandName(e.target.value)}
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
-                    },
-                  },
-                },
-              }}
-            >
-              {allBrands.map((brand) => (
-                <MenuItem key={brand._id} value={brand.name}>
-                  {brand.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
-        </Grid>
-
-        <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="categoryName" className="input-label">
-              Category:
-            </InputLabel>
-            <TextField
-              select
-              fullWidth
-              size="small"
-              name="categoryName"
-              className="input-field"
-              value={categoryName}
-              onChange={(e) => setCategoryName(e.target.value)}
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
-                    },
-                  },
-                },
-              }}
-            >
-              {allCategory?.map((category) => (
-                <MenuItem key={category._id} value={category.categoryName}>
-                  {category.categoryName}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
-        </Grid>
-
-        <Grid item xs={3}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="volume" className="input-label">
-              Volume:
-            </InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              name="volume"
-              className="input-field"
-              value={volume}
-              onChange={(e) => setVolume(e.target.value)}
-            />
-          </div>
-        </Grid>
-      </Grid>
-
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          "& button": { marginTop: 2 },
-        }}
-      >
-        <Button
-          color="inherit"
-          size="small"
-          variant="contained"
-          onClick={() => {
-            setDateFrom(null);
-            setDateTo(null);
-            setSelectedSupplier("");
-            setItemName("");
-            setBrandName("");
-            setCategoryName("");
-            setVolume("");
-            setItemCode("");
-            // setFilter1("");
-            setBatch("");
-            setPaginationModel({ page: 0, pageSize: 25 });
-            // fetchAllPurchases();
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            "& button": { marginTop: 1 },
           }}
-          // sx={{ borderRadius: 8 }}
         >
-          Clear Filters
-        </Button>
-        <div>
           <Button
             color="inherit"
             size="small"
             variant="contained"
+            onClick={() => {
+              setDateFrom(null);
+              setDateTo(null);
+              setSelectedSupplier("");
+              setItemName("");
+              setBrandName("");
+              setCategoryName("");
+              setVolume("");
+              setItemCode("");
+              // setFilter1("");
+              setBatch("");
+              setPaginationModel({ page: 1, pageSize: 10 });
+              // fetchAllPurchases();
+            }}
             // sx={{ borderRadius: 8 }}
           >
-            Print
+            Clear Filters
           </Button>
-          <Button
-            color="info"
-            size="small"
-            variant="contained"
-            onClick={() => fetchAllPurchases()}
-            sx={{ marginLeft: 2 }}
-          >
-            Display
-          </Button>
-        </div>
-      </Box>
+          <div>
+            <Button
+              color="inherit"
+              size="small"
+              variant="contained"
+              // sx={{ borderRadius: 8 }}
+            >
+              Print
+            </Button>
+            <Button
+              color="info"
+              size="small"
+              variant="contained"
+              onClick={() => fetchAllPurchases()}
+              sx={{ marginLeft: 2 }}
+            >
+              Display
+            </Button>
+          </div>
+        </Box>
 
-      <Box
-        sx={{
-          height: 500,
-          width: "100%",
-          marginTop: 2,
-          "& .custom-header": { backgroundColor: "#dae4ed", paddingLeft: 4 },
-          "& .custom-cell": { paddingLeft: 4 },
-        }}
-      >
-        <DataGrid
-          rows={(allPurchases || [])?.map((item, index) => ({
-            id: index,
-            sNo: index + 1,
-            createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
-            // billDate: item.billDate || "No Data",
-            entryNo: item.entryNo || "No Data",
-            billNo: item.billNo || "No Data",
-            itemCode: item.purchaseItems?.itemCode || "No Data",
-            itemName: item.purchaseItems?.item?.name || "No Data",
-            brandName: item.purchaseItems?.item?.brand?.name || "No Data",
-            categoryName: item.purchaseItems?.item?.category?.categoryName || "No Data",
-            batchNo: item.purchaseItems.batchNo || "No Data",
-            brokenNo: item.purchaseItems?.brokenNo || "No Data",
-            caseNo: item.purchaseItems?.caseNo || "No Data",
-            pcs: item.purchaseItems?.pcs || "No Data",
-            volume: item.purchaseItems?.item?.volume || "No Data",
-            mrp: item.purchaseItems?.mrp || "No Data",
-            gro: item.purchaseItems?.gro || "No Data", // item er gro lagbe
-            sp: item.purchaseItems?.sp || "No Data", // item er sp lagbe
-            supplierName: item.supplierName || "No Data",
-            purchaseRate: item.purchaseItems?.purchaseRate || "No Data",
-            saleRate: item.purchaseItems?.saleRate || "No Data",
-            itemAmount: item.purchaseItems?.itemAmount || "No Data",
-          }))}
-          columns={columns}
-          rowCount={totalCount}
-          pagination
-          paginationMode="server"
-          paginationModel={paginationModel}
-          pageSizeOptions={[10, 25, 50, 100]}
-          onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
-          sx={{ backgroundColor: "#fff" }}
-          loading={loading}
-          loadingOverlay={
-            <Box>
-              <CircularProgress />
-            </Box>
-          }
-          slots={{
-            toolbar: GridToolbar
+        <Box
+          sx={{
+            height: 500,
+            width: "100%",
+            marginTop: 1,
+            "& .custom-header": { backgroundColor: "#dae4ed", paddingLeft: 4 },
+            "& .custom-cell": { paddingLeft: 4 },
           }}
-        />
+        >
+          <DataGrid
+            rows={(allPurchases || [])?.map((item, index) => ({
+              id: index,
+              sNo: index + 1,
+              createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
+              // billDate: item.billDate || "No Data",
+              entryNo: item.entryNo || "No Data",
+              billNo: item.billNo || "No Data",
+              itemCode: item.purchaseItems?.itemCode || "No Data",
+              itemName: item.purchaseItems?.item?.name || "No Data",
+              brandName: item.purchaseItems?.item?.brand?.name || "No Data",
+              categoryName:
+                item.purchaseItems?.item?.category?.categoryName || "No Data",
+              batchNo: item.purchaseItems.batchNo || "No Data",
+              brokenNo: item.purchaseItems?.brokenNo || "No Data",
+              caseNo: item.purchaseItems?.caseNo || "No Data",
+              pcs: item.purchaseItems?.pcs || "No Data",
+              volume: item.purchaseItems?.item?.volume || "No Data",
+              mrp: item.purchaseItems?.mrp || "No Data",
+              gro: item.purchaseItems?.gro || "No Data", // item er gro lagbe
+              sp: item.purchaseItems?.sp || "No Data", // item er sp lagbe
+              supplierName: item.supplierName || "No Data",
+              purchaseRate: item.purchaseItems?.purchaseRate || "No Data",
+              saleRate: item.purchaseItems?.saleRate || "No Data",
+              itemAmount: item.purchaseItems?.itemAmount || "No Data",
+            }))}
+            columns={columns}
+            rowCount={totalCount}
+            pagination
+            paginationMode="server"
+            paginationModel={paginationModel}
+            pageSizeOptions={[10, 25, 50, 100]}
+            onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
+            sx={{ backgroundColor: "#fff" }}
+            loading={loading}
+            loadingOverlay={
+              <Box>
+                <CircularProgress />
+              </Box>
+            }
+            slots={{
+              toolbar: GridToolbar,
+            }}
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  page: paginationModel.page,
+                  pageSize: paginationModel.pageSize,
+                },
+                rowCount: totalCount,
+              },
+              density: "compact",
+            }}
+          />
+        </Box>
       </Box>
-    </Box>
+    </ThemeProvider>
   );
 };
 

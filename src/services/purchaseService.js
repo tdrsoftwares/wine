@@ -56,7 +56,7 @@ export const getItemWisePurchaseDetails = async (filterOptions) => {
   try {
     const {
       page,
-      limit,
+      pageSize,
       fromDate,
       toDate,
       itemName,
@@ -68,7 +68,7 @@ export const getItemWisePurchaseDetails = async (filterOptions) => {
       // batchNo
     } = filterOptions;
 
-    let apiURL = `/purchases/all-item-reports?page=${page}&limit=${limit}`;
+    let apiURL = `/purchases/all-item-reports?page=${page}&pageSize=${pageSize}`;
 
     const filters = {
       fromDate,
