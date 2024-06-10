@@ -49,7 +49,7 @@ const SaleBill = () => {
 
 
   const todaysDate = dayjs();
-  // console.log("salesData: ", salesData);
+  console.log("salesData: ", salesData);
   const [searchMode, setSearchMode] = useState(false);
   const [formData, setFormData] = useState({
     barCode: "",
@@ -248,7 +248,7 @@ const SaleBill = () => {
       setIsLoading(true);
       const response = await searchAllSalesByItemCode(itemCode);
       const searchedItem = response?.data?.data[0];
-      // console.log("searchedItem: ", searchedItem);
+      console.log("searchedItem: ", searchedItem);
 
       if (searchedItem) {
         const existingItemIndex = salesData.findIndex(
@@ -716,7 +716,7 @@ const SaleBill = () => {
           receiptMode2: totalValues.receiptMode2,
           salesItem: [
             {
-              itemDetailsId: formData.itemDetailsId,
+              itemDetailsId: item.itemDetailsId,
               itemCode: item.itemCode,
               itemId: item.itemId,
               batchNo: item.batch,
@@ -1131,7 +1131,7 @@ const SaleBill = () => {
             </div>
           </Grid>
 
-          <Grid item xs={3}>
+          <Grid item xs={1.5}>
             <div className="input-wrapper">
               <InputLabel htmlFor="series" className="input-label">
                 Series :
@@ -1155,6 +1155,17 @@ const SaleBill = () => {
               </TextField>
             </div>
           </Grid>
+          <Grid item xs={1.5}>
+            <div className="input-wrapper">
+              <TextField
+                select
+                fullWidth
+                size="small"
+                defaultValue="select bill"
+              >
+              </TextField>
+            </div>
+          </Grid>
 
           <Grid item xs={3}>
             <div className="input-wrapper">
@@ -1170,7 +1181,9 @@ const SaleBill = () => {
                 value={formData.billno}
                 onChange={handleBillNoChange}
                 disabled={!billNoEditable}
-                onKeyDown={e => billNoEditable ?? handleEnterKey(e, billDateRef)}
+                onKeyDown={(e) =>
+                  billNoEditable ?? handleEnterKey(e, billDateRef)
+                }
               />
             </div>
           </Grid>
@@ -1867,7 +1880,7 @@ const SaleBill = () => {
             resetTotalValues();
             setSalesData([]);
             handleEnterKey(e, itemCodeRef);
-            setBillNoEditable(false)
+            setBillNoEditable(false);
           }}
           sx={{
             marginTop: 1,
@@ -1931,7 +1944,7 @@ const SaleBill = () => {
           variant="contained"
           onClick={() => {
             billNoRef.current.focus();
-            setBillNoEditable(true)
+            setBillNoEditable(true);
           }}
           sx={{
             marginTop: 1,
