@@ -16,6 +16,7 @@ import {
   Input,
   TablePagination,
   TableSortLabel,
+  ThemeProvider,
 } from "@mui/material";
 import {
   getAllSuppliers,
@@ -27,6 +28,7 @@ import { NotificationManager } from "react-notifications";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
+import { customTheme } from "../../../utils/customTheme";
 
 const SuppliersRegister = () => {
   const [formData, setFormData] = useState({
@@ -46,7 +48,7 @@ const SuppliersRegister = () => {
   const [sortBy, setSortBy] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
     fetchAllSuppliers();
@@ -251,396 +253,407 @@ const SuppliersRegister = () => {
   };
 
   return (
-    <Box sx={{ p: 2, width: "900px" }}>
-      <Typography variant="subtitle2" sx={{ marginBottom: 2 }}>
-        Create Supplier:
-      </Typography>
+    <ThemeProvider theme={customTheme}>
+      <Box sx={{ p: 2, width: "900px" }}>
+        <Typography variant="subtitle2" sx={{ marginBottom: 2 }}>
+          Create Supplier:
+        </Typography>
 
-      <Grid container spacing={2}>
-        <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="name" className="input-label" required>
-              Supplier Name :
-            </InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              name="name"
-              className="input-field"
-              value={formData.name}
-              onChange={handleSupplierChange}
-            />
-          </div>
+        <Grid container spacing={2}>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="name" className="input-label" required>
+                Supplier Name :
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                name="name"
+                className="input-field"
+                value={formData.name}
+                onChange={handleSupplierChange}
+              />
+            </div>
+          </Grid>
+
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="address" className="input-label" required>
+                Address :
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                name="address"
+                className="input-field"
+                value={formData.address}
+                onChange={handleSupplierChange}
+              />
+            </div>
+          </Grid>
+
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="contactNo" className="input-label">
+                Mobile Number :
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                name="contactNo"
+                className="input-field"
+                value={formData.contactNo}
+                onChange={handleMobileChange}
+              />
+            </div>
+          </Grid>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="gstinNo" className="input-label">
+                GSTIN Number :
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                name="gstinNo"
+                className="input-field"
+                value={formData.gstinNo}
+                onChange={handleSupplierChange}
+              />
+            </div>
+          </Grid>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="panNo" className="input-label">
+                PAN Number :
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                name="panNo"
+                className="input-field"
+                value={formData.panNo}
+                onChange={handleSupplierChange}
+              />
+            </div>
+          </Grid>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="cinNo" className="input-label">
+                CIN Number :
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                name="cinNo"
+                className="input-field"
+                value={formData.cinNo}
+                onChange={handleSupplierChange}
+              />
+            </div>
+          </Grid>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="openingBlance" className="input-label">
+                Opening Balance :
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                type="number"
+                name="openingBlance"
+                className="input-field"
+                value={formData.openingBlance}
+                onChange={handleSupplierChange}
+              />
+            </div>
+          </Grid>
         </Grid>
 
-        <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="address" className="input-label" required>
-              Address :
-            </InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              name="address"
-              className="input-field"
-              value={formData.address}
-              onChange={handleSupplierChange}
-            />
-          </div>
-        </Grid>
-
-        <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="contactNo" className="input-label">
-              Mobile Number :
-            </InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              name="contactNo"
-              className="input-field"
-              value={formData.contactNo}
-              onChange={handleMobileChange}
-            />
-          </div>
-        </Grid>
-        <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="gstinNo" className="input-label">
-              GSTIN Number :
-            </InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              name="gstinNo"
-              className="input-field"
-              value={formData.gstinNo}
-              onChange={handleSupplierChange}
-            />
-          </div>
-        </Grid>
-        <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="panNo" className="input-label">
-              PAN Number :
-            </InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              name="panNo"
-              className="input-field"
-              value={formData.panNo}
-              onChange={handleSupplierChange}
-            />
-          </div>
-        </Grid>
-        <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="cinNo" className="input-label">
-              CIN Number :
-            </InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              name="cinNo"
-              className="input-field"
-              value={formData.cinNo}
-              onChange={handleSupplierChange}
-            />
-          </div>
-        </Grid>
-        <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="openingBlance" className="input-label">
-              Opening Balance :
-            </InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              type="number"
-              name="openingBlance"
-              className="input-field"
-              value={formData.openingBlance}
-              onChange={handleSupplierChange}
-            />
-          </div>
-        </Grid>
-      </Grid>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "flex-end",
-          "& button": { marginTop: 2, marginLeft: 2 },
-        }}
-      >
-        <Button
-          color="primary"
-          size="medium"
-          variant="contained"
-          onClick={handleCreateSupplier}
-          sx={{ borderRadius: 8 }}
-        >
-          Create
-        </Button>
-        <Button
-          color="warning"
-          size="medium"
-          variant="outlined"
-          onClick={clearForm}
-          sx={{ borderRadius: 8 }}
-        >
-          Clear
-        </Button>
-      </Box>
-
-      <Box sx={{ borderRadius: 1, marginTop: 2 }}>
-        <TableContainer
-          ref={tableRef}
-          component={Paper}
+        <Box
           sx={{
-            height: 300,
-            width: "100%",
-            overflowY: "auto",
-
-            "&::-webkit-scrollbar": {
-              width: 10,
-              height: 10,
-            },
-            "&::-webkit-scrollbar-track": {
-              backgroundColor: "#fff",
-            },
-            "&::-webkit-scrollbar-thumb": {
-              backgroundColor: "#d5d8df",
-              borderRadius: 2,
-            },
+            display: "flex",
+            justifyContent: "flex-end",
           }}
         >
-          <Table>
-            <TableHead>
-              <TableRow className="table-head-2">
-                <TableCell align="center" sx={{ minWidth: "80px" }}>
-                  S. No.
-                </TableCell>
-                <TableCell sx={{ minWidth: "200px" }}>
-                  <TableSortLabel
-                    active={sortBy === "name"}
-                    direction={sortOrder}
-                    onClick={() => handleSort("name")}
-                  >
-                    Supplier Name
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell sx={{ minWidth: "200px" }}>
-                  <TableSortLabel
-                    active={sortBy === "address"}
-                    direction={sortOrder}
-                    onClick={() => handleSort("address")}
-                  >
-                    Address
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell sx={{ minWidth: "200px" }}>
-                  <TableSortLabel
-                    active={sortBy === "contactNo"}
-                    direction={sortOrder}
-                    onClick={() => handleSort("contactNo")}
-                  >
-                    Mobile Number
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell sx={{ minWidth: "200px" }}>
-                  <TableSortLabel
-                    active={sortBy === "gstinNo"}
-                    direction={sortOrder}
-                    onClick={() => handleSort("gstinNo")}
-                  >
-                    GSTIN Number
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell sx={{ minWidth: "180px" }}>
-                  <TableSortLabel
-                    active={sortBy === "panNo"}
-                    direction={sortOrder}
-                    onClick={() => handleSort("panNo")}
-                  >
-                    PAN Number
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell sx={{ minWidth: "180px" }}>
-                  <TableSortLabel
-                    active={sortBy === "cinNo"}
-                    direction={sortOrder}
-                    onClick={() => handleSort("cinNo")}
-                  >
-                    CIN Number
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell sx={{ minWidth: "180px" }}>
-                  <TableSortLabel
-                    active={sortBy === "openingBlance"}
-                    direction={sortOrder}
-                    onClick={() => handleSort("openingBlance")}
-                  >
-                    Opening Balance
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell sx={{ minWidth: "120px" }}>Action</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {sortedData()
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((supplier, index) => (
-                  <TableRow
-                    key={supplier._id}
-                    sx={{
-                      backgroundColor: "#fff",
-                    }}
-                  >
-                    <TableCell align="center" sx={{ minWidth: "80px" }}>
-                      {page * rowsPerPage + index + 1}
-                    </TableCell>
-                    <TableCell>
-                      {editableIndex === index ? (
-                        <Input
-                          value={editedRow.name || supplier.name}
-                          onChange={(e) =>
-                            setEditedRow({
-                              ...editedRow,
-                              name: e.target.value,
-                            })
-                          }
-                        />
-                      ) : (
-                        supplier.name
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {editableIndex === index ? (
-                        <Input
-                          value={editedRow.address || supplier.address}
-                          onChange={(e) =>
-                            setEditedRow({
-                              ...editedRow,
-                              address: e.target.value,
-                            })
-                          }
-                        />
-                      ) : (
-                        supplier.address
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {editableIndex === index ? (
-                        <Input
-                          value={editedRow.contactNo || supplier.contactNo}
-                          onChange={(e) =>
-                            setEditedRow({
-                              ...editedRow,
-                              contactNo: e.target.value,
-                            })
-                          }
-                        />
-                      ) : (
-                        supplier.contactNo
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {editableIndex === index ? (
-                        <Input
-                          value={editedRow.gstinNo || supplier.gstinNo}
-                          onChange={(e) =>
-                            setEditedRow({
-                              ...editedRow,
-                              gstinNo: e.target.value,
-                            })
-                          }
-                        />
-                      ) : (
-                        supplier.gstinNo
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {editableIndex === index ? (
-                        <Input
-                          value={editedRow.panNo || supplier.panNo}
-                          onChange={(e) =>
-                            setEditedRow({
-                              ...editedRow,
-                              panNo: e.target.value,
-                            })
-                          }
-                        />
-                      ) : (
-                        supplier.panNo
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {editableIndex === index ? (
-                        <Input
-                          value={editedRow.cinNo || supplier.cinNo}
-                          onChange={(e) =>
-                            setEditedRow({
-                              ...editedRow,
-                              cinNo: e.target.value,
-                            })
-                          }
-                        />
-                      ) : (
-                        supplier.cinNo
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {editableIndex === index ? (
-                        <Input
-                          value={
-                            editedRow.openingBlance || supplier.openingBlance
-                          }
-                          onChange={(e) =>
-                            setEditedRow({
-                              ...editedRow,
-                              openingBlance: e.target.value,
-                            })
-                          }
-                        />
-                      ) : (
-                        supplier.openingBlance
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {editableIndex === index ? (
-                        <SaveIcon
-                          sx={{ cursor: "pointer", color: "green" }}
-                          onClick={() => handleSaveClick(supplier._id)}
-                        />
-                      ) : (
-                        <EditIcon
-                          sx={{ cursor: "pointer", color: "blue" }}
-                          onClick={() => handleEditClick(index, supplier._id)}
-                        />
-                      )}
-                      <CloseIcon
-                        sx={{ cursor: "pointer", color: "red" }}
-                        onClick={() => handleRemoveSupplier(supplier._id)}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+          <Button
+            color="warning"
+            size="medium"
+            variant="outlined"
+            onClick={clearForm}
+            sx={{
+              marginRight: 1,
+              borderRadius: 8,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
+          >
+            Clear
+          </Button>
+          <Button
+            color="primary"
+            size="medium"
+            variant="contained"
+            onClick={handleCreateSupplier}
+            sx={{
+              borderRadius: 8,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
+          >
+            Create
+          </Button>
+        </Box>
 
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={allSuppliers.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+        <Box sx={{ borderRadius: 1, marginTop: 2 }}>
+          <TableContainer
+            ref={tableRef}
+            component={Paper}
+            sx={{
+              height: 400,
+              width: "100%",
+              overflowY: "auto",
+
+              "&::-webkit-scrollbar": {
+                width: 10,
+                height: 10,
+              },
+              "&::-webkit-scrollbar-track": {
+                backgroundColor: "#fff",
+              },
+              "&::-webkit-scrollbar-thumb": {
+                backgroundColor: "#d5d8df",
+                borderRadius: 2,
+              },
+            }}
+          >
+            <Table size="small">
+              <TableHead>
+                <TableRow className="table-head-2">
+                  <TableCell align="center" sx={{ minWidth: "80px" }}>
+                    S. No.
+                  </TableCell>
+                  <TableCell sx={{ minWidth: "200px" }}>
+                    <TableSortLabel
+                      active={sortBy === "name"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("name")}
+                    >
+                      Supplier Name
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ minWidth: "200px" }}>
+                    <TableSortLabel
+                      active={sortBy === "address"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("address")}
+                    >
+                      Address
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ minWidth: "200px" }}>
+                    <TableSortLabel
+                      active={sortBy === "contactNo"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("contactNo")}
+                    >
+                      Mobile Number
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ minWidth: "200px" }}>
+                    <TableSortLabel
+                      active={sortBy === "gstinNo"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("gstinNo")}
+                    >
+                      GSTIN Number
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ minWidth: "180px" }}>
+                    <TableSortLabel
+                      active={sortBy === "panNo"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("panNo")}
+                    >
+                      PAN Number
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ minWidth: "180px" }}>
+                    <TableSortLabel
+                      active={sortBy === "cinNo"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("cinNo")}
+                    >
+                      CIN Number
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ minWidth: "180px" }}>
+                    <TableSortLabel
+                      active={sortBy === "openingBlance"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("openingBlance")}
+                    >
+                      Opening Balance
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ minWidth: "120px" }}>Action</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {sortedData()
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((supplier, index) => (
+                    <TableRow
+                      key={supplier._id}
+                      sx={{
+                        backgroundColor: "#fff",
+                      }}
+                    >
+                      <TableCell align="center" sx={{ minWidth: "80px" }}>
+                        {page * rowsPerPage + index + 1}
+                      </TableCell>
+                      <TableCell>
+                        {editableIndex === index ? (
+                          <Input
+                            value={editedRow.name || supplier.name}
+                            onChange={(e) =>
+                              setEditedRow({
+                                ...editedRow,
+                                name: e.target.value,
+                              })
+                            }
+                          />
+                        ) : (
+                          supplier.name
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {editableIndex === index ? (
+                          <Input
+                            value={editedRow.address || supplier.address}
+                            onChange={(e) =>
+                              setEditedRow({
+                                ...editedRow,
+                                address: e.target.value,
+                              })
+                            }
+                          />
+                        ) : (
+                          supplier.address
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {editableIndex === index ? (
+                          <Input
+                            value={editedRow.contactNo || supplier.contactNo}
+                            onChange={(e) =>
+                              setEditedRow({
+                                ...editedRow,
+                                contactNo: e.target.value,
+                              })
+                            }
+                          />
+                        ) : (
+                          supplier.contactNo
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {editableIndex === index ? (
+                          <Input
+                            value={editedRow.gstinNo || supplier.gstinNo}
+                            onChange={(e) =>
+                              setEditedRow({
+                                ...editedRow,
+                                gstinNo: e.target.value,
+                              })
+                            }
+                          />
+                        ) : (
+                          supplier.gstinNo
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {editableIndex === index ? (
+                          <Input
+                            value={editedRow.panNo || supplier.panNo}
+                            onChange={(e) =>
+                              setEditedRow({
+                                ...editedRow,
+                                panNo: e.target.value,
+                              })
+                            }
+                          />
+                        ) : (
+                          supplier.panNo
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {editableIndex === index ? (
+                          <Input
+                            value={editedRow.cinNo || supplier.cinNo}
+                            onChange={(e) =>
+                              setEditedRow({
+                                ...editedRow,
+                                cinNo: e.target.value,
+                              })
+                            }
+                          />
+                        ) : (
+                          supplier.cinNo
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {editableIndex === index ? (
+                          <Input
+                            value={
+                              editedRow.openingBlance || supplier.openingBlance
+                            }
+                            onChange={(e) =>
+                              setEditedRow({
+                                ...editedRow,
+                                openingBlance: e.target.value,
+                              })
+                            }
+                          />
+                        ) : (
+                          supplier.openingBlance
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {editableIndex === index ? (
+                          <SaveIcon
+                            sx={{ cursor: "pointer", color: "green" }}
+                            onClick={() => handleSaveClick(supplier._id)}
+                          />
+                        ) : (
+                          <EditIcon
+                            sx={{ cursor: "pointer", color: "blue" }}
+                            onClick={() => handleEditClick(index, supplier._id)}
+                          />
+                        )}
+                        <CloseIcon
+                          sx={{ cursor: "pointer", color: "red" }}
+                          onClick={() => handleRemoveSupplier(supplier._id)}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={allSuppliers.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </Box>
       </Box>
-    </Box>
+    </ThemeProvider>
   );
 };
 
