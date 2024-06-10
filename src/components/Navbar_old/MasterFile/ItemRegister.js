@@ -297,7 +297,7 @@ const ItemRegister = () => {
 
       <ThemeProvider theme={customTheme}>
         <Grid container spacing={2}>
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="itemName" className="input-label">
                 Item Name :
@@ -307,7 +307,6 @@ const ItemRegister = () => {
                 size="small"
                 type="text"
                 name="itemName"
-                // className="input-field"
                 variant="outlined"
                 value={itemName}
                 onChange={(e) => setItemName(e.target.value)}
@@ -315,7 +314,7 @@ const ItemRegister = () => {
             </div>
           </Grid>
 
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="description" className="input-label">
                 Description :
@@ -325,7 +324,6 @@ const ItemRegister = () => {
                 size="small"
                 type="text"
                 name="description"
-                // className="input-field"
                 variant="outlined"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -333,7 +331,7 @@ const ItemRegister = () => {
             </div>
           </Grid>
 
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="categoryId" className="input-label">
                 Category :
@@ -344,7 +342,6 @@ const ItemRegister = () => {
                 size="small"
                 type="text"
                 name="categoryId"
-                // className="input-field"
                 variant="outlined"
                 value={categoryId}
                 SelectProps={{
@@ -367,7 +364,7 @@ const ItemRegister = () => {
             </div>
           </Grid>
 
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="subCategory" className="input-label">
                 Sub Category :
@@ -378,7 +375,6 @@ const ItemRegister = () => {
                 size="small"
                 type="text"
                 name="subCategory"
-                // className="input-field"
                 variant="outlined"
                 value={subCategory}
                 onChange={(e) => setSubCategory(e.target.value)}
@@ -399,7 +395,7 @@ const ItemRegister = () => {
             </div>
           </Grid>
 
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="companyId" className="input-label">
                 Company :
@@ -410,7 +406,6 @@ const ItemRegister = () => {
                 size="small"
                 type="text"
                 name="companyId"
-                // className="input-field"
                 variant="outlined"
                 value={companyId}
                 SelectProps={{
@@ -433,7 +428,7 @@ const ItemRegister = () => {
             </div>
           </Grid>
 
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="brandId" className="input-label">
                 Brand :
@@ -443,7 +438,6 @@ const ItemRegister = () => {
                 fullWidth
                 size="small"
                 name="brandId"
-                // className="input-field"
                 variant="outlined"
                 value={brandId}
                 SelectProps={{
@@ -466,7 +460,7 @@ const ItemRegister = () => {
             </div>
           </Grid>
 
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="volume" className="input-label">
                 Volume :
@@ -476,7 +470,6 @@ const ItemRegister = () => {
                 size="small"
                 type="number"
                 name="volume"
-                // className="input-field"
                 variant="outlined"
                 value={volume}
                 onChange={(e) => setVolume(e.target.value)}
@@ -484,7 +477,7 @@ const ItemRegister = () => {
             </div>
           </Grid>
 
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="group" className="input-label">
                 Group :
@@ -495,7 +488,6 @@ const ItemRegister = () => {
                 size="small"
                 type="text"
                 name="group"
-                // className="input-field"
                 variant="outlined"
                 value={group}
                 onChange={(e) => setGroup(e.target.value)}
@@ -509,7 +501,7 @@ const ItemRegister = () => {
             </div>
           </Grid>
 
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="caseValue" className="input-label">
                 Case Value :
@@ -519,54 +511,73 @@ const ItemRegister = () => {
                 size="small"
                 type="number"
                 name="caseValue"
-                // className="input-field"
                 variant="outlined"
                 value={caseValue}
                 onChange={(e) => setCaseValue(e.target.value)}
               />
             </div>
           </Grid>
+
+          <Grid item xs={6}></Grid>
+          <Grid item xs={3}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+              }}
+            >
+              <Button
+                color="primary"
+                size="small"
+                variant="contained"
+                onClick={handleCreateItem}
+                sx={{
+                  marginRight: 1,
+                  borderRadius: 8,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+              >
+                Create
+              </Button>
+              <Button
+                color="warning"
+                size="small"
+                variant="outlined"
+                onClick={clearForm}
+                sx={{
+                  borderRadius: 8,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+              >
+                Clear
+              </Button>
+            </Box>
+          </Grid>
         </Grid>
 
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-          }}
-        >
-          <Button
-            color="primary"
-            size="small"
-            variant="contained"
-            onClick={handleCreateItem}
-            sx={{
-              marginTop: 1,
-              marginRight: 1,
-              borderRadius: 8,
-              padding: "4px 10px",
-              fontSize: "11px",
-            }}
-          >
-            Create
-          </Button>
-          <Button
-            color="warning"
-            size="small"
-            variant="outlined"
-            onClick={clearForm}
-            sx={{
-              marginTop: 1,
-              borderRadius: 8,
-              padding: "4px 10px",
-              fontSize: "11px",
-            }}
-          >
-            Clear
-          </Button>
-        </Box>
-
         <Box sx={{ borderRadius: 1, marginTop: 2 }}>
-          <TableContainer ref={tableRef} component={Paper}>
+          <TableContainer
+            ref={tableRef}
+            component={Paper}
+            sx={{
+              height: 400,
+              width: "100%",
+              overflowY: "auto",
+              "&::-webkit-scrollbar": {
+                width: 10,
+                height: 10,
+              },
+              "&::-webkit-scrollbar-track": {
+                backgroundColor: "#fff",
+              },
+              "&::-webkit-scrollbar-thumb": {
+                backgroundColor: "#d5d8df",
+                borderRadius: 2,
+              },
+            }}
+          >
             <Table size="small" padding="normal" stickyHeader={true}>
               <TableHead>
                 <TableRow className="table-head-2">

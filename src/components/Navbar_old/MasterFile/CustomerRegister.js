@@ -17,6 +17,7 @@ import {
   Input,
   TableSortLabel,
   TablePagination,
+  ThemeProvider,
 } from "@mui/material";
 import {
   createCustomer,
@@ -28,6 +29,7 @@ import { NotificationManager } from "react-notifications";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
+import { customTheme } from "../../../utils/customTheme";
 
 const CustomerRegister = () => {
   const tableRef = useRef(null);
@@ -50,7 +52,7 @@ const CustomerRegister = () => {
   const [sortBy, setSortBy] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   console.log("formData", formData);
 
@@ -265,105 +267,80 @@ const CustomerRegister = () => {
   };
 
   return (
-    <form>
+    <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, width: "900px" }}>
         <Typography variant="subtitle2" gutterBottom>
           Create Customer:
         </Typography>
 
         <Grid container spacing={2}>
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel
-                htmlFor="customerName"
-                className="input-label label-adjustment"
-              >
+              <InputLabel htmlFor="customerName" className="input-label">
                 Customer Name :
               </InputLabel>
               <TextField
                 fullWidth
                 size="small"
                 name="customerName"
-                variant="outlined"
-                className="input-field field-adjustment"
                 value={formData.customerName}
                 onChange={(e) => handleFormChange(e)}
               />
             </div>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel
-                htmlFor="contactPerson"
-                className="input-label label-adjustment"
-              >
+              <InputLabel htmlFor="contactPerson" className="input-label">
                 Contact Person :
               </InputLabel>
               <TextField
                 fullWidth
                 size="small"
                 name="contactPerson"
-                variant="outlined"
-                className="input-field field-adjustment"
                 value={formData.contactPerson}
                 onChange={(e) => handleFormChange(e)}
               />
             </div>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel
-                htmlFor="address"
-                className="input-label label-adjustment"
-              >
+              <InputLabel htmlFor="address" className="input-label">
                 Address :
               </InputLabel>
               <TextField
                 fullWidth
                 size="small"
                 name="address"
-                variant="outlined"
-                className="input-field field-adjustment"
                 value={formData.address}
                 onChange={(e) => handleFormChange(e)}
               />
             </div>
           </Grid>
 
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel
-                htmlFor="contactNo"
-                className="input-label label-adjustment"
-              >
+              <InputLabel htmlFor="contactNo" className="input-label">
                 Mobile No. :
               </InputLabel>
               <TextField
                 fullWidth
                 size="small"
                 name="contactNo"
-                variant="outlined"
-                className="input-field field-adjustment"
                 type="number"
                 value={formData.contactNo}
                 onChange={handleMobileChange}
               />
             </div>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel
-                htmlFor="whatsAppNo"
-                className="input-label label-adjustment"
-              >
+              <InputLabel htmlFor="whatsAppNo" className="input-label">
                 Whats App No. :
               </InputLabel>
               <TextField
                 fullWidth
                 size="small"
                 name="whatsAppNo"
-                variant="outlined"
-                className="input-field field-adjustment"
                 type="number"
                 value={formData.whatsAppNo}
                 onChange={(e) => handleFormChange(e)}
@@ -373,41 +350,16 @@ const CustomerRegister = () => {
               />
             </div>
           </Grid>
-          {/* <Grid item xs={4}>
+
+          <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel
-                htmlFor="openingBalance"
-                className="input-label label-adjustment"
-              >
-                Opening Balance (Rs.) :
-              </InputLabel>
-              <TextField
-                fullWidth
-                size="small"
-                name="openingBalance"
-                variant="outlined"
-                className="input-field field-adjustment"
-                type="number"
-                inputProps={{ min: 0 }}
-                value={formData.openingBalance}
-                onChange={(e) => handleFormChange(e)}
-              />
-            </div>
-          </Grid> */}
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <InputLabel
-                htmlFor="discount"
-                className="input-label label-adjustment"
-              >
+              <InputLabel htmlFor="discount" className="input-label">
                 Discount (%) :
               </InputLabel>
               <TextField
                 fullWidth
                 size="small"
                 name="discount"
-                variant="outlined"
-                className="input-field field-adjustment"
                 type="number"
                 value={formData.discount}
                 onChange={(e) => handleFormChange(e)}
@@ -417,32 +369,10 @@ const CustomerRegister = () => {
               />
             </div>
           </Grid>
-          {/* <Grid item xs={4}>
+
+          <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel
-                htmlFor="validUpto"
-                className="input-label label-adjustment"
-              >
-                Valid Upto :
-              </InputLabel>
-              <TextField
-                fullWidth
-                size="small"
-                name="validUpto"
-                variant="outlined"
-                className="input-field field-adjustment"
-                type="date"
-                value={formData.validUpto}
-                onChange={(e) => handleFormChange(e)}
-              />
-            </div>
-          </Grid> */}
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <InputLabel
-                htmlFor="customerType"
-                className="input-label label-adjustment"
-              >
+              <InputLabel htmlFor="customerType" className="input-label">
                 Customer Type :
               </InputLabel>
               <TextField
@@ -450,8 +380,6 @@ const CustomerRegister = () => {
                 fullWidth
                 size="small"
                 name="customerType"
-                variant="outlined"
-                className="input-field field-adjustment"
                 value={formData.customerType}
                 onChange={(e) => handleFormChange(e)}
               >
@@ -460,12 +388,9 @@ const CustomerRegister = () => {
               </TextField>
             </div>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel
-                htmlFor="discountCategory"
-                className="input-label label-adjustment"
-              >
+              <InputLabel htmlFor="discountCategory" className="input-label">
                 Discount Category :
               </InputLabel>
               <TextField
@@ -473,8 +398,6 @@ const CustomerRegister = () => {
                 fullWidth
                 size="small"
                 name="discountCategory"
-                variant="outlined"
-                className="input-field field-adjustment"
                 value={formData.discountCategory}
                 onChange={(e) => handleFormChange(e)}
               >
@@ -483,20 +406,15 @@ const CustomerRegister = () => {
               </TextField>
             </div>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel
-                htmlFor="additionalCharge"
-                className="input-label label-adjustment"
-              >
+              <InputLabel htmlFor="additionalCharge" className="input-label">
                 Additional Charges (%) :
               </InputLabel>
               <TextField
                 fullWidth
                 size="small"
                 name="additionalCharge"
-                variant="outlined"
-                className="input-field field-adjustment"
                 type="number"
                 value={formData.additionalCharge}
                 onChange={(e) => handleFormChange(e)}
@@ -506,41 +424,52 @@ const CustomerRegister = () => {
               />
             </div>
           </Grid>
-        </Grid>
 
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            "& button": { marginTop: 2, marginLeft: 2 },
-          }}
-        >
-          <Button
-            color="primary"
-            size="medium"
-            variant="contained"
-            onClick={handleCreateCustomer}
-            sx={{ borderRadius: 8 }}
-          >
-            Create
-          </Button>
-          <Button
-            color="warning"
-            size="medium"
-            variant="outlined"
-            onClick={handleClear}
-            sx={{ borderRadius: 8 }}
-          >
-            Clear
-          </Button>
-        </Box>
+          <Grid item xs={6}></Grid>
+          <Grid item xs={3}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end"
+              }}
+            >
+              <Button
+                color="primary"
+                size="medium"
+                variant="contained"
+                onClick={handleCreateCustomer}
+                sx={{
+                  marginRight: 1,
+                  borderRadius: 8,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+              >
+                Create
+              </Button>
+              <Button
+                color="warning"
+                size="medium"
+                variant="outlined"
+                onClick={handleClear}
+                sx={{
+                  borderRadius: 8,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+              >
+                Clear
+              </Button>
+            </Box>
+          </Grid>
+        </Grid>
 
         <Box sx={{ borderRadius: 1, marginTop: 2 }}>
           <TableContainer
             ref={tableRef}
             component={Paper}
             sx={{
-              height: 300,
+              height: 400,
               width: "100%",
               overflowY: "auto",
               "&::-webkit-scrollbar": {
@@ -556,7 +485,7 @@ const CustomerRegister = () => {
               },
             }}
           >
-            <Table>
+            <Table size="small">
               <TableHead>
                 <TableRow className="table-head-2">
                   <TableCell align="center" style={{ minWidth: "80px" }}>
@@ -902,7 +831,7 @@ const CustomerRegister = () => {
           />
         </Box>
       </Box>
-    </form>
+    </ThemeProvider>
   );
 };
 
