@@ -49,7 +49,7 @@ const SaleBill = () => {
 
 
   const todaysDate = dayjs();
-  console.log("salesData: ", salesData);
+  // console.log("salesData: ", salesData);
   const [searchMode, setSearchMode] = useState(false);
   const [formData, setFormData] = useState({
     barCode: "",
@@ -777,7 +777,7 @@ const SaleBill = () => {
     setFormData({ ...formData, customerName: e.target.value });
   };
 
-  console.log("formData: ", formData);
+  // console.log("formData: ", formData);
 
   const handlePcsChange = (e) => {
     const value = e.target.value;
@@ -869,7 +869,7 @@ const SaleBill = () => {
   };
 
   const billNumberSearch = debounce(async () => {
-    console.log("billNo search...: ", );
+    // console.log("billNo search...: ", );
     try {
       if (formData.billno) {
         const response = await getSaleDetailsByEntryNo(formData.billno);
@@ -879,7 +879,7 @@ const SaleBill = () => {
           const receivedData = response.data.data;
 
           const billDateObject = convertToDayjsObject(receivedData.billDate);
-          console.log("billDateObject: ", billDateObject);
+          // console.log("billDateObject: ", billDateObject);
 
           setFormData({
             customerName: receivedData.customerName,
@@ -891,7 +891,7 @@ const SaleBill = () => {
           });
 
           const salesItems = receivedData?.salesItems;
-          console.log("salesItems: ", salesItems);
+          // console.log("salesItems: ", salesItems);
 
           const newSalesItems = salesItems.map((purchase) => ({
             itemCode: purchase?.itemCode,
@@ -1023,8 +1023,8 @@ const SaleBill = () => {
   }, []);
 
   useEffect(() => {
-    console.log("--> ",billNoEditable);
-    console.log("formData.billno --> ", formData.billno);
+    // console.log("--> ",billNoEditable);
+    // console.log("formData.billno --> ", formData.billno);
     if (formData.billno && billNoEditable) {
       billNumberSearch(formData.billno);
     }
