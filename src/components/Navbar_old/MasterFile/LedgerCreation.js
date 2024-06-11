@@ -16,6 +16,7 @@ import {
   TableRow,
   TableSortLabel,
   TextField,
+  ThemeProvider,
   Typography,
 } from "@mui/material";
 import {
@@ -28,6 +29,7 @@ import { NotificationManager } from "react-notifications";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
+import { customTheme } from "../../../utils/customTheme";
 
 const LedgerCreation = () => {
   const [ledgerName, setLedgerName] = useState("");
@@ -40,7 +42,7 @@ const LedgerCreation = () => {
   const [sortBy, setSortBy] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const tableRef = useRef(null);
   const [loading, setLoading] = useState(true);
 
@@ -196,7 +198,7 @@ const LedgerCreation = () => {
   };
 
   return (
-    <form>
+    <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, width: "900px" }}>
         <Typography variant="subtitle2" sx={{ marginBottom: 2 }}>
           Create Ledger:
@@ -214,7 +216,6 @@ const LedgerCreation = () => {
                 type="text"
                 margin="normal"
                 name="ledgerName"
-                className="input-field"
                 value={ledgerName}
                 onChange={(e) => setLedgerName(e.target.value)}
               />
@@ -232,7 +233,6 @@ const LedgerCreation = () => {
                 type="text"
                 name="groupName"
                 margin="normal"
-                className="input-field"
                 value={groupName}
                 onChange={(e) => setGroupName(e.target.value)}
               />
@@ -260,7 +260,6 @@ const LedgerCreation = () => {
                 type="number"
                 margin="normal"
                 name="openingBal"
-                className="input-field"
                 value={openingBal}
                 onChange={(e) => {
                   const value = e.target.value;
@@ -283,7 +282,6 @@ const LedgerCreation = () => {
                 type="number"
                 margin="normal"
                 name="closingBal"
-                className="input-field"
                 value={closingBal}
                 onChange={(e) => {
                   const value = e.target.value;
@@ -298,27 +296,31 @@ const LedgerCreation = () => {
         <Box
           sx={{
             display: "flex",
-            justifyContent: "flex-end",
-            "& button": { marginTop: 2, marginLeft: 2 },
+            justifyContent: "flex-end"
           }}
         >
-          <Button
-            color="primary"
-            size="medium"
-            variant="contained"
-            onClick={handleCreateLedger}
-            sx={{ borderRadius: 8 }}
-          >
-            Create
-          </Button>
           <Button
             color="warning"
             size="medium"
             variant="outlined"
             onClick={clearForm}
-            sx={{ borderRadius: 8 }}
+            sx={{
+              marginRight: 1,
+              borderRadius: 8,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
           >
             Clear
+          </Button>
+          <Button
+            color="primary"
+            size="medium"
+            variant="contained"
+            onClick={handleCreateLedger}
+            sx={{ borderRadius: 8, padding: "4px 10px", fontSize: "11px" }}
+          >
+            Create
           </Button>
         </Box>
 
@@ -327,7 +329,7 @@ const LedgerCreation = () => {
             ref={tableRef}
             component={Paper}
             sx={{
-              height: 300,
+              height: 400,
               width: "100%",
               overflowY: "auto",
               "&::-webkit-scrollbar": {
@@ -343,7 +345,7 @@ const LedgerCreation = () => {
               },
             }}
           >
-            <Table>
+            <Table size="small">
               <TableHead>
                 <TableRow className="table-head-2">
                   <TableCell align="center" sx={{ minWidth: "80px" }}>
@@ -520,7 +522,7 @@ const LedgerCreation = () => {
           />
         </Box>
       </Box>
-    </form>
+    </ThemeProvider>
   );
 };
 

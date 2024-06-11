@@ -16,6 +16,7 @@ import {
   TableRow,
   TableSortLabel,
   TextField,
+  ThemeProvider,
   Typography,
 } from "@mui/material";
 import { NotificationManager } from "react-notifications";
@@ -28,6 +29,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
+import { customTheme } from "../../../utils/customTheme";
 
 const StoreRegister = () => {
   const [storeName, setStoreName] = useState("");
@@ -39,7 +41,7 @@ const StoreRegister = () => {
   const [sortBy, setSortBy] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const tableRef = useRef(null);
 
@@ -192,260 +194,268 @@ const StoreRegister = () => {
   };
 
   return (
-    <Box sx={{ p: 2, width: "900px" }}>
-      <Typography variant="subtitle2" sx={{ marginBottom: 2 }}>
-        Create Store:
-      </Typography>
+    <ThemeProvider theme={customTheme}>
+      <Box sx={{ p: 2, width: "900px" }}>
+        <Typography variant="subtitle2" sx={{ marginBottom: 2 }}>
+          Create Store:
+        </Typography>
 
-      <Grid container spacing={2}>
-        <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="storeName" className="input-label">
-              Name of Store :
-            </InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              type="text"
-              name="storeName"
-              className="input-field"
-              value={storeName}
-              onChange={(e) => setStoreName(e.target.value)}
-            />
-          </div>
-        </Grid>
+        <Grid container spacing={2}>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="storeName" className="input-label">
+                Name of Store :
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                type="text"
+                name="storeName"
+                value={storeName}
+                onChange={(e) => setStoreName(e.target.value)}
+              />
+            </div>
+          </Grid>
 
-        <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="type" className="input-label">
-              Type :
-            </InputLabel>
-            <TextField
-              select
-              fullWidth
-              size="small"
-              name="type"
-              className="input-field"
-              value={type}
-              onChange={(e) => setType(e.target.value)}
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="type" className="input-label">
+                Type :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="type"
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+              >
+                <MenuItem value="Sale Counter">Sale Counter</MenuItem>
+                <MenuItem value="Godown">Godown</MenuItem>
+              </TextField>
+            </div>
+          </Grid>
+
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="indexNo" className="input-label">
+                Index Number :
+              </InputLabel>
+              <TextField
+                fullWidth
+                type="number"
+                size="small"
+                name="indexNo"
+                value={indexNo}
+                onChange={(e) => setIndexNo(e.target.value)}
+              />
+            </div>
+          </Grid>
+
+          <Grid item xs={3}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+              }}
             >
-              <MenuItem value="Sale Counter">Sale Counter</MenuItem>
-              <MenuItem value="Godown">Godown</MenuItem>
-            </TextField>
-          </div>
+              <Button
+                color="warning"
+                size="medium"
+                variant="outlined"
+                onClick={clearForm}
+                sx={{
+                  marginRight: 1,
+                  borderRadius: 8,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+              >
+                Clear
+              </Button>
+              <Button
+                color="primary"
+                size="medium"
+                variant="contained"
+                onClick={handleCreateStore}
+                sx={{
+                  borderRadius: 8,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+              >
+                Create
+              </Button>
+            </Box>
+          </Grid>
         </Grid>
 
-        <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="indexNo" className="input-label">
-              Index Number :
-            </InputLabel>
-            <TextField
-              fullWidth
-              type="number"
-              size="small"
-              name="indexNo"
-              className="input-field"
-              value={indexNo}
-              onChange={(e) => setIndexNo(e.target.value)}
-            />
-          </div>
-        </Grid>
-      </Grid>
-
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "flex-end",
-
-          "& button": { marginTop: 2, marginLeft: 2 },
-        }}
-      >
-        <Button
-          color="primary"
-          size="medium"
-          variant="contained"
-          onClick={handleCreateStore}
-          sx={{ borderRadius: 8 }}
-        >
-          Create
-        </Button>
-        <Button
-          color="warning"
-          size="medium"
-          variant="outlined"
-          onClick={clearForm}
-          sx={{ borderRadius: 8 }}
-        >
-          Clear
-        </Button>
-      </Box>
-
-      <Box sx={{ borderRadius: 1, marginTop: 4 }}>
-        <TableContainer
-          ref={tableRef}
-          component={Paper}
-          sx={{
-            marginTop: 1,
-            height: 300,
-            width: "100%",
-            overflowY: "auto",
-            "&::-webkit-scrollbar": {
-              width: 10,
-              height: 10,
-            },
-            "&::-webkit-scrollbar-track": {
-              backgroundColor: "#fff",
-            },
-            "&::-webkit-scrollbar-thumb": {
-              backgroundColor: "#d5d8df",
-              borderRadius: 2,
-            },
-          }}
-        >
-          <Table>
-            <TableHead>
-              <TableRow className="table-head-2">
-                <TableCell align="center" sx={{ minWidth: "80px" }}>
-                  S. No.
-                </TableCell>
-                <TableCell sx={{ minWidth: "180px" }}>
-                  <TableSortLabel
-                    active={sortBy === "name"}
-                    direction={sortOrder}
-                    onClick={() => handleSort("name")}
-                  >
-                    Store Name
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell sx={{ minWidth: "180px" }}>
-                  <TableSortLabel
-                    active={sortBy === "type"}
-                    direction={sortOrder}
-                    onClick={() => handleSort("type")}
-                  >
-                    Store Type
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell sx={{ minWidth: "180px" }}>
-                  <TableSortLabel
-                    active={sortBy === "indexNo"}
-                    direction={sortOrder}
-                    onClick={() => handleSort("indexNo")}
-                  >
-                    Index No.
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell sx={{ minWidth: "180px" }}>Action</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {!allStores ? (
-                <TableRow
-                  sx={{
-                    backgroundColor: "#fff",
-                  }}
-                >
-                  <TableCell colSpan={5} align="center">
-                    No Data
+        <Box sx={{ borderRadius: 1, marginTop: 2 }}>
+          <TableContainer
+            ref={tableRef}
+            component={Paper}
+            sx={{
+              marginTop: 1,
+              height: 400,
+              width: "100%",
+              overflowY: "auto",
+              "&::-webkit-scrollbar": {
+                width: 10,
+                height: 10,
+              },
+              "&::-webkit-scrollbar-track": {
+                backgroundColor: "#fff",
+              },
+              "&::-webkit-scrollbar-thumb": {
+                backgroundColor: "#d5d8df",
+                borderRadius: 2,
+              },
+            }}
+          >
+            <Table size="small">
+              <TableHead>
+                <TableRow className="table-head-2">
+                  <TableCell align="center" sx={{ minWidth: "80px" }}>
+                    S. No.
                   </TableCell>
-                </TableRow>
-              ) : (
-                sortedData()
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((store, index) => (
-                    <TableRow
-                      key={index}
-                      sx={{
-                        backgroundColor: "#fff",
-                      }}
+                  <TableCell sx={{ minWidth: "180px" }}>
+                    <TableSortLabel
+                      active={sortBy === "name"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("name")}
                     >
-                      <TableCell align="center">
-                        {page * rowsPerPage + index + 1}
-                      </TableCell>
-                      <TableCell>
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.name}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                name: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          store.name
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.type}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                type: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          store.type
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.indexNo}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              if (!isNaN(value)) {
+                      Store Name
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ minWidth: "180px" }}>
+                    <TableSortLabel
+                      active={sortBy === "type"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("type")}
+                    >
+                      Store Type
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ minWidth: "180px" }}>
+                    <TableSortLabel
+                      active={sortBy === "indexNo"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("indexNo")}
+                    >
+                      Index No.
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ minWidth: "180px" }}>Action</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {!allStores ? (
+                  <TableRow
+                    sx={{
+                      backgroundColor: "#fff",
+                    }}
+                  >
+                    <TableCell colSpan={5} align="center">
+                      No Data
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  sortedData()
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((store, index) => (
+                      <TableRow
+                        key={index}
+                        sx={{
+                          backgroundColor: "#fff",
+                        }}
+                      >
+                        <TableCell align="center">
+                          {page * rowsPerPage + index + 1}
+                        </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.name}
+                              onChange={(e) =>
                                 setEditedRow({
                                   ...editedRow,
-                                  indexNo: value,
-                                });
+                                  name: e.target.value,
+                                })
                               }
-                            }}
+                            />
+                          ) : (
+                            store.name
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.type}
+                              onChange={(e) =>
+                                setEditedRow({
+                                  ...editedRow,
+                                  type: e.target.value,
+                                })
+                              }
+                            />
+                          ) : (
+                            store.type
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.indexNo}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (!isNaN(value)) {
+                                  setEditedRow({
+                                    ...editedRow,
+                                    indexNo: value,
+                                  });
+                                }
+                              }}
+                            />
+                          ) : (
+                            store.indexNo
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {editableIndex !== index ? (
+                            <EditIcon
+                              sx={{ cursor: "pointer", color: "blue" }}
+                              onClick={() => handleEditClick(index, store._id)}
+                            />
+                          ) : (
+                            <SaveIcon
+                              sx={{ cursor: "pointer", color: "green" }}
+                              onClick={() => handleSaveClick(store._id)}
+                            />
+                          )}
+                          <CloseIcon
+                            sx={{ cursor: "pointer", color: "red" }}
+                            onClick={() => handleRemoveStore(store._id)}
                           />
-                        ) : (
-                          store.indexNo
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {editableIndex !== index ? (
-                          <EditIcon
-                            sx={{ cursor: "pointer", color: "blue" }}
-                            onClick={() => handleEditClick(index, store._id)}
-                          />
-                        ) : (
-                          <SaveIcon
-                            sx={{ cursor: "pointer", color: "green" }}
-                            onClick={() => handleSaveClick(store._id)}
-                          />
-                        )}
-                        <CloseIcon
-                          sx={{ cursor: "pointer", color: "red" }}
-                          onClick={() => handleRemoveStore(store._id)}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
 
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={allStores?.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={allStores?.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </Box>
       </Box>
-    </Box>
+    </ThemeProvider>
   );
 };
 
