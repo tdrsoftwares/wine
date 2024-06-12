@@ -1,7 +1,8 @@
+import { Button } from "@mui/material";
 import React from "react";
 import { Link } from "react-router-dom";
 
-const SidebarOld = () => {
+const SidebarOld = ({handleSignout}) => {
   return (
     <div className="sidebar">
       <div className="sidebar-column">
@@ -113,6 +114,15 @@ const SidebarOld = () => {
           </Link>
         </div>
         <hr />
+        <div className="sidebar-item">
+          <Button
+            color="warning"
+            sx={{ width: "85%"}}
+            onClick={handleSignout}
+          >
+            SIGN OUT
+          </Button>
+        </div>
       </div>
     </div>
   );

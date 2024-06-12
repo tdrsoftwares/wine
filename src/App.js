@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router } from "react-router-dom";
+import { Navigate, BrowserRouter as Router, useNavigate } from "react-router-dom";
 import NavbarOld from "./components/Navbar_old/NavbarOld";
 import SidebarOld from "./components/Sidebar_old/SidebarOld";
 import AppRoutes from "./AppRoutes";
@@ -12,6 +12,7 @@ import { getCookie } from "./utils/cookie";
 function App() {
   const [authenticatedUser, setAuthenticatedUser] = useState(null);
 
+  // const navigate = useNavigate();
   useEffect(() => {
     const token = getCookie("accessToken");
     if (token) {
@@ -28,6 +29,10 @@ function App() {
     setAuthenticatedUser(email);
   };
 
+  const handleSignout = () => {
+    setAuthenticatedUser(null);
+  }
+
   return (
     <LoginProvider>
       <Router>
@@ -36,7 +41,7 @@ function App() {
           <div className="row">
             {authenticatedUser && (
               <div className="col-md-3">
-                <SidebarOld />
+                <SidebarOld handleSignout={handleSignout} />
               </div>
             )}
             <div className={authenticatedUser ? "col-md-9" : "col-md-12"}>
