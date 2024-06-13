@@ -13,6 +13,8 @@ const NavbarOld = () => {
   const [isPurchaseReportDropdownOpen, setIsPurchaseReportDropdownOpen] =
     useState(false);
   const [isInventoryReportDropdownOpen, setIsInventoryReportDropdownOpen] = useState(false);
+  const [isTransferReportDropdownOpen, setIsTransferStatusReportDropdownOpen] =
+    useState(false);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const masterFileDropdownRef = useRef(null);
@@ -21,6 +23,7 @@ const NavbarOld = () => {
   const saleStatusReportDropdownRef = useRef(null);
   const purchaseReportDropdownRef = useRef(null);
   const inventoryReportDropdownRef = useRef(null);
+  const transferReportDropdownRef = useRef(null);
 
   const toggleMasterFileDropdown = () => {
     setIsMasterFileDropdownOpen((prevState) => !prevState);
@@ -44,6 +47,10 @@ const NavbarOld = () => {
 
   const toggleInventoryReportDropdown = () => {
     setIsInventoryReportDropdownOpen((prevState) => !prevState);
+  };
+
+  const toggleTransferReportDropdown = () => {
+    setIsTransferStatusReportDropdownOpen((prevState) => !prevState);
   };
 
   const toggleSidebar = () => {
@@ -96,6 +103,12 @@ const NavbarOld = () => {
         !inventoryReportDropdownRef.current.contains(event.target)
       ) {
         setIsInventoryReportDropdownOpen(false);
+      }
+      if (
+        transferReportDropdownRef.current &&
+        !transferReportDropdownRef.current.contains(event.target)
+      ) {
+        setIsTransferStatusReportDropdownOpen(false);
       }
     };
 
@@ -363,11 +376,27 @@ const NavbarOld = () => {
                 isInventoryReportDropdownOpen ? "open" : ""
               }`}
             >
-              <Link to="/transfer-report" onClick={closeAllDropdowns}>
-                Transfer Report
-              </Link>
+              <li className="nav-item dropdown" ref={transferReportDropdownRef}>
+                <span className="" onClick={toggleTransferReportDropdown}>
+                  Transfer Report &nbsp;
+                  <i className="fas fa-caret-right"></i>
+                </span>
+                <div
+                  className={`transfer-report-dropdown-content ${
+                    isTransferReportDropdownOpen ? "open" : ""
+                  }`}
+                >
+                  <Link
+                    to="/item-wise-transfer-report"
+                    onClick={closeAllDropdowns}
+                  >
+                    Item Wise Transfer Report
+                  </Link>
+                </div>
+              </li>
+
               <Link to="/urgent-order" onClick={closeAllDropdowns}>
-                Urgent Order
+              Urgent order 
               </Link>
               <Link to="/stock-report" onClick={closeAllDropdowns}>
                 Stock Report

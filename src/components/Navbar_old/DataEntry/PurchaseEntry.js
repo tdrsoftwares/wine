@@ -218,7 +218,7 @@ const PurchaseEntry = () => {
       adjustment: "",
       netAmt: "",
     });
-    itemCodeRef.current.focus()
+    itemCodeRef.current.focus();
   };
 
   const handleClickOutside = (event) => {
@@ -292,7 +292,57 @@ const PurchaseEntry = () => {
     return !isNaN(value) && parseFloat(value) >= 0;
   };
 
+  // const handleEdit = (index, field, value) => {
+  //   console.log("field: ", field);
+  //   if (
+  //     field === "mrp" ||
+  //     field === "case" ||
+  //     field === "pcs" ||
+  //     field === "brk" ||
+  //     field === "purchaseRate" ||
+  //     field === "btlRate" ||
+  //     field === "gro" ||
+  //     field === "sp" ||
+  //     field === "amount"
+  //   ) {
+  //     if (!isValidNumber(value)) {
+  //       return;
+  //     }
+  //   }
 
+  //   const editedRowCopy = { ...editedRow };
+  //   console.log("editedRowCopy: ", editedRowCopy);
+  //   editedRowCopy[field] = value;
+
+  //   if (
+  //     field === "purchaseRate" ||
+  //     field === "pcs" ||
+  //     field === "case" ||
+  //     field === "gro" ||
+  //     field === "sp"
+  //   ) {
+  //     let amount = 0;
+  //     // console.log("purchases gro --> ", editedRowCopy.gro);
+  //     const purRate =
+  //       parseFloat(
+  //         editedRowCopy.purchaseRate || purchases[index].purchaseRate
+  //       ) || 0;
+  //     const pcs = parseFloat(editedRowCopy.pcs || purchases[index].pcs) || 0;
+  //     const caseValue =
+  //       parseFloat(editedRowCopy.case || purchases[index].case) || 0;
+  //     const gro = parseFloat(editedRowCopy.gro || purchases[index].gro) || 0;
+  //     const sp = parseFloat(editedRowCopy.sp || purchases[index].sp) || 0;
+
+  //     if (parseFloat(caseValue) === 0) {
+  //       amount = (purRate * pcs).toFixed(2);
+  //     } else if (parseFloat(caseValue) > 0) {
+  //       amount = (purRate * parseFloat(caseValue) + gro + sp).toFixed(2);
+  //     }
+
+  //     editedRowCopy.amount = amount;
+  //   }
+  //   setEditedRow(editedRowCopy);
+  // };
 
   const handleEdit = (index, field, value) => {
     console.log("field: ", field);
@@ -324,7 +374,7 @@ const PurchaseEntry = () => {
       field === "sp"
     ) {
       let amount = 0;
-      // console.log("purchases gro --> ", editedRowCopy.gro);
+      console.log("editedRowCopy: ", editedRowCopy);
       const purRate =
         parseFloat(
           editedRowCopy.purchaseRate || purchases[index].purchaseRate
@@ -360,7 +410,7 @@ const PurchaseEntry = () => {
       }
     }
 
-    console.log("updatedRow: ",updatedRow);
+    console.log("updatedRow: ", updatedRow);
     updatedPurchases[index] = updatedRow;
     setPurchases(updatedPurchases);
 
@@ -581,7 +631,7 @@ const PurchaseEntry = () => {
   const handleFocusOnSave = () => {
     saveButtonRef.current.focus();
   };
-   console.log("purchases ---> ", purchases);
+  console.log("purchases ---> ", purchases);
 
   const handleEnterKey = (event, nextInputRef) => {
     if (event.key === "Enter" || event.key === "Tab") {
@@ -591,10 +641,9 @@ const PurchaseEntry = () => {
     }
   };
 
-  console.log("formData: ", formData);
+  // console.log("formData: ", formData);
 
   const handleSubmitIntoDataTable = (e) => {
-    // console.log("handleSubmitIntoDataTable formData: ", formData);
     e.preventDefault();
 
     if (!formData.itemName) {
@@ -629,6 +678,7 @@ const PurchaseEntry = () => {
     setSearchMode(false);
   };
 
+  // Purchase Create
   const handleCreatePurchase = async () => {
     const missingFields = [];
 
@@ -742,7 +792,7 @@ const PurchaseEntry = () => {
     }
   };
 
-  // Purchase update: 
+  // Purchase update:
   const handleUpdatePurchase = async () => {
     const missingFields = [];
 
@@ -823,8 +873,8 @@ const PurchaseEntry = () => {
     };
 
     try {
-      console.log("entryNumber: ",entryNumber);
-      console.log("entryNoEditable: ",entryNoEditable);
+      console.log("entryNumber: ", entryNumber);
+      console.log("entryNoEditable: ", entryNoEditable);
       if (entryNumber && !entryNoEditable) {
         console.log("update try block executing...");
         const response = await updatePurchaseDetailsByEntryNo(
@@ -977,7 +1027,6 @@ const PurchaseEntry = () => {
 
   const handleDeletePurchase = async () => {
     try {
-      
       if (!entryNoEditable && entryNumber) {
         const response = await removePurchaseDetails(entryNumber);
         console.log("entryNoEditable: ", entryNoEditable);
@@ -1262,7 +1311,7 @@ const PurchaseEntry = () => {
     }
   }, [entryNumber]);
 
-  const handleCreatePurchaseKeyDown = (e) =>  {
+  const handleCreatePurchaseKeyDown = (e) => {
     if (!entryNumber) {
       if (e.key === "Enter") {
         handleCreatePurchase(e);
@@ -1273,7 +1322,7 @@ const PurchaseEntry = () => {
         handleEnterKey(e, clearButtonRef);
       }
     }
-  }
+  };
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -1919,7 +1968,9 @@ const PurchaseEntry = () => {
                       <TableCell align="center">
                         {editableIndex === index ? (
                           <Input
-                            value={editedRow.purchaseRate || row.purchaseRate || ""}
+                            value={
+                              editedRow.purchaseRate || row.purchaseRate || ""
+                            }
                             onChange={(e) =>
                               handleEdit(index, "purchaseRate", e.target.value)
                             }

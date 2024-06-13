@@ -38,7 +38,8 @@
     background-color: #ffe60042;
 }
 
-.dropdown-content, .sale-status-dropdown-content {
+.dropdown-content, .sale-status-dropdown-content,
+.dropdown-content, .transfer-report-dropdown-content {
     display: none;
     position: absolute;
     background-color: #e8e8e8;
@@ -56,9 +57,16 @@
 
 .sale-status-dropdown-content.open {
   display: block;
-  left: 262px;
-  top: 145px;
+  left: 200px;
+  top: 144px;
 }
+
+.transfer-report-dropdown-content.open{
+  display: block;
+  left: 200px;
+  top: 0px;
+}
+
 
 .dropdown-content a,
 .dropdown-content li,

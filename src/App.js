@@ -7,7 +7,7 @@ import { LoginProvider } from "./utils/loginContext";
 import { NotificationContainer } from "react-notifications";
 import "react-notifications/lib/notifications.css";
 import "./App.css";
-import { getCookie } from "./utils/cookie";
+import { clearCookie, getCookie } from "./utils/cookie";
 
 function App() {
   const [authenticatedUser, setAuthenticatedUser] = useState(null);
@@ -30,6 +30,7 @@ function App() {
   };
 
   const handleSignout = () => {
+    clearCookie("accessToken");
     setAuthenticatedUser(null);
   }
 

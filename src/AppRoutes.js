@@ -72,7 +72,6 @@ import CompanyRegister from "./components/Sidebar_old/CompanyRegister";
 import ItemRegister from "./components/Navbar_old/MasterFile/ItemRegister";
 import NotFound from "./components/Others/NotFound";
 import UnAuthorized from "./components/Others/UnAuthorized";
-import TransferReport from "./components/Navbar_old/InventoryReport/TransferReport";
 import UrgentOrder from "./components/Navbar_old/InventoryReport/UrgentOrder";
 import GodownShowroomLedger from "./components/Navbar_old/InventoryReport/GodownShowroomLedger";
 import GodownLedger from "./components/Navbar_old/InventoryReport/GodownLedger";
@@ -83,6 +82,7 @@ import OnDateReport from "./components/Navbar_old/InventoryReport/OnDateReport";
 import BrandPackLedgerByMrpRange from "./components/Navbar_old/InventoryReport/BrandPackLedgerByMrpRange";
 import ItemRateChart from "./components/Navbar_old/InventoryReport/ItemRateChart";
 import BarCodeList from "./components/Navbar_old/InventoryReport/BarCodeList";
+import ItemTransferReport from "./components/Navbar_old/InventoryReport/ItemTransferReport";
 
 
 const PrivateRoute = ({ element, authenticatedUser }) => {
@@ -363,8 +363,8 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp, handleSignout
 
       {/* Inverntory Report Submenu items */}
       <Route
-        path="/transfer-report"
-        element={authenticatedUser ? <TransferReport /> : <UnAuthorized />}
+        path="/item-wise-transfer-report"
+        element={authenticatedUser ? <ItemTransferReport /> : <UnAuthorized />}
       />
       <Route
         path="/urgent-order"
