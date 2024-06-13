@@ -78,6 +78,7 @@ const SaleBill = () => {
     volume: "",
     currentStock: "",
     group: "",
+    stockAt: ""
   });
 
   const [editableIndex, setEditableIndex] = useState(-1);
@@ -183,6 +184,7 @@ const SaleBill = () => {
       type: "",
       billDate: todaysDate,
       series: "",
+      billno: ""
     }));
   };
 
@@ -230,7 +232,7 @@ const SaleBill = () => {
 
       if (response?.data?.data) {
         setSearchResults(response?.data?.data);
-        console.log("ami serc res ", searchResults);
+        // console.log("ami serc res ", searchResults);
       } else {
         setSearchResults([]);
       }
@@ -286,6 +288,7 @@ const SaleBill = () => {
                 brk: formData.brk || 0,
                 split: formData.split || 0,
                 amount: searchedItem?.mrp || 0,
+                stockAt: searchedItem?.stcokAt || "",
               },
             ]);
           }
@@ -304,6 +307,7 @@ const SaleBill = () => {
             currentStock: searchedItem?.currentStock || 0,
             volume: searchedItem?.item[0]?.volume || 0,
             amount: searchedItem?.mrp || 0,
+            stockAt: searchedItem?.stcokAt || "",
           });
           pcsRef.current.focus();
         }
@@ -536,7 +540,7 @@ const SaleBill = () => {
   const handleRowClick = (index) => {
     const selectedRow = searchResults[index];
 
-    // console.log("handleRowClick selectedRow: ", selectedRow);
+    console.log("handleRowClick selectedRow: ", selectedRow);
     setFormData({
       ...formData,
       itemId: selectedRow.item[0]._id,
@@ -550,6 +554,7 @@ const SaleBill = () => {
       volume: selectedRow.item[0].volume || 0,
       currentStock: selectedRow.currentStock || 0,
       group: selectedRow.item[0].group || "",
+      stockAt: selectedRow.stockAt || "",
     });
     pcsRef.current.focus();
   };
@@ -664,11 +669,13 @@ const SaleBill = () => {
             pcs: formData.pcs || 1,
             rate: formData.rate || 0,
             currentStock: formData.currentStock || 0,
+            group: formData.group || "",
             volume: formData.volume || 0,
             discount: formData.discount || 0,
             brk: formData.brk || 0,
             split: formData.split || 0,
             amount: formData.amount || 0,
+            stockAt: formData.stockAt || "",
           },
         ]);
       }
@@ -695,6 +702,7 @@ const SaleBill = () => {
       return;
     }
 
+    console.log("salesData: ", salesData)
     if (salesData.length > 0) {
       salesData.forEach((item) => {
         let newPayload = {
@@ -702,34 +710,44 @@ const SaleBill = () => {
           customer: formData.customerName._id,
           billSeries: item.group,
           billDate: formData.billDate ? billDateObj : todaysDateObj,
-          volume: totalValues.totalVolume,
-          totalPcs: totalValues.totalPcs,
-          splDisc: totalValues.splDiscount,
-          splDiscAmount: totalValues.splDiscAmount,
-          grossAmount: totalValues.grossAmt,
-          discAmount: totalValues.discountAmt,
-          taxAmount: totalValues.taxAmt,
-          adjustment: totalValues.adjustment,
-          netAmount: totalValues.netAmt,
-          receiptAmount: totalValues.receiptAmt,
-          receiptMode1: totalValues.receiptMode1,
-          receiptMode2: totalValues.receiptMode2,
+          volume: parseInt(totalValues.totalVolume),
+          totalPcs: parseInt(totalValues.totalPcs),
+          splDisc: parseFloat(totalValues.splDiscount || 0),
+          splDiscAmount: parseFloat(totalValues.splDiscAmount || 0),
+          grossAmount: parseFloat(totalValues.grossAmt),
+          discAmount: parseFloat(totalValues.discountAmt || 0),
+          taxAmount: parseFloat(totalValues.taxAmt || 0),
+          adjustment: parseFloat(totalValues.adjustment || 0),
+          netAmount: parseFloat(totalValues.netAmt),
+          receiptMode1: parseFloat(totalValues.receiptMode1),
           salesItem: [
             {
               itemDetailsId: item.itemDetailsId,
               itemCode: item.itemCode,
               itemId: item.itemId,
               batchNo: item.batch,
-              mrp: item.mrp,
-              pcs: item.pcs,
-              rate: item.rate,
-              discount: item.discount,
-              amount: item.amount,
-              split: item.split,
-              break: item.brk,
+              mrp: parseFloat(item.mrp),
+              pcs: parseFloat(item.pcs),
+              rate: parseFloat(item.rate),
+              discount: parseFloat(item.discount),
+              amount: parseFloat(item.amount),
+              split: parseFloat(item.split),
+              break: parseFloat(item.brk),
+              stcokAt: item.stockAt,
             },
           ],
         };
+
+        // Conditionally add receiptMode2 if it is not an empty string or null/undefined
+        if (totalValues.receiptMode2) {
+          newPayload.receiptMode2 = totalValues.receiptMode2;
+        }
+
+        // Conditionally add receiptAmount if it is not zero or null/undefined
+        if (totalValues.receiptAmt && totalValues.receiptAmt !== 0) {
+          newPayload.receiptAmount = parseFloat(totalValues.receiptAmt);
+        }
+
         payload.push(newPayload);
       });
     }
@@ -737,7 +755,7 @@ const SaleBill = () => {
 
     try {
       const response = await createSale(payload);
-      console.log("response: ", response);
+      // console.log("response: ", response);
 
       if (response.status === 200) {
         // console.log("Sale created successfully:", response);
@@ -882,10 +900,11 @@ const SaleBill = () => {
           // console.log("billDateObject: ", billDateObject);
 
           setFormData({
+            billType: receivedData.billType,
             customerName: receivedData.customerName,
             address: receivedData.address,
             phoneNo: receivedData.phoneNo,
-            series: receivedData.series,
+            series: receivedData.billSeries,
             billNo: receivedData.billNo,
             billDate: billDateObject,
           });
@@ -1881,6 +1900,7 @@ const SaleBill = () => {
             setSalesData([]);
             handleEnterKey(e, itemCodeRef);
             setBillNoEditable(false);
+            setSearchMode(false);
           }}
           sx={{
             marginTop: 1,
