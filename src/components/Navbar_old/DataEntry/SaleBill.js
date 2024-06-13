@@ -47,7 +47,6 @@ const SaleBill = () => {
   const [salesData, setSalesData] = useState([]);
   const [allLedgers, setAllLedgers] = useState([]);
 
-
   const todaysDate = dayjs();
   // console.log("salesData: ", salesData);
   const [searchMode, setSearchMode] = useState(false);
@@ -61,7 +60,7 @@ const SaleBill = () => {
     address: "",
     newcode: "",
     series: "",
-    billno: "",
+    billno: null,
     billDate: todaysDate,
     itemId: "",
     itemDetailsId: "",
@@ -78,7 +77,7 @@ const SaleBill = () => {
     volume: "",
     currentStock: "",
     group: "",
-    stockAt: ""
+    stockAt: "",
   });
 
   const [editableIndex, setEditableIndex] = useState(-1);
@@ -184,7 +183,6 @@ const SaleBill = () => {
       type: "",
       billDate: todaysDate,
       series: "",
-      billno: ""
     }));
   };
 
@@ -372,29 +370,34 @@ const SaleBill = () => {
     };
   }, [formData]);
 
+  // console.log("customer: ", formData.customer);
+
+
   useEffect(() => {
-    if (formData.customerName) {
-      const selectedCustomer = allCustomerData.find(
-        (customer) => customer._id === formData.customerName._id
-      );
-      // console.log("selectedCustomer: ", selectedCustomer);
-      if (selectedCustomer) {
+      if (formData.customerName) {
+        const selectedCustomer = allCustomerData.find(
+          (customer) => customer._id === formData.customerName._id
+        );
+        console.log("selectedCustomer: ", selectedCustomer);
+        if (selectedCustomer) {
+          setFormData({
+            ...formData,
+            customerName: selectedCustomer,
+            address: selectedCustomer.address,
+            phoneNo: selectedCustomer.contactNo,
+            type: selectedCustomer.type,
+          });
+        }
+      } else {
         setFormData({
           ...formData,
-          address: selectedCustomer.address,
-          phoneNo: selectedCustomer.contactNo,
-          type: selectedCustomer.type,
+          address: "",
+          phoneNo: "",
+          type: "",
         });
       }
-    } else {
-      setFormData({
-        ...formData,
-        address: "",
-        phoneNo: "",
-        type: "",
-      });
-    }
-  }, [formData.customerName, allCustomerData]);
+
+  }, [formData.customerName, formData.billno, allCustomerData]);
 
   useEffect(() => {
     itemCodeRef.current.focus();
@@ -702,7 +705,7 @@ const SaleBill = () => {
       return;
     }
 
-    console.log("salesData: ", salesData)
+    // console.log("salesData: ", salesData);
     if (salesData.length > 0) {
       salesData.forEach((item) => {
         let newPayload = {
@@ -870,7 +873,7 @@ const SaleBill = () => {
   const handleBillNoChange = (e) => {
     const { value } = e.target;
     setFormData({ ...formData, billno: value });
-  }
+  };
 
   const handleReceiptModeChange = (e) => {
     const value = e.target.value;
@@ -880,6 +883,28 @@ const SaleBill = () => {
       receiptMode1: value,
       receiptAmt: parseInt(totalValues.netAmt) - parseInt(value),
     });
+  };
+
+  const handlePrevClick = () => {
+    if (formData.billno && billNoEditable) {
+      const match = formData.billno.match(/^([A-Za-z]*)(\d+)$/);
+      if (match) {
+        const prefix = match[1];
+        const number = parseInt(match[2]) - 1;
+        setFormData({ ...formData, billno: `${prefix}${number}` });
+      }
+    }
+  };
+
+  const handleNextClick = () => {
+    if (formData.billno && billNoEditable) {
+      const match = formData.billno.match(/^([A-Za-z]*)(\d+)$/);
+      if (match) {
+        const prefix = match[1];
+        const number = parseInt(match[2]) + 1;
+        setFormData({ ...formData, billno: `${prefix}${number}` });
+      }
+    }
   };
 
   const convertToDayjsObject = (dateStr) => {
@@ -899,15 +924,15 @@ const SaleBill = () => {
           const billDateObject = convertToDayjsObject(receivedData.billDate);
           // console.log("billDateObject: ", billDateObject);
 
-          setFormData({
+          setFormData((prevData) => ({
+            ...prevData,
             billType: receivedData.billType,
-            customerName: receivedData.customerName,
-            address: receivedData.address,
-            phoneNo: receivedData.phoneNo,
+            customerName: receivedData.customer,
+            address: receivedData.customer?.address,
+            phoneNo: receivedData.customer?.contactNo,
             series: receivedData.billSeries,
-            billNo: receivedData.billNo,
             billDate: billDateObject,
-          });
+          }));
 
           const salesItems = receivedData?.salesItems;
           // console.log("salesItems: ", salesItems);
@@ -922,10 +947,10 @@ const SaleBill = () => {
             discount: purchase?.discount,
             amount: purchase?.amount,
             brk: purchase?.break,
-            split: purchase?.split
+            split: purchase?.split,
           }));
 
-          // // console.log("newSalesItems: ", newSalesItems);
+          console.log("receivedData: ", receivedData);
 
           setSalesData([...newSalesItems]);
 
@@ -956,9 +981,9 @@ const SaleBill = () => {
       }
     } catch (error) {
       resetTopFormData();
-          resetMiddleFormData();
-          resetTotalValues();
-          setSalesData([]);
+      resetMiddleFormData();
+      resetTotalValues();
+      setSalesData([]);
       NotificationManager.error("Error fetching sales details!");
       console.error("Error fetching sales:", error);
     }
@@ -1041,9 +1066,10 @@ const SaleBill = () => {
     }
   }, []);
 
+  // console.log("formData.billno --> ", formData.billno);
+  // console.log("--> ", billNoEditable);
+
   useEffect(() => {
-    // console.log("--> ",billNoEditable);
-    // console.log("formData.billno --> ", formData.billno);
     if (formData.billno && billNoEditable) {
       billNumberSearch(formData.billno);
     }
@@ -1181,8 +1207,7 @@ const SaleBill = () => {
                 fullWidth
                 size="small"
                 defaultValue="select bill"
-              >
-              </TextField>
+              ></TextField>
             </div>
           </Grid>
 
@@ -1912,11 +1937,12 @@ const SaleBill = () => {
         >
           CLEAR
         </Button>
+
         <Button
           color="success"
           size="medium"
           variant="outlined"
-          onClick={() => {}}
+          onClick={handlePrevClick}
           sx={{
             marginTop: 1,
             marginRight: 1,
@@ -1931,7 +1957,7 @@ const SaleBill = () => {
           color="secondary"
           size="medium"
           variant="outlined"
-          onClick={() => {}}
+          onClick={handleNextClick}
           sx={{
             marginTop: 1,
             marginRight: 1,

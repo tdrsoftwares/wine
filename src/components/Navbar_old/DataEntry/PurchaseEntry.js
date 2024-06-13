@@ -292,58 +292,6 @@ const PurchaseEntry = () => {
     return !isNaN(value) && parseFloat(value) >= 0;
   };
 
-  // const handleEdit = (index, field, value) => {
-  //   console.log("field: ", field);
-  //   if (
-  //     field === "mrp" ||
-  //     field === "case" ||
-  //     field === "pcs" ||
-  //     field === "brk" ||
-  //     field === "purchaseRate" ||
-  //     field === "btlRate" ||
-  //     field === "gro" ||
-  //     field === "sp" ||
-  //     field === "amount"
-  //   ) {
-  //     if (!isValidNumber(value)) {
-  //       return;
-  //     }
-  //   }
-
-  //   const editedRowCopy = { ...editedRow };
-  //   console.log("editedRowCopy: ", editedRowCopy);
-  //   editedRowCopy[field] = value;
-
-  //   if (
-  //     field === "purchaseRate" ||
-  //     field === "pcs" ||
-  //     field === "case" ||
-  //     field === "gro" ||
-  //     field === "sp"
-  //   ) {
-  //     let amount = 0;
-  //     // console.log("purchases gro --> ", editedRowCopy.gro);
-  //     const purRate =
-  //       parseFloat(
-  //         editedRowCopy.purchaseRate || purchases[index].purchaseRate
-  //       ) || 0;
-  //     const pcs = parseFloat(editedRowCopy.pcs || purchases[index].pcs) || 0;
-  //     const caseValue =
-  //       parseFloat(editedRowCopy.case || purchases[index].case) || 0;
-  //     const gro = parseFloat(editedRowCopy.gro || purchases[index].gro) || 0;
-  //     const sp = parseFloat(editedRowCopy.sp || purchases[index].sp) || 0;
-
-  //     if (parseFloat(caseValue) === 0) {
-  //       amount = (purRate * pcs).toFixed(2);
-  //     } else if (parseFloat(caseValue) > 0) {
-  //       amount = (purRate * parseFloat(caseValue) + gro + sp).toFixed(2);
-  //     }
-
-  //     editedRowCopy.amount = amount;
-  //   }
-  //   setEditedRow(editedRowCopy);
-  // };
-
   const handleEdit = (index, field, value) => {
     console.log("field: ", field);
     if (
