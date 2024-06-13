@@ -12,8 +12,13 @@ const NavbarOld = () => {
     useState(false);
   const [isPurchaseReportDropdownOpen, setIsPurchaseReportDropdownOpen] =
     useState(false);
-  const [isInventoryReportDropdownOpen, setIsInventoryReportDropdownOpen] = useState(false);
+  const [isInventoryReportDropdownOpen, setIsInventoryReportDropdownOpen] =
+    useState(false);
   const [isTransferReportDropdownOpen, setIsTransferStatusReportDropdownOpen] =
+    useState(false);
+  const [isUrgentOrderDropdownOpen, setIsUrgentOrderDropdownOpen] =
+    useState(false);
+  const [isGodownShowroomDropdownOpen, setIsGodownShowroomDropdownOpen] =
     useState(false);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -24,6 +29,8 @@ const NavbarOld = () => {
   const purchaseReportDropdownRef = useRef(null);
   const inventoryReportDropdownRef = useRef(null);
   const transferReportDropdownRef = useRef(null);
+  const urgentOrderDropdownRef = useRef(null);
+  const godownShowroomLedgerDropdownRef = useRef(null);
 
   const toggleMasterFileDropdown = () => {
     setIsMasterFileDropdownOpen((prevState) => !prevState);
@@ -53,6 +60,14 @@ const NavbarOld = () => {
     setIsTransferStatusReportDropdownOpen((prevState) => !prevState);
   };
 
+  const toggleUrgentOrderDropdown = () => {
+    setIsUrgentOrderDropdownOpen((prevState) => !prevState);
+  };
+
+  const toggleGodownShowroomDropdown = () => {
+    setIsGodownShowroomDropdownOpen((prevState) => !prevState);
+  };
+
   const toggleSidebar = () => {
     setIsSidebarOpen((prevState) => !prevState);
   };
@@ -64,6 +79,9 @@ const NavbarOld = () => {
     setIsSaleStatusReportDropdownOpen(false);
     setIsPurchaseReportDropdownOpen(false);
     setIsInventoryReportDropdownOpen(false);
+    setIsTransferStatusReportDropdownOpen(false);
+    setIsUrgentOrderDropdownOpen(false);
+    setIsGodownShowroomDropdownOpen(false);
   };
 
   useEffect(() => {
@@ -109,6 +127,12 @@ const NavbarOld = () => {
         !transferReportDropdownRef.current.contains(event.target)
       ) {
         setIsTransferStatusReportDropdownOpen(false);
+      }
+      if (
+        urgentOrderDropdownRef.current &&
+        !urgentOrderDropdownRef.current.contains(event.target)
+      ) {
+        setIsUrgentOrderDropdownOpen(false);
       }
     };
 
@@ -259,8 +283,9 @@ const NavbarOld = () => {
               <li
                 className="nav-item dropdown"
                 ref={saleStatusReportDropdownRef}
+                onClick={toggleSaleStatusReportDropdown}
               >
-                <span className="" onClick={toggleSaleStatusReportDropdown}>
+                <span className="">
                   Sale Status Report &nbsp;
                   <i className="fas fa-caret-right"></i>
                 </span>
@@ -376,8 +401,12 @@ const NavbarOld = () => {
                 isInventoryReportDropdownOpen ? "open" : ""
               }`}
             >
-              <li className="nav-item dropdown" ref={transferReportDropdownRef}>
-                <span className="" onClick={toggleTransferReportDropdown}>
+              <li
+                className="nav-item dropdown"
+                ref={transferReportDropdownRef}
+                onClick={toggleTransferReportDropdown}
+              >
+                <span className="">
                   Transfer Report &nbsp;
                   <i className="fas fa-caret-right"></i>
                 </span>
@@ -395,15 +424,69 @@ const NavbarOld = () => {
                 </div>
               </li>
 
-              <Link to="/urgent-order" onClick={closeAllDropdowns}>
-              Urgent order 
-              </Link>
+              <li
+                className="nav-item dropdown"
+                ref={urgentOrderDropdownRef}
+                onClick={toggleUrgentOrderDropdown}
+              >
+                <span className="">
+                  Urgent Order &nbsp;
+                  <i className="fas fa-caret-right"></i>
+                </span>
+                <div
+                  className={`urgent-order-dropdown-content ${
+                    isUrgentOrderDropdownOpen ? "open" : ""
+                  }`}
+                >
+                  <Link
+                    to="/urgent-order-minimum-stocks"
+                    onClick={closeAllDropdowns}
+                  >
+                    Urgent order on minimum stocks
+                  </Link>
+                  <Link to="/urgent-order-sales" onClick={closeAllDropdowns}>
+                    Urgent order on sales
+                  </Link>
+                </div>
+              </li>
+
               <Link to="/stock-report" onClick={closeAllDropdowns}>
                 Stock Report
               </Link>
-              <Link to="/godown-showroom-ledger" onClick={closeAllDropdowns}>
-                Godown/showroom Ledger
+
+              <li
+                className="nav-item dropdown"
+                ref={godownShowroomLedgerDropdownRef}
+                onClick={toggleGodownShowroomDropdown}
+              >
+                <span className="">
+                  Godown/Showroom Ledger &nbsp;
+                  <i className="fas fa-caret-right"></i>
+                </span>
+                <div
+                  className={`godown-showroom-ledger ${
+                    isGodownShowroomDropdownOpen ? "open" : ""
+                  }`}
+                >
+                  <Link to="/stock-ledger-brand" onClick={closeAllDropdowns}>
+                    Stock Ledger Brand
+                  </Link>
+                  <Link to="/stock-ledger-category" onClick={closeAllDropdowns}>
+                    Stock Ledger Category
+                  </Link>
+                  <Link
+                    to="/stock-ledger-category-pack"
+                    onClick={closeAllDropdowns}
+                  >
+                    Stock Ledger Category/Pack
+                  </Link>
+                </div>
+              </li>
+
+              <Link to="/godown-ledger" onClick={closeAllDropdowns}>
+                Godown Ledger
               </Link>
+
               <Link to="/showroom-ledger" onClick={closeAllDropdowns}>
                 Showroom Ledger
               </Link>
