@@ -84,7 +84,10 @@
 
 .dropdown-content a,
 .dropdown-content li,
-.sale-status-dropdown-content a {
+.sale-status-dropdown-content a,
+.transfer-report-dropdown-content a,
+.urgent-order-dropdown-content a,
+.godown-showroom-ledger a {
   color: #000;
   padding: 10px;
   text-decoration: none;
@@ -94,7 +97,10 @@
 
 .dropdown-content a:hover,
 .dropdown-content .nav-item:hover,
-.sale-status-dropdown-content li:hover {
+.sale-status-dropdown-content li:hover,
+.transfer-report-dropdown-content li:hover,
+.urgent-order-dropdown-content li:hover,
+.godown-showroom-ledger li:hover {
   background-color: rgba(255, 255, 255, 0.8);
   cursor: pointer;
 }

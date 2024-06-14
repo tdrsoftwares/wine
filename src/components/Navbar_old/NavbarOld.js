@@ -134,6 +134,12 @@ const NavbarOld = () => {
       ) {
         setIsUrgentOrderDropdownOpen(false);
       }
+      if (
+        godownShowroomLedgerDropdownRef.current &&
+        !godownShowroomLedgerDropdownRef.current.contains(event.target)
+      ) {
+        setIsGodownShowroomDropdownOpen(false);
+      }
     };
 
     document.body.addEventListener("click", closeDropdownOnOutsideClick);

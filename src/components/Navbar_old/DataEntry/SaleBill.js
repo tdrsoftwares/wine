@@ -174,13 +174,13 @@ const SaleBill = () => {
 
   const resetTopFormData = () => {
     setFormData({
+      ...formData,
       billType: "CASHBILL",
       customerName: "",
       address: "",
       phoneNo: "",
       billDate: todaysDate,
       series: "",
-      billno: ""
     });
   };
 
@@ -224,7 +224,7 @@ const SaleBill = () => {
     try {
       setIsLoading(true);
       const response = await searchAllSalesByItemName(itemName);
-      console.log("itemNameSearch response: ", response);
+      // console.log("itemNameSearch response: ", response);
 
       if (response?.data?.data) {
         setSearchResults(response?.data?.data);
@@ -246,7 +246,7 @@ const SaleBill = () => {
       setIsLoading(true);
       const response = await searchAllSalesByItemCode(itemCode);
       const searchedItem = response?.data?.data[0];
-      console.log("searchedItem: ", searchedItem);
+      // console.log("searchedItem: ", searchedItem);
 
       if (searchedItem) {
         const existingItemIndex = salesData.findIndex(
@@ -376,24 +376,23 @@ const SaleBill = () => {
       const selectedCustomer = allCustomerData.find(
         (customer) => customer._id === formData.customerName._id
       );
-      console.log("selectedCustomer: ", selectedCustomer);
       if (selectedCustomer) {
-        setFormData({
-          ...formData,
+        setFormData((prevData) => ({
+          ...prevData,
           customerName: selectedCustomer,
           address: selectedCustomer.address,
           phoneNo: selectedCustomer.contactNo,
-        });
+        }));
       }
     } else {
-      setFormData({
-        ...formData,
+      setFormData((prevData) => ({
+        ...prevData,
         customerName: "",
         address: "",
         phoneNo: "",
-      });
+      }));
     }
-  }, [formData.customerName, formData.billno, allCustomerData]);
+  }, [formData.customerName, allCustomerData]);
 
   useEffect(() => {
     itemCodeRef.current.focus();
@@ -539,7 +538,7 @@ const SaleBill = () => {
   const handleRowClick = (index) => {
     const selectedRow = searchResults[index];
 
-    console.log("handleRowClick selectedRow: ", selectedRow);
+    // console.log("handleRowClick selectedRow: ", selectedRow);
     setFormData({
       ...formData,
       itemId: selectedRow.item[0]._id,
@@ -781,24 +780,30 @@ const SaleBill = () => {
     try {
       if (billNoEditable && formData.billno) {
         const response = await removeSaleDetails(formData.billno);
-        if(response.status === 200) {
-          console.log("del response: ", response);
-          NotificationManager.success(
-            "Sale deleted successfully.",
-            "Success"
-          );
+        if (response.status === 200) {
+          // console.log("del response: ", response);
+          NotificationManager.success("Sale deleted successfully.", "Success");
           resetTopFormData();
-        resetMiddleFormData();
-        resetTotalValues();
-        setFormData({...formData, billno: ""});
-        setBillNoEditable(true);
-        setSalesData([]);
-        setEditedRow({});
-        setSelectedRowIndex(null);
-        setSearchMode(false);
-        setEditableIndex(-1);
+          resetMiddleFormData();
+          resetTotalValues();
+          setFormData({
+            customerName: '',
+            address: '',
+            phoneNo: '',
+            billno: null 
+          });
+          setBillNoEditable(true);
+          setSalesData([]);
+          setEditedRow({});
+          setSelectedRowIndex(null);
+          setSearchMode(false);
+          setEditableIndex(-1);
         } else {
           console.log("error response: ", response);
+          NotificationManager.error(
+            "Error deleting Purchase. Please try again later.",
+            "Error"
+          );
         }
       } else {
         if (!billNoEditable && formData.billno) {
@@ -931,7 +936,8 @@ const SaleBill = () => {
       if (match) {
         const prefix = match[1];
         const number = parseInt(match[2]) - 1;
-        setFormData({ ...formData, billno: `${prefix}${number}` });
+        const newBillNo = `${prefix}${number}`;
+        setFormData((prevData) => ({ ...prevData, billno: newBillNo }));
       }
     }
   };
@@ -942,7 +948,8 @@ const SaleBill = () => {
       if (match) {
         const prefix = match[1];
         const number = parseInt(match[2]) + 1;
-        setFormData({ ...formData, billno: `${prefix}${number}` });
+        const newBillNo = `${prefix}${number}`;
+        setFormData((prevData) => ({ ...prevData, billno: newBillNo }));
       }
     }
   };
@@ -952,18 +959,14 @@ const SaleBill = () => {
   };
 
   const billNumberSearch = debounce(async () => {
-    // console.log("billNo search...: ", );
     try {
       if (formData.billno) {
         const response = await getSaleDetailsByEntryNo(formData.billno);
-        console.log("allSalesData response: ", response.data.data);
-
+  
         if (response?.data?.data) {
           const receivedData = response.data.data;
-
           const billDateObject = convertToDayjsObject(receivedData.billDate);
-          // console.log("billDateObject: ", billDateObject);
-
+  
           setFormData((prevData) => ({
             ...prevData,
             billType: receivedData.billType,
@@ -973,10 +976,8 @@ const SaleBill = () => {
             series: receivedData.billSeries,
             billDate: billDateObject,
           }));
-
+  
           const salesItems = receivedData?.salesItems;
-          // console.log("salesItems: ", salesItems);
-
           const newSalesItems = salesItems.map((purchase) => ({
             itemCode: purchase?.itemCode,
             itemName: purchase?.itemId?.name,
@@ -999,14 +1000,12 @@ const SaleBill = () => {
             totalPcs: receivedData.totalPcs || 0,
             splDiscount: receivedData.splDisc || 0,
             splDiscAmount: receivedData.splDiscAmount,
-
             grossAmt: receivedData.grossAmount,
             discountAmt: receivedData.discAmount,
             taxAmt: receivedData.taxAmount,
             // totalMrp: receivedData.,
             adjustment: receivedData.adjustment,
             netAmt: receivedData.netAmount,
-
             // receiptAmt: receivedData.,
             // receiptMode1: receivedData.,
             // receiptMode2: receivedData.,
@@ -1962,7 +1961,12 @@ const SaleBill = () => {
             resetTopFormData();
             resetMiddleFormData();
             resetTotalValues();
-            // setFormData({...formData, billno: ""});
+            setFormData({
+              customerName: '',
+              address: '',
+              phoneNo: '',
+              billno: "" 
+            });
             setSalesData([]);
             handleEnterKey(e, itemCodeRef);
             setBillNoEditable(false);
