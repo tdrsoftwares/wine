@@ -56,7 +56,6 @@ const SaleBill = () => {
     billType: "CASHBILL",
     customerName: "",
     phoneNo: "",
-    type: "",
     address: "",
     series: "",
     billno: null,
@@ -179,7 +178,6 @@ const SaleBill = () => {
       customerName: "",
       address: "",
       phoneNo: "",
-      type: "",
       billDate: todaysDate,
       series: "",
       billno: ""
@@ -374,29 +372,27 @@ const SaleBill = () => {
 
 
   useEffect(() => {
-      if (formData.customerName) {
-        const selectedCustomer = allCustomerData.find(
-          (customer) => customer._id === formData.customerName._id
-        );
-        console.log("selectedCustomer: ", selectedCustomer);
-        if (selectedCustomer) {
-          setFormData({
-            ...formData,
-            customerName: selectedCustomer,
-            address: selectedCustomer.address,
-            phoneNo: selectedCustomer.contactNo,
-            type: selectedCustomer.type,
-          });
-        }
-      } else {
+    if (formData.customerName) {
+      const selectedCustomer = allCustomerData.find(
+        (customer) => customer._id === formData.customerName._id
+      );
+      console.log("selectedCustomer: ", selectedCustomer);
+      if (selectedCustomer) {
         setFormData({
           ...formData,
-          address: "",
-          phoneNo: "",
-          type: "",
+          customerName: selectedCustomer,
+          address: selectedCustomer.address,
+          phoneNo: selectedCustomer.contactNo,
         });
       }
-
+    } else {
+      setFormData({
+        ...formData,
+        customerName: "",
+        address: "",
+        phoneNo: "",
+      });
+    }
   }, [formData.customerName, formData.billno, allCustomerData]);
 
   useEffect(() => {
