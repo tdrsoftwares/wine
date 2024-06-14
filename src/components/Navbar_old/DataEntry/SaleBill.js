@@ -29,6 +29,7 @@ import debounce from "lodash.debounce";
 import {
   createSale,
   getSaleDetailsByEntryNo,
+  removeSaleDetails,
   searchAllSalesByItemCode,
   searchAllSalesByItemName,
 } from "../../../services/saleBillService";
@@ -54,11 +55,9 @@ const SaleBill = () => {
     barCode: "",
     billType: "CASHBILL",
     customerName: "",
-    balance: "",
     phoneNo: "",
     type: "",
     address: "",
-    newcode: "",
     series: "",
     billno: null,
     billDate: todaysDate,
@@ -175,15 +174,16 @@ const SaleBill = () => {
   };
 
   const resetTopFormData = () => {
-    setFormData((prevFormData) => ({
-      ...prevFormData,
+    setFormData({
+      billType: "CASHBILL",
       customerName: "",
       address: "",
       phoneNo: "",
       type: "",
       billDate: todaysDate,
       series: "",
-    }));
+      billno: ""
+    });
   };
 
   const resetMiddleFormData = () => {
@@ -780,6 +780,50 @@ const SaleBill = () => {
     }
   };
 
+
+  const handleDeleteSale = async () => {
+    try {
+      if (billNoEditable && formData.billno) {
+        const response = await removeSaleDetails(formData.billno);
+        if(response.status === 200) {
+          console.log("del response: ", response);
+          NotificationManager.success(
+            "Sale deleted successfully.",
+            "Success"
+          );
+          resetTopFormData();
+        resetMiddleFormData();
+        resetTotalValues();
+        setFormData({...formData, billno: ""});
+        setBillNoEditable(true);
+        setSalesData([]);
+        setEditedRow({});
+        setSelectedRowIndex(null);
+        setSearchMode(false);
+        setEditableIndex(-1);
+        } else {
+          console.log("error response: ", response);
+        }
+      } else {
+        if (!billNoEditable && formData.billno) {
+          NotificationManager.warning(
+            "Entry No field is disabled!",
+            "Please click on Open Button to enable it."
+          );
+        }
+        if (billNoEditable && !formData.billno) {
+          NotificationManager.warning("Please input something in bill no. field!")
+        }
+      }
+    } catch (error) {
+      NotificationManager.error(
+        "Error deleting Purchase. Please try again later.",
+        "Error"
+      );
+      console.log(error);
+    }
+  };
+
   const handleItemCodeChange = async (e) => {
     const itemCode = e.target.value;
     setFormData({ ...formData, itemCode: itemCode });
@@ -1066,11 +1110,11 @@ const SaleBill = () => {
     }
   }, []);
 
-  // console.log("formData.billno --> ", formData.billno);
-  // console.log("--> ", billNoEditable);
-
+  
   useEffect(() => {
     if (formData.billno && billNoEditable) {
+      // console.log("formData.billno --> ", formData.billno);
+      // console.log("--> ", billNoEditable);
       billNumberSearch(formData.billno);
     }
   }, [formData.billno]);
@@ -1922,6 +1966,7 @@ const SaleBill = () => {
             resetTopFormData();
             resetMiddleFormData();
             resetTotalValues();
+            // setFormData({...formData, billno: ""});
             setSalesData([]);
             handleEnterKey(e, itemCodeRef);
             setBillNoEditable(false);
@@ -1973,7 +2018,7 @@ const SaleBill = () => {
           color="error"
           size="medium"
           variant="contained"
-          onClick={() => {}}
+          onClick={handleDeleteSale}
           sx={{
             marginTop: 1,
             marginRight: 1,

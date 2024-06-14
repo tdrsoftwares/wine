@@ -178,3 +178,14 @@ export const getSaleDetailsByEntryNo = async (billNo) => {
     return error
   }
 }
+
+export const removeSaleDetails = async (billNo) => {
+  try {
+    const apiURL = `/sales/delete-bill/${billNo}`;
+    const removeDetails = await axiosInstance.delete(apiURL, billNo);
+    return removeDetails;
+  } catch (error) {
+    return error;
+  }
+};
+
