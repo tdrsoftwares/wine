@@ -11,6 +11,7 @@ import {
   Radio,
   RadioGroup,
   TextField,
+  ThemeProvider,
   Typography,
 } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
@@ -22,6 +23,7 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { getAllCustomer } from "../../../services/customerService";
 import dayjs from "dayjs";
+import { customTheme } from "../../../utils/customTheme";
 
 const SaleReportSummary = () => {
   const [selectOptions, setselectOptions] = useState(null);
@@ -41,7 +43,7 @@ const SaleReportSummary = () => {
   const [selectedRowData, setSelectedRowData] = useState(null);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
-    pageSize: 25,
+    pageSize: 10,
   });
   const [totalCount, setTotalCount] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -182,7 +184,7 @@ const SaleReportSummary = () => {
           View
         </Button>
       ),
-      disableExport: true
+      disableExport: true,
     },
   ];
 
@@ -280,334 +282,292 @@ const SaleReportSummary = () => {
   }, [paginationModel, filterData]);
 
   return (
-    <Box sx={{ p: 2, width: "900px" }}>
-      <Typography variant="h6" sx={{ marginBottom: 2 }}>
-        Sale Report Summary:
-      </Typography>
-      <Typography variant="subtitle2" gutterBottom>
-        Filter By:
-      </Typography>
+    <ThemeProvider theme={customTheme}>
+      <Box sx={{ p: 2, width: "900px" }}>
+        <Typography variant="h6" sx={{ marginBottom: 2 }}>
+          Sale Report Summary:
+        </Typography>
+        <Typography variant="subtitle2" gutterBottom>
+          Filter By:
+        </Typography>
 
-      <Grid container spacing={2}>
-        {/* <Grid item xs={9.5}>
-            <RadioGroup
-              row
-              name="selectOptions"
-              aria-labelledby="selectOptions"
-              value={selectOptions}
-              onChange={(e) => setselectOptions(e.target.value)}
-            >
-              <FormControlLabel value="date" control={<Radio />} label="Date" />
-
-              <FormControlLabel
-                value="series"
-                control={<Radio />}
-                label="Bill Series"
-              />
-
-              <FormControlLabel
-                value="customerName"
-                control={<Radio />}
-                label="Customer Name"
-              />
-              <FormControlLabel
-                value="customerType"
-                control={<Radio />}
-                label="Customer Type"
-              />
-
-              <FormControlLabel
-                value="phone"
-                control={<Radio />}
-                label="Phone No."
-              />
-            </RadioGroup>
+        <Grid container spacing={2}>
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="dateFrom" className="input-label">
+                Bill date from:
+              </InputLabel>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  id="dateFrom"
+                  format="DD/MM/YYYY"
+                  value={filterData.dateFrom}
+                  className="input-field date-picker"
+                  onChange={(date) =>
+                    setFilterData({ ...filterData, dateFrom: date })
+                  }
+                  renderInput={(params) => <TextField {...params} />}
+                />
+              </LocalizationProvider>
+            </div>
           </Grid>
 
-          <Grid item xs={2.5}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={filterData.isChecked}
-                  inputProps={{ "aria-label": "controlled" }}
-                  onChange={(e) =>
-                    setFilterData({
-                      ...filterData,
-                      isChecked: e.target.checked,
-                    })
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="dateTo" className="input-label">
+                Bill date to:
+              </InputLabel>
+
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  id="dateTo"
+                  format="DD/MM/YYYY"
+                  value={filterData.dateTo}
+                  className="input-field date-picker"
+                  onChange={(date) =>
+                    setFilterData({ ...filterData, dateTo: date })
                   }
+                  renderInput={(params) => <TextField {...params} />}
                 />
-              }
-              label="Only Disc. Bills"
-            />
-          </Grid> */}
+              </LocalizationProvider>
+            </div>
+          </Grid>
 
-        <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="dateFrom" className="input-label">
-              Bill date from:
-            </InputLabel>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                id="dateFrom"
-                format="DD/MM/YYYY"
-                value={filterData.dateFrom}
-                className="input-field date-picker"
-                onChange={(date) =>
-                  setFilterData({ ...filterData, dateFrom: date })
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="series" className="input-label">
+                Bill Series:
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                name="series"
+                className="input-field"
+                value={filterData.series}
+                onChange={(e) =>
+                  setFilterData({ ...filterData, series: e.target.value })
                 }
-                renderInput={(params) => <TextField {...params} />}
               />
-            </LocalizationProvider>
-          </div>
-        </Grid>
+            </div>
+          </Grid>
 
-        <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="dateTo" className="input-label">
-              Bill date to:
-            </InputLabel>
-
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                id="dateTo"
-                format="DD/MM/YYYY"
-                value={filterData.dateTo}
-                className="input-field date-picker"
-                onChange={(date) =>
-                  setFilterData({ ...filterData, dateTo: date })
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="customerName" className="input-label">
+                Customer Name:
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="customerName"
+                className="input-field"
+                value={filterData.customerName}
+                onChange={(e) =>
+                  setFilterData({ ...filterData, customerName: e.target.value })
                 }
-                renderInput={(params) => <TextField {...params} />}
-              />
-            </LocalizationProvider>
-          </div>
-        </Grid>
-
-        <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="series" className="input-label">
-              Bill Series:
-            </InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              name="series"
-              className="input-field"
-              value={filterData.series}
-              onChange={(e) =>
-                setFilterData({ ...filterData, series: e.target.value })
-              }
-            />
-          </div>
-        </Grid>
-
-        <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="customerName" className="input-label">
-              Customer Name:
-            </InputLabel>
-            <TextField
-              select
-              fullWidth
-              size="small"
-              name="customerName"
-              className="input-field"
-              value={filterData.customerName}
-              onChange={(e) =>
-                setFilterData({ ...filterData, customerName: e.target.value })
-              }
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
                     },
                   },
-                },
-              }}
-            >
-              {allCustomerData?.map((item) => (
-                <MenuItem key={item._id} value={item.name}>
-                  {item.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
+                }}
+              >
+                {allCustomerData?.map((item) => (
+                  <MenuItem key={item._id} value={item.name}>
+                    {item.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </Grid>
+
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="customerType" className="input-label">
+                Customer Type:
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="customerType"
+                className="input-field"
+                value={filterData.customerType}
+                onChange={(e) =>
+                  setFilterData({ ...filterData, customerType: e.target.value })
+                }
+              >
+                {["cash", "online"].map((item, id) => (
+                  <MenuItem key={id} value={item}>
+                    {item}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </Grid>
+
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="phone" className="input-label">
+                Phone No.:
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                name="phone"
+                className="input-field"
+                value={filterData.phone}
+                onChange={(e) =>
+                  setFilterData({ ...filterData, phone: e.target.value })
+                }
+              />
+            </div>
+          </Grid>
         </Grid>
 
-        <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="customerType" className="input-label">
-              Customer Type:
-            </InputLabel>
-            <TextField
-              select
-              fullWidth
-              size="small"
-              name="customerType"
-              className="input-field"
-              value={filterData.customerType}
-              onChange={(e) =>
-                setFilterData({ ...filterData, customerType: e.target.value })
-              }
-            >
-              {["cash", "online"].map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
-        </Grid>
-
-        <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="phone" className="input-label">
-              Phone No.:
-            </InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              name="phone"
-              className="input-field"
-              value={filterData.phone}
-              onChange={(e) =>
-                setFilterData({ ...filterData, phone: e.target.value })
-              }
-            />
-          </div>
-        </Grid>
-      </Grid>
-
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          "& button": { marginTop: 2 },
-        }}
-      >
-        <Button
-          color="inherit"
-          size="small"
-          variant="contained"
-          onClick={() => {
-            setFilterData({
-              dateFrom: null,
-              dateTo: null,
-              customerName: "",
-              userName: "",
-              series: "",
-              customerType: "",
-              phone: "",
-              isChecked: false,
-            });
-            setselectOptions(null);
-            setPaginationModel({ page: 0, pageSize: 25 });
-            // fetchAllSales();
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            "& button": { marginTop: 2 },
           }}
-          // sx={{ borderRadius: 8 }}
         >
-          Clear Filters
-        </Button>
-        <div>
           <Button
             color="inherit"
             size="small"
             variant="contained"
-            onClick={() => {}}
+            onClick={() => {
+              setFilterData({
+                dateFrom: null,
+                dateTo: null,
+                customerName: "",
+                userName: "",
+                series: "",
+                customerType: "",
+                phone: "",
+                isChecked: false,
+              });
+              setselectOptions(null);
+              setPaginationModel({ page: 0, pageSize: 10 });
+              // fetchAllSales();
+            }}
             // sx={{ borderRadius: 8 }}
           >
-            Print
+            Clear Filters
           </Button>
-          <Button
-            color="info"
-            size="small"
-            variant="contained"
-            onClick={() => fetchAllSales()}
-            sx={{ marginLeft: 2 }}
-          >
-            Display
-          </Button>
-        </div>
-      </Box>
-
-      <Box
-        sx={{
-          height: 500,
-          width: "100%",
-          marginTop: 2,
-          "& .custom-header": {
-            backgroundColor: "#dae4ed",
-            paddingLeft: 4,
-          },
-          "& .custom-cell": {
-            paddingLeft: 4,
-          },
-        }}
-      >
-        <DataGrid
-          rows={(allSalesData || [])?.map((sale, index) => ({
-            id: index,
-            sNo: index + 1,
-            billNo: sale.billNo || "No Data",
-            billDate: sale.billDate || "No Data",
-            // new Date(sale.billDate).toLocaleDateString("en-GB"),
-            billType: sale.billType || "No Data",
-            billSeries: sale.billSeries || "No Data",
-            customer: sale.customer?.name || "No Data",
-            customerType: sale.customer?.type || "No Data",
-            phoneNumber: sale.customer?.contactNo || "No Data",
-            volume: sale.volume || "No Data",
-            totalPcs: sale.totalPcs || "No Data",
-            grossAmount: sale.grossAmount || "No Data",
-            // discAmount: sale.discAmount || "No Data",
-            // splDisc: sale.splDisc,
-            splDiscAmount: sale.splDiscAmount || "No Data",
-            // taxAmount: sale.taxAmount || "No Data",
-            adjustment: sale.adjustment || "No Data",
-            netAmount: sale.netAmount || "No Data",
-            action: (
-              <Button
-                variant="contained"
-                size="small"
-                onClick={() => handleViewClick(sale)}
-              >
-                View
-              </Button>
-            ),
-          }))}
-          columns={columnsData}
-          rowCount={totalCount}
-          pagination
-          paginationMode="server"
-          paginationModel={paginationModel}
-          pageSizeOptions={[10, 25, 50, 100]}
-          onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
-          sx={{ backgroundColor: "#fff" }}
-          loading={loading}
-          loadingOverlay={
-            <Box
-              sx={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-              }}
+          <div>
+            <Button
+              color="inherit"
+              size="small"
+              variant="contained"
+              onClick={() => {}}
+              // sx={{ borderRadius: 8 }}
             >
-              <CircularProgress />
-            </Box>
-          }
-          slots={{
-            toolbar: GridToolbar
+              Print
+            </Button>
+            <Button
+              color="info"
+              size="small"
+              variant="contained"
+              onClick={() => fetchAllSales()}
+              sx={{ marginLeft: 2 }}
+            >
+              Display
+            </Button>
+          </div>
+        </Box>
+
+        <Box
+          sx={{
+            height: 500,
+            width: "100%",
+            marginTop: 2,
+            "& .custom-header": {
+              backgroundColor: "#dae4ed",
+              paddingLeft: 4,
+            },
+            "& .custom-cell": {
+              paddingLeft: 4,
+            },
           }}
-        />
-        <SalesDetailsModal
-          open={isModalOpen}
-          handleClose={() => setIsModalOpen(false)}
-          rowData={selectedRowData}
-        />
+        >
+          <DataGrid
+            rows={(allSalesData || [])?.map((sale, index) => ({
+              id: index,
+              sNo: index + 1,
+              billNo: sale.billNo || "No Data",
+              billDate: sale.billDate || "No Data",
+              // new Date(sale.billDate).toLocaleDateString("en-GB"),
+              billType: sale.billType || "No Data",
+              billSeries: sale.billSeries || "No Data",
+              customer: sale.customer?.name || "No Data",
+              customerType: sale.customer?.type || "No Data",
+              phoneNumber: sale.customer?.contactNo || "No Data",
+              volume: sale.volume || "No Data",
+              totalPcs: sale.totalPcs || "No Data",
+              grossAmount: sale.grossAmount || "No Data",
+              // discAmount: sale.discAmount || "No Data",
+              // splDisc: sale.splDisc,
+              splDiscAmount: sale.splDiscAmount || "No Data",
+              // taxAmount: sale.taxAmount || "No Data",
+              adjustment: sale.adjustment || "No Data",
+              netAmount: sale.netAmount || "No Data",
+              action: (
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={() => handleViewClick(sale)}
+                >
+                  View
+                </Button>
+              ),
+            }))}
+            columns={columnsData}
+            rowCount={totalCount}
+            pagination
+            paginationMode="server"
+            pageSizeOptions={[10, 25, 50, 100]}
+            onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
+            sx={{ backgroundColor: "#fff" }}
+            loading={loading}
+            loadingOverlay={
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            }
+            slots={{
+              toolbar: GridToolbar,
+            }}
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  page: paginationModel.page,
+                  pageSize: paginationModel.pageSize,
+                },
+                rowCount: totalCount,
+              },
+              density: "compact",
+            }}
+          />
+          <SalesDetailsModal
+            open={isModalOpen}
+            handleClose={() => setIsModalOpen(false)}
+            rowData={selectedRowData}
+          />
+        </Box>
       </Box>
-    </Box>
+    </ThemeProvider>
   );
 };
 
