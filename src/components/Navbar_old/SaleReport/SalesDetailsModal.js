@@ -75,7 +75,8 @@ const SalesDetailsModal = ({ open, handleClose, rowData }) => {
       setLoading(true);
       try {
         const allItemSalesResponse = await getItemSaleDetails(rowData.billNo);
-        setItemSalesDetails(allItemSalesResponse?.data?.data);
+        console.log("allItemSalesResponse: ",allItemSalesResponse?.data?.data)
+        setItemSalesDetails(allItemSalesResponse?.data?.data?.salesItems);
       } catch (error) {
         console.log("Error fetching ItemSales.", error);
       } finally {

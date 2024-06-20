@@ -26,13 +26,14 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { customTheme } from "../../../utils/customTheme";
+import { getAllStores } from "../../../services/storeService";
 
 const PurchaseReportSummary = () => {
   const [selectedSupplier, setSelectedSupplier] = useState("");
+  const [stockIn, setStockIn] = useState("");
   const [dateFrom, setDateFrom] = useState(null);
-
   const [dateTo, setDateTo] = useState(null);
-  const [filter1, setFilter1] = useState("date");
+  const [allStores, setAllStores] = useState([]);
   const [allPurchases, setAllPurchases] = useState([]);
   const [allSuppliers, setAllSuppliers] = useState([]);
   const [selectedRowData, setSelectedRowData] = useState(null);
@@ -103,6 +104,13 @@ const PurchaseReportSummary = () => {
       headerClassName: "custom-header",
     },
     {
+      field: "storeName",
+      headerName: "Store Name",
+      width: 180,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
       field: "mrpValue",
       headerName: "MRP Value",
       width: 150,
@@ -117,8 +125,8 @@ const PurchaseReportSummary = () => {
       headerClassName: "custom-header",
     },
     {
-      field: "discountAmount",
-      headerName: "Disc. Amt.",
+      field: "discount",
+      headerName: "Disc.",
       width: 150,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
@@ -137,13 +145,13 @@ const PurchaseReportSummary = () => {
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
-    {
-      field: "sTaxAmount",
-      headerName: "Service Tax Amt.",
-      width: 150,
-      cellClassName: "custom-cell",
-      headerClassName: "custom-header",
-    },
+    // {
+    //   field: "sTaxAmount",
+    //   headerName: "Service Tax Amt.",
+    //   width: 150,
+    //   cellClassName: "custom-cell",
+    //   headerClassName: "custom-header",
+    // },
     {
       field: "tcsAmount",
       headerName: "Tcs Amt.",
@@ -203,10 +211,11 @@ const PurchaseReportSummary = () => {
           paginationModel.page === 0
             ? paginationModel.page + 1
             : paginationModel.page,
-        limit: paginationModel.pageSize,
+        pageSize: paginationModel.pageSize,
         fromDate: fromDate,
         toDate: toDate,
         supplierName: selectedSupplier,
+        storeName: stockIn
       };
       const response = await getAllPurchases(filterOptions);
       setAllPurchases(response?.data?.data || []);
@@ -218,6 +227,20 @@ const PurchaseReportSummary = () => {
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAllStores = async () => {
+    try {
+      const allStoresResponse = await getAllStores();
+      // console.log("allStoresResponse ---> ", allStoresResponse);
+      setAllStores(allStoresResponse?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching stores. Please try again later.",
+        "Error"
+      );
+      console.error("Error fetching stores:", error);
     }
   };
 
@@ -234,6 +257,7 @@ const PurchaseReportSummary = () => {
   };
 
   useEffect(() => {
+    fetchAllStores();
     fetchAllSuppliers();
     fetchAllPurchases();
   }, []);
@@ -251,7 +275,7 @@ const PurchaseReportSummary = () => {
   useEffect(() => {
     const debouncedFetch = debounce(fetchAllPurchases, 300);
     debouncedFetch();
-  }, [paginationModel, dateFrom, dateTo, selectedSupplier]);
+  }, [paginationModel, dateFrom, dateTo, selectedSupplier, stockIn]);
 
 
   return (
@@ -265,22 +289,6 @@ const PurchaseReportSummary = () => {
         </Typography>
 
         <Grid container spacing={2}>
-          <Grid item xs={3}>
-            <RadioGroup
-              row
-              name="filter1"
-              aria-label="filter1"
-              value={filter1}
-              onChange={(e) => setFilter1(e.target.value)}
-            >
-              <FormControlLabel value="date" control={<Radio />} label="Date" />
-              <FormControlLabel
-                value="supplier-date"
-                control={<Radio />}
-                label="Supplier-Date"
-              />
-            </RadioGroup>
-          </Grid>
 
           <Grid item xs={3}>
             <div className="input-wrapper">
@@ -330,7 +338,6 @@ const PurchaseReportSummary = () => {
                 size="small"
                 name="supplier"
                 value={selectedSupplier}
-                disabled={filter1 === "supplier-date" ? false : true}
                 onChange={(e) => setSelectedSupplier(e.target.value)}
                 SelectProps={{
                   MenuProps: {
@@ -345,6 +352,37 @@ const PurchaseReportSummary = () => {
                 {allSuppliers.map((item) => (
                   <MenuItem key={item.id} value={item.name}>
                     {item.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </Grid>
+
+          <Grid item xs={3}>
+          <div className="input-wrapper">
+              <InputLabel htmlFor="stockIn" className="input-label">
+                Stock In :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="stockIn"
+                value={stockIn}
+                onChange={(e) => setStockIn(e.target.value)}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
+                    },
+                  },
+                }}
+              >
+                {allStores?.map((store) => (
+                  <MenuItem key={store._id} value={store.name}>
+                    {store.name}
                   </MenuItem>
                 ))}
               </TextField>
@@ -367,7 +405,7 @@ const PurchaseReportSummary = () => {
               setDateFrom(null);
               setDateTo(null);
               setSelectedSupplier("");
-              setFilter1("date");
+              setStockIn("")
               setPaginationModel({ page: 0, pageSize: 10 });
               fetchAllPurchases();
             }}
@@ -409,6 +447,9 @@ const PurchaseReportSummary = () => {
             rows={(allPurchases || []).map((purchase, index) => ({
               id: index,
               sNo: index + 1,
+              supplierName: purchase.supplier?.name,
+              storeName: purchase.store?.name,
+              discountAmount: purchase.discount,
               ...purchase,
               action: (
                 <Button

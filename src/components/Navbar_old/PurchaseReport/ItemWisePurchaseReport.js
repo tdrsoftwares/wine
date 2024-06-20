@@ -205,6 +205,13 @@ const ItemWisePurchaseReport = () => {
       headerClassName: "custom-header",
     },
     {
+      field: "storeName",
+      headerName: "Store Name",
+      width: 150,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
       field: "itemAmount",
       headerName: "Amount",
       width: 120,
@@ -620,9 +627,10 @@ const ItemWisePurchaseReport = () => {
               pcs: item.purchaseItems?.pcs || "No Data",
               volume: item.purchaseItems?.item?.volume || "No Data",
               mrp: item.purchaseItems?.mrp || "No Data",
-              gro: item.purchaseItems?.gro || "No Data", // item er gro lagbe
-              sp: item.purchaseItems?.sp || "No Data", // item er sp lagbe
+              gro: item.purchaseItems?.gro || "No Data",
+              sp: item.purchaseItems?.sp || "No Data",
               supplierName: item.supplierName || "No Data",
+              storeName: item.storeName || "No Data",
               purchaseRate: item.purchaseItems?.purchaseRate || "No Data",
               saleRate: item.purchaseItems?.saleRate || "No Data",
               itemAmount: item.purchaseItems?.itemAmount || "No Data",

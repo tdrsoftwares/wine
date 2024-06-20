@@ -30,7 +30,7 @@ export const getAllStocks = async (filterOptions) => {
       volume,
       brandName,
       batch,
-      stockAt,
+      storeName,
       company,
       itemCode,
     } = filterOptions;
@@ -43,7 +43,7 @@ export const getAllStocks = async (filterOptions) => {
       volume,
       brandName,
       batch,
-      stockAt,
+      storeName,
       company,
       itemCode,
     };

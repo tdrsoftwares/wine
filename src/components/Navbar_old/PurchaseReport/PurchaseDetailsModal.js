@@ -10,6 +10,8 @@ import { getItemPurchaseDetails } from "../../../services/purchaseService";
 import { DataGrid } from "@mui/x-data-grid";
 
 const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
+  console.log("rowData: ", rowData);
+  console.log("open: ", open);
   const [itemPurchaseDetails, setItemPurchaseDetails] = useState([]);
   const [loading, setLoading] = useState(false);
   console.log("itemPurchaseDetails: ", itemPurchaseDetails);
@@ -115,25 +117,26 @@ const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
     },
   ];
 
+  const fetchAllItemPurchases = async () => {
+    setLoading(true);
+    try {
+      const allItemPurchasesResponse = await getItemPurchaseDetails(
+        rowData.entryNo
+      );
+      console.log("allItemPurchasesResponse: ", allItemPurchasesResponse);
+      setItemPurchaseDetails(allItemPurchasesResponse?.data?.data?.purchaseItems);
+    } catch (error) {
+      // NotificationManager.error(
+      //   "Error fetching ItemPurchases. Please try again later.",
+      //   "Error"
+      // );
+      console.log("Error fetching ItemPurchases.", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchAllItemPurchases = async () => {
-      setLoading(true);
-      try {
-        const allItemPurchasesResponse = await getItemPurchaseDetails(
-          rowData.entryNo
-        );
-        console.log("allItemPurchasesResponse: ", allItemPurchasesResponse);
-        setItemPurchaseDetails(allItemPurchasesResponse?.data?.data);
-      } catch (error) {
-        // NotificationManager.error(
-        //   "Error fetching ItemPurchases. Please try again later.",
-        //   "Error"
-        // );
-        console.log("Error fetching ItemPurchases.", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchAllItemPurchases();
   }, [rowData]);
 
@@ -171,26 +174,25 @@ const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
 
         {itemPurchaseDetails.length > 0 ? (
           <DataGrid
-            rows={(itemPurchaseDetails || [])?.map((item, index) => ({
+            rows={(itemPurchaseDetails)?.map((item, index) => ({
               id: index,
               sNo: index + 1,
               createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
-              itemCode: item.purchaseItems.itemCode || "No Data",
-              itemName: item.purchaseItems.item.name || "No Data",
-              batchNo: item.purchaseItems.batchNo || "No Data",
-              brokenNo: item.purchaseItems.brokenNo || "No Data",
-              caseNo: item.purchaseItems.caseNo || "No Data",
+              itemCode: item.itemCode || "No Data",
+              itemName: item.itemId?.name || "No Data",
+              batchNo: item.batchNo || "No Data",
+              brokenNo: item.brokenNo || "No Data",
+              caseNo: item.caseNo || "No Data",
               // updatedAt: new Date(item.updatedAt).toLocaleDateString("en-GB"),
-              mrp: item.purchaseItems.mrp || "No Data",
-              pcs: item.purchaseItems.pcs || "No Data",
-              purchaseRate: item.purchaseItems.purchaseRate || "No Data",
-              saleRate: item.purchaseItems.saleRate || "No Data",
-              gro: item.purchaseItems.gro || "No Data",
-              sp: item.purchaseItems.sp || "No Data",
-              itemAmount: item.purchaseItems.itemAmount || "No Data",
+              mrp: item.mrp || "No Data",
+              pcs: item.pcs || "No Data",
+              purchaseRate: item.purchaseRate || "No Data",
+              saleRate: item.saleRate || "No Data",
+              gro: item.gro || "No Data",
+              sp: item.sp || "No Data",
+              itemAmount: item.itemAmount || "No Data",
             }))}
             columns={columns}
-            pageSize={5}
             rowsPerPageOptions={[10, 25, 50]}
             sx={{ backgroundColor: "#fff" }}
             loading={loading}

@@ -100,7 +100,6 @@ const PurchaseEntry = () => {
   const [editedRow, setEditedRow] = useState({});
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
 
-  console.log("editedRow: ", editedRow);
 
   const tableRef = useRef(null);
   const supplierNameRef = useRef(null);
@@ -293,7 +292,7 @@ const PurchaseEntry = () => {
   };
 
   const handleEdit = (index, field, value) => {
-    console.log("field: ", field);
+    // console.log("field: ", field);
     if (
       field === "mrp" ||
       field === "case" ||
@@ -311,7 +310,7 @@ const PurchaseEntry = () => {
     }
 
     const editedRowCopy = { ...editedRow };
-    console.log("editedRowCopy: ", editedRowCopy);
+    // console.log("editedRowCopy: ", editedRowCopy);
     editedRowCopy[field] = value;
 
     if (
@@ -322,7 +321,7 @@ const PurchaseEntry = () => {
       field === "sp"
     ) {
       let amount = 0;
-      console.log("editedRowCopy: ", editedRowCopy);
+      // console.log("editedRowCopy: ", editedRowCopy);
       const purRate =
         parseFloat(
           editedRowCopy.purchaseRate || purchases[index].purchaseRate
@@ -358,7 +357,7 @@ const PurchaseEntry = () => {
       }
     }
 
-    console.log("updatedRow: ", updatedRow);
+    // console.log("updatedRow: ", updatedRow);
     updatedPurchases[index] = updatedRow;
     setPurchases(updatedPurchases);
 
@@ -462,25 +461,25 @@ const PurchaseEntry = () => {
   };
 
   const entryNumberSearch = debounce(async (entryNumber) => {
-    console.log("entryNumber search: ", entryNumber);
+    // console.log("entryNumber search: ", entryNumber);
     try {
       if (entryNumber > 0) {
         const response = await getPurchaseDetailsByEntryNo(entryNumber);
-        console.log("allPurchasesData response: ", response.data.data);
+        // console.log("allPurchasesData response: ", response.data.data);
 
         if (response?.data?.data) {
           const receivedData = response.data.data;
-          // console.log("receivedData > passDate: ", receivedData.passDate);
+          // console.log("receivedData > ", receivedData);
 
           const passDateObject = convertToDayjsObject(receivedData.passDate);
           const billDateObject = convertToDayjsObject(receivedData.billDate);
           // console.log("passDateObject: ", passDateObject);
 
           setFormData({
-            supplierName: receivedData.supplierName,
+            supplierName: receivedData.supplierId?._id,
             passNo: receivedData.passNo,
             passDate: passDateObject,
-            stockIn: receivedData.storeName,
+            stockIn: receivedData.storeId?._id,
             billNo: receivedData.billNo,
             billDate: billDateObject,
           });
@@ -505,7 +504,7 @@ const PurchaseEntry = () => {
             amount: purchase?.itemAmount,
           }));
 
-          console.log("newPurchaseItems: ", newPurchaseItems);
+          // console.log("newPurchaseItems: ", newPurchaseItems);
 
           setPurchases([...newPurchaseItems]);
 
@@ -579,7 +578,7 @@ const PurchaseEntry = () => {
   const handleFocusOnSave = () => {
     saveButtonRef.current.focus();
   };
-  console.log("purchases ---> ", purchases);
+  // console.log("purchases ---> ", purchases);
 
   const handleEnterKey = (event, nextInputRef) => {
     if (event.key === "Enter" || event.key === "Tab") {
@@ -678,8 +677,8 @@ const PurchaseEntry = () => {
     const billDateObj = formatDate(formData.billDate);
 
     const payload = {
-      supplierName: formData.supplierName,
-      storeName: formData.stockIn,
+      supplierId: formData.supplierName,
+      storeId: formData.stockIn,
       passNo: formData.passNo,
       passDate: passDateObj,
       billNo: formData.billNo,
@@ -714,7 +713,7 @@ const PurchaseEntry = () => {
 
     try {
       const response = await createPurchase(payload);
-      console.log("Purchase created successfully:", response);
+      // console.log("Purchase created successfully:", response);
 
       if (response.status === 200) {
         NotificationManager.success("Purchase created successfully", "Success");
@@ -785,8 +784,8 @@ const PurchaseEntry = () => {
     const billDateObj = formatDate(formData.billDate);
 
     const payload = {
-      supplierName: formData.supplierName,
-      storeName: formData.stockIn,
+      supplierId: formData.supplierName,
+      storeId: formData.stockIn,
       passNo: formData.passNo,
       passDate: passDateObj,
       billNo: formData.billNo,
@@ -821,15 +820,13 @@ const PurchaseEntry = () => {
     };
 
     try {
-      console.log("entryNumber: ", entryNumber);
-      console.log("entryNoEditable: ", entryNoEditable);
       if (entryNumber && !entryNoEditable) {
-        console.log("update try block executing...");
+        // console.log("update try block executing...");
         const response = await updatePurchaseDetailsByEntryNo(
           payload,
           entryNumber
         );
-        console.log("Purchase updated successfully:", response);
+        // console.log("Purchase updated successfully:", response);
 
         if (response.status === 200) {
           NotificationManager.success(
@@ -854,6 +851,47 @@ const PurchaseEntry = () => {
         "Error"
       );
       console.error("Error creating purchase:", error);
+    }
+  };
+
+  // Purchase delete
+  const handleDeletePurchase = async () => {
+    try {
+      if (!entryNoEditable && entryNumber) {
+        const response = await removePurchaseDetails(entryNumber);
+        // console.log("entryNoEditable: ", entryNoEditable);
+        NotificationManager.success(
+          "Purchase deleted successfully.",
+          "Success"
+        );
+        resetTopFormData();
+        resetMiddleFormData();
+        resetTotalValuesData();
+        setEntryNumber("");
+        setEntryNoEditable(true);
+        resetMiddleFormData();
+        setPurchases([]);
+        setEditedRow({});
+        setSelectedRowIndex(null);
+        setSearchMode(false);
+        setEditableIndex(-1);
+      } else {
+        // if (!entryNoEditable && entryNumber) {
+        //   NotificationManager.warning(
+        //     "Entry No field is disabled.",
+        //     "Please click on Open Button first"
+        //   );
+        // }
+        // if (entryNoEditable && !entryNumber) {
+        //   NotificationManager.warning("Please input something in Entry No. field.")
+        // }
+      }
+    } catch (error) {
+      NotificationManager.error(
+        "Error deleting Purchase. Please try again later.",
+        "Error"
+      );
+      console.log(error);
     }
   };
 
@@ -971,46 +1009,6 @@ const PurchaseEntry = () => {
   const handlePurchaseOpen = () => {
     entryNoRef.current.focus();
     setEntryNoEditable(false);
-  };
-
-  const handleDeletePurchase = async () => {
-    try {
-      if (!entryNoEditable && entryNumber) {
-        const response = await removePurchaseDetails(entryNumber);
-        console.log("entryNoEditable: ", entryNoEditable);
-        NotificationManager.success(
-          "Purchase deleted successfully.",
-          "Success"
-        );
-        resetTopFormData();
-        resetMiddleFormData();
-        resetTotalValuesData();
-        setEntryNumber("");
-        setEntryNoEditable(true);
-        resetMiddleFormData();
-        setPurchases([]);
-        setEditedRow({});
-        setSelectedRowIndex(null);
-        setSearchMode(false);
-        setEditableIndex(-1);
-      } else {
-        // if (!entryNoEditable && entryNumber) {
-        //   NotificationManager.warning(
-        //     "Entry No field is disabled.",
-        //     "Please click on Open Button first"
-        //   );
-        // }
-        // if (entryNoEditable && !entryNumber) {
-        //   NotificationManager.warning("Please input something in Entry No. field.")
-        // }
-      }
-    } catch (error) {
-      NotificationManager.error(
-        "Error deleting Purchase. Please try again later.",
-        "Error"
-      );
-      console.log(error);
-    }
   };
 
   const formatDate = (dateString) => {
@@ -1243,7 +1241,7 @@ const PurchaseEntry = () => {
   };
 
   const handlePreviousEntryChange = () => {
-    console.log(entryNoEditable);
+    // console.log(entryNoEditable);
     if (entryNumber && !entryNoEditable)
       setEntryNumber(parseInt(entryNumber) - 1);
   };
@@ -1303,7 +1301,7 @@ const PurchaseEntry = () => {
                 onKeyDown={(e) => handleEnterKey(e, passNoRef)}
               >
                 {allSuppliers?.map((item) => (
-                  <MenuItem key={item._id} value={item.name}>
+                  <MenuItem key={item._id} value={item._id}>
                     {item.name}
                   </MenuItem>
                 ))}
@@ -1375,7 +1373,7 @@ const PurchaseEntry = () => {
                 onKeyDown={(e) => handleEnterKey(e, billNoRef)}
               >
                 {allStores?.map((store) => (
-                  <MenuItem key={store._id} value={store.name}>
+                  <MenuItem key={store._id} value={store._id}>
                     {store.name}
                   </MenuItem>
                 ))}

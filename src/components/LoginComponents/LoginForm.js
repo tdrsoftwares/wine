@@ -16,8 +16,10 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { NotificationContainer, NotificationManager } from "react-notifications";
 import axios from "axios";
 import { url } from "../../utils/apiDomain";
+import { FaIdCard } from "react-icons/fa";
 
 function LoginForm({ handleLogin }) {
+  const [customerId, setCustomerId] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -46,7 +48,7 @@ function LoginForm({ handleLogin }) {
     }
 
     try {
-      const response = await axios.post(`${url}/user/login`, { email, password });
+      const response = await axios.post(`${url}/user/login`, { email, password, dbName: customerId });
 
       const { accessToken, refreshToken } = response.data.data;
       console.log("accessToken: ", accessToken);
@@ -80,9 +82,9 @@ function LoginForm({ handleLogin }) {
     <Container
       className="form-container"
       component="main"
-      maxWidth="xs"
       sx={{
-        padding: 4,
+        // padding: 4,
+        maxWidth: "360px !important",
         boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
       }}
     >
@@ -90,14 +92,35 @@ function LoginForm({ handleLogin }) {
         Sign In
       </Typography>
       <form onSubmit={handleSubmit} noValidate>
-        <TextField
-          variant="outlined"
-          margin="normal"
-          size="medium"
-          required
+      <TextField
           fullWidth
+          required
+          margin="dense"
+          size="small"
+          id="customerId"
+          label="Customer Id"
+          name="customerId"
+          autoComplete="customerId"
+          autoFocus
+          value={customerId}
+          onChange={(e) => setCustomerId(e.target.value)}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end" disablePointerEvents sx={{ marginRight: 1}}>
+                <IconButton edge="end">
+                  <FaIdCard/>
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+        <TextField
+          fullWidth
+          required
+          margin="dense"
+          size="small"
           id="email"
-          label="Email Address"
+          label="Email"
           name="email"
           autoComplete="email"
           autoFocus
@@ -114,15 +137,14 @@ function LoginForm({ handleLogin }) {
           }}
         />
         <TextField
-          variant="outlined"
-          margin="normal"
-          size="medium"
-          required
           fullWidth
+          required
+          margin="dense"
+          size="small"
           name="password"
           label="Password"
-          type={showPassword ? "text" : "password"}
           id="password"
+          type={showPassword ? "text" : "password"}
           autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -140,12 +162,13 @@ function LoginForm({ handleLogin }) {
             ),
           }}
         />
+        
         <Button
           type="submit"
           fullWidth
           variant="contained"
           sx={{
-            mt: 3,
+            mt: 2,
             mb: 2,
             backgroundImage: "linear-gradient(#6a11cb 0%, #3b25fc 100%)",
           }}

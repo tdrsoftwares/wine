@@ -10,6 +10,16 @@ export const createSale = async (payload) => {
   }
 };
 
+export const updateSaleDetailsByBillNo = async (payload, billNo) => {
+  try {
+    const apiURL = `/sales/update-bill/${billNo}`;
+    const updateDetails = await axiosInstance.put(apiURL, payload);
+    return updateDetails;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const searchAllSalesByItemName = async (itemName) => {
   try {
     const apiURL = `/sales/get-items?name=${itemName}`;
@@ -22,7 +32,7 @@ export const searchAllSalesByItemName = async (itemName) => {
 
 export const searchAllSalesByItemCode = async (itemCode) => {
   try {
-    const apiURL = `/sales/get-items/${itemCode}`;
+    const apiURL = `/sales/get-items/${encodeURIComponent(itemCode)}`;
     const allSalesData = await axiosInstance.get(apiURL);
     return allSalesData;
   } catch (error) {

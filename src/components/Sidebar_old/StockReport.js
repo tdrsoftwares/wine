@@ -37,7 +37,7 @@ const StockReport = () => {
     batchNo: "",
     brandNo: "",
     brandName: "",
-    stockIn: "",
+    storeName: "",
     company: "",
   });
 
@@ -128,8 +128,14 @@ const StockReport = () => {
       headerClassName: "custom-header",
     },
     {
-      field: "stockAt",
+      field: "storeName",
       headerName: "Stock In",
+      width: 180,
+      headerClassName: "custom-header",
+    },
+    {
+      field: "storeType",
+      headerName: "Store Type",
       width: 180,
       headerClassName: "custom-header",
     },
@@ -186,7 +192,7 @@ const StockReport = () => {
         volume: filterData.volume,
         brandName: filterData.brandName,
         batch: filterData.batchNo,
-        stockAt: filterData.stockIn,
+        storeName: filterData.storeName,
         company: filterData.company,
       };
       console.log("filterOptions: ", filterOptions);
@@ -306,7 +312,7 @@ const StockReport = () => {
       batchNo: "",
       brandNo: "",
       brandName: "",
-      stockIn: "",
+      storeName: "",
       company: "",
     });
     setPaginationModel({ page: 1, pageSize: 10 });
@@ -375,7 +381,6 @@ const StockReport = () => {
               <TextField
                 fullWidth
                 size="small"
-                type="number"
                 name="itemCode"
                 value={filterData.itemCode}
                 onChange={handleFilterChange}
@@ -510,15 +515,15 @@ const StockReport = () => {
 
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="stockIn" className="input-label">
+              <InputLabel htmlFor="storeName" className="input-label">
                 Stock In :
               </InputLabel>
               <TextField
                 select
                 fullWidth
                 size="small"
-                name="stockIn"
-                value={filterData.stockIn}
+                name="storeName"
+                value={filterData.storeName}
                 onChange={handleFilterChange}
                 SelectProps={{
                   MenuProps: {
@@ -626,7 +631,8 @@ const StockReport = () => {
               saleRate: stock.saleRate || "No Data",
               purchaseRate: stock.purchaseRate || "No Data",
               stockRate: stock.stockRate || "No Data",
-              stockAt: stock.stockAt || "No Data",
+              storeName: stock.store?.name || "No Data",
+              storeType: stock.store?.type || "No Data",
               openingStock: stock.openingStock || "No Data",
               mrp: stock.mrp || "No Data",
             }))}

@@ -24,13 +24,16 @@ import dayjs from "dayjs";
 import { customTheme } from "../../../utils/customTheme";
 import { getAllStores } from "../../../services/storeService";
 import { NotificationManager } from "react-notifications";
+import { createTransfer, getTransferDetailsByItemCode, getTransferDetailsByItemName } from "../../../services/transferService";
+import debounce from "lodash.debounce";
+import CloseIcon from "@mui/icons-material/Close";
 
 const StockTransfer = () => {
   const toDaysDate = dayjs();
   const [allGodownStores, setAllGodownStores] = useState([]);
   const [allNonGodownStores, setAllNonGodownStores] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
-  const [salesData, setSalesData] = useState([]);
+  const [transferData, setTransferData] = useState([]);
   const [formData, setFormData] = useState({
     transferFrom: "",
     transferTo: "",
@@ -43,10 +46,12 @@ const StockTransfer = () => {
     mrp: "",
     batch: "",
     case: "",
+    caseValue: "",
     pcs: "",
     brand: "",
     category: "",
-    volume: ""
+    volume: "",
+    currentStock: ""
   })
   const [searchMode, setSearchMode] = useState(false);
   const [editableIndex, setEditableIndex] = useState(-1);
@@ -65,18 +70,34 @@ const StockTransfer = () => {
   const brandRef = useRef(null);
   const categoryRef = useRef(null);
   const volumeRef = useRef(null);
-  const totalMrpRef = useRef(null);
-  const sDiscountRef = useRef(null);
-  const totalGroRef = useRef(null);
-  const totalSPRef = useRef(null);
-  const tcsAmtRef = useRef(null);
-  const grossAmountRef = useRef(null);
-  const totalDiscountRef = useRef(null);
-  const otherChargesRef = useRef(null);
-  const adjustmentRef = useRef(null);
-  const netAmountRef = useRef(null);
   const saveButtonRef = useRef(null);
   const clearButtonRef = useRef(null);
+
+  const resetTopFormData = () => {
+    setFormData({
+      transferFrom: "",
+      transferTo: "",
+      transferDate: toDaysDate,
+      transferNo: ""
+    });
+  }
+
+  const resetMiddleFormData = () => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      itemId: "",
+      itemDetailsId: "",
+      itemCode: "",
+      itemName: "",
+      mrp: "",
+      batch: "",
+      case: "",
+      pcs: "",
+      brand: "",
+      category: "",
+      volume: "",
+    }));
+  }
 
   const fetchAllStores = async () => {
     try {
@@ -91,7 +112,7 @@ const StockTransfer = () => {
       const allNonGodowns = [];
   
       allStoresData.forEach((store) => {
-        if (store?.type === "Godown") {
+        if (store?.type === "GODOWN") {
           allGodowns.push(store);
         } else {
           allNonGodowns.push(store);
@@ -101,8 +122,8 @@ const StockTransfer = () => {
       setAllGodownStores(allGodowns);
       setAllNonGodownStores(allNonGodowns);
   
-      console.log("allGodowns ---> ", allGodowns);
-      console.log("allNonGodowns ---> ", allNonGodowns);
+      // console.log("allGodowns ---> ", allGodowns);
+      // console.log("allNonGodowns ---> ", allNonGodowns);
     } catch (error) {
       NotificationManager.error(
         "Error fetching stores. Please try again later.",
@@ -111,29 +132,329 @@ const StockTransfer = () => {
       console.error("Error fetching stores:", error);
     }
   };
+
+  const itemCodeSearch = debounce(async (itemCode) => {
+    try {
+      setIsLoading(true);
+      const response = await getTransferDetailsByItemCode(itemCode);
+      // console.log("itemCodeSearch response: ", response);
+      const searchedItem = response?.data?.data;
+      // console.log("searchedItem: ", searchedItem);
+
+      if (searchedItem) {
+        setSearchResults(searchedItem);
+        setFormData({
+          ...formData,
+          itemId: searchedItem.item._id,
+          // itemCode: searchedItem.itemCode || "",
+          itemName: searchedItem.item.name || "",
+          mrp: searchedItem.mrp || 0,
+          batch: searchedItem.batchNo || 0,
+          case: searchedItem.case || null,
+          caseValue: searchedItem.item.caseValue || 0,
+          pcs: searchedItem.pcs || null,
+          volume: searchedItem.item?.volume,
+          brand: searchedItem.item?.brand?.name || "",
+          category: searchedItem.item?.category?.categoryName || ""
+        });
+        // batchRef.current.focus();
+      } else {
+        setSearchResults([]);
+      }
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error searching items:", error);
+      setSearchResults([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, 700)
+  
+
+  const itemNameSearch = debounce(async (itemName) => {
+    try {
+      setIsLoading(true);
+      const response = await getTransferDetailsByItemName(itemName);
+      // console.log("itemNameSearch response: ", response);
+      if (response?.data?.data) {
+        setSearchResults(response?.data?.data);
+        // console.log("ami itemNameSearch res ", searchResults);
+      } else {
+        // NotificationManager.error("No matching items found");
+        setSearchResults([]);
+        // setIsModalOpen(true);
+        // setItemName(itemName);
+      }
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error searching items:", error);
+      setSearchResults([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, 500);
+
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (searchMode) {
+        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+          event.preventDefault();
+          const currentIndex =
+            selectedRowIndex !== null ? selectedRowIndex : -1;
+          let nextIndex;
+          if (event.key === "ArrowDown") {
+            nextIndex =
+              currentIndex === searchResults.length - 1 ? 0 : currentIndex + 1;
+          } else {
+            nextIndex =
+              currentIndex === 0 ? searchResults.length - 1 : currentIndex - 1;
+          }
+          setSelectedRowIndex(nextIndex);
+          setFormData({
+            ...formData,
+            itemName: searchResults[nextIndex]?.itemName || "",
+          });
+        } else if (event.key === "Enter" && selectedRowIndex !== null) {
+          const selectedRow = searchResults[selectedRowIndex];
+          setFormData({
+            ...formData,
+            itemId: selectedRow.item._id,
+            itemCode: selectedRow.itemCode || "",
+            itemName: selectedRow.item.name || 0,
+            mrp: selectedRow.mrp || 0,
+            batch: selectedRow?.batchNo || "",
+            case: selectedRow.case || null,
+            caseValue: selectedRow.item?.caseValue || null,
+            pcs: selectedRow.pcs || null,
+            volume: selectedRow.item?.volume || 0,
+            brand: selectedRow.item?.brand?.name || "",
+            category: selectedRow.item?.category?.categoryName || "",
+            currentStock: selectedRow.currentStock
+          });
+          setSearchMode(false);
+          setSelectedRowIndex(null);
+          if (!selectedRow.itemCode) {
+            itemCodeRef.current.focus();
+          } else {
+            batchRef.current.focus();
+          }
+        }
+      }
+    };
+
+    document.body.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [searchMode, formData.itemName, searchResults, selectedRowIndex]);
   
 
   useEffect(() => {
     fetchAllStores();
   }, [])
 
-  const handleItemCodeChange = () => {}
-  const handleItemNameChange = () => {}
+  const handleItemCodeChange = async (e) => {
+    const value = e.target.value;
+    setFormData({ ...formData, value: value });
+    await itemCodeSearch(value);
 
-  const handlePcsChange =()=>{}
-  const handleCaseChange=() => {}
+    setEditedRow({});
+    setEditableIndex(-1);
+  }
 
-  const handleSubmitIntoDataTable =() => {}
+  const handleItemNameChange = (event) => {
+    const value = event.target.value;
+    itemNameSearch(value);
+    setFormData({
+      ...formData,
+      itemName: value,
+    });
+    setSearchMode(true);
+    if (!value) {
+      setSearchMode(false);
+      
+    }
+
+    setEditedRow({});
+    setEditableIndex(-1);
+  }
+
+  const handlePcsChange = (e)=>{
+    const regex = /^\d*\.?\d*$/;
+    const value = e.target.value;
+    let pcs = parseFloat(value) || "";
+
+    const stock = parseFloat(formData.currentStock) || 0;
+    if (pcs > stock) {
+      NotificationManager.warning(
+        `Out of Stock! Currently you have ${
+          formData.currentStock || 0
+        }pcs in stock.`
+      );
+      pcsRef.current.focus();
+    }
+
+    if (regex.test(e.target.value) || e.target.value === "") {
+      setFormData({ ...formData, case: 0, pcs: e.target.value });
+    }
+  }
+
+  const handleCaseChange = (event) => {
+    const newCase = parseFloat(event.target.value) || 0;
+    // console.log("newCase: ", newCase);
+    const newPcsValue = newCase * parseFloat(formData.caseValue) || 0;
+    // console.log("newPcsValue: ", newPcsValue);
+    setFormData({
+      ...formData,
+      case: newCase,
+      pcs: newPcsValue,
+    });
+  }
+
+  const handleSubmitIntoDataTable = (e) => {
+    e.preventDefault();
+
+    if (!formData.itemName) {
+      NotificationManager.warning(`Please fill the Item Name`);
+      return;
+    }
+    // if (!formData.mrp) {
+    //   NotificationManager.warning(`Please fill the MRP`);
+    //   return;
+    // }
+    if (!formData.pcs) {
+      NotificationManager.warning(`Please fill the Pcs`);
+      return;
+    }
+
+    if(formData.pcs > formData.currentStock) {
+      NotificationManager.warning(
+        `Out of Stock! Currently you have ${
+          formData.currentStock || 0
+        }pcs in stock.`
+      );
+      pcsRef.current.focus();
+      return;
+    }
+
+    setTransferData([...transferData, formData]);
+    resetMiddleFormData();
+    handleEnterKey(e, itemCodeRef);
+    setSearchMode(false);
+  };
 
   const handleEdit = (e) => {}
   const handleEditClick = (e) => {}
 
   const handleSaveClick = (e) => {}
-  const handleRowClick = (e) => {}
+  
+  
+  const handleRowClick = (index) => {
+    const selectedRow = searchResults[index];
+    console.log(selectedRow)
 
-  const handleRemoveClick = (e) => {}
-  const handleEnterKey = (e) => {}
+    setFormData({
+      ...formData,
+      itemId: selectedRow.item._id,
+      itemCode: selectedRow.itemCode || "",
+      itemName: selectedRow.item.name || 0,
+      mrp: selectedRow.mrp || 0,
+      batch: selectedRow?.batchNo || "",
+      case: selectedRow.case || null,
+      caseValue: selectedRow.item?.caseValue || null,
+      pcs: selectedRow.pcs || null,
+      volume: selectedRow.item?.volume,
+      brand: selectedRow.item?.brand?.name || "",
+      category: selectedRow.item?.category?.categoryName || "",
+      currentStock: selectedRow.currentStock
+    });
 
+    if (!selectedRow.itemCode) {
+      itemCodeRef.current.focus();
+    } else {
+      batchRef.current.focus();
+    }
+  };
+
+  const handleRemoveClick = (index) => {
+    const updatedTrasfer = [...transferData];
+    updatedTrasfer.splice(index, 1);
+    setTransferData(updatedTrasfer);
+  }
+
+  const handleEnterKey = (event, nextInputRef) => {
+    if (event.key === "Enter" || event.key === "Tab") {
+      event.preventDefault();
+
+      nextInputRef.current.focus();
+    }
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    // console.log("date: ", date);
+
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear().toString();
+
+    const formattedDate = `${day}/${month}/${year}`;
+    // console.log("formattedDate: ", formattedDate);
+    return formattedDate;
+  };
+
+//   {
+//     "transferFrom" : "GODOWN",
+//     "transferTo" : "SHOWROOM",
+//     "transferDate": "06/06/2024",
+//     "transferItems" : [
+//         {
+//             "itemCode" :"ABCD12",
+//             "itemId" : "664228bac0debd05bc1b949f",
+//             "batchNo" : "TEST45",
+//             "mrp" : 100,
+//             "caseNo" : 10,
+//             "pcs" : 2
+//         }
+//     ]
+
+// }
+
+  const handleCreateTransfer = async () => {
+    const transferDateObj = formatDate(formData.transferDate);
+
+    // if()
+
+    const payload = {
+      transferFrom: formData.transferFrom,
+      transferTo: formData.transferTo,
+      transferDate: transferDateObj,
+
+      transferItems: transferData.map((item) => ({
+        itemCode: item.itemCode.toString(),
+        itemId: item.itemId.toString(),
+        mrp: parseFloat(item.mrp) || 0,
+        batchNo: item.batch.toString(),
+        caseNo: parseFloat(item.case) || 0,
+        pcs: parseFloat(item.pcs) || 0,
+      })),
+    };
+
+
+    try {
+      const response = await createTransfer(payload);
+      if(response.status === 200) {
+        NotificationManager.success("Transfer created successfully", "Success");
+        setSearchMode(false);
+      } else {
+        NotificationManager.error("Problem creating transfer", "Error");
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  }
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -156,7 +477,7 @@ const StockTransfer = () => {
                 onChange={(e) => setFormData({...formData, transferFrom: e.target.value})}
               >
                 {allGodownStores?.map((store) => (
-                  <MenuItem key={store._id} value={store.name}>
+                  <MenuItem key={store._id} value={store._id}>
                     {store.name}
                   </MenuItem>
                 ))}
@@ -196,7 +517,7 @@ const StockTransfer = () => {
                 onChange={(e) => setFormData({...formData, transferTo: e.target.value})}
               >
                 {allNonGodownStores?.map((store) => (
-                  <MenuItem key={store._id} value={store.name}>
+                  <MenuItem key={store._id} value={store._id}>
                     {store.name}
                   </MenuItem>
                 ))}
@@ -236,7 +557,6 @@ const StockTransfer = () => {
               <TextField
                 inputRef={itemCodeRef}
                 variant="outlined"
-                type="text"
                 size="small"
                 fullWidth
                 value={formData.itemCode}
@@ -284,7 +604,7 @@ const StockTransfer = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, batch: e.target.value })
                 }
-                onKeyDown={(e) => handleEnterKey(e, pcsRef)}
+                onKeyDown={(e) => handleEnterKey(e, caseRef)}
               />
             </Grid>
 
@@ -294,7 +614,6 @@ const StockTransfer = () => {
                 fullWidth
                 size="small"
                 inputRef={caseRef}
-                className="input-field"
                 value={formData.case}
                 onChange={(e) => handleCaseChange(e)}
                 onKeyDown={(e) => handleEnterKey(e, pcsRef)}
@@ -315,7 +634,7 @@ const StockTransfer = () => {
                 value={formData.pcs}
                 onChange={handlePcsChange}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") {
+                  if (e.key === "Enter" && formData.pcs <= formData.currentStock) {
                     e.preventDefault();
                     handleSubmitIntoDataTable(e);
                     handleEnterKey(e, itemCodeRef);
@@ -324,7 +643,7 @@ const StockTransfer = () => {
               />
             </Grid>
 
-            <Grid item xs={1.5}>
+            <Grid item xs={1.6}>
               <InputLabel className="input-label-2">Brand</InputLabel>
               <TextField
                 inputRef={brandRef}
@@ -334,11 +653,11 @@ const StockTransfer = () => {
                 fullWidth
                 value={formData.brand}
                 // onChange={handleRateChange}
-                // onKeyDown={(e) => handleEnterKey(e, discountRef)}
+                onKeyDown={(e) => handleEnterKey(e, categoryRef)}
               />
             </Grid>
 
-            <Grid item xs={1}>
+            <Grid item xs={1.3}>
               <InputLabel className="input-label-2">Category</InputLabel>
               <TextField
                 inputRef={categoryRef}
@@ -348,10 +667,10 @@ const StockTransfer = () => {
                 fullWidth
                 value={formData.category}
                 // onChange={handleDiscountChange}
-                // onKeyDown={handleDiscountKeyDown}
+                onKeyDown={(e) => handleEnterKey(e, volumeRef)}
               />
             </Grid>
-            <Grid item xs={1.2}>
+            <Grid item xs={.8}>
               <InputLabel className="input-label-2">Volume</InputLabel>
               <TextField
                 inputRef={volumeRef}
@@ -361,47 +680,9 @@ const StockTransfer = () => {
                 value={formData.volume}
                 aria-readonly
                 // onChange={handleAmountChange}
-                // onKeyDown={(e) => handleEnterKey(e, brkRef)}
+                onKeyDown={(e) => handleEnterKey(e, saveButtonRef)}
               />
             </Grid>
-
-            {/* <Grid item xs={1}>
-              <InputLabel className="input-label-2">Brk.</InputLabel>
-              <TextField
-                inputRef={brkRef}
-                variant="outlined"
-                type="text"
-                size="small"
-                fullWidth
-                value={formData.brk}
-                onChange={(e) =>
-                  setFormData({ ...formData, brk: e.target.value })
-                }
-                onKeyDown={(e) => handleEnterKey(e, splitRef)}
-              />
-            </Grid>
-
-            <Grid item xs={1}>
-              <InputLabel className="input-label-2">Split</InputLabel>
-              <TextField
-                inputRef={splitRef}
-                variant="outlined"
-                type="text"
-                size="small"
-                fullWidth
-                value={formData.split}
-                onChange={(e) =>
-                  setFormData({ ...formData, split: e.target.value })
-                }
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleSubmitIntoDataTable(e);
-                    handleEnterKey(e, itemCodeRef);
-                  }
-                }}
-              />
-            </Grid> */}
           </Grid>
 
           {searchMode ? (
@@ -467,7 +748,7 @@ const StockTransfer = () => {
                           {row?.itemCode || "No Data"}
                         </TableCell>
                         <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.item[0]?.name || "No Data"}
+                          {row?.item?.name || "No Data"}
                         </TableCell>
                         <TableCell align="center" sx={{ padding: "14px" }}>
                           {row?.mrp || 0}
@@ -479,17 +760,17 @@ const StockTransfer = () => {
                           {row?.case || 0}
                         </TableCell>
                         <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.pcs || 0}
+                          {row?.currentStock || 0}
                         </TableCell>
                         <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.volume || 0}
+                          {row?.item?.volume || 0}
                         </TableCell>
                       </TableRow>
                     ))
                   ) : isLoading ? (
                     <TableRow>
                       <TableCell
-                        colSpan={6}
+                        colSpan={10}
                         align="center"
                         sx={{
                           backgroundColor: "#fff !important",
@@ -501,7 +782,7 @@ const StockTransfer = () => {
                   ) : (
                     <TableRow>
                       <TableCell
-                        colSpan={6}
+                        colSpan={10}
                         align="center"
                         sx={{
                           backgroundColor: "#fff !important",
@@ -544,15 +825,16 @@ const StockTransfer = () => {
                     <TableCell>Item Name</TableCell>
                     <TableCell>MRP</TableCell>
                     <TableCell>Batch</TableCell>
-                    <TableCell>Case Value</TableCell>
+                    <TableCell>Case</TableCell>
                     <TableCell>Pcs</TableCell>
                     <TableCell>Brand</TableCell>
                     <TableCell>Category</TableCell>
                     <TableCell>Volume</TableCell>
+                    <TableCell>Action</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody className="purchase-data-table">
-                  {salesData?.map((row, index) => (
+                  {transferData?.map((row, index) => (
                     <TableRow
                       key={index}
                       sx={{
@@ -679,7 +961,7 @@ const StockTransfer = () => {
                       </TableCell>
 
                       <TableCell>
-                        {/* {editableIndex !== index ? (
+                         {/* {editableIndex !== index ? (
                           <EditIcon
                             sx={{ cursor: "pointer", color: "blue" }}
                             onClick={() => handleEditClick(index)}
@@ -689,11 +971,11 @@ const StockTransfer = () => {
                             sx={{ cursor: "pointer", color: "green" }}
                             onClick={() => handleSaveClick(index)}
                           />
-                        )}
+                        )} */}
                         <CloseIcon
                           sx={{ cursor: "pointer", color: "red" }}
                           onClick={() => handleRemoveClick(index)}
-                        /> */}
+                        /> 
                       </TableCell>
                     </TableRow>
                   ))}
@@ -714,11 +996,12 @@ const StockTransfer = () => {
           size="medium"
           variant="contained"
           onClick={(e) => {
-            // resetTopFormData();
-            // resetMiddleFormData();
+            resetTopFormData();
+            resetMiddleFormData();
             // resetTotalValues();
-            // setSalesData([]);
-            // handleEnterKey(e, itemCodeRef);
+            setSearchMode(false);
+            setTransferData([]);
+            handleEnterKey(e, itemCodeRef);
             // setBillNoEditable(false);
           }}
           sx={{
@@ -768,7 +1051,7 @@ const StockTransfer = () => {
           color="success"
           size="medium"
           variant="contained"
-          // onClick={handleCreateSale}
+          onClick={handleCreateTransfer}
           sx={{
             marginTop: 1,
             borderRadius: 8,

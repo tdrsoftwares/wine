@@ -22,11 +22,14 @@ export const updatePurchase = async (payload, id) => {
 
 export const getAllPurchases = async (filterOptions) => {
   try {
-    const { page, limit, supplierName, fromDate, toDate } = filterOptions;
-    let apiURL = `/purchases/reports?page=${page}&limit=${limit}`;
+    const { page, pageSize, supplierName, storeName, fromDate, toDate } = filterOptions;
+    let apiURL = `/purchases/reports?page=${page}&pageSize=${pageSize}`;
 
     if (supplierName) {
       apiURL += `&supplierName=${encodeURIComponent(supplierName)}`;
+    }
+    if (storeName) {
+      apiURL += `&storeName=${encodeURIComponent(storeName)}`;
     }
     if (fromDate) {
       apiURL += `&fromDate=${fromDate}`;
