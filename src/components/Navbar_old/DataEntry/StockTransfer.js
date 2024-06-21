@@ -24,7 +24,11 @@ import dayjs from "dayjs";
 import { customTheme } from "../../../utils/customTheme";
 import { getAllStores } from "../../../services/storeService";
 import { NotificationManager } from "react-notifications";
-import { createTransfer, getTransferDetailsByItemCode, getTransferDetailsByItemName } from "../../../services/transferService";
+import {
+  createTransfer,
+  getTransferDetailsByItemCode,
+  getTransferDetailsByItemName,
+} from "../../../services/transferService";
 import debounce from "lodash.debounce";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -51,14 +55,14 @@ const StockTransfer = () => {
     brand: "",
     category: "",
     volume: "",
-    currentStock: ""
-  })
+    currentStock: "",
+  });
   const [searchMode, setSearchMode] = useState(false);
   const [editableIndex, setEditableIndex] = useState(-1);
   const [editedRow, setEditedRow] = useState({});
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const tableRef = useRef(null);
   const storeNameRef = useRef(null);
   const itemCodeRef = useRef(null);
@@ -70,6 +74,10 @@ const StockTransfer = () => {
   const brandRef = useRef(null);
   const categoryRef = useRef(null);
   const volumeRef = useRef(null);
+  const transferFromRef = useRef(null);
+  const transferToRef = useRef(null);
+  const transferDateRef = useRef(null);
+
   const saveButtonRef = useRef(null);
   const clearButtonRef = useRef(null);
 
@@ -78,9 +86,9 @@ const StockTransfer = () => {
       transferFrom: "",
       transferTo: "",
       transferDate: toDaysDate,
-      transferNo: ""
+      transferNo: "",
     });
-  }
+  };
 
   const resetMiddleFormData = () => {
     setFormData((prevFormData) => ({
@@ -97,20 +105,20 @@ const StockTransfer = () => {
       category: "",
       volume: "",
     }));
-  }
+  };
 
   const fetchAllStores = async () => {
     try {
       const allStoresResponse = await getAllStores();
       const allStoresData = allStoresResponse?.data?.data;
-  
+
       if (!allStoresData) {
         throw new Error("No data received from getAllStores");
       }
-  
+
       const allGodowns = [];
       const allNonGodowns = [];
-  
+
       allStoresData.forEach((store) => {
         if (store?.type === "GODOWN") {
           allGodowns.push(store);
@@ -118,10 +126,10 @@ const StockTransfer = () => {
           allNonGodowns.push(store);
         }
       });
-  
+
       setAllGodownStores(allGodowns);
       setAllNonGodownStores(allNonGodowns);
-  
+
       // console.log("allGodowns ---> ", allGodowns);
       // console.log("allNonGodowns ---> ", allNonGodowns);
     } catch (error) {
@@ -138,7 +146,7 @@ const StockTransfer = () => {
       setIsLoading(true);
       const response = await getTransferDetailsByItemCode(itemCode);
       // console.log("itemCodeSearch response: ", response);
-      const searchedItem = response?.data?.data;
+      const searchedItem = response?.data?.data[0];
       // console.log("searchedItem: ", searchedItem);
 
       if (searchedItem) {
@@ -146,7 +154,7 @@ const StockTransfer = () => {
         setFormData({
           ...formData,
           itemId: searchedItem.item._id,
-          // itemCode: searchedItem.itemCode || "",
+          itemCode: searchedItem.itemCode || "",
           itemName: searchedItem.item.name || "",
           mrp: searchedItem.mrp || 0,
           batch: searchedItem.batchNo || 0,
@@ -155,9 +163,9 @@ const StockTransfer = () => {
           pcs: searchedItem.pcs || null,
           volume: searchedItem.item?.volume,
           brand: searchedItem.item?.brand?.name || "",
-          category: searchedItem.item?.category?.categoryName || ""
+          category: searchedItem.item?.category?.categoryName || "",
         });
-        // batchRef.current.focus();
+
       } else {
         setSearchResults([]);
       }
@@ -168,8 +176,7 @@ const StockTransfer = () => {
     } finally {
       setIsLoading(false);
     }
-  }, 700)
-  
+  }, 700);
 
   const itemNameSearch = debounce(async (itemName) => {
     try {
@@ -193,7 +200,6 @@ const StockTransfer = () => {
       setIsLoading(false);
     }
   }, 500);
-
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -230,7 +236,7 @@ const StockTransfer = () => {
             volume: selectedRow.item?.volume || 0,
             brand: selectedRow.item?.brand?.name || "",
             category: selectedRow.item?.category?.categoryName || "",
-            currentStock: selectedRow.currentStock
+            currentStock: selectedRow.currentStock,
           });
           setSearchMode(false);
           setSelectedRowIndex(null);
@@ -249,20 +255,48 @@ const StockTransfer = () => {
       document.body.removeEventListener("keydown", handleKeyDown);
     };
   }, [searchMode, formData.itemName, searchResults, selectedRowIndex]);
-  
+
 
   useEffect(() => {
     fetchAllStores();
-  }, [])
+  }, []);
+
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.keyCode === 120) {
+        handleCreateTransfer();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [formData]);
+
+
+
+  useEffect(() => {
+    if (transferDateRef.current) {
+      transferDateRef.current.addEventListener("keydown", (e) =>
+        handleEnterKey(e, itemCodeRef)
+      );
+    }
+  }, []);
 
   const handleItemCodeChange = async (e) => {
     const value = e.target.value;
-    setFormData({ ...formData, value: value });
+    setFormData({ ...formData, itemCode: value });
     await itemCodeSearch(value);
+
+    if (!value) {
+      resetMiddleFormData();
+    }
 
     setEditedRow({});
     setEditableIndex(-1);
-  }
+  };
 
   const handleItemNameChange = (event) => {
     const value = event.target.value;
@@ -274,14 +308,14 @@ const StockTransfer = () => {
     setSearchMode(true);
     if (!value) {
       setSearchMode(false);
-      
+      resetMiddleFormData();
     }
 
     setEditedRow({});
     setEditableIndex(-1);
-  }
+  };
 
-  const handlePcsChange = (e)=>{
+  const handlePcsChange = (e) => {
     const regex = /^\d*\.?\d*$/;
     const value = e.target.value;
     let pcs = parseFloat(value) || "";
@@ -299,7 +333,7 @@ const StockTransfer = () => {
     if (regex.test(e.target.value) || e.target.value === "") {
       setFormData({ ...formData, case: 0, pcs: e.target.value });
     }
-  }
+  };
 
   const handleCaseChange = (event) => {
     const newCase = parseFloat(event.target.value) || 0;
@@ -311,7 +345,7 @@ const StockTransfer = () => {
       case: newCase,
       pcs: newPcsValue,
     });
-  }
+  };
 
   const handleSubmitIntoDataTable = (e) => {
     e.preventDefault();
@@ -329,7 +363,7 @@ const StockTransfer = () => {
       return;
     }
 
-    if(formData.pcs > formData.currentStock) {
+    if (formData.pcs > formData.currentStock) {
       NotificationManager.warning(
         `Out of Stock! Currently you have ${
           formData.currentStock || 0
@@ -345,15 +379,14 @@ const StockTransfer = () => {
     setSearchMode(false);
   };
 
-  const handleEdit = (e) => {}
-  const handleEditClick = (e) => {}
+  const handleEdit = (e) => {};
+  const handleEditClick = (e) => {};
 
-  const handleSaveClick = (e) => {}
-  
-  
+  const handleSaveClick = (e) => {};
+
   const handleRowClick = (index) => {
     const selectedRow = searchResults[index];
-    console.log(selectedRow)
+    // console.log(selectedRow);
 
     setFormData({
       ...formData,
@@ -368,7 +401,7 @@ const StockTransfer = () => {
       volume: selectedRow.item?.volume,
       brand: selectedRow.item?.brand?.name || "",
       category: selectedRow.item?.category?.categoryName || "",
-      currentStock: selectedRow.currentStock
+      currentStock: selectedRow.currentStock,
     });
 
     if (!selectedRow.itemCode) {
@@ -382,7 +415,7 @@ const StockTransfer = () => {
     const updatedTrasfer = [...transferData];
     updatedTrasfer.splice(index, 1);
     setTransferData(updatedTrasfer);
-  }
+  };
 
   const handleEnterKey = (event, nextInputRef) => {
     if (event.key === "Enter" || event.key === "Tab") {
@@ -405,27 +438,38 @@ const StockTransfer = () => {
     return formattedDate;
   };
 
-//   {
-//     "transferFrom" : "GODOWN",
-//     "transferTo" : "SHOWROOM",
-//     "transferDate": "06/06/2024",
-//     "transferItems" : [
-//         {
-//             "itemCode" :"ABCD12",
-//             "itemId" : "664228bac0debd05bc1b949f",
-//             "batchNo" : "TEST45",
-//             "mrp" : 100,
-//             "caseNo" : 10,
-//             "pcs" : 2
-//         }
-//     ]
-
-// }
-
   const handleCreateTransfer = async () => {
     const transferDateObj = formatDate(formData.transferDate);
 
-    // if()
+    if (
+      !formData.transferFrom 
+    ) {
+      NotificationManager.warning("Please input in Transfer From field.");
+      transferFromRef.current.focus();
+      return;
+    }
+    
+    if (
+      !formData.transferTo 
+    ) {
+      NotificationManager.warning("Please input in Transfer To field.");
+      transferToRef.current.focus();
+      return;
+    }
+
+    if (
+      !formData.transferDate
+    ) {
+      NotificationManager.warning("Please input in Transfer Date field.");
+      transferDateRef.current.focus();
+      return;
+    }
+
+    if (transferData.length <= 0) {
+      NotificationManager.warning("Enter some item to transfer.", "Warning");
+      itemNameRef.current.focus();
+      return;
+    }
 
     const payload = {
       transferFrom: formData.transferFrom,
@@ -442,19 +486,18 @@ const StockTransfer = () => {
       })),
     };
 
-
     try {
       const response = await createTransfer(payload);
-      if(response.status === 200) {
+      if (response.status === 200) {
         NotificationManager.success("Transfer created successfully", "Success");
         setSearchMode(false);
       } else {
         NotificationManager.error("Problem creating transfer", "Error");
       }
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
-  }
+  };
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -472,9 +515,13 @@ const StockTransfer = () => {
               <TextField
                 select
                 fullWidth
+                inputRef={transferFromRef}
                 name="transferFrom"
                 value={formData.transferFrom}
-                onChange={(e) => setFormData({...formData, transferFrom: e.target.value})}
+                onChange={(e) =>
+                  setFormData({ ...formData, transferFrom: e.target.value })
+                }
+                onKeyDown={e => handleEnterKey(e, transferToRef)}
               >
                 {allGodownStores?.map((store) => (
                   <MenuItem key={store._id} value={store._id}>
@@ -497,9 +544,9 @@ const StockTransfer = () => {
                 onChange={(e) => {
                   const value = e.target.value;
                   if (!isNaN(value)) {
-                    setFormData({...formData, transferNo: e.target.value})}
+                    setFormData({ ...formData, transferNo: e.target.value });
                   }
-                }
+                }}
               />
             </div>
           </Grid>
@@ -512,9 +559,13 @@ const StockTransfer = () => {
               <TextField
                 select
                 fullWidth
+                inputRef={transferToRef}
                 name="Transfer to"
                 value={formData.transferTo}
-                onChange={(e) => setFormData({...formData, transferTo: e.target.value})}
+                onChange={(e) =>
+                  setFormData({ ...formData, transferTo: e.target.value })
+                }
+                onKeyDown={e => handleEnterKey(e, transferDateRef)}
               >
                 {allNonGodownStores?.map((store) => (
                   <MenuItem key={store._id} value={store._id}>
@@ -532,11 +583,14 @@ const StockTransfer = () => {
               </InputLabel>
               <LocalizationProvider fullWidth dateAdapter={AdapterDayjs}>
                 <DatePicker
+                  inputRef={transferDateRef}
                   name="transferDate"
                   value={formData.transferDate}
                   format="DD/MM/YYYY"
                   sx={{ width: "100%" }}
-                  onChange={(newDate) => setFormData({...formData, transferDate: newDate})}
+                  onChange={(newDate) =>
+                    setFormData({ ...formData, transferDate: newDate })
+                  }
                   renderInput={(params) => (
                     <TextField {...params} fullWidth margin="normal" />
                   )}
@@ -634,7 +688,10 @@ const StockTransfer = () => {
                 value={formData.pcs}
                 onChange={handlePcsChange}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && formData.pcs <= formData.currentStock) {
+                  if (
+                    e.key === "Enter" &&
+                    formData.pcs <= formData.currentStock
+                  ) {
                     e.preventDefault();
                     handleSubmitIntoDataTable(e);
                     handleEnterKey(e, itemCodeRef);
@@ -670,7 +727,7 @@ const StockTransfer = () => {
                 onKeyDown={(e) => handleEnterKey(e, volumeRef)}
               />
             </Grid>
-            <Grid item xs={.8}>
+            <Grid item xs={0.8}>
               <InputLabel className="input-label-2">Volume</InputLabel>
               <TextField
                 inputRef={volumeRef}
@@ -842,21 +899,9 @@ const StockTransfer = () => {
                       }}
                     >
                       <TableCell>{index + 1}</TableCell>
+                      <TableCell>{row.itemCode}</TableCell>
                       <TableCell>
-                        {editableIndex === index ? (
-                          <Input
-                            type="text"
-                            value={editedRow.itemCode || row.itemCode}
-                            onChange={(e) =>
-                              handleEdit(index, "itemCode", e.target.value)
-                            }
-                          />
-                        ) : (
-                          row.itemCode
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {editableIndex === index ? (
+                        {/* {editableIndex === index ? (
                           <Input
                             type="text"
                             value={editedRow.itemName || row.itemName}
@@ -864,36 +909,13 @@ const StockTransfer = () => {
                               handleEdit(index, "itemName", e.target.value)
                             }
                           />
-                        ) : (
-                          row.itemName
-                        )}
+                        ) : ( */}
+                        {row.itemName}
+                        {/* )} */}
                       </TableCell>
-                      <TableCell>
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.mrp || row.mrp}
-                            onChange={(e) =>
-                              handleEdit(index, "mrp", e.target.value)
-                            }
-                          />
-                        ) : (
-                          row.mrp
-                        )}
-                      </TableCell>
+                      <TableCell>{row.mrp}</TableCell>
 
-                      <TableCell>
-                        {editableIndex === index ? (
-                          <Input
-                            type="text"
-                            value={editedRow.batch || row.batch}
-                            onChange={(e) =>
-                              handleEdit(index, "batch", e.target.value)
-                            }
-                          />
-                        ) : (
-                          row.batch
-                        )}
-                      </TableCell>
+                      <TableCell>{row.batch}</TableCell>
 
                       <TableCell>
                         {editableIndex === index ? (
@@ -921,47 +943,14 @@ const StockTransfer = () => {
                         )}
                       </TableCell>
 
-                      <TableCell>
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.brand || row.brand}
-                            onChange={(e) =>
-                              handleEdit(index, "brand", e.target.value)
-                            }
-                          />
-                        ) : (
-                          row.brand
-                        )}
-                      </TableCell>
+                      <TableCell>{row.brand}</TableCell>
+
+                      <TableCell>{row.category}</TableCell>
+
+                      <TableCell>{row.volume}</TableCell>
 
                       <TableCell>
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.category || row.category}
-                            onChange={(e) =>
-                              handleEdit(index, "category", e.target.value)
-                            }
-                          />
-                        ) : (
-                          row.category
-                        )}
-                      </TableCell>
-
-                      <TableCell>
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.volume || row.volume}
-                            onChange={(e) =>
-                              handleEdit(index, "volume", e.target.value)
-                            }
-                          />
-                        ) : (
-                          row.volume
-                        )}
-                      </TableCell>
-
-                      <TableCell>
-                         {/* {editableIndex !== index ? (
+                        {/* {editableIndex !== index ? (
                           <EditIcon
                             sx={{ cursor: "pointer", color: "blue" }}
                             onClick={() => handleEditClick(index)}
@@ -975,7 +964,7 @@ const StockTransfer = () => {
                         <CloseIcon
                           sx={{ cursor: "pointer", color: "red" }}
                           onClick={() => handleRemoveClick(index)}
-                        /> 
+                        />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -986,35 +975,35 @@ const StockTransfer = () => {
         </Box>
 
         <Box
-        sx={{
-          display: "flex",
-          justifyContent: "flex-end",
-        }}
-      >
-        <Button
-          color="inherit"
-          size="medium"
-          variant="contained"
-          onClick={(e) => {
-            resetTopFormData();
-            resetMiddleFormData();
-            // resetTotalValues();
-            setSearchMode(false);
-            setTransferData([]);
-            handleEnterKey(e, itemCodeRef);
-            // setBillNoEditable(false);
-          }}
           sx={{
-            marginTop: 1,
-            marginRight: 1,
-            borderRadius: 8,
-            padding: "4px 10px",
-            fontSize: "11px",
+            display: "flex",
+            justifyContent: "flex-end",
           }}
         >
-          New Transfer
-        </Button>
-        <Button
+          <Button
+            color="inherit"
+            size="medium"
+            variant="contained"
+            onClick={(e) => {
+              resetTopFormData();
+              resetMiddleFormData();
+              // resetTotalValues();
+              setSearchMode(false);
+              setTransferData([]);
+              handleEnterKey(e, itemCodeRef);
+              // setBillNoEditable(false);
+            }}
+            sx={{
+              marginTop: 1,
+              marginRight: 1,
+              borderRadius: 8,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
+          >
+            New Transfer
+          </Button>
+          <Button
             color="warning"
             size="medium"
             variant="contained"
@@ -1030,44 +1019,44 @@ const StockTransfer = () => {
             OPEN
           </Button>
 
-        <Button
-          color="error"
-          size="medium"
-          variant="contained"
-          onClick={() => {}}
-          sx={{
-            marginTop: 1,
-            marginRight: 1,
-            borderRadius: 8,
-            padding: "4px 10px",
-            fontSize: "11px",
-          }}
-        >
-          DELETE
-        </Button>
-        
-        <Button
-          ref={saveButtonRef}
-          color="success"
-          size="medium"
-          variant="contained"
-          onClick={handleCreateTransfer}
-          sx={{
-            marginTop: 1,
-            borderRadius: 8,
-            padding: "4px 10px",
-            fontSize: "11px",
-          }}
-          // onKeyDown={(e) => {
-          //   if (e.key === "Enter") {
-          //     handleCreateSale();
-          //     handleEnterKey(e, itemCodeRef);
-          //   }
-          // }}
-        >
-          SAVE
-        </Button>
-      </Box>
+          <Button
+            color="error"
+            size="medium"
+            variant="contained"
+            onClick={() => {}}
+            sx={{
+              marginTop: 1,
+              marginRight: 1,
+              borderRadius: 8,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
+          >
+            DELETE
+          </Button>
+
+          <Button
+            ref={saveButtonRef}
+            color="success"
+            size="medium"
+            variant="contained"
+            onClick={handleCreateTransfer}
+            sx={{
+              marginTop: 1,
+              borderRadius: 8,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
+            // onKeyDown={(e) => {
+            //   if (e.key === "Enter") {
+            //     handleCreateSale();
+            //     handleEnterKey(e, itemCodeRef);
+            //   }
+            // }}
+          >
+            SAVE
+          </Button>
+        </Box>
       </Box>
     </ThemeProvider>
   );
