@@ -31,3 +31,42 @@ export const getTransferDetailsByItemName = async (itemName) => {
     return error;
   }
 };
+
+export const getItemTransferDetails = async (filterOptions) => {
+  try {
+    const {
+      page,
+      pageSize,
+      fromDate,
+      toDate,
+      itemCode,
+      itemName,
+      category,
+      group,
+      store,
+    } = filterOptions;
+
+    let apiURL = `/stock-transfer/reports?page=${page}&pageSize=${pageSize}`;
+
+    const filters = {
+      fromDate,
+      toDate,
+      itemCode,
+      itemName,
+      category,
+      group,
+      store,
+    };
+
+    Object.keys(filters).forEach((key) => {
+      if (filters[key]) {
+        apiURL += `&${key}=${encodeURIComponent(filters[key])}`;
+      }
+    });
+
+    const allTransferData = await axiosInstance.get(apiURL);
+    return allTransferData;
+  } catch (error) {
+    return error;
+  }
+};

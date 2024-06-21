@@ -19,21 +19,28 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { getAllItems } from "../../../services/itemService";
 import { getAllItemCategory } from "../../../services/categoryService";
 import { customTheme } from "../../../utils/customTheme";
+import { getItemTransferDetails } from "../../../services/transferService";
+import { getAllStores } from "../../../services/storeService";
+import { getAllBrands } from "../../../services/brandService";
 
 const ItemTransferReport = () => {
   const [transferFrom, setTransferFrom] = useState("");
+  const [transferTo, setTransferTo] = useState("");
   const [itemCode, setItemCode] = useState("");
   const [dateFrom, setDateFrom] = useState(null);
   const [dateTo, setDateTo] = useState(null);
-  const [allPurchases, setAllPurchases] = useState([]);
+  const [allTransfers, setAllTransfers] = useState([]);
   const [allItems, setAllItems] = useState([]);
   const [allCategory, setAllCategory] = useState([]);
-
+  const [allBrands, setAllBrands] = useState([]);
+  const [allGodownStores, setAllGodownStores] = useState([]);
+  const [allNonGodownStores, setAllNonGodownStores] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [brandName, setBrandName] = useState("");
   const [categoryName, setCategoryName] = useState("");
   const [itemName, setItemName] = useState("");
-  const [volume, setVolume] = useState("");
+  const [group, setGroup] = useState("");
+  const [store, setStore] = useState("");
   const [loading, setLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     page: 1,
@@ -67,7 +74,13 @@ const ItemTransferReport = () => {
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
-
+    {
+      field: "transferTo",
+      headerName: "Transfer To",
+      width: 150,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
     {
       field: "itemCode",
       headerName: "Item Code",
@@ -83,8 +96,15 @@ const ItemTransferReport = () => {
       headerClassName: "custom-header",
     },
     {
+      field: "transferNo",
+      headerName: "Transfer No.",
+      width: 150,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
       field: "brandName",
-      headerName: "Brand Name",
+      headerName: "Brand",
       width: 150,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
@@ -96,6 +116,13 @@ const ItemTransferReport = () => {
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
+    // {
+    //   field: "store",
+    //   headerName: "Store",
+    //   width: 150,
+    //   cellClassName: "custom-cell",
+    //   headerClassName: "custom-header",
+    // },
     {
       field: "batchNo",
       headerName: "Batch No.",
@@ -104,15 +131,8 @@ const ItemTransferReport = () => {
       headerClassName: "custom-header",
     },
     {
-      field: "volume",
-      headerName: "Volume",
-      width: 120,
-      cellClassName: "custom-cell",
-      headerClassName: "custom-header",
-    },
-    {
-      field: "mrp",
-      headerName: "MRP",
+      field: "caseNo",
+      headerName: "Case",
       width: 120,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
@@ -125,16 +145,23 @@ const ItemTransferReport = () => {
       headerClassName: "custom-header",
     },
     {
-      field: "transferTo",
-      headerName: "Transfer To",
+      field: "volume",
+      headerName: "Volume",
+      width: 120,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "group",
+      headerName: "Group",
       width: 150,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
-      field: "mrpValue",
-      headerName: "MRP Value",
-      width: 150,
+      field: "mrp",
+      headerName: "MRP",
+      width: 120,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
@@ -152,26 +179,24 @@ const ItemTransferReport = () => {
             ? paginationModel.page + 1
             : paginationModel.page,
         pageSize: paginationModel.pageSize,
-        fromDate: fromDate,
-        toDate: toDate,
-        itemName: itemName,
-        supplierName: transferFrom,
-        brandName,
-        categoryName,
-        volume,
+        fromDate,
+        toDate,
         itemCode,
-        // batchNo: batch
+        itemName,
+        category: categoryName,
+        group,
+        store,
       };
-      const response = await getItemWisePurchaseDetails(filterOptions);
+      const response = await getItemTransferDetails(filterOptions);
       // console.log("Response: ", response);
 
       if (response.status === 200) {
-        setAllPurchases(response?.data?.data || []);
+        setAllTransfers(response?.data?.data || []);
         setTotalCount(response.data.data.length || 0);
       } else {
         console.log("Error", response);
         NotificationManager.error("No items found.", "Error");
-        setAllPurchases([]);
+        setAllTransfers([]);
       }
     } catch (error) {
       NotificationManager.error(
@@ -181,6 +206,40 @@ const ItemTransferReport = () => {
       console.log("Error fetching purchases", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAllStores = async () => {
+    try {
+      const allStoresResponse = await getAllStores();
+      const allStoresData = allStoresResponse?.data?.data;
+
+      if (!allStoresData) {
+        throw new Error("No data received from getAllStores");
+      }
+
+      const allGodowns = [];
+      const allNonGodowns = [];
+
+      allStoresData.forEach((store) => {
+        if (store?.type === "GODOWN") {
+          allGodowns.push(store);
+        } else {
+          allNonGodowns.push(store);
+        }
+      });
+
+      setAllGodownStores(allGodowns);
+      setAllNonGodownStores(allNonGodowns);
+
+      // console.log("allGodowns ---> ", allGodowns);
+      // console.log("allNonGodowns ---> ", allNonGodowns);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching stores. Please try again later.",
+        "Error"
+      );
+      console.error("Error fetching stores:", error);
     }
   };
 
@@ -208,9 +267,23 @@ const ItemTransferReport = () => {
     }
   };
 
+  const fetchAllBrands = async () => {
+    try {
+      const allBrandResponse = await getAllBrands();
+      setAllBrands(allBrandResponse?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching brands. Please try again later.",
+        "Error"
+      );
+    }
+  };
+
 
   useEffect(() => {
-    // fetchAllTransfer();
+    fetchAllTransfer();
+    fetchAllStores();
+    fetchAllBrands();
     fetchAllItems();
     fetchAllItemCategory();
   }, []);
@@ -225,23 +298,19 @@ const ItemTransferReport = () => {
     };
   };
 
-  // useEffect(() => {
-  //   const debouncedFetch = debounce(fetchAllTransfer, 300);
-  //   debouncedFetch();
-  // }, [
-  //   paginationModel,
-  //   dateFrom,
-  //   dateTo,
-  //   transferFrom,
-  //   dateFrom,
-  //   dateTo,
-  //   itemName,
-  //   brandName,
-  //   categoryName,
-  //   volume,
-  //   itemCode,
-  //   // batch
-  // ]);
+  useEffect(() => {
+    const debouncedFetch = debounce(fetchAllTransfer, 300);
+    debouncedFetch();
+  }, [
+    paginationModel,
+    dateFrom,
+    dateTo,
+    itemCode,
+    itemName,
+    categoryName,
+    group,
+    store,
+  ]);
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -252,7 +321,7 @@ const ItemTransferReport = () => {
         <Typography sx={{ fontSize: "13px" }}>Filter By:</Typography>
 
         <Grid container spacing={2}>
-          <Grid item xs={2.4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="dateFrom" className="input-label">
                 Date from:
@@ -270,7 +339,7 @@ const ItemTransferReport = () => {
             </div>
           </Grid>
 
-          <Grid item xs={2.4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="dateTo" className="input-label">
                 Date to:
@@ -289,38 +358,49 @@ const ItemTransferReport = () => {
             </div>
           </Grid>
 
-          <Grid item xs={2.4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="transferFrom" className="input-label">
-                Transfer from:
+                Transfer from :
               </InputLabel>
               <TextField
-                // select
+                select
                 fullWidth
-                size="small"
                 name="transferFrom"
                 value={transferFrom}
                 onChange={(e) => setTransferFrom(e.target.value)}
-                SelectProps={{
-                  MenuProps: {
-                    PaperProps: {
-                      style: {
-                        maxHeight: 200,
-                      },
-                    },
-                  },
-                }}
-              />
-              {/* {allSuppliers?.map((item) => (
-                  <MenuItem key={item.id} value={item.name}>
-                    {item.name}
+              >
+                {allGodownStores?.map((store) => (
+                  <MenuItem key={store._id} value={store._id}>
+                    {store.name}
                   </MenuItem>
                 ))}
-              </TextField> */}
+              </TextField>
             </div>
           </Grid>
 
-          <Grid item xs={2.4}>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="Transfer to" className="input-label">
+                Transfer To :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                name="Transfer to"
+                value={transferTo}
+                onChange={(e) => setTransferTo(e.target.value)}
+              >
+                {allNonGodownStores?.map((store) => (
+                  <MenuItem key={store._id} value={store._id}>
+                    {store.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </Grid>
+
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="itemName" className="input-label">
                 Item:
@@ -351,7 +431,22 @@ const ItemTransferReport = () => {
             </div>
           </Grid>
 
-          <Grid item xs={2.4}>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="itemCode" className="input-label">
+                ItemCode:
+              </InputLabel>
+              <TextField
+                fullWidth
+                name="itemCode"
+                size="small"
+                value={itemCode}
+                onChange={(e) => setItemCode(e.target.value)}
+              />
+            </div>
+          </Grid>
+
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="categoryName" className="input-label">
                 Category:
@@ -381,6 +476,37 @@ const ItemTransferReport = () => {
               </TextField>
             </div>
           </Grid>
+
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="brandName" className="input-label">
+                Brand:
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="brandName"
+                value={brandName}
+                onChange={(e) => setBrandName(e.target.value)}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
+                    },
+                  },
+                }}
+              >
+                {allBrands.map((brand) => (
+                  <MenuItem key={brand._id} value={brand.name}>
+                    {brand.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </Grid>
         </Grid>
 
         <Box
@@ -401,7 +527,7 @@ const ItemTransferReport = () => {
               setItemName("");
               setBrandName("");
               setCategoryName("");
-              setVolume("");
+              setGroup("");
               setItemCode("");
               // setFilter1("");
               setPaginationModel({ page: 1, pageSize: 10 });
@@ -442,30 +568,28 @@ const ItemTransferReport = () => {
           }}
         >
           <DataGrid
-            rows={[]?.map((item, index) => ({
+            rows={(allTransfers || [])?.map((item, index) => ({
               id: index,
               sNo: index + 1,
               // createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
-              // // billDate: item.billDate || "No Data",
-              // entryNo: item.entryNo || "No Data",
-              // billNo: item.billNo || "No Data",
-              // itemCode: item.purchaseItems?.itemCode || "No Data",
-              // itemName: item.purchaseItems?.item?.name || "No Data",
-              // brandName: item.purchaseItems?.item?.brand?.name || "No Data",
-              // categoryName:
-              //   item.purchaseItems?.item?.category?.categoryName || "No Data",
-              // batchNo: item.purchaseItems.batchNo || "No Data",
-              // brokenNo: item.purchaseItems?.brokenNo || "No Data",
-              // caseNo: item.purchaseItems?.caseNo || "No Data",
-              // pcs: item.purchaseItems?.pcs || "No Data",
-              // volume: item.purchaseItems?.item?.volume || "No Data",
-              // mrp: item.purchaseItems?.mrp || "No Data",
-              // gro: item.purchaseItems?.gro || "No Data", // item er gro lagbe
-              // sp: item.purchaseItems?.sp || "No Data", // item er sp lagbe
-              // supplierName: item.supplierName || "No Data",
-              // purchaseRate: item.purchaseItems?.purchaseRate || "No Data",
-              // saleRate: item.purchaseItems?.saleRate || "No Data",
-              // itemAmount: item.purchaseItems?.itemAmount || "No Data",
+              transferDate: item.transferDate || "No Data",
+              transferFrom: item.transferFrom || "No Data",
+              transferTo: item.transferTo || "No Data",
+              itemCode: item.stocktransferitems?.itemCode || "No Data",
+              itemName: item.stocktransferitems?.item?.name || "No Data",
+              transferNo: item.transferNo || "No Data",
+              brandName:
+                item.stocktransferitems?.item?.brand?.name || "No Data",
+              categoryName:
+                item.stocktransferitems?.item?.category?.categoryName ||
+                "No Data",
+              // store: item.stocktransferitems?.item?.store || "No Data",
+              batchNo: item.stocktransferitems.batchNo || "No Data",
+              caseNo: item.stocktransferitems?.case || "No Data",
+              pcs: item.stocktransferitems?.pcs || "No Data",
+              volume: item.stocktransferitems?.item?.volume || "No Data",
+              group: item.stocktransferitems?.item?.group || "No Data",
+              mrp: item.stocktransferitems?.mrp || "No Data",
             }))}
             columns={columns}
             rowCount={totalCount}
