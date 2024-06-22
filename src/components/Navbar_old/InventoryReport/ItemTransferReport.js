@@ -190,7 +190,7 @@ const ItemTransferReport = () => {
       };
 
       const response = await getItemTransferDetails(filterOptions);
-      // console.log("Response: ", response);
+      console.log("Response: ", response.data.data);
 
       if (response.status === 200) {
         setAllTransfers(response?.data?.data || []);
@@ -655,7 +655,7 @@ const ItemTransferReport = () => {
               pcs: item.stocktransferitems?.pcs || "No Data",
               volume: item.stocktransferitems?.item?.volume || "No Data",
               totalVolumeLiters:
-                item.stocktransferitems?.totalVolumeLiters || "No Data",
+                item.totalVolumeLiters || "No Data",
               group: item.stocktransferitems?.item?.group || "No Data",
               mrp: item.stocktransferitems?.mrp || "No Data",
             }))}
