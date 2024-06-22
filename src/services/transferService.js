@@ -41,9 +41,10 @@ export const getItemTransferDetails = async (filterOptions) => {
       toDate,
       itemCode,
       itemName,
-      category,
-      group,
-      store,
+      storeName,
+      categoryName,
+      brandName,
+      group
     } = filterOptions;
 
     let apiURL = `/stock-transfer/reports?page=${page}&pageSize=${pageSize}`;
@@ -52,10 +53,11 @@ export const getItemTransferDetails = async (filterOptions) => {
       fromDate,
       toDate,
       itemCode,
-      itemName,
-      category,
-      group,
-      store,
+        itemName,
+        storeName,
+        categoryName,
+        brandName,
+        group
     };
 
     Object.keys(filters).forEach((key) => {

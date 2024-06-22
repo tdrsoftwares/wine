@@ -33,14 +33,14 @@ const ItemTransferReport = () => {
   const [allItems, setAllItems] = useState([]);
   const [allCategory, setAllCategory] = useState([]);
   const [allBrands, setAllBrands] = useState([]);
-  const [allGodownStores, setAllGodownStores] = useState([]);
+  const [allStores, setAllStores] = useState([]);
   const [allNonGodownStores, setAllNonGodownStores] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [brandName, setBrandName] = useState("");
   const [categoryName, setCategoryName] = useState("");
   const [itemName, setItemName] = useState("");
   const [group, setGroup] = useState("");
-  const [store, setStore] = useState("");
+  const [storeName, setStoreName] = useState("");
   const [loading, setLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     page: 1,
@@ -116,13 +116,13 @@ const ItemTransferReport = () => {
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
-    // {
-    //   field: "store",
-    //   headerName: "Store",
-    //   width: 150,
-    //   cellClassName: "custom-cell",
-    //   headerClassName: "custom-header",
-    // },
+    {
+      field: "totalVolumeLiters",
+      headerName: "Total Volume (ltr.)",
+      width: 150,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
     {
       field: "batchNo",
       headerName: "Batch No.",
@@ -183,10 +183,12 @@ const ItemTransferReport = () => {
         toDate,
         itemCode,
         itemName,
-        category: categoryName,
+        storeName,
+        categoryName,
+        brandName,
         group,
-        store,
       };
+
       const response = await getItemTransferDetails(filterOptions);
       // console.log("Response: ", response);
 
@@ -209,31 +211,45 @@ const ItemTransferReport = () => {
     }
   };
 
+  // const fetchAllStores = async () => {
+  //   try {
+  //     const allStoresResponse = await getAllStores();
+  //     const allStoresData = allStoresResponse?.data?.data;
+
+  //     if (!allStoresData) {
+  //       throw new Error("No data received from getAllStores");
+  //     }
+
+  //     const allGodowns = [];
+  //     const allNonGodowns = [];
+
+  //     allStoresData.forEach((store) => {
+  //       if (store?.type === "GODOWN") {
+  //         allGodowns.push(store);
+  //       } else {
+  //         allNonGodowns.push(store);
+  //       }
+  //     });
+
+  //     setAllGodownStores(allGodowns);
+  //     setAllNonGodownStores(allNonGodowns);
+
+  //     // console.log("allGodowns ---> ", allGodowns);
+  //     // console.log("allNonGodowns ---> ", allNonGodowns);
+  //   } catch (error) {
+  //     NotificationManager.error(
+  //       "Error fetching stores. Please try again later.",
+  //       "Error"
+  //     );
+  //     console.error("Error fetching stores:", error);
+  //   }
+  // };
+
   const fetchAllStores = async () => {
     try {
       const allStoresResponse = await getAllStores();
-      const allStoresData = allStoresResponse?.data?.data;
-
-      if (!allStoresData) {
-        throw new Error("No data received from getAllStores");
-      }
-
-      const allGodowns = [];
-      const allNonGodowns = [];
-
-      allStoresData.forEach((store) => {
-        if (store?.type === "GODOWN") {
-          allGodowns.push(store);
-        } else {
-          allNonGodowns.push(store);
-        }
-      });
-
-      setAllGodownStores(allGodowns);
-      setAllNonGodownStores(allNonGodowns);
-
-      // console.log("allGodowns ---> ", allGodowns);
-      // console.log("allNonGodowns ---> ", allNonGodowns);
+      // console.log("allStoresResponse ---> ", allStoresResponse);
+      setAllStores(allStoresResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
         "Error fetching stores. Please try again later.",
@@ -242,7 +258,6 @@ const ItemTransferReport = () => {
       console.error("Error fetching stores:", error);
     }
   };
-
   const fetchAllItems = async () => {
     try {
       const allItemsResponse = await getAllItems();
@@ -279,7 +294,6 @@ const ItemTransferReport = () => {
     }
   };
 
-
   useEffect(() => {
     fetchAllTransfer();
     fetchAllStores();
@@ -307,9 +321,10 @@ const ItemTransferReport = () => {
     dateTo,
     itemCode,
     itemName,
+    storeName,
+    brandName,
     categoryName,
     group,
-    store,
   ]);
 
   return (
@@ -358,7 +373,7 @@ const ItemTransferReport = () => {
             </div>
           </Grid>
 
-          <Grid item xs={3}>
+          {/* <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="transferFrom" className="input-label">
                 Transfer from :
@@ -398,12 +413,43 @@ const ItemTransferReport = () => {
                 ))}
               </TextField>
             </div>
+          </Grid> */}
+
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="storeName" className="input-label">
+                Stock In :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="storeName"
+                value={storeName}
+                onChange={(e) => setStoreName(e.target.value)}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
+                    },
+                  },
+                }}
+              >
+                {allStores?.map((store) => (
+                  <MenuItem key={store._id} value={store.name}>
+                    {store.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
           </Grid>
 
           <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="itemName" className="input-label">
-                Item:
+                Item Name:
               </InputLabel>
               <TextField
                 select
@@ -507,6 +553,28 @@ const ItemTransferReport = () => {
               </TextField>
             </div>
           </Grid>
+
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="group" className="input-label">
+                Group:
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                value={group}
+                onChange={(e) => setGroup(e.target.value)}
+                required
+              >
+                {["FL", "BEER", "IML"]?.map((item, id) => (
+                  <MenuItem key={id} value={item}>
+                    {item}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </Grid>
         </Grid>
 
         <Box
@@ -523,13 +591,12 @@ const ItemTransferReport = () => {
             onClick={() => {
               setDateFrom(null);
               setDateTo(null);
-              setTransferFrom("");
+              setItemCode("");
               setItemName("");
               setBrandName("");
               setCategoryName("");
               setGroup("");
-              setItemCode("");
-              // setFilter1("");
+              setStoreName("");
               setPaginationModel({ page: 1, pageSize: 10 });
               // fetchAllTransfer();
             }}
@@ -573,8 +640,8 @@ const ItemTransferReport = () => {
               sNo: index + 1,
               // createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
               transferDate: item.transferDate || "No Data",
-              transferFrom: item.transferFrom || "No Data",
-              transferTo: item.transferTo || "No Data",
+              transferFrom: item.transferFrom?.name || "No Data",
+              transferTo: item.transferTo?.name || "No Data",
               itemCode: item.stocktransferitems?.itemCode || "No Data",
               itemName: item.stocktransferitems?.item?.name || "No Data",
               transferNo: item.transferNo || "No Data",
@@ -583,11 +650,12 @@ const ItemTransferReport = () => {
               categoryName:
                 item.stocktransferitems?.item?.category?.categoryName ||
                 "No Data",
-              // store: item.stocktransferitems?.item?.store || "No Data",
               batchNo: item.stocktransferitems.batchNo || "No Data",
               caseNo: item.stocktransferitems?.case || "No Data",
               pcs: item.stocktransferitems?.pcs || "No Data",
               volume: item.stocktransferitems?.item?.volume || "No Data",
+              totalVolumeLiters:
+                item.stocktransferitems?.totalVolumeLiters || "No Data",
               group: item.stocktransferitems?.item?.group || "No Data",
               mrp: item.stocktransferitems?.mrp || "No Data",
             }))}
