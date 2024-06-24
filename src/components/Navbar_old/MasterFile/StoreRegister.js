@@ -42,7 +42,7 @@ const StoreRegister = () => {
   const [sortOrder, setSortOrder] = useState("asc");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-
+  const [search, setSearch] = useState("");
   const tableRef = useRef(null);
 
   const handleClickOutside = (event) => {
@@ -112,7 +112,7 @@ const StoreRegister = () => {
     try {
       const createStoreResponse = await createStore(payload);
       NotificationManager.success("Store created successfully", "Success");
-      console.log("Store created successfully:", createStoreResponse);
+      // console.log("Store created successfully:", createStoreResponse);
       clearForm();
       fetchAllStores();
     } catch (error) {
@@ -132,11 +132,18 @@ const StoreRegister = () => {
     };
     try {
       const updateStoreResponse = await updateStore(payload, storeId);
-      NotificationManager.success("Store updated successfully", "Success");
-      console.log("Store updated successfully:", updateStoreResponse);
-      setEditableIndex(null);
-      setEditedRow({});
-      fetchAllStores();
+      if (updateStoreResponse.status === 200) {
+        NotificationManager.success("Store updated successfully", "Success");
+        setEditableIndex(null);
+        setEditedRow({});
+        fetchAllStores();
+      } else {
+        NotificationManager.error(
+          "Error updating store. Please try again later.",
+          "Error"
+        );
+      }
+      // console.log("Store updated successfully:", updateStoreResponse);
     } catch (error) {
       NotificationManager.error(
         "Error updating store. Please try again later.",
@@ -149,9 +156,16 @@ const StoreRegister = () => {
   const handleDeleteStore = async (storeId) => {
     try {
       const deleteStoreResponse = await deleteStore(storeId);
-      NotificationManager.success("Store deleted successfully", "Success");
-      console.log("Store deleted successfully:", deleteStoreResponse);
-      fetchAllStores();
+      if (deleteStoreResponse.status === 200) {
+        NotificationManager.success("Store deleted successfully", "Success");
+        fetchAllStores();
+      } else {
+        NotificationManager.error(
+          "Error deleting store. Please try again later.",
+          "Error"
+        );
+      }
+      // console.log("Store deleted successfully:", deleteStoreResponse);
     } catch (error) {
       NotificationManager.error(
         "Error deleting store. Please try again later.",
@@ -164,7 +178,7 @@ const StoreRegister = () => {
   const fetchAllStores = async () => {
     try {
       const allStoresResponse = await getAllStores();
-      console.log("allStoresResponse ---> ", allStoresResponse);
+      // console.log("allStoresResponse ---> ", allStoresResponse);
       setAllStores(allStoresResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
@@ -192,6 +206,20 @@ const StoreRegister = () => {
   const handleRemoveStore = (storeId) => {
     handleDeleteStore(storeId);
   };
+
+  useEffect(() => {
+    setPage(0);
+  }, [search]);
+
+  const filteredData = sortedData().filter((item) => {
+    const searchLower = search.toLowerCase();
+    return (
+      searchLower === "" ||
+      String(item.name).toLowerCase().includes(searchLower) ||
+      String(item.type).toLowerCase().includes(searchLower) ||
+      String(item.indexNo).toLowerCase().includes(searchLower)
+    );
+  });
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -230,8 +258,8 @@ const StoreRegister = () => {
                 value={type}
                 onChange={(e) => setType(e.target.value)}
               >
-                <MenuItem value="Sale Counter">Sale Counter</MenuItem>
-                <MenuItem value="Godown">Godown</MenuItem>
+                <MenuItem value="SALE COUNTER">Sale Counter</MenuItem>
+                <MenuItem value="GODOWN">Godown</MenuItem>
               </TextField>
             </div>
           </Grid>
@@ -288,9 +316,28 @@ const StoreRegister = () => {
               </Button>
             </Box>
           </Grid>
+
+          {/* <Grid item xs={9}></Grid> */}
+
+          <Grid item xs={3} sx={{ marginTop: 1 }}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="searchInput" className="input-label">
+                Search Here :
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                type="text"
+                name="searchInput"
+                placeholder="Enter your input..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+          </Grid>
         </Grid>
 
-        <Box sx={{ borderRadius: 1, marginTop: 2 }}>
+        <Box sx={{ borderRadius: 1, marginTop: 1 }}>
           <TableContainer
             ref={tableRef}
             component={Paper}
@@ -318,7 +365,7 @@ const StoreRegister = () => {
                   <TableCell align="center" sx={{ minWidth: "80px" }}>
                     S. No.
                   </TableCell>
-                  <TableCell sx={{ minWidth: "180px" }}>
+                  <TableCell sx={{ minWidth: "220px" }}>
                     <TableSortLabel
                       active={sortBy === "name"}
                       direction={sortOrder}
@@ -360,7 +407,7 @@ const StoreRegister = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  sortedData()
+                  filteredData
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((store, index) => (
                       <TableRow
@@ -447,7 +494,7 @@ const StoreRegister = () => {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={allStores?.length}
+            count={filteredData?.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
