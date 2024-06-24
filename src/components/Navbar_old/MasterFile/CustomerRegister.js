@@ -33,7 +33,7 @@ import { customTheme } from "../../../utils/customTheme";
 
 const CustomerRegister = () => {
   const tableRef = useRef(null);
-  const [allCustomerData, setAllCustomerData] = useState(null);
+  const [allCustomerData, setAllCustomerData] = useState([]);
   const [editableIndex, setEditableIndex] = useState(null);
   const [editedRow, setEditedRow] = useState({});
   const [formData, setFormData] = useState({
@@ -53,8 +53,9 @@ const CustomerRegister = () => {
   const [sortOrder, setSortOrder] = useState("asc");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [search, setSearch] = useState("");
 
-  console.log("formData", formData);
+  // console.log("formData", formData);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -83,7 +84,7 @@ const CustomerRegister = () => {
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
-    console.log(":---> ", value);
+    // console.log(":---> ", value);
     setFormData({
       ...formData,
       [name]: value,
@@ -129,7 +130,7 @@ const CustomerRegister = () => {
   const fetchAllCustomers = async () => {
     try {
       const allCustomerResponse = await getAllCustomer();
-      console.log("allCustomerResponse ---> ", allCustomerResponse);
+      // console.log("allCustomerResponse ---> ", allCustomerResponse);
       setAllCustomerData(allCustomerResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
@@ -154,17 +155,13 @@ const CustomerRegister = () => {
   const handleCreateCustomer = async () => {
     const mandatoryFields = [
       formData.customerName,
-      formData.whatsAppNo,
-      formData.contactNo,
       formData.contactPerson,
       formData.address,
-      formData.discount,
+      formData.contactNo,
       formData.customerType,
-      formData.discountCategory,
-      formData.additionalCharge,
     ];
     if (mandatoryFields.some((field) => !field)) {
-      NotificationManager.warning("Please fill in all fields.", "Error");
+      NotificationManager.warning("Please fill all mandatory fields.", "Error");
       return;
     }
 
@@ -175,21 +172,23 @@ const CustomerRegister = () => {
 
     const payload = {
       name: formData.customerName,
-      whatsAppNo: formData.whatsAppNo,
+      whatsAppNo: formData.whatsAppNo || 0,
       contactNo: formData.contactNo,
       contactPerson: formData.contactPerson,
       address: formData.address,
-      discount: formData.discount,
+      discount: formData.discount || 0,
       type: formData.customerType,
-      discountCategory: formData.discountCategory,
-      additionalCharge: formData.additionalCharge,
+      additionalCharge: formData.additionalCharge || 0,
     };
-    console.log("payload: ", payload);
+    if(formData.discountCategory) {
+      payload.discountCategory = formData.discountCategory
+    }
+    // console.log("payload: ", payload);
 
     try {
       const customerResponse = await createCustomer(payload);
       if (customerResponse.status === 200) {
-        NotificationManager.success("Item created successfully", "Success");
+        NotificationManager.success("Customer created successfully", "Success");
         handleClear();
         fetchAllCustomers();
       } else {
@@ -266,6 +265,27 @@ const CustomerRegister = () => {
     }
   };
 
+  useEffect(() => {
+    setPage(0);
+  }, [search]);
+
+  const filteredData = sortedData().filter((item) => {
+    const searchLower = search.toLowerCase();
+
+    return (
+      searchLower === "" ||
+      String(item.name).toLowerCase().includes(searchLower) ||
+      String(item.type).toLowerCase().includes(searchLower) ||
+      String(item.address).toLowerCase().includes(searchLower) ||
+      String(item.contactNo).toLowerCase().includes(searchLower) ||
+      String(item.whatsAppNo).toLowerCase().includes(searchLower) ||
+      String(item.contactPerson).toLowerCase().includes(searchLower) ||
+      String(item.discount).toLowerCase().includes(searchLower) ||
+      String(item.discountCategory).toLowerCase().includes(searchLower) ||
+      String(item.additionalCharge).toLowerCase().includes(searchLower)
+    );
+  });
+
   return (
     <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, width: "900px" }}>
@@ -276,7 +296,7 @@ const CustomerRegister = () => {
         <Grid container spacing={2}>
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="customerName" className="input-label">
+              <InputLabel htmlFor="customerName" className="input-label" required>
                 Customer Name :
               </InputLabel>
               <TextField
@@ -290,7 +310,7 @@ const CustomerRegister = () => {
           </Grid>
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="contactPerson" className="input-label">
+              <InputLabel htmlFor="contactPerson" className="input-label" required>
                 Contact Person :
               </InputLabel>
               <TextField
@@ -304,7 +324,7 @@ const CustomerRegister = () => {
           </Grid>
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="address" className="input-label">
+              <InputLabel htmlFor="address" className="input-label" required>
                 Address :
               </InputLabel>
               <TextField
@@ -319,7 +339,7 @@ const CustomerRegister = () => {
 
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="contactNo" className="input-label">
+              <InputLabel htmlFor="contactNo" className="input-label" required>
                 Mobile No. :
               </InputLabel>
               <TextField
@@ -372,7 +392,7 @@ const CustomerRegister = () => {
 
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="customerType" className="input-label">
+              <InputLabel htmlFor="customerType" className="input-label" required>
                 Customer Type :
               </InputLabel>
               <TextField
@@ -384,7 +404,7 @@ const CustomerRegister = () => {
                 onChange={(e) => handleFormChange(e)}
               >
                 <MenuItem value="cash">Cash</MenuItem>
-                <MenuItem value="online">Online</MenuItem>
+                <MenuItem value="dealer">Dealer</MenuItem>
               </TextField>
             </div>
           </Grid>
@@ -430,7 +450,7 @@ const CustomerRegister = () => {
             <Box
               sx={{
                 display: "flex",
-                justifyContent: "flex-end"
+                justifyContent: "flex-end",
               }}
             >
               <Button
@@ -462,9 +482,26 @@ const CustomerRegister = () => {
               </Button>
             </Box>
           </Grid>
+
+          <Grid item xs={3} sx={{ marginTop: 1 }}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="searchInput" className="input-label">
+                Search Here :
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                type="text"
+                name="searchInput"
+                placeholder="Enter your input..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+          </Grid>
         </Grid>
 
-        <Box sx={{ borderRadius: 1, marginTop: 2 }}>
+        <Box sx={{ borderRadius: 1, marginTop: 1 }}>
           <TableContainer
             ref={tableRef}
             component={Paper}
@@ -585,8 +622,8 @@ const CustomerRegister = () => {
               </TableHead>
 
               <TableBody>
-                {allCustomerData ? (
-                  sortedData()
+                {allCustomerData !== 0 ? (
+                  filteredData
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((item, index) => (
                       <TableRow
@@ -680,7 +717,7 @@ const CustomerRegister = () => {
                               }}
                             />
                           ) : (
-                            item.whatsAppNo
+                            item.whatsAppNo || "No Data"
                           )}
                         </TableCell>
 
@@ -731,7 +768,7 @@ const CustomerRegister = () => {
                               }}
                             />
                           ) : (
-                            item.discount
+                            item.discount || "No Data"
                           )}
                         </TableCell>
 
@@ -763,7 +800,7 @@ const CustomerRegister = () => {
                               }
                             />
                           ) : (
-                            item.discountCategory
+                            item.discountCategory || "No Data"
                           )}
                         </TableCell>
 
@@ -782,7 +819,7 @@ const CustomerRegister = () => {
                               }}
                             />
                           ) : (
-                            item.additionalCharge
+                            item.additionalCharge || "No Data"
                           )}
                         </TableCell>
 
@@ -823,7 +860,7 @@ const CustomerRegister = () => {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={allCustomerData?.length}
+            count={filteredData?.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
