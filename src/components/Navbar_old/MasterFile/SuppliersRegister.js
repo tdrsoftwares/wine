@@ -288,7 +288,6 @@ const SuppliersRegister = () => {
                 fullWidth
                 size="small"
                 name="name"
-                className="input-field"
                 value={formData.name}
                 onChange={handleSupplierChange}
               />
@@ -304,7 +303,6 @@ const SuppliersRegister = () => {
                 fullWidth
                 size="small"
                 name="address"
-                className="input-field"
                 value={formData.address}
                 onChange={handleSupplierChange}
               />
@@ -320,7 +318,6 @@ const SuppliersRegister = () => {
                 fullWidth
                 size="small"
                 name="contactNo"
-                className="input-field"
                 value={formData.contactNo}
                 onChange={handleMobileChange}
               />
@@ -335,7 +332,6 @@ const SuppliersRegister = () => {
                 fullWidth
                 size="small"
                 name="gstinNo"
-                className="input-field"
                 value={formData.gstinNo}
                 onChange={handleSupplierChange}
               />
@@ -350,7 +346,6 @@ const SuppliersRegister = () => {
                 fullWidth
                 size="small"
                 name="panNo"
-                className="input-field"
                 value={formData.panNo}
                 onChange={handleSupplierChange}
               />
@@ -365,7 +360,6 @@ const SuppliersRegister = () => {
                 fullWidth
                 size="small"
                 name="cinNo"
-                className="input-field"
                 value={formData.cinNo}
                 onChange={handleSupplierChange}
               />
@@ -381,50 +375,48 @@ const SuppliersRegister = () => {
                 size="small"
                 type="number"
                 name="openingBlance"
-                className="input-field"
                 value={formData.openingBlance}
                 onChange={handleSupplierChange}
               />
             </div>
           </Grid>
-        </Grid>
+          <Grid item xs={3}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+              }}
+            >
+              <Button
+                color="warning"
+                size="medium"
+                variant="outlined"
+                onClick={clearForm}
+                sx={{
+                  marginRight: 1,
+                  borderRadius: 8,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+              >
+                Clear
+              </Button>
+              <Button
+                color="primary"
+                size="medium"
+                variant="contained"
+                onClick={handleCreateSupplier}
+                sx={{
+                  borderRadius: 8,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+              >
+                Create
+              </Button>
+            </Box>
+          </Grid>
 
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-          }}
-        >
-          <Button
-            color="warning"
-            size="medium"
-            variant="outlined"
-            onClick={clearForm}
-            sx={{
-              marginRight: 1,
-              borderRadius: 8,
-              padding: "4px 10px",
-              fontSize: "11px",
-            }}
-          >
-            Clear
-          </Button>
-          <Button
-            color="primary"
-            size="medium"
-            variant="contained"
-            onClick={handleCreateSupplier}
-            sx={{
-              borderRadius: 8,
-              padding: "4px 10px",
-              fontSize: "11px",
-            }}
-          >
-            Create
-          </Button>
-        </Box>
-
-        <Grid container spacing={2}>
           <Grid item xs={3} sx={{ marginTop: 1 }}>
             <div className="input-wrapper">
               <InputLabel htmlFor="searchInput" className="input-label">
@@ -441,9 +433,9 @@ const SuppliersRegister = () => {
               />
             </div>
           </Grid>
-          </Grid>
+        </Grid>
 
-        <Box sx={{ borderRadius: 1, marginTop: 2 }}>
+        <Box sx={{ borderRadius: 1, marginTop: 1 }}>
           <TableContainer
             ref={tableRef}
             component={Paper}
