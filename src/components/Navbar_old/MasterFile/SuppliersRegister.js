@@ -388,10 +388,10 @@ const SuppliersRegister = () => {
               }}
             >
               <Button
-                color="warning"
+                color="primary"
                 size="medium"
-                variant="outlined"
-                onClick={clearForm}
+                variant="contained"
+                onClick={handleCreateSupplier}
                 sx={{
                   marginRight: 1,
                   borderRadius: 8,
@@ -399,21 +399,22 @@ const SuppliersRegister = () => {
                   fontSize: "11px",
                 }}
               >
-                Clear
+                Create
               </Button>
               <Button
-                color="primary"
+                color="warning"
                 size="medium"
-                variant="contained"
-                onClick={handleCreateSupplier}
+                variant="outlined"
+                onClick={clearForm}
                 sx={{
                   borderRadius: 8,
                   padding: "4px 10px",
                   fontSize: "11px",
                 }}
               >
-                Create
+                Clear
               </Button>
+              
             </Box>
           </Grid>
 

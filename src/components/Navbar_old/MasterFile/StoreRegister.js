@@ -224,14 +224,14 @@ const StoreRegister = () => {
   return (
     <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, width: "900px" }}>
-        <Typography variant="subtitle2" sx={{ marginBottom: 2 }}>
+        <Typography variant="subtitle2" sx={{ marginBottom: 1 }}>
           Create Store:
         </Typography>
 
         <Grid container spacing={2}>
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="storeName" className="input-label">
+              <InputLabel htmlFor="storeName" className="input-label" required>
                 Name of Store :
               </InputLabel>
               <TextField
@@ -247,7 +247,7 @@ const StoreRegister = () => {
 
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="type" className="input-label">
+              <InputLabel htmlFor="type" className="input-label" required>
                 Type :
               </InputLabel>
               <TextField
@@ -266,7 +266,7 @@ const StoreRegister = () => {
 
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="indexNo" className="input-label">
+              <InputLabel htmlFor="indexNo" className="input-label" required>
                 Index Number :
               </InputLabel>
               <TextField

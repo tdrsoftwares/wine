@@ -61,6 +61,7 @@ const ItemRegister = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const tableRef = useRef(null);
   const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState("");
 
   const clearForm = () => {
     setItemName("");
@@ -289,6 +290,28 @@ const ItemRegister = () => {
     setPage(0);
   };
 
+  useEffect(() => {
+    setPage(0);
+  }, [search]);
+
+  const filteredData = sortedData().filter((item) => {
+    const searchLower = search.toLowerCase();
+    return (
+      searchLower === "" ||
+      String(item.name).toLowerCase().includes(searchLower) ||
+      String(item.description).toLowerCase().includes(searchLower) ||
+      String(item.categoryId?.categoryName)
+        .toLowerCase()
+        .includes(searchLower) ||
+      String(item.subCategory).toLowerCase().includes(searchLower) ||
+      String(item.companyId?.name).toLowerCase().includes(searchLower) ||
+      String(item.brandId?.name).toLowerCase().includes(searchLower) ||
+      String(item.volume).toLowerCase().includes(searchLower) ||
+      String(item.group).toLowerCase().includes(searchLower) ||
+      String(item.caseValue).toLowerCase().includes(searchLower)
+    );
+  });
+
   return (
     <Box sx={{ p: 2, width: "900px" }}>
       <Typography variant="subtitle2" sx={{ marginBottom: 1 }}>
@@ -299,7 +322,7 @@ const ItemRegister = () => {
         <Grid container spacing={2}>
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="itemName" className="input-label">
+              <InputLabel htmlFor="itemName" className="input-label" required>
                 Item Name :
               </InputLabel>
               <TextField
@@ -316,7 +339,7 @@ const ItemRegister = () => {
 
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="description" className="input-label">
+              <InputLabel htmlFor="description" className="input-label" required>
                 Description :
               </InputLabel>
               <TextField
@@ -333,7 +356,7 @@ const ItemRegister = () => {
 
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="categoryId" className="input-label">
+              <InputLabel htmlFor="categoryId" className="input-label" required>
                 Category :
               </InputLabel>
               <TextField
@@ -366,7 +389,7 @@ const ItemRegister = () => {
 
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="subCategory" className="input-label">
+              <InputLabel htmlFor="subCategory" className="input-label" required>
                 Sub Category :
               </InputLabel>
               <TextField
@@ -397,7 +420,7 @@ const ItemRegister = () => {
 
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="companyId" className="input-label">
+              <InputLabel htmlFor="companyId" className="input-label" required>
                 Company :
               </InputLabel>
               <TextField
@@ -430,7 +453,7 @@ const ItemRegister = () => {
 
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="brandId" className="input-label">
+              <InputLabel htmlFor="brandId" className="input-label" required>
                 Brand :
               </InputLabel>
               <TextField
@@ -462,7 +485,7 @@ const ItemRegister = () => {
 
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="volume" className="input-label">
+              <InputLabel htmlFor="volume" className="input-label" required>
                 Volume :
               </InputLabel>
               <TextField
@@ -479,7 +502,7 @@ const ItemRegister = () => {
 
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="group" className="input-label">
+              <InputLabel htmlFor="group" className="input-label" required>
                 Group :
               </InputLabel>
               <TextField
@@ -503,7 +526,7 @@ const ItemRegister = () => {
 
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="caseValue" className="input-label">
+              <InputLabel htmlFor="caseValue" className="input-label" required>
                 Case Value :
               </InputLabel>
               <TextField
@@ -555,9 +578,26 @@ const ItemRegister = () => {
               </Button>
             </Box>
           </Grid>
+
+          <Grid item xs={3} sx={{ marginTop: 1 }}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="searchInput" className="input-label">
+                Search Here :
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                type="text"
+                name="searchInput"
+                placeholder="Enter your input..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+          </Grid>
         </Grid>
 
-        <Box sx={{ borderRadius: 1, marginTop: 2 }}>
+        <Box sx={{ borderRadius: 1, marginTop: 1 }}>
           <TableContainer
             ref={tableRef}
             component={Paper}
@@ -682,7 +722,7 @@ const ItemRegister = () => {
                     </TableCell>
                   </TableRow>
                 ) : allItems ? (
-                  sortedData()
+                  filteredData
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((item, index) => (
                       <TableRow
@@ -878,7 +918,7 @@ const ItemRegister = () => {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={allItems.length}
+            count={filteredData?.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
