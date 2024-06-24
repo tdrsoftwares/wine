@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import {
   Button,
@@ -24,6 +24,8 @@ function LoginForm({ handleLogin }) {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+
+  const customerIdRef = useRef(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -51,7 +53,7 @@ function LoginForm({ handleLogin }) {
       const response = await axios.post(`${url}/user/login`, { email, password, dbName: customerId });
 
       const { accessToken, refreshToken } = response.data.data;
-      console.log("accessToken: ", accessToken);
+      // console.log("accessToken: ", accessToken);
       document.cookie = `accessToken=${accessToken}; path=/;`;
       document.cookie = `refreshToken=${refreshToken}; path=/;`;
 
@@ -78,6 +80,10 @@ function LoginForm({ handleLogin }) {
     setShowPassword((prevShowPassword) => !prevShowPassword);
   };
 
+  useEffect(()=>{
+    customerIdRef.current.focus();
+  },[])
+
   return (
     <Container
       className="form-container"
@@ -95,6 +101,7 @@ function LoginForm({ handleLogin }) {
       <TextField
           fullWidth
           required
+          inputRef={customerIdRef}
           margin="dense"
           size="small"
           id="customerId"
