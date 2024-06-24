@@ -48,6 +48,7 @@ const SuppliersRegister = () => {
   const [sortBy, setSortBy] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
   const [page, setPage] = useState(0);
+  const [search, setSearch] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
@@ -252,6 +253,24 @@ const SuppliersRegister = () => {
     }
   };
 
+  useEffect(() => {
+    setPage(0);
+  }, [search]);
+
+  const filteredData = sortedData().filter((item) => {
+    const searchLower = search.toLowerCase();
+    return (
+      searchLower === "" ||
+      String(item.name).toLowerCase().includes(searchLower) ||
+      String(item.address).toLowerCase().includes(searchLower) ||
+      String(item.contactNo).toLowerCase().includes(searchLower) ||
+      String(item.gstinNo).toLowerCase().includes(searchLower) ||
+      String(item.panNo).toLowerCase().includes(searchLower) ||
+      String(item.cinNo).toLowerCase().includes(searchLower) ||
+      String(item.openingBlance).toLowerCase().includes(searchLower)
+    );
+  });
+
   return (
     <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, width: "900px" }}>
@@ -405,6 +424,25 @@ const SuppliersRegister = () => {
           </Button>
         </Box>
 
+        <Grid container spacing={2}>
+          <Grid item xs={3} sx={{ marginTop: 1 }}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="searchInput" className="input-label">
+                Search Here :
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                type="text"
+                name="searchInput"
+                placeholder="Enter your input..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+          </Grid>
+          </Grid>
+
         <Box sx={{ borderRadius: 1, marginTop: 2 }}>
           <TableContainer
             ref={tableRef}
@@ -500,7 +538,7 @@ const SuppliersRegister = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {sortedData()
+                {filteredData
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((supplier, index) => (
                     <TableRow
@@ -645,7 +683,7 @@ const SuppliersRegister = () => {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={allSuppliers.length}
+            count={filteredData?.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
