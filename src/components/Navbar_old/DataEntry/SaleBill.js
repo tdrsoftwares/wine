@@ -28,6 +28,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import debounce from "lodash.debounce";
 import {
   createSale,
+  getAllBillsBySeries,
   getSaleDetailsByEntryNo,
   removeSaleDetails,
   searchAllSalesByItemCode,
@@ -84,6 +85,8 @@ const SaleBill = () => {
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
   const [billNoEditable, setBillNoEditable] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [seriesData, setSeriesData] = useState([]);
+  const [seriesEditable, setSeriesEditable] = useState(false);
   const [totalValues, setTotalValues] = useState({
     totalVolume: "",
     totalPcs: "",
@@ -142,10 +145,10 @@ const SaleBill = () => {
       setAllCustomerData(allCustomerResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
-        "Error fetching brands. Please try again later.",
+        "Error fetching customers. Please try again later.",
         "Error"
       );
-      console.error("Error fetching brands:", error);
+      console.error("Error fetching customers:", error);
     }
   };
 
@@ -155,12 +158,36 @@ const SaleBill = () => {
       setAllLedgers(allLedgerResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
-        "Error fetching companies. Please try again later.",
+        "Error fetching ledgers. Please try again later.",
         "Error"
       );
-      console.error("Error fetching companies:", error);
+      console.error("Error fetching ledgers:", error);
     }
   };
+
+  const fetchAllBills = async () => {
+    try {
+      const allBills = await getAllBillsBySeries(formData.series);
+      // console.log("bill data: ", allBills)
+      if (allBills.status === 200) {
+        setSeriesData(allBills?.data?.data);
+      } else if (allBills.status === 404) {
+        NotificationManager.error("No bills found", "Error");
+        // setSeriesData([]);
+      }
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching bills. Please try again later.",
+        "Error"
+      );
+      setSeriesData([]);
+      console.error("Error fetching bills:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllBills();
+  }, [formData.series]);
 
   const isValidNumber = (value) => {
     return !isNaN(value) && parseFloat(value) >= 0;
@@ -181,7 +208,7 @@ const SaleBill = () => {
       address: "",
       phoneNo: "",
       billDate: todaysDate,
-      series: "",
+      // series: "",
     }));
   };
 
@@ -189,6 +216,7 @@ const SaleBill = () => {
     setFormData((prevFormData) => ({
       ...prevFormData,
       itemId: "",
+      itemDetailsId: "",
       itemCode: "",
       itemName: "",
       mrp: "",
@@ -199,6 +227,10 @@ const SaleBill = () => {
       split: "",
       discount: "",
       amount: "",
+      volume: "",
+      currentStock: "",
+      group: "",
+      stockAt: "",
     }));
   };
 
@@ -247,27 +279,51 @@ const SaleBill = () => {
       setIsLoading(true);
       const response = await searchAllSalesByItemCode(itemCode);
       const searchedItem = response?.data?.data[0];
+      const currentItemsStock = searchedItem.currentStock;
+
       // console.log("itemcode searchedItem: ", searchedItem);
+      // console.log("itemcode formData: ", formData);
 
       if (searchedItem) {
         const existingItemIndex = salesData.findIndex(
           (item) =>
             item.itemCode === searchedItem.itemCode &&
-            item.mrp === searchedItem.mrp &&
-            item.batch === searchedItem.batchNo
+          item.mrp === searchedItem.mrp &&
+          item.batch === searchedItem.batchNo
         );
 
         if (formData.billType === "CASHBILL") {
           // for exisiting item
           if (existingItemIndex !== -1) {
             const updatedSalesData = [...salesData];
-            updatedSalesData[existingItemIndex].pcs += 1;
-            updatedSalesData[existingItemIndex].amount =
-              updatedSalesData[existingItemIndex].pcs *
-              updatedSalesData[existingItemIndex].rate;
-            setSalesData(updatedSalesData);
+            
+            if (
+              updatedSalesData[existingItemIndex].pcs >= currentItemsStock
+            ) {
+              NotificationManager.warning(
+                `Out of Stock! Currently you have ${
+                  currentItemsStock || 0
+                }pcs in stock.`
+              );
+              return;
+            } else {
+              updatedSalesData[existingItemIndex].pcs += 1;
+              updatedSalesData[existingItemIndex].amount =
+                updatedSalesData[existingItemIndex].pcs *
+                updatedSalesData[existingItemIndex].rate;
+              setSalesData(updatedSalesData);
+              itemCodeRef.current.focus();
+            }
           } else {
             // for new item
+            if (currentItemsStock <= 0) {
+              NotificationManager.warning(
+                `Out of Stock! Currently you have ${
+                  searchedItem.currentStock || 0
+                }pcs in stock.`
+              );
+              return;
+            }
             setSalesData([
               ...salesData,
               {
@@ -286,25 +342,31 @@ const SaleBill = () => {
                 split: formData.split || 0,
                 amount: searchedItem?.mrp || 0,
                 stockAt: searchedItem?.store?._id,
+                group: searchedItem?.item?.group,
               },
             ]);
           }
-          resetMiddleFormData();
+          setFormData({...formData, itemCode: ""})
+          itemCodeRef.current.focus();
         } else {
           setFormData({
             ...formData,
             itemId: searchedItem?.itemId,
-            itemDetailsId: searchedItem?._id,
-            itemCode: searchedItem?.itemCode || 0,
-            itemName: searchedItem?.item?.name || 0,
-            mrp: searchedItem?.mrp || 0,
-            batch: searchedItem?.batchNo || 0,
-            pcs: formData.pcs || "",
-            rate: searchedItem?.mrp || 0,
-            currentStock: searchedItem?.currentStock || 0,
-            volume: searchedItem?.item?.volume || 0,
-            amount: searchedItem?.mrp || 0,
-            stockAt: searchedItem?.store?._id,
+                itemDetailsId: searchedItem?._id,
+                itemCode: searchedItem?.itemCode || 0,
+                itemName: searchedItem?.item?.name || 0,
+                mrp: searchedItem?.mrp || 0,
+                batch: searchedItem?.batchNo || 0,
+                pcs: formData.pcs,
+                rate: searchedItem?.mrp || 0,
+                currentStock: searchedItem?.currentStock || 0,
+                volume: searchedItem?.item?.volume || 0,
+                discount: formData.discount || 0,
+                brk: formData.brk || 0,
+                split: formData.split || 0,
+                amount: searchedItem?.mrp || 0,
+                stockAt: searchedItem?.store?._id,
+                group: searchedItem?.item?.group,
           });
           pcsRef.current.focus();
         }
@@ -496,6 +558,7 @@ const SaleBill = () => {
   const handleEdit = (index, field, value) => {
     const updatedRow = { ...salesData[index] };
 
+    // console.log("updatedRow: ", updatedRow);
     updatedRow[field] = value;
 
     if (
@@ -506,11 +569,11 @@ const SaleBill = () => {
     ) {
       if (field === "pcs") {
         if (updatedRow.pcs > formData.currentStock) {
-          NotificationManager.warning(
-            `Out of Stock! Currently you have ${
-              formData.currentStock || 0
-            }pcs in stock.`
-          );
+          // NotificationManager.warning(
+          //   `Out of Stock! Currently you have ${
+          //     formData.currentStock || 0
+          //   }pcs in stock.`
+          // );
         } else {
           updatedRow.amount = parseFloat(updatedRow.rate) * parseFloat(value);
         }
@@ -547,7 +610,7 @@ const SaleBill = () => {
   const handleRowClick = (index) => {
     const selectedRow = searchResults[index];
 
-    console.log("handleRowClick selectedRow: ", selectedRow);
+    // console.log("handleRowClick selectedRow: ", selectedRow);
     setFormData({
       ...formData,
       itemId: selectedRow.item?._id,
@@ -566,7 +629,7 @@ const SaleBill = () => {
     pcsRef.current.focus();
   };
 
-  // console.log("formData after row click: ", formData);
+  // console.log("formData.currentStock: ", formData.currentStock);
 
   const handleEditClick = (index) => {
     setEditableIndex(index);
@@ -579,14 +642,14 @@ const SaleBill = () => {
     const updatedRow = { ...updatedSales[index] };
     // console.log("updatedRow: ", updatedRow);
 
-    if (updatedRow.pcs > formData.currentStock) {
-      NotificationManager.warning(
-        `Out of Stock! Currently you have ${
-          formData.currentStock || 0
-        }pcs in stock.`
-      );
-      return;
-    }
+    // if (updatedRow.pcs > formData.currentStock) {
+    //   NotificationManager.warning(
+    //     `Out of Stock! Currently you have ${
+    //       formData.currentStock || 0
+    //     }pcs in stock.`
+    //   );
+    //   return;
+    // }
 
     for (const key in editedRow) {
       if (editedRow.hasOwnProperty(key)) {
@@ -1018,10 +1081,14 @@ const SaleBill = () => {
 
         setSearchMode(false);
       } else {
-        NotificationManager.error(
-          "Error updating Sale. Please try again later.",
-          "Error"
-        );
+        if (response.response.data.statusCode === 400) {
+          NotificationManager.error(response.response.data.message, "Error");
+        } else {
+          NotificationManager.error(
+            "Error updating Sale. Please try again later.",
+            "Error"
+          );
+        }
       }
     } catch (error) {
       console.error("Error updating sale:", error);
@@ -1032,13 +1099,13 @@ const SaleBill = () => {
     try {
       if (billNoEditable && formData.billno) {
         const response = await removeSaleDetails(formData.billno);
+        // console.log("del response: ", response);
         if (response.status === 200) {
-          // console.log("del response: ", response);
           NotificationManager.success("Sale deleted successfully.", "Success");
           resetTopFormData();
           resetMiddleFormData();
           resetTotalValues();
-
+          setSeriesEditable(true);
           setBillNoEditable(true);
           setSalesData([]);
           setEditedRow({});
@@ -1076,7 +1143,7 @@ const SaleBill = () => {
 
   const handleItemCodeChange = async (e) => {
     const itemCode = e.target.value;
-    setFormData({ ...formData, itemCode: itemCode });
+    setFormData({ ...formData, itemCode });
     await itemCodeSearch(itemCode);
     // console.log("search result: ", searchResults);
 
@@ -1180,7 +1247,10 @@ const SaleBill = () => {
   };
 
   const handlePrevClick = () => {
-    if (formData.billno && billNoEditable) {
+    if (
+      (formData.billno && billNoEditable) ||
+      (formData.billno && seriesData)
+    ) {
       const match = formData.billno.match(/^([A-Za-z]*)(\d+)$/);
       // console.log("match: ", match);
       if (match) {
@@ -1200,7 +1270,10 @@ const SaleBill = () => {
   };
 
   const handleNextClick = () => {
-    if (formData.billno && billNoEditable) {
+    if (
+      (formData.billno && billNoEditable) ||
+      (formData.billno && seriesData)
+    ) {
       const match = formData.billno.match(/^([A-Za-z]*)(\d+)$/);
       if (match) {
         const prefix = match[1];
@@ -1218,7 +1291,7 @@ const SaleBill = () => {
 
   const billNumberSearch = debounce(async () => {
     try {
-      if (formData.billno) {
+      if (seriesData && formData.billno) {
         const response = await getSaleDetailsByEntryNo(formData.billno);
 
         if (response?.data?.data) {
@@ -1233,7 +1306,6 @@ const SaleBill = () => {
             customerName: receivedData.customer,
             address: receivedData.customer?.address,
             phoneNo: receivedData.customer?.contactNo,
-            series: receivedData.billSeries,
             billDate: billDateObject,
           }));
 
@@ -1254,6 +1326,7 @@ const SaleBill = () => {
             volume: sale?.itemId?.volume,
             group: sale?.itemId?.group,
             stockAt: sale?.stockAt?._id,
+            currentStock: sale?.itemId?.stock
           }));
           // console.log("newSalesItems: ", newSalesItems);
 
@@ -1276,9 +1349,9 @@ const SaleBill = () => {
           });
         } else {
           // resetTopFormData();
-          // resetMiddleFormData();
-          // resetTotalValues();
-          // setSalesData([]);
+          resetMiddleFormData();
+          resetTotalValues();
+          setSalesData([]);
           NotificationManager.error("No sales details found!");
         }
       }
@@ -1370,14 +1443,17 @@ const SaleBill = () => {
   }, []);
 
   useEffect(() => {
-    if (formData.billno && billNoEditable) {
+    if (
+      (formData.billno && billNoEditable) ||
+      (formData.billno && seriesData)
+    ) {
       billNumberSearch(formData.billno);
     }
   }, [formData.billno]);
 
   return (
-    <Box component="form" sx={{ p: 2, width: "900px" }}>
-      <ThemeProvider theme={customTheme}>
+    <ThemeProvider theme={customTheme}>
+      <Box component="form" sx={{ p: 2, width: "900px" }}>
         <Grid container>
           <Grid item xs={3}>
             <div className="radio-buttons-wrapper">
@@ -1411,9 +1487,14 @@ const SaleBill = () => {
             </div>
           </Grid>
 
+          <Grid item xs={3}></Grid>
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="customerName" className="input-label">
+              <InputLabel
+                htmlFor="customerName"
+                className="input-label"
+                required
+              >
                 Customer :
               </InputLabel>
               <TextField
@@ -1438,7 +1519,7 @@ const SaleBill = () => {
 
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="address" className="input-label">
+              <InputLabel htmlFor="address" className="input-label" required>
                 Address :
               </InputLabel>
               <TextField
@@ -1457,7 +1538,7 @@ const SaleBill = () => {
 
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="phoneNo" className="input-label">
+              <InputLabel htmlFor="phoneNo" className="input-label" required>
                 Phone Number :
               </InputLabel>
               <TextField
@@ -1490,7 +1571,7 @@ const SaleBill = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, series: e.target.value })
                 }
-                disabled={formData.billType === "CREDITBILL" ? true : false}
+                disabled={!seriesEditable}
               >
                 {["A", "C"].map((item, id) => (
                   <MenuItem key={id} value={item}>
@@ -1500,14 +1581,25 @@ const SaleBill = () => {
               </TextField>
             </div>
           </Grid>
+
           <Grid item xs={1.5}>
             <div className="input-wrapper">
               <TextField
                 select
                 fullWidth
                 size="small"
-                defaultValue="select bill"
-              ></TextField>
+                value={formData.billno}
+                onChange={(e) =>
+                  setFormData({ ...formData, billno: e.target.value })
+                }
+                disabled={!seriesEditable}
+              >
+                {seriesData?.map((item) => (
+                  <MenuItem key={item._id} value={item.billNo}>
+                    {item.billNo}
+                  </MenuItem>
+                ))}
+              </TextField>
             </div>
           </Grid>
 
@@ -1524,17 +1616,19 @@ const SaleBill = () => {
                 className="entryNo-adjustment"
                 value={formData.billno}
                 onChange={handleBillNoChange}
-                disabled={!billNoEditable}
-                onKeyDown={(e) =>
-                  billNoEditable ?? handleEnterKey(e, billDateRef)
-                }
+                disabled={!billNoEditable && !seriesEditable}
+                onKeyDown={(e) => {
+                  if (billNoEditable && seriesEditable) {
+                    handleEnterKey(e, billDateRef);
+                  }
+                }}
               />
             </div>
           </Grid>
 
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="billDate" className="input-label">
+              <InputLabel htmlFor="billDate" className="input-label" required>
                 Bill Date :
               </InputLabel>
 
@@ -1553,9 +1647,7 @@ const SaleBill = () => {
             </div>
           </Grid>
         </Grid>
-      </ThemeProvider>
 
-      <ThemeProvider theme={customTheme}>
         <Box
           sx={{ p: 1.5, boxShadow: 2, borderRadius: 1, marginTop: 0.5 }}
           className="table-header"
@@ -2080,7 +2172,7 @@ const SaleBill = () => {
               />
             </Grid>
             <Grid item xs={1}>
-              <InputLabel className="input-label-2">Rect. Mode 1</InputLabel>
+              <InputLabel className="input-label-2">Cash</InputLabel>
               <TextField
                 inputRef={rectMode1Ref}
                 variant="outlined"
@@ -2092,7 +2184,7 @@ const SaleBill = () => {
               />
             </Grid>
             <Grid item xs={1.7}>
-              <InputLabel className="input-label-2">Rect. Mode 2</InputLabel>
+              <InputLabel className="input-label-2">Online</InputLabel>
               <TextField
                 select
                 inputRef={rectMode2Ref}
@@ -2116,7 +2208,7 @@ const SaleBill = () => {
               </TextField>
             </Grid>
             <Grid item xs={1}>
-              <InputLabel className="input-label-2">Receipt Amt</InputLabel>
+              <InputLabel className="input-label-2">Online Amt.</InputLabel>
               <TextField
                 inputRef={rectMode2AmtRef}
                 variant="outlined"
@@ -2209,137 +2301,178 @@ const SaleBill = () => {
             </Grid>
           </Grid>
         </Box>
-      </ThemeProvider>
 
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "flex-end",
-        }}
-      >
-        <Button
-          color="inherit"
-          size="medium"
-          variant="outlined"
-          onClick={(e) => {
-            setFormData((prevFormData) => ({
-              ...prevFormData,
-              billType: "CASHBILL",
-              customerName: "",
-              address: "",
-              phoneNo: "",
-              billDate: todaysDate,
-              series: "",
-              billno: "",
-            }));
-            resetMiddleFormData();
-            resetTotalValues();
-            setSalesData([]);
-            handleEnterKey(e, itemCodeRef);
-            setBillNoEditable(false);
-            setSearchMode(false);
-          }}
+        <Box
           sx={{
-            marginTop: 1,
-            marginRight: 1,
-            borderRadius: 8,
-            padding: "4px 10px",
-            fontSize: "11px",
+            display: "flex",
+            justifyContent: "space-between",
           }}
         >
-          CLEAR
-        </Button>
+          <Grid container spacing={1} sx={{ marginTop: 0.8 }}>
+            <Grid item xs={2.3}>
+              <div className="input-wrapper">
+                <InputLabel className="input-label">Total Sales:</InputLabel>
+                <TextField
+                  variant="outlined"
+                  size="small"
+                  // fullWidth
+                  // value={totalValues.adjustment}
+                  disabled
+                  // onKeyDown={(e) => handleEnterKey(e, netAmtRef)}
+                />
+              </div>
+            </Grid>
+            <Grid item xs={2.3}>
+              <div className="input-wrapper">
+                <InputLabel className="input-label">Total Cash:</InputLabel>
+                <TextField
+                  variant="outlined"
+                  size="small"
+                  // fullWidth
+                  // value={totalValues.adjustment}
+                  disabled
+                  // onKeyDown={(e) => handleEnterKey(e, netAmtRef)}
+                />
+              </div>
+            </Grid>
+            <Grid item xs={2.3}>
+              <div className="input-wrapper">
+                <InputLabel className="input-label">Total Online:</InputLabel>
+                <TextField
+                  variant="outlined"
+                  size="small"
+                  // fullWidth
+                  // value={totalValues.adjustment}
+                  disabled
+                  // onKeyDown={(e) => handleEnterKey(e, netAmtRef)}
+                />
+              </div>
+            </Grid>
 
-        <Button
-          color="success"
-          size="medium"
-          variant="outlined"
-          onClick={handlePrevClick}
-          sx={{
-            marginTop: 1,
-            marginRight: 1,
-            borderRadius: 8,
-            padding: "4px 10px",
-            fontSize: "11px",
-          }}
-        >
-          PREV PAGE
-        </Button>
-        <Button
-          color="secondary"
-          size="medium"
-          variant="outlined"
-          onClick={handleNextClick}
-          sx={{
-            marginTop: 1,
-            marginRight: 1,
-            borderRadius: 8,
-            padding: "4px 10px",
-            fontSize: "11px",
-          }}
-        >
-          NEXT PAGE
-        </Button>
+            <Grid
+              item
+              xs={5.1}
+              sx={{
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: "flex-end",
+              }}
+            >
+              <Button
+                color="inherit"
+                size="small"
+                variant="outlined"
+                onClick={(e) => {
+                  setFormData((prevFormData) => ({
+                    ...prevFormData,
+                    billType: "CASHBILL",
+                    customerName: "",
+                    address: "",
+                    phoneNo: "",
+                    billDate: todaysDate,
+                    billno: "",
+                  }));
+                  resetMiddleFormData();
+                  resetTotalValues();
+                  setSalesData([]);
+                  handleEnterKey(e, itemCodeRef);
+                  setBillNoEditable(false);
+                  setSeriesEditable(false);
+                  setSearchMode(false);
+                }}
+                sx={{
+                  marginRight: 1,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+              >
+                CLEAR
+              </Button>
 
-        <Button
-          color="error"
-          size="medium"
-          variant="contained"
-          onClick={handleDeleteSale}
-          sx={{
-            marginTop: 1,
-            marginRight: 1,
-            borderRadius: 8,
-            padding: "4px 10px",
-            fontSize: "11px",
-          }}
-        >
-          DELETE
-        </Button>
-        <Button
-          color="warning"
-          size="medium"
-          variant="contained"
-          onClick={() => {
-            billNoRef.current.focus();
-            setBillNoEditable(true);
-          }}
-          sx={{
-            marginTop: 1,
-            marginRight: 1,
-            borderRadius: 8,
-            padding: "4px 10px",
-            fontSize: "11px",
-          }}
-        >
-          OPEN
-        </Button>
-        <Button
-          ref={saveButtonRef}
-          color="success"
-          size="medium"
-          variant="contained"
-          onClick={() => {
-            if (!formData.billno) handleCreateSale();
-            else handleUpdateSale();
-          }}
-          sx={{
-            marginTop: 1,
-            borderRadius: 8,
-            padding: "4px 10px",
-            fontSize: "11px",
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              // handleCreateSale();
-              handleEnterKey(e, itemCodeRef);
-            }
-          }}
-        >
-          SAVE
-        </Button>
+              <Button
+                color="success"
+                size="small"
+                variant="outlined"
+                onClick={handlePrevClick}
+                sx={{
+                  marginRight: 1,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+              >
+                PREV PAGE
+              </Button>
+              <Button
+                color="secondary"
+                size="small"
+                variant="outlined"
+                onClick={handleNextClick}
+                sx={{
+                  marginRight: 1,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+              >
+                NEXT PAGE
+              </Button>
+
+              <Button
+                color="error"
+                size="small"
+                variant="contained"
+                onClick={handleDeleteSale}
+                sx={{
+                  marginRight: 1,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+              >
+                DELETE
+              </Button>
+              <Button
+                color="warning"
+                size="small"
+                variant="contained"
+                onClick={() => {
+                  billNoRef.current.focus();
+                  setBillNoEditable(true);
+                  setSeriesEditable(true);
+                }}
+                sx={{
+                  marginRight: 1,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+              >
+                OPEN
+              </Button>
+              <Button
+                ref={saveButtonRef}
+                color="success"
+                size="small"
+                variant="contained"
+                onClick={() => {
+                  if (!formData.billno) handleCreateSale();
+                  else handleUpdateSale();
+                }}
+                sx={{
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    // handleCreateSale();
+                    handleEnterKey(e, itemCodeRef);
+                  }
+                }}
+              >
+                SAVE
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
       </Box>
-    </Box>
+    </ThemeProvider>
   );
 };
 

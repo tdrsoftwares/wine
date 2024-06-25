@@ -41,7 +41,6 @@ const StockTransfer = () => {
   const [formData, setFormData] = useState({
     transferFrom: "",
     transferTo: "",
-    transferNo: "",
     transferDate: toDaysDate,
     itemId: "",
     itemDetailsId: "",
@@ -62,6 +61,8 @@ const StockTransfer = () => {
   const [editedRow, setEditedRow] = useState({});
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [transferNo, setTransferNo] = useState("");
+  const [transferNoEditable, setTransferNoEditable] = useState(false);
 
   const tableRef = useRef(null);
   const storeNameRef = useRef(null);
@@ -77,7 +78,7 @@ const StockTransfer = () => {
   const transferFromRef = useRef(null);
   const transferToRef = useRef(null);
   const transferDateRef = useRef(null);
-
+  const transferNoRef = useRef(null);
   const saveButtonRef = useRef(null);
   const clearButtonRef = useRef(null);
 
@@ -85,8 +86,7 @@ const StockTransfer = () => {
     setFormData({
       transferFrom: "",
       transferTo: "",
-      transferDate: toDaysDate,
-      transferNo: "",
+      transferDate: toDaysDate
     });
   };
 
@@ -240,11 +240,7 @@ const StockTransfer = () => {
           });
           setSearchMode(false);
           setSelectedRowIndex(null);
-          if (!selectedRow.itemCode) {
-            itemCodeRef.current.focus();
-          } else {
-            batchRef.current.focus();
-          }
+          caseRef.current.focus();
         }
       }
     };
@@ -404,11 +400,7 @@ const StockTransfer = () => {
       currentStock: selectedRow.currentStock,
     });
 
-    if (!selectedRow.itemCode) {
-      itemCodeRef.current.focus();
-    } else {
-      batchRef.current.focus();
-    }
+    caseRef.current.focus();
   };
 
   const handleRemoveClick = (index) => {
@@ -488,9 +480,11 @@ const StockTransfer = () => {
 
     try {
       const response = await createTransfer(payload);
+      console.log("response: ", response);
       if (response.status === 200) {
         NotificationManager.success("Transfer created successfully", "Success");
         setSearchMode(false);
+        setTransferNo(response.data.data.transferNo);
       } else {
         NotificationManager.error("Problem creating transfer", "Error");
       }
@@ -521,7 +515,7 @@ const StockTransfer = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, transferFrom: e.target.value })
                 }
-                onKeyDown={e => handleEnterKey(e, transferToRef)}
+                onKeyDown={(e) => handleEnterKey(e, transferToRef)}
               >
                 {allGodownStores?.map((store) => (
                   <MenuItem key={store._id} value={store._id}>
@@ -529,25 +523,6 @@ const StockTransfer = () => {
                   </MenuItem>
                 ))}
               </TextField>
-            </div>
-          </Grid>
-
-          <Grid item xs={3}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="transferNo" className="input-label">
-                Transfer No :
-              </InputLabel>
-              <TextField
-                fullWidth
-                name="transferNo"
-                value={formData.transferNo}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (!isNaN(value)) {
-                    setFormData({ ...formData, transferNo: e.target.value });
-                  }
-                }}
-              />
             </div>
           </Grid>
 
@@ -565,7 +540,7 @@ const StockTransfer = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, transferTo: e.target.value })
                 }
-                onKeyDown={e => handleEnterKey(e, transferDateRef)}
+                onKeyDown={(e) => handleEnterKey(e, transferDateRef)}
               >
                 {allNonGodownStores?.map((store) => (
                   <MenuItem key={store._id} value={store._id}>
@@ -573,6 +548,27 @@ const StockTransfer = () => {
                   </MenuItem>
                 ))}
               </TextField>
+            </div>
+          </Grid>
+
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="transferNo" className="input-label">
+                Transfer No :
+              </InputLabel>
+              <TextField
+                fullWidth
+                inputRef={transferNoRef}
+                name="transferNo"
+                value={transferNo}
+                disabled={!transferNoEditable}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (!isNaN(value)) {
+                    setTransferNo(value);
+                  }
+                }}
+              />
             </div>
           </Grid>
 
@@ -628,7 +624,19 @@ const StockTransfer = () => {
                 fullWidth
                 value={formData.itemName}
                 onChange={handleItemNameChange}
-                onKeyDown={(e) => handleEnterKey(e, mrpRef)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === "Tab") {
+                    if (
+                      transferData.length > 0 &&
+                      formData.itemCode.trim() === "" &&
+                      formData.itemName.trim() === ""
+                    ) {
+                      handleEnterKey(e, saveButtonRef);
+                    } else {
+                      handleEnterKey(e, mrpRef);
+                    }
+                  }
+                }}
               />
             </Grid>
             <Grid item xs={1.2}>
@@ -773,8 +781,7 @@ const StockTransfer = () => {
                     <TableCell align="center">Item Name</TableCell>
                     <TableCell align="center">MRP</TableCell>
                     <TableCell align="center">Batch</TableCell>
-                    <TableCell align="center">Case</TableCell>
-                    <TableCell align="center">Pcs</TableCell>
+                    <TableCell align="center">Current Stock</TableCell>
                     <TableCell align="center">Volume</TableCell>
                   </TableRow>
                 </TableHead>
@@ -813,9 +820,9 @@ const StockTransfer = () => {
                         <TableCell align="center" sx={{ padding: "14px" }}>
                           {row?.batchNo || 0}
                         </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
+                        {/* <TableCell align="center" sx={{ padding: "14px" }}>
                           {row?.case || 0}
-                        </TableCell>
+                        </TableCell> */}
                         <TableCell align="center" sx={{ padding: "14px" }}>
                           {row?.currentStock || 0}
                         </TableCell>
@@ -977,26 +984,47 @@ const StockTransfer = () => {
         <Box
           sx={{
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
           }}
         >
+          <Grid container spacing={1} sx={{ marginTop: 0.8 }}>
+            <Grid item xs={2.5}>
+              <div className="input-wrapper">
+                <InputLabel className="input-label">Total Pcs:</InputLabel>
+                <TextField
+                  variant="outlined"
+                  size="small"
+                  disabled
+                  // onKeyDown={(e) => handleEnterKey(e, netAmtRef)}
+                />
+              </div>
+            </Grid>
+            
+            
+            <Grid
+              item
+              xs={9.5}
+              sx={{
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: "flex-end",
+              }}
+            >
           <Button
             color="inherit"
-            size="medium"
+            size="small"
             variant="contained"
             onClick={(e) => {
               resetTopFormData();
               resetMiddleFormData();
-              // resetTotalValues();
+              setTransferNoEditable(false);
               setSearchMode(false);
               setTransferData([]);
               handleEnterKey(e, itemCodeRef);
               // setBillNoEditable(false);
             }}
             sx={{
-              marginTop: 1,
               marginRight: 1,
-              borderRadius: 8,
               padding: "4px 10px",
               fontSize: "11px",
             }}
@@ -1005,13 +1033,14 @@ const StockTransfer = () => {
           </Button>
           <Button
             color="warning"
-            size="medium"
+            size="small"
             variant="contained"
-            // onClick={handlePurchaseOpen}
+            onClick={() => {
+              setTransferNoEditable(true);
+              transferNoRef.current.focus();
+            }}
             sx={{
-              marginTop: 1,
               marginRight: 1,
-              borderRadius: 8,
               padding: "4px 10px",
               fontSize: "11px",
             }}
@@ -1021,13 +1050,11 @@ const StockTransfer = () => {
 
           <Button
             color="error"
-            size="medium"
+            size="small"
             variant="contained"
             onClick={() => {}}
             sx={{
-              marginTop: 1,
               marginRight: 1,
-              borderRadius: 8,
               padding: "4px 10px",
               fontSize: "11px",
             }}
@@ -1038,12 +1065,10 @@ const StockTransfer = () => {
           <Button
             ref={saveButtonRef}
             color="success"
-            size="medium"
+            size="small"
             variant="contained"
             onClick={handleCreateTransfer}
             sx={{
-              marginTop: 1,
-              borderRadius: 8,
               padding: "4px 10px",
               fontSize: "11px",
             }}
@@ -1056,6 +1081,8 @@ const StockTransfer = () => {
           >
             SAVE
           </Button>
+            </Grid>
+            </Grid>
         </Box>
       </Box>
     </ThemeProvider>

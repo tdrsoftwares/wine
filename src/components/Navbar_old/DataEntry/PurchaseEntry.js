@@ -313,6 +313,10 @@ const PurchaseEntry = () => {
     // console.log("editedRowCopy: ", editedRowCopy);
     editedRowCopy[field] = value;
 
+    if(field === "mrp") {
+      editedRowCopy.btlRate = editedRowCopy.mrp;
+    }
+
     if (
       field === "purchaseRate" ||
       field === "pcs" ||
@@ -942,53 +946,22 @@ const PurchaseEntry = () => {
   };
 
   const handleGROChange = (event) => {
-    const regex = /^\d*\.?\d*$/;
-
-    if (regex.test(event.target.value) || event.target.value === "") {
-      const newGROValue = parseFloat(event.target.value) || 0;
-      // const currentAmt = parseFloat(formData.amount) || 0;
-      // const updatedAmtValue = (
-      //   currentAmt -
-      //   parseFloat(formData.gro) +
-      //   newGROValue
-      // ).toFixed(2);
-
-      setFormData({ ...formData, gro: newGROValue });
+    const newGROValue = event.target.value === "" ? "" : parseFloat(event.target.value);
+    if (!isNaN(newGROValue) || event.target.value === "") {
+      setFormData({ ...formData, gro: event.target.value });
     }
   };
-
+  
   const handleSPChange = (event) => {
-    const regex = /^\d*\.?\d*$/;
-
-    if (regex.test(event.target.value) || event.target.value === "") {
-      const newSPValue = parseFloat(event.target.value) || 0;
-      // const currentAmt = parseFloat(formData.amount) || 0;
-      // const updatedAmtValue = (
-      //   currentAmt -
-      //   parseFloat(formData.sp) +
-      //   newSPValue
-      // ).toFixed(2);
-
-      setFormData({ ...formData, sp: newSPValue });
+    const newSPValue = event.target.value === "" ? "" : parseFloat(event.target.value);
+    if (!isNaN(newSPValue) || event.target.value === "") {
+      setFormData({ ...formData, sp: event.target.value });
     }
   };
 
   const handleDiscountChange = (event) => {
-    const discount = parseFloat(event.target.value) || 0;
+    const discount = parseFloat(event.target.value);
     setTotalValues((prevValues) => ({ ...prevValues, discount }));
-  };
-
-  const handleTcsChange = (event) => {
-    const tcs = parseFloat(event.target.value) || 1;
-    setTotalValues((prevValues) => ({ ...prevValues, tcs }));
-  };
-
-  const handleTotalMRPChanges = (event) => {
-    const newTotalMRPValue = parseFloat(event.target.value);
-    // setTotalValues((prevValues) => ({
-    //     ...prevValues,
-    //     totalMrp: newTotalMRPValue
-    // }));
   };
 
   const handleSDiscountChange = (event) => {
@@ -997,13 +970,21 @@ const PurchaseEntry = () => {
   };
 
   const handleGovtRateChange = (event) => {
-    const govtRate = parseFloat(event.target.value) || 0;
-    setTotalValues((prevValues) => ({ ...prevValues, govtRate }));
+    const govtRate = event.target.value === "" ? "" : parseFloat(event.target.value);
+    // console.log("govtRate: ", govtRate);
+
+    if (!isNaN(govtRate) || event.target.value === "") {
+      setTotalValues((prevValues) => ({ ...prevValues, govtRate: event.target.value }));
+    }
   };
 
   const handleSpcPurchasesChange = (event) => {
-    const spcPurpose = parseFloat(event.target.value) || 0;
-    setTotalValues((prevValues) => ({ ...prevValues, spcPurpose }));
+    const spcPurpose = event.target.value === "" ? "" : parseFloat(event.target.value);
+    // console.log("spcPurpose", spcPurpose)
+
+    if (!isNaN(spcPurpose) || event.target.value === "") {
+      setTotalValues((prevValues) => ({ ...prevValues, spcPurpose: event.target.value }));
+    }
   };
 
   const handlePurchaseOpen = () => {
@@ -1124,15 +1105,20 @@ const PurchaseEntry = () => {
     const sDiscount = parseFloat(totalValues.totalSDiscount) || 0;
     const grossAmt = grossAmount - sDiscount;
 
+    const tcsPercentage = parseFloat(totalValues.tcs) || 1;
+    const tcsAmt = (grossAmt * tcsPercentage) / 100;    
+
     const govtRate = parseFloat(totalValues.govtRate) || 0;
     const spcPurpose = parseFloat(totalValues.spcPurpose) || 0;
-    const netAmt = grossAmt + govtRate + spcPurpose;
-
+    let netAmt = grossAmt + govtRate + spcPurpose;
+    netAmt += tcsAmt;
     setTotalValues((prevValues) => ({ ...prevValues, grossAmt, netAmt }));
   }, [
     purchases,
+    totalValues.grossAmt,
     totalValues.totalSDiscount,
     totalValues.govtRate,
+    totalValues.tcs,
     totalValues.spcPurpose,
   ]);
 
@@ -1153,30 +1139,6 @@ const PurchaseEntry = () => {
       netAmt,
     }));
   }, [totalValues.tcs, totalValues.grossAmt, totalValues.discount]);
-
-  useEffect(() => {
-    const grossAmt = parseFloat(totalValues.grossAmt) || 0;
-    const govtRound = parseFloat(totalValues.govtRate) || 0;
-    const specialPurpose = parseFloat(totalValues.spcPurpose) || 0;
-
-    let netAmt = grossAmt + govtRound + specialPurpose;
-
-    const tcsPercentage = parseFloat(totalValues.tcs) || 1;
-    const tcsAmt = (grossAmt * tcsPercentage) / 100;
-
-    netAmt += tcsAmt;
-
-    setTotalValues((prevValues) => ({
-      ...prevValues,
-      netAmt,
-      tcsAmt,
-    }));
-  }, [
-    totalValues.grossAmt,
-    totalValues.govtRate,
-    totalValues.spcPurpose,
-    totalValues.tcs,
-  ]);
 
   useEffect(() => {
     // Calculating total government round off
@@ -1276,7 +1238,7 @@ const PurchaseEntry = () => {
         <Grid container>
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="supplierName" className="input-label">
+              <InputLabel htmlFor="supplierName" className="input-label" required>
                 Supplier Name :
               </InputLabel>
               <TextField
@@ -1310,7 +1272,7 @@ const PurchaseEntry = () => {
           </Grid>
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="passNo" className="input-label">
+              <InputLabel htmlFor="passNo" className="input-label" required>
                 Pass No :
               </InputLabel>
               <TextField
@@ -1328,7 +1290,7 @@ const PurchaseEntry = () => {
           </Grid>
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="passDate" className="input-label">
+              <InputLabel htmlFor="passDate" className="input-label" required>
                 Pass Date :
               </InputLabel>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -1349,7 +1311,7 @@ const PurchaseEntry = () => {
             <div className="input-wrapper">
               <InputLabel
                 htmlFor="stockIn"
-                className="input-label store-adjustment"
+                className="input-label store-adjustment" required
               >
                 Store Name :
               </InputLabel>
@@ -1399,7 +1361,7 @@ const PurchaseEntry = () => {
           </Grid>
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="billNo" className="input-label">
+              <InputLabel htmlFor="billNo" className="input-label" required>
                 Bill No :
               </InputLabel>
               <TextField
@@ -1417,7 +1379,7 @@ const PurchaseEntry = () => {
           </Grid>
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="billDate" className="input-label">
+              <InputLabel htmlFor="billDate" className="input-label" required>
                 Bill Date :
               </InputLabel>
 
@@ -1604,7 +1566,7 @@ const PurchaseEntry = () => {
                 onKeyDown={(e) => handleEnterKey(e, groRef)}
               />
             </Grid>
-            <Grid item xs={0.8}>
+            <Grid item xs={0.9}>
               <InputLabel className="input-label-2">GRO</InputLabel>
               <TextField
                 fullWidth
@@ -1613,6 +1575,7 @@ const PurchaseEntry = () => {
                 className="input-field"
                 value={formData.gro}
                 onChange={handleGROChange}
+                inputProps={{ pattern: "^\\d*\\.?\\d*$" }}
                 onKeyDown={(e) => handleEnterKey(e, spRef)}
               />
             </Grid>
@@ -1625,6 +1588,7 @@ const PurchaseEntry = () => {
                 className="input-field"
                 value={formData.sp}
                 onChange={handleSPChange}
+                inputProps={{ pattern: "^\\d*\\.?\\d*$" }}
                 onKeyDown={(e) => handleEnterKey(e, amountRef)}
               />
             </Grid>
@@ -2052,6 +2016,7 @@ const PurchaseEntry = () => {
                 fullWidth
                 value={totalValues.govtRate}
                 onChange={handleGovtRateChange}
+                inputProps={{ pattern: "^\\d*\\.?\\d*$" }}
                 onKeyDown={(e) => handleEnterKey(e, totalSPRef)}
               />
             </Grid>
@@ -2067,6 +2032,7 @@ const PurchaseEntry = () => {
                 fullWidth
                 value={totalValues.spcPurpose}
                 onChange={handleSpcPurchasesChange}
+                inputProps={{ pattern: "^\\d*\\.?\\d*$" }}
                 onKeyDown={(e) => handleEnterKey(e, tcsPercentRef)}
               />
             </Grid>
@@ -2092,7 +2058,7 @@ const PurchaseEntry = () => {
                 size="small"
                 className="input-field"
                 fullWidth
-                value={totalValues.tcsAmt}
+                value={parseFloat(totalValues.tcsAmt).toFixed(2)}
                 InputProps={{ readOnly: true }}
                 onKeyDown={(e) => handleEnterKey(e, grossAmountRef)}
               />
@@ -2105,7 +2071,7 @@ const PurchaseEntry = () => {
                 size="small"
                 className="input-field"
                 fullWidth
-                value={totalValues.grossAmt}
+                value={parseFloat(totalValues.grossAmt).toFixed(2)}
                 InputProps={{ readOnly: true }}
                 onKeyDown={(e) => handleEnterKey(e, totalDiscountRef)}
               />
@@ -2158,7 +2124,7 @@ const PurchaseEntry = () => {
                 size="small"
                 className="input-field"
                 fullWidth
-                value={totalValues.netAmt}
+                value={parseFloat(totalValues.netAmt).toFixed(2)}
                 InputProps={{ readOnly: true }}
                 onKeyDown={(e) => {
                   handleEnterKey(e, saveButtonRef);

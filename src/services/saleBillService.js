@@ -199,3 +199,12 @@ export const removeSaleDetails = async (billNo) => {
   }
 };
 
+export const getAllBillsBySeries = async (series) => {
+  try {
+    const apiURL = `/sales/bill-no/${encodeURIComponent(series)}`;
+    const allBillsData = await axiosInstance.get(apiURL);
+    return allBillsData;
+  } catch (error) {
+    return error;
+  }
+};
