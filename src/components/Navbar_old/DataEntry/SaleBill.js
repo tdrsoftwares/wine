@@ -40,7 +40,6 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { utc } from "dayjs";
-import customParseFormat from "dayjs/plugin/customParseFormat";
 import { customTheme } from "../../../utils/customTheme";
 
 const SaleBill = () => {
@@ -51,7 +50,7 @@ const SaleBill = () => {
   const [allLedgers, setAllLedgers] = useState([]);
 
   const todaysDate = dayjs();
-  console.log("salesData: ", salesData);
+  // console.log("salesData: ", salesData);
   const [searchMode, setSearchMode] = useState(false);
   const [formData, setFormData] = useState({
     barCode: "",
@@ -559,7 +558,7 @@ const SaleBill = () => {
   const handleEdit = (index, field, value) => {
     const updatedRow = { ...salesData[index] };
 
-    console.log("updatedRow: ", updatedRow);
+    // console.log("updatedRow: ", updatedRow);
     updatedRow[field] = value;
 
     if (
@@ -630,7 +629,7 @@ const SaleBill = () => {
     pcsRef.current.focus();
   };
 
-  console.log("formData: ", formData);
+  // console.log("formData: ", formData);
 
   const handleEditClick = (index) => {
     setEditableIndex(index);
@@ -1329,7 +1328,7 @@ const SaleBill = () => {
             stockAt: sale?.stockAt?._id,
             currentStock: sale?.itemDetailsId?.currentStock
           }));
-          console.log("newSalesItems: ", newSalesItems);
+          // console.log("newSalesItems: ", newSalesItems);
 
           setSalesData([...newSalesItems]);
 

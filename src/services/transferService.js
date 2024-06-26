@@ -72,3 +72,24 @@ export const getItemTransferDetails = async (filterOptions) => {
     return error;
   }
 };
+
+export const getTransferDetails = async (transferNo) => {
+  try {
+    const apiURL = `/stock-transfer/bill/${transferNo}`;
+    const gettransferData = await axiosInstance.get(apiURL);
+    return gettransferData;
+  } catch (error){
+    return error
+  }
+}
+
+
+export const removeTransferDetails = async (transferNo) => {
+  try {
+    const apiURL = `/stock-transfer/delete/${transferNo}`;
+    const removeDetails = await axiosInstance.delete(apiURL, transferNo);
+    return removeDetails;
+  } catch (error) {
+    return error;
+  }
+};

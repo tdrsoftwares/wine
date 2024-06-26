@@ -26,8 +26,10 @@ import { getAllStores } from "../../../services/storeService";
 import { NotificationManager } from "react-notifications";
 import {
   createTransfer,
+  getTransferDetails,
   getTransferDetailsByItemCode,
   getTransferDetailsByItemName,
+  removeTransferDetails,
 } from "../../../services/transferService";
 import debounce from "lodash.debounce";
 import CloseIcon from "@mui/icons-material/Close";
@@ -65,7 +67,6 @@ const StockTransfer = () => {
   const [transferNoEditable, setTransferNoEditable] = useState(false);
 
   const tableRef = useRef(null);
-  const storeNameRef = useRef(null);
   const itemCodeRef = useRef(null);
   const itemNameRef = useRef(null);
   const mrpRef = useRef(null);
@@ -80,7 +81,7 @@ const StockTransfer = () => {
   const transferDateRef = useRef(null);
   const transferNoRef = useRef(null);
   const saveButtonRef = useRef(null);
-  const clearButtonRef = useRef(null);
+  const newTransferRef = useRef(null);
 
   const resetTopFormData = () => {
     setFormData({
@@ -105,6 +106,10 @@ const StockTransfer = () => {
       category: "",
       volume: "",
     }));
+  };
+
+  const convertToDayjsObject = (dateStr) => {
+    return dayjs(dateStr, "DD/MM/YYYY");
   };
 
   const fetchAllStores = async () => {
@@ -430,6 +435,64 @@ const StockTransfer = () => {
     return formattedDate;
   };
 
+  const transferNoSearch = debounce(async () => {
+    try {
+      if (transferNo) {
+        const response = await getTransferDetails(transferNo);
+
+        if (response?.data?.data) {
+          const receivedData = response.data.data;
+
+          // console.log("transferNoSearch Data: ", receivedData);
+          const transferDateObject = convertToDayjsObject(receivedData.transferDate);
+
+          setFormData((prevData) => ({
+            ...prevData,
+            transferFrom: receivedData.transferFrom?._id,
+            transferTo: receivedData.transferTo?._id,
+            transferDate: transferDateObject,
+          }));
+
+          const stockTransferItems = receivedData?.stockTransferItems;
+          const newTransferItems = stockTransferItems.map((transfer) => ({
+            itemCode: transfer?.itemCode || 0,
+            itemDetailsId: transfer?._id,
+            itemId: transfer.itemId?._id,
+            itemName: transfer.itemId?.name || "",
+            mrp: transfer.mrp || 0,
+            batch: transfer.batchNo || 0,
+            pcs: transfer.pcs || 0,
+            case: transfer.case || 0,
+            volume: transfer.itemId?.volume || 0,
+            brand: transfer.itemId?.brandId?.name || "",
+            category: transfer.itemId?.categoryId?.categoryName || "",
+            // currentStock: transfer.itemId?.stock || 0
+          }));
+          // console.log("newTransferItems: ", newTransferItems);
+
+          setTransferData([...newTransferItems]);
+        } else {
+          resetTopFormData();
+          resetMiddleFormData();
+          setTransferData([]);
+          NotificationManager.error("No transfer details found!");
+        }
+      }
+    } catch (error) {
+      resetTopFormData();
+      resetMiddleFormData();
+      setTransferData([]);
+      NotificationManager.error("Error fetching transfer details!");
+      console.error("Error fetching transfer:", error);
+    }
+  }, 700);
+
+  useEffect(() => {
+    if (transferNo && transferNoEditable) {
+      transferNoSearch(transferNo);
+    }
+  }, [transferNo]);
+
   const handleCreateTransfer = async () => {
     const transferDateObj = formatDate(formData.transferDate);
 
@@ -480,10 +543,11 @@ const StockTransfer = () => {
 
     try {
       const response = await createTransfer(payload);
-      console.log("response: ", response);
+      // console.log("response: ", response);
       if (response.status === 200) {
         NotificationManager.success("Transfer created successfully", "Success");
         setSearchMode(false);
+        newTransferRef.current.focus();
         setTransferNo(response.data.data.transferNo);
       } else {
         NotificationManager.error("Problem creating transfer", "Error");
@@ -491,6 +555,67 @@ const StockTransfer = () => {
     } catch (err) {
       console.log(err);
     }
+  };
+
+  const handleDeleteTransfer = async () => {
+      try {
+        if (transferNoEditable && transferNo) {
+          const response = await removeTransferDetails(transferNo);
+          // console.log("del response: ", response);
+          if (response.status === 200) {
+            NotificationManager.success("Transfer deleted successfully.", "Success");
+            resetTopFormData();
+            resetMiddleFormData();
+            setTransferNoEditable(true);
+            setTransferData([]);
+            setEditedRow({});
+            setSelectedRowIndex(null);
+            setSearchMode(false);
+            setEditableIndex(-1);
+          } else {
+            console.log("error: ", response);
+            NotificationManager.error(
+              "Error deleting transfer. Please try again later.",
+              "Error"
+            );
+          }
+        } else {
+          if (!transferNoEditable && transferNo) {
+            NotificationManager.warning(
+              "Transfer No field is disabled!",
+              "Please click on Open Button to enable it."
+            );
+          }
+          if (transferNoEditable && !transferNo) {
+            NotificationManager.warning(
+              "Please input something in transfer no. field!"
+            );
+          }
+        }
+      } catch (error) {
+        NotificationManager.error(
+          "Error deleting transfer. Please try again later.",
+          "Error"
+        );
+        console.log(error);
+      }
+    
+  };
+
+  const handlePreviousTransfer = () => {
+    // console.log(transferNoEditable);
+    if (transferNo && transferNoEditable) {
+      if (parseInt(transferNo) > 1) {
+        // console.log("prev executing...");
+        setTransferNo(parseInt(transferNo) - 1);
+      }
+    }
+  };
+
+  const handleNextTransfer = () => {
+    if (transferNo && transferNoEditable)
+      // console.log("next executing...")
+      setTransferNo(parseInt(transferNo) + 1);
   };
 
   return (
@@ -1014,8 +1139,10 @@ const StockTransfer = () => {
             color="inherit"
             size="small"
             variant="contained"
+            ref={newTransferRef}
             onClick={(e) => {
               resetTopFormData();
+              setTransferNo("");
               resetMiddleFormData();
               setTransferNoEditable(false);
               setSearchMode(false);
@@ -1031,6 +1158,48 @@ const StockTransfer = () => {
           >
             New Transfer
           </Button>
+
+          <Button
+            color="success"
+            size="small"
+            variant="outlined"
+            onClick={handlePreviousTransfer}
+            sx={{
+              marginRight: 1,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
+          >
+            PREV PAGE
+          </Button>
+          <Button
+            color="secondary"
+            size="small"
+            variant="outlined"
+            onClick={handleNextTransfer}
+            sx={{
+              marginRight: 1,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
+          >
+            NEXT PAGE
+          </Button>
+
+          <Button
+            color="error"
+            size="small"
+            variant="contained"
+            onClick={handleDeleteTransfer}
+            sx={{
+              marginRight: 1,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
+          >
+            DELETE
+          </Button>
+
           <Button
             color="warning"
             size="small"
@@ -1046,20 +1215,6 @@ const StockTransfer = () => {
             }}
           >
             OPEN
-          </Button>
-
-          <Button
-            color="error"
-            size="small"
-            variant="contained"
-            onClick={() => {}}
-            sx={{
-              marginRight: 1,
-              padding: "4px 10px",
-              fontSize: "11px",
-            }}
-          >
-            DELETE
           </Button>
 
           <Button

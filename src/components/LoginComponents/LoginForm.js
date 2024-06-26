@@ -57,10 +57,13 @@ function LoginForm({ handleLogin }) {
       document.cookie = `accessToken=${accessToken}; path=/;`;
       document.cookie = `refreshToken=${refreshToken}; path=/;`;
 
-      NotificationManager.success("Login successful.", "Success");
-      handleLogin(email);
+      if(response.status === 200) {
+        NotificationManager.success("Login successful.", "Success");
+        handleLogin(email);
+      } else {
+        navigate("/");
+      }
 
-      navigate("/");
     } catch (error) {
       if (error.response && error.response.status === 401) {
         NotificationManager.error(
