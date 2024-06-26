@@ -51,7 +51,7 @@ const SaleBill = () => {
   const [allLedgers, setAllLedgers] = useState([]);
 
   const todaysDate = dayjs();
-  // console.log("salesData: ", salesData);
+  console.log("salesData: ", salesData);
   const [searchMode, setSearchMode] = useState(false);
   const [formData, setFormData] = useState({
     barCode: "",
@@ -497,6 +497,7 @@ const SaleBill = () => {
             volume: selectedRow.item?.volume || 0,
             currentStock: selectedRow.currentStock || 0,
             group: selectedRow.item?.group || "",
+            stockAt: selectedRow.store?._id,
           });
           pcsRef.current.focus();
           setSearchMode(false);
@@ -558,7 +559,7 @@ const SaleBill = () => {
   const handleEdit = (index, field, value) => {
     const updatedRow = { ...salesData[index] };
 
-    // console.log("updatedRow: ", updatedRow);
+    console.log("updatedRow: ", updatedRow);
     updatedRow[field] = value;
 
     if (
@@ -568,12 +569,12 @@ const SaleBill = () => {
       field === "amount"
     ) {
       if (field === "pcs") {
-        if (updatedRow.pcs > formData.currentStock) {
-          // NotificationManager.warning(
-          //   `Out of Stock! Currently you have ${
-          //     formData.currentStock || 0
-          //   }pcs in stock.`
-          // );
+        if (updatedRow.pcs > updatedRow.currentStock) {
+          NotificationManager.warning(
+            `Out of Stock! Currently you have ${
+              updatedRow.currentStock || 0
+            }pcs in stock.`
+          );
         } else {
           updatedRow.amount = parseFloat(updatedRow.rate) * parseFloat(value);
         }
@@ -629,7 +630,7 @@ const SaleBill = () => {
     pcsRef.current.focus();
   };
 
-  // console.log("formData.currentStock: ", formData.currentStock);
+  console.log("formData: ", formData);
 
   const handleEditClick = (index) => {
     setEditableIndex(index);
@@ -642,14 +643,14 @@ const SaleBill = () => {
     const updatedRow = { ...updatedSales[index] };
     // console.log("updatedRow: ", updatedRow);
 
-    // if (updatedRow.pcs > formData.currentStock) {
-    //   NotificationManager.warning(
-    //     `Out of Stock! Currently you have ${
-    //       formData.currentStock || 0
-    //     }pcs in stock.`
-    //   );
-    //   return;
-    // }
+    if (updatedRow.pcs > updatedRow.currentStock) {
+      NotificationManager.warning(
+        `Out of Stock! Currently you have ${
+          updatedRow.currentStock || 0
+        }pcs in stock.`
+      );
+      return;
+    }
 
     for (const key in editedRow) {
       if (editedRow.hasOwnProperty(key)) {
@@ -1115,14 +1116,14 @@ const SaleBill = () => {
         } else {
           console.log("error: ", response);
           NotificationManager.error(
-            "Error deleting Purchase. Please try again later.",
+            "Error deleting Sale. Please try again later.",
             "Error"
           );
         }
       } else {
         if (!billNoEditable && formData.billno) {
           NotificationManager.warning(
-            "Entry No field is disabled!",
+            "Bill no. field is disabled!",
             "Please click on Open Button to enable it."
           );
         }
@@ -1134,7 +1135,7 @@ const SaleBill = () => {
       }
     } catch (error) {
       NotificationManager.error(
-        "Error deleting Purchase. Please try again later.",
+        "Error deleting Sale. Please try again later.",
         "Error"
       );
       console.log(error);
@@ -1326,9 +1327,9 @@ const SaleBill = () => {
             volume: sale?.itemId?.volume,
             group: sale?.itemId?.group,
             stockAt: sale?.stockAt?._id,
-            currentStock: sale?.itemId?.stock
+            currentStock: sale?.itemDetailsId?.currentStock
           }));
-          // console.log("newSalesItems: ", newSalesItems);
+          console.log("newSalesItems: ", newSalesItems);
 
           setSalesData([...newSalesItems]);
 

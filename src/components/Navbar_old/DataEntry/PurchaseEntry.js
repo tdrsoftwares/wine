@@ -2149,7 +2149,7 @@ const PurchaseEntry = () => {
           <Button
             ref={clearButtonRef}
             color="inherit"
-            size="medium"
+            size="small"
             variant="outlined"
             onClick={(e) => {
               clearAllFields();
@@ -2158,7 +2158,6 @@ const PurchaseEntry = () => {
             sx={{
               marginTop: 1,
               marginRight: 1,
-              borderRadius: 8,
               padding: "4px 10px",
               fontSize: "11px",
             }}
@@ -2168,13 +2167,12 @@ const PurchaseEntry = () => {
 
           <Button
             color="success"
-            size="medium"
+            size="small"
             variant="outlined"
             onClick={handlePreviousEntryChange}
             sx={{
               marginTop: 1,
               marginRight: 1,
-              borderRadius: 8,
               padding: "4px 10px",
               fontSize: "11px",
             }}
@@ -2183,13 +2181,12 @@ const PurchaseEntry = () => {
           </Button>
           <Button
             color="secondary"
-            size="medium"
+            size="small"
             variant="outlined"
             onClick={handleNextEntryChange}
             sx={{
               marginTop: 1,
               marginRight: 1,
-              borderRadius: 8,
               padding: "4px 10px",
               fontSize: "11px",
             }}
@@ -2197,30 +2194,14 @@ const PurchaseEntry = () => {
             NEXT PAGE
           </Button>
 
-          {/* <Button
-            color="primary"
-            size="medium"
-            variant="outlined"
-            onClick={() => {}}
-            sx={{
-              marginTop: 1,
-              marginRight: 1,
-              borderRadius: 8,
-              padding: "4px 10px",
-              fontSize: "11px",
-            }}
-          >
-            EDIT
-          </Button> */}
           <Button
             color="error"
-            size="medium"
+            size="small"
             variant="contained"
             onClick={handleDeletePurchase}
             sx={{
               marginTop: 1,
               marginRight: 1,
-              borderRadius: 8,
               padding: "4px 10px",
               fontSize: "11px",
             }}
@@ -2229,13 +2210,12 @@ const PurchaseEntry = () => {
           </Button>
           <Button
             color="warning"
-            size="medium"
+            size="small"
             variant="contained"
             onClick={handlePurchaseOpen}
             sx={{
               marginTop: 1,
               marginRight: 1,
-              borderRadius: 8,
               padding: "4px 10px",
               fontSize: "11px",
             }}
@@ -2245,7 +2225,7 @@ const PurchaseEntry = () => {
           <Button
             ref={saveButtonRef}
             color="success"
-            size="medium"
+            size="small"
             variant="contained"
             onClick={() => {
               if (!entryNumber) handleCreatePurchase();
@@ -2253,7 +2233,6 @@ const PurchaseEntry = () => {
             }}
             sx={{
               marginTop: 1,
-              borderRadius: 8,
               padding: "4px 10px",
               fontSize: "11px",
             }}
