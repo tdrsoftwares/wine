@@ -109,7 +109,7 @@ const ItemRegister = () => {
       if (createItemResponse.status === 200) {
         NotificationManager.success("Item created successfully", "Success");
         clearForm();
-        fetchAllItems();
+        // fetchAllItems();
       } else {
         NotificationManager.error(
           "Error creating item. Please try again later.",
@@ -134,7 +134,7 @@ const ItemRegister = () => {
         NotificationManager.success("Item updated successfully", "Success");
         setEditableIndex(null);
         setEditedRow({});
-        fetchAllItems();
+        // fetchAllItems();
       } else {
         NotificationManager.error(
           "Error updating item. Please try again later.",
@@ -231,7 +231,7 @@ const ItemRegister = () => {
       const deleteItemResponse = await deleteItem(itemId);
       if (deleteItemResponse.status === 200) {
         NotificationManager.success("Item deleted successfully", "Success");
-        fetchAllItems();
+        // fetchAllItems();
       } else {
         NotificationManager.error(
           "Error deleting item. Please try again later.",
