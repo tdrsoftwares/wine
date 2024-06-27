@@ -55,7 +55,7 @@ const CustomerRegister = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [search, setSearch] = useState("");
 
-  // console.log("formData", formData);
+  console.log("allCustomerData", allCustomerData);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);

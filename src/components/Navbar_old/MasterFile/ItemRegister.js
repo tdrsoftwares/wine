@@ -52,7 +52,7 @@ const ItemRegister = () => {
   const [allItems, setAllItems] = useState([]);
   const [editableIndex, setEditableIndex] = useState(null);
   const [editedRow, setEditedRow] = useState({});
-  console.log("editedRow: ", editedRow);
+  // console.log("editedRow: ", editedRow);
   console.log("allItems -->  ", allItems);
 
   const [sortBy, setSortBy] = useState(null);
@@ -209,7 +209,7 @@ const ItemRegister = () => {
     fetchAllCategory();
     fetchAllBrands();
     fetchAllCompanies();
-    fetchAllItems();
+    // fetchAllItems();
   }, []);
 
   const handleClickOutside = (event) => {
@@ -339,7 +339,11 @@ const ItemRegister = () => {
 
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="description" className="input-label" required>
+              <InputLabel
+                htmlFor="description"
+                className="input-label"
+                required
+              >
                 Description :
               </InputLabel>
               <TextField
@@ -389,7 +393,11 @@ const ItemRegister = () => {
 
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="subCategory" className="input-label" required>
+              <InputLabel
+                htmlFor="subCategory"
+                className="input-label"
+                required
+              >
                 Sub Category :
               </InputLabel>
               <TextField
@@ -708,22 +716,14 @@ const ItemRegister = () => {
                   <TableCell style={{ minWidth: "100px" }}>Action</TableCell>
                 </TableRow>
               </TableHead>
+
               <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={11}
-                      align="center"
-                      sx={{
-                        backgroundColor: "#fff !important",
-                      }}
-                    >
-                      <CircularProgress />
-                    </TableCell>
-                  </TableRow>
-                ) : allItems ? (
+                {allItems.length > 0 ? (
                   filteredData
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    ?.slice(
+                      page * rowsPerPage,
+                      page * rowsPerPage + rowsPerPage
+                    )
                     .map((item, index) => (
                       <TableRow
                         key={index}
@@ -737,7 +737,7 @@ const ItemRegister = () => {
                         <TableCell>
                           {editableIndex === index ? (
                             <Input
-                              value={editedRow?.name}
+                              value={editedRow?.name || item?.name}
                               onChange={(e) =>
                                 setEditedRow({
                                   ...editedRow,
@@ -746,14 +746,14 @@ const ItemRegister = () => {
                               }
                             />
                           ) : (
-                            item?.name
+                            item?.name || "No Data"
                           )}
                         </TableCell>
 
                         <TableCell>
                           {editableIndex === index ? (
                             <Input
-                              value={editedRow.description}
+                              value={editedRow.description || item.description}
                               onChange={(e) =>
                                 setEditedRow({
                                   ...editedRow,
@@ -762,14 +762,14 @@ const ItemRegister = () => {
                               }
                             />
                           ) : (
-                            item.description
+                            item.description || "No Data"
                           )}
                         </TableCell>
 
                         <TableCell>
-                          {editableIndex === index ? (
+                          {/* {editableIndex === index ? (
                             <Input
-                              value={editedRow?.categoryId?.categoryName}
+                              value={editedRow?.categoryId?.categoryName || item?.categoryId?.categoryName}
                               onChange={(e) =>
                                 setEditedRow({
                                   ...editedRow,
@@ -781,14 +781,14 @@ const ItemRegister = () => {
                               }
                             />
                           ) : (
-                            item?.categoryId?.categoryName
-                          )}
+                            item?.categoryId?.categoryName || "No Data"
+                          )} */}
                         </TableCell>
 
                         <TableCell>
                           {editableIndex === index ? (
                             <Input
-                              value={editedRow.subCategory}
+                              value={editedRow.subCategory || item.subCategory}
                               onChange={(e) =>
                                 setEditedRow({
                                   ...editedRow,
@@ -797,14 +797,14 @@ const ItemRegister = () => {
                               }
                             />
                           ) : (
-                            item.subCategory
+                            item.subCategory || "No Data"
                           )}
                         </TableCell>
 
                         <TableCell>
-                          {editableIndex === index ? (
+                          {/* {editableIndex === index ? (
                             <Input
-                              value={editedRow?.companyId?.name}
+                              value={editedRow?.companyId?.name || item?.companyId?.name}
                               onChange={(e) =>
                                 setEditedRow({
                                   ...editedRow,
@@ -813,14 +813,14 @@ const ItemRegister = () => {
                               }
                             />
                           ) : (
-                            item?.companyId?.name
-                          )}
+                            item?.companyId?.name || "No Data"
+                          )} */}
                         </TableCell>
 
                         <TableCell>
-                          {editableIndex === index ? (
+                          {/* {editableIndex === index ? (
                             <Input
-                              value={editedRow?.brandId?.name}
+                              value={editedRow?.brandId?.name || item?.brandId?.name}
                               onChange={(e) =>
                                 setEditedRow({
                                   ...editedRow,
@@ -829,14 +829,14 @@ const ItemRegister = () => {
                               }
                             />
                           ) : (
-                            item?.brandId?.name
-                          )}
+                            item?.brandId?.name || "No Data"
+                          )} */}
                         </TableCell>
 
                         <TableCell>
                           {editableIndex === index ? (
                             <Input
-                              value={editedRow.volume}
+                              value={editedRow.volume || item.volume}
                               onChange={(e) =>
                                 setEditedRow({
                                   ...editedRow,
@@ -845,14 +845,14 @@ const ItemRegister = () => {
                               }
                             />
                           ) : (
-                            item.volume
+                            item.volume || 0
                           )}
                         </TableCell>
 
                         <TableCell>
                           {editableIndex === index ? (
                             <Input
-                              value={editedRow.group}
+                              value={editedRow.group || item.group}
                               onChange={(e) =>
                                 setEditedRow({
                                   ...editedRow,
@@ -861,14 +861,14 @@ const ItemRegister = () => {
                               }
                             />
                           ) : (
-                            item.group
+                            item.group || "No Data"
                           )}
                         </TableCell>
 
                         <TableCell>
                           {editableIndex === index ? (
                             <Input
-                              value={editedRow.caseValue}
+                              value={editedRow.caseValue || item.caseValue}
                               onChange={(e) =>
                                 setEditedRow({
                                   ...editedRow,
@@ -877,7 +877,7 @@ const ItemRegister = () => {
                               }
                             />
                           ) : (
-                            item.caseValue
+                            item.caseValue || 0
                           )}
                         </TableCell>
 

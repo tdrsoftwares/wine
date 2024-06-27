@@ -165,10 +165,11 @@ const StockTransfer = () => {
           batch: searchedItem.batchNo || 0,
           case: searchedItem.case || null,
           caseValue: searchedItem.item.caseValue || 0,
-          pcs: searchedItem.pcs || null,
-          volume: searchedItem.item?.volume,
+          pcs: searchedItem.pcs || 0,
+          volume: searchedItem.item?.volume || 0,
           brand: searchedItem.item?.brand?.name || "",
           category: searchedItem.item?.category?.categoryName || "",
+          currentStock: searchedItem.currentStock,
         });
 
       } else {

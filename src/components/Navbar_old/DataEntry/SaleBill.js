@@ -1343,9 +1343,9 @@ const SaleBill = () => {
             // totalMrp: receivedData.,
             adjustment: receivedData.adjustment,
             netAmt: receivedData.netAmount,
-            // receiptMode1: receivedData.,
+            receiptMode1: receivedData.receiptMode1,
             receiptMode2: receivedData.receiptMode2?._id,
-            // receiptAmt: receivedData.receiptMode2.amount,
+            receiptAmt: receivedData.receiptAmount,
           });
         } else {
           // resetTopFormData();
@@ -1415,7 +1415,7 @@ const SaleBill = () => {
       totalVolume: totalVolume.toFixed(2),
       totalPcs: totalPcs,
       grossAmt: grossAmt.toFixed(2),
-      receiptMode1: newNetAmount.toFixed(2),
+      receiptMode1: formData.billno ? totalValues.receiptMode1 : newNetAmount.toFixed(2),
       splDiscAmount: (splDiscAmount + totalDiscount).toFixed(0),
       discountAmt: totalDiscount.toFixed(0),
       netAmt: newNetAmount.toFixed(2),
@@ -1429,7 +1429,6 @@ const SaleBill = () => {
     salesData,
     totalValues.splDiscount,
     totalValues.discountAmt,
-    totalValues.receiptMode2,
     totalValues.taxAmt,
     totalValues.adjustment,
   ]);
