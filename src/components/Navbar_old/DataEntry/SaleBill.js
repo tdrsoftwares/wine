@@ -382,7 +382,7 @@ const SaleBill = () => {
     } finally {
       setIsLoading(false);
     }
-  }, 500);
+  }, 200);
 
   // const updateTotalDiscounts = (salesData) => {
   //   const totalDiscounts = salesData.reduce((total, item) => {
