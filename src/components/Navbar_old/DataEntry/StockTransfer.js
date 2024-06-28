@@ -87,7 +87,7 @@ const StockTransfer = () => {
     setFormData({
       transferFrom: "",
       transferTo: "",
-      transferDate: toDaysDate
+      transferDate: toDaysDate,
     });
   };
 
@@ -171,7 +171,6 @@ const StockTransfer = () => {
           category: searchedItem.item?.category?.categoryName || "",
           currentStock: searchedItem.currentStock,
         });
-
       } else {
         setSearchResults([]);
       }
@@ -258,11 +257,9 @@ const StockTransfer = () => {
     };
   }, [searchMode, formData.itemName, searchResults, selectedRowIndex]);
 
-
   useEffect(() => {
     fetchAllStores();
   }, []);
-
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -276,8 +273,6 @@ const StockTransfer = () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [formData]);
-
-
 
   useEffect(() => {
     if (transferDateRef.current) {
@@ -445,7 +440,9 @@ const StockTransfer = () => {
           const receivedData = response.data.data;
 
           // console.log("transferNoSearch Data: ", receivedData);
-          const transferDateObject = convertToDayjsObject(receivedData.transferDate);
+          const transferDateObject = convertToDayjsObject(
+            receivedData.transferDate
+          );
 
           setFormData((prevData) => ({
             ...prevData,
@@ -497,25 +494,19 @@ const StockTransfer = () => {
   const handleCreateTransfer = async () => {
     const transferDateObj = formatDate(formData.transferDate);
 
-    if (
-      !formData.transferFrom 
-    ) {
+    if (!formData.transferFrom) {
       NotificationManager.warning("Please input in Transfer From field.");
       transferFromRef.current.focus();
       return;
     }
-    
-    if (
-      !formData.transferTo 
-    ) {
+
+    if (!formData.transferTo) {
       NotificationManager.warning("Please input in Transfer To field.");
       transferToRef.current.focus();
       return;
     }
 
-    if (
-      !formData.transferDate
-    ) {
+    if (!formData.transferDate) {
       NotificationManager.warning("Please input in Transfer Date field.");
       transferDateRef.current.focus();
       return;
@@ -559,48 +550,50 @@ const StockTransfer = () => {
   };
 
   const handleDeleteTransfer = async () => {
-      try {
-        if (transferNoEditable && transferNo) {
-          const response = await removeTransferDetails(transferNo);
-          // console.log("del response: ", response);
-          if (response.status === 200) {
-            NotificationManager.success("Transfer deleted successfully.", "Success");
-            resetTopFormData();
-            resetMiddleFormData();
-            setTransferNoEditable(true);
-            setTransferData([]);
-            setEditedRow({});
-            setSelectedRowIndex(null);
-            setSearchMode(false);
-            setEditableIndex(-1);
-          } else {
-            console.log("error: ", response);
-            NotificationManager.error(
-              "Error deleting transfer. Please try again later.",
-              "Error"
-            );
-          }
+    try {
+      if (transferNoEditable && transferNo) {
+        const response = await removeTransferDetails(transferNo);
+        // console.log("del response: ", response);
+        if (response.status === 200) {
+          NotificationManager.success(
+            "Transfer deleted successfully.",
+            "Success"
+          );
+          resetTopFormData();
+          resetMiddleFormData();
+          setTransferNoEditable(true);
+          setTransferData([]);
+          setEditedRow({});
+          setSelectedRowIndex(null);
+          setSearchMode(false);
+          setEditableIndex(-1);
         } else {
-          if (!transferNoEditable && transferNo) {
-            NotificationManager.warning(
-              "Transfer No field is disabled!",
-              "Please click on Open Button to enable it."
-            );
-          }
-          if (transferNoEditable && !transferNo) {
-            NotificationManager.warning(
-              "Please input something in transfer no. field!"
-            );
-          }
+          console.log("error: ", response);
+          NotificationManager.error(
+            "Error deleting transfer. Please try again later.",
+            "Error"
+          );
         }
-      } catch (error) {
-        NotificationManager.error(
-          "Error deleting transfer. Please try again later.",
-          "Error"
-        );
-        console.log(error);
+      } else {
+        if (!transferNoEditable && transferNo) {
+          NotificationManager.warning(
+            "Transfer No field is disabled!",
+            "Please click on Open Button to enable it."
+          );
+        }
+        if (transferNoEditable && !transferNo) {
+          NotificationManager.warning(
+            "Please input something in transfer no. field!"
+          );
+        }
       }
-    
+    } catch (error) {
+      NotificationManager.error(
+        "Error deleting transfer. Please try again later.",
+        "Error"
+      );
+      console.log(error);
+    }
   };
 
   const handlePreviousTransfer = () => {
@@ -1125,8 +1118,7 @@ const StockTransfer = () => {
                 />
               </div>
             </Grid>
-            
-            
+
             <Grid
               item
               xs={9.5}
@@ -1136,109 +1128,109 @@ const StockTransfer = () => {
                 justifyContent: "flex-end",
               }}
             >
-          <Button
-            color="inherit"
-            size="small"
-            variant="contained"
-            ref={newTransferRef}
-            onClick={(e) => {
-              resetTopFormData();
-              setTransferNo("");
-              resetMiddleFormData();
-              setTransferNoEditable(false);
-              setSearchMode(false);
-              setTransferData([]);
-              handleEnterKey(e, itemCodeRef);
-              // setBillNoEditable(false);
-            }}
-            sx={{
-              marginRight: 1,
-              padding: "4px 10px",
-              fontSize: "11px",
-            }}
-          >
-            New Transfer
-          </Button>
+              <Button
+                color="inherit"
+                size="small"
+                variant="contained"
+                ref={newTransferRef}
+                onClick={(e) => {
+                  resetTopFormData();
+                  setTransferNo("");
+                  resetMiddleFormData();
+                  setTransferNoEditable(false);
+                  setSearchMode(false);
+                  setTransferData([]);
+                  handleEnterKey(e, itemCodeRef);
+                  // setBillNoEditable(false);
+                }}
+                sx={{
+                  marginRight: 1,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+              >
+                New Transfer
+              </Button>
 
-          <Button
-            color="success"
-            size="small"
-            variant="outlined"
-            onClick={handlePreviousTransfer}
-            sx={{
-              marginRight: 1,
-              padding: "4px 10px",
-              fontSize: "11px",
-            }}
-          >
-            PREV PAGE
-          </Button>
-          <Button
-            color="secondary"
-            size="small"
-            variant="outlined"
-            onClick={handleNextTransfer}
-            sx={{
-              marginRight: 1,
-              padding: "4px 10px",
-              fontSize: "11px",
-            }}
-          >
-            NEXT PAGE
-          </Button>
+              <Button
+                color="success"
+                size="small"
+                variant="outlined"
+                onClick={handlePreviousTransfer}
+                sx={{
+                  marginRight: 1,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+              >
+                PREV BILL
+              </Button>
+              <Button
+                color="secondary"
+                size="small"
+                variant="outlined"
+                onClick={handleNextTransfer}
+                sx={{
+                  marginRight: 1,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+              >
+                NEXT BILL
+              </Button>
 
-          <Button
-            color="error"
-            size="small"
-            variant="contained"
-            onClick={handleDeleteTransfer}
-            sx={{
-              marginRight: 1,
-              padding: "4px 10px",
-              fontSize: "11px",
-            }}
-          >
-            DELETE
-          </Button>
+              <Button
+                color="error"
+                size="small"
+                variant="contained"
+                onClick={handleDeleteTransfer}
+                sx={{
+                  marginRight: 1,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+              >
+                DELETE
+              </Button>
 
-          <Button
-            color="warning"
-            size="small"
-            variant="contained"
-            onClick={() => {
-              setTransferNoEditable(true);
-              transferNoRef.current.focus();
-            }}
-            sx={{
-              marginRight: 1,
-              padding: "4px 10px",
-              fontSize: "11px",
-            }}
-          >
-            OPEN
-          </Button>
+              <Button
+                color="warning"
+                size="small"
+                variant="contained"
+                onClick={() => {
+                  setTransferNoEditable(true);
+                  transferNoRef.current.focus();
+                }}
+                sx={{
+                  marginRight: 1,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+              >
+                OPEN
+              </Button>
 
-          <Button
-            ref={saveButtonRef}
-            color="success"
-            size="small"
-            variant="contained"
-            onClick={handleCreateTransfer}
-            sx={{
-              padding: "4px 10px",
-              fontSize: "11px",
-            }}
-            // onKeyDown={(e) => {
-            //   if (e.key === "Enter") {
-            //     handleCreateSale();
-            //     handleEnterKey(e, itemCodeRef);
-            //   }
-            // }}
-          >
-            SAVE
-          </Button>
+              <Button
+                ref={saveButtonRef}
+                color="success"
+                size="small"
+                variant="contained"
+                onClick={handleCreateTransfer}
+                sx={{
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+                // onKeyDown={(e) => {
+                //   if (e.key === "Enter") {
+                //     handleCreateSale();
+                //     handleEnterKey(e, itemCodeRef);
+                //   }
+                // }}
+              >
+                SAVE
+              </Button>
             </Grid>
-            </Grid>
+          </Grid>
         </Box>
       </Box>
     </ThemeProvider>

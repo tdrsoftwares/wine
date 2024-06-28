@@ -100,8 +100,6 @@ const PurchaseEntry = () => {
   const [editedRow, setEditedRow] = useState({});
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
   const [isRowUpdated, setIsRowUpdated] = useState(false);
-  // console.log("isRowUpdated: ",  isRowUpdated)
-
 
   const tableRef = useRef(null);
   const supplierNameRef = useRef(null);
@@ -315,7 +313,7 @@ const PurchaseEntry = () => {
     // console.log("editedRowCopy: ", editedRowCopy);
     editedRowCopy[field] = value;
 
-    if(field === "mrp") {
+    if (field === "mrp") {
       editedRowCopy.btlRate = editedRowCopy.mrp;
     }
 
@@ -547,7 +545,6 @@ const PurchaseEntry = () => {
     }
   }, 700);
 
-
   const handleRowClick = (index) => {
     const selectedRow = searchResults[index];
 
@@ -628,7 +625,7 @@ const PurchaseEntry = () => {
       return;
     }
 
-    setPurchases([...purchases, {...formData, btlRate: formData.mrp}]);
+    setPurchases([...purchases, { ...formData, btlRate: formData.mrp }]);
     // setPurchases([...purchases, formData]);
     resetMiddleFormData();
     handleEnterKey(e, itemCodeRef);
@@ -952,14 +949,16 @@ const PurchaseEntry = () => {
   };
 
   const handleGROChange = (event) => {
-    const newGROValue = event.target.value === "" ? "" : parseFloat(event.target.value);
+    const newGROValue =
+      event.target.value === "" ? "" : parseFloat(event.target.value);
     if (!isNaN(newGROValue) || event.target.value === "") {
       setFormData({ ...formData, gro: event.target.value });
     }
   };
-  
+
   const handleSPChange = (event) => {
-    const newSPValue = event.target.value === "" ? "" : parseFloat(event.target.value);
+    const newSPValue =
+      event.target.value === "" ? "" : parseFloat(event.target.value);
     if (!isNaN(newSPValue) || event.target.value === "") {
       setFormData({ ...formData, sp: event.target.value });
     }
@@ -976,20 +975,28 @@ const PurchaseEntry = () => {
   };
 
   const handleGovtRateChange = (event) => {
-    const govtRate = event.target.value === "" ? "" : parseFloat(event.target.value);
+    const govtRate =
+      event.target.value === "" ? "" : parseFloat(event.target.value);
     // console.log("govtRate: ", govtRate);
 
     if (!isNaN(govtRate) || event.target.value === "") {
-      setTotalValues((prevValues) => ({ ...prevValues, govtRate: event.target.value }));
+      setTotalValues((prevValues) => ({
+        ...prevValues,
+        govtRate: event.target.value,
+      }));
     }
   };
 
   const handleSpcPurchasesChange = (event) => {
-    const spcPurpose = event.target.value === "" ? "" : parseFloat(event.target.value);
+    const spcPurpose =
+      event.target.value === "" ? "" : parseFloat(event.target.value);
     // console.log("spcPurpose", spcPurpose)
 
     if (!isNaN(spcPurpose) || event.target.value === "") {
-      setTotalValues((prevValues) => ({ ...prevValues, spcPurpose: event.target.value }));
+      setTotalValues((prevValues) => ({
+        ...prevValues,
+        spcPurpose: event.target.value,
+      }));
     }
   };
 
@@ -1112,7 +1119,7 @@ const PurchaseEntry = () => {
     const grossAmt = grossAmount - sDiscount;
 
     const tcsPercentage = parseFloat(totalValues.tcs) || 1;
-    const tcsAmt = (grossAmt * tcsPercentage) / 100;    
+    const tcsAmt = (grossAmt * tcsPercentage) / 100;
 
     const govtRate = parseFloat(totalValues.govtRate) || 0;
     const spcPurpose = parseFloat(totalValues.spcPurpose) || 0;
@@ -1162,18 +1169,18 @@ const PurchaseEntry = () => {
     }, 0);
 
     // Updating total special purpose and gro in totalValues
-    if(!entryNumber || isRowUpdated) {
-      console.log("exc...")
-      if(totalGro) {
+    if (!entryNumber || isRowUpdated) {
+      console.log("exc...");
+      if (totalGro) {
         setTotalValues((prevValues) => ({
           ...prevValues,
-          govtRate: totalGro.toFixed(2)
+          govtRate: totalGro.toFixed(2),
         }));
-      } 
+      }
       if (totalSP) {
         setTotalValues((prevValues) => ({
           ...prevValues,
-          spcPurpose: totalSP.toFixed(2)
+          spcPurpose: totalSP.toFixed(2),
         }));
       }
     }
@@ -1254,7 +1261,11 @@ const PurchaseEntry = () => {
         <Grid container>
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="supplierName" className="input-label" required>
+              <InputLabel
+                htmlFor="supplierName"
+                className="input-label"
+                required
+              >
                 Supplier Name :
               </InputLabel>
               <TextField
@@ -1327,7 +1338,8 @@ const PurchaseEntry = () => {
             <div className="input-wrapper">
               <InputLabel
                 htmlFor="stockIn"
-                className="input-label store-adjustment" required
+                className="input-label store-adjustment"
+                required
               >
                 Store Name :
               </InputLabel>
@@ -2193,7 +2205,7 @@ const PurchaseEntry = () => {
               fontSize: "11px",
             }}
           >
-            PREV PAGE
+            PREV BILL
           </Button>
           <Button
             color="secondary"
@@ -2207,7 +2219,7 @@ const PurchaseEntry = () => {
               fontSize: "11px",
             }}
           >
-            NEXT PAGE
+            NEXT BILL
           </Button>
 
           <Button

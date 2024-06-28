@@ -88,6 +88,8 @@ const SaleBill = () => {
   const [seriesEditable, setSeriesEditable] = useState(false);
   const [totalValues, setTotalValues] = useState({
     totalVolume: "",
+    flBeerVolume: "",
+    imlVolume: "",
     totalPcs: "",
     splDiscount: "",
     splDiscAmount: "",
@@ -123,7 +125,8 @@ const SaleBill = () => {
   const discountRef = useRef(null);
   const splitRef = useRef(null);
   const amountRef = useRef(null);
-  const totalVolRef = useRef(null);
+  const flBeerVolRef = useRef(null);
+  const imlVolRef = useRef(null);
   const totalPcsRef = useRef(null);
   const grossAmtRef = useRef(null);
   const rectMode1Ref = useRef(null);
@@ -237,6 +240,8 @@ const SaleBill = () => {
     setTotalValues((prevData) => ({
       ...prevData,
       totalVolume: "",
+      flBeerVolume: "",
+      imlVolume: "",
       totalPcs: "",
       splDiscount: "",
       splDiscAmount: "",
@@ -287,18 +292,16 @@ const SaleBill = () => {
         const existingItemIndex = salesData.findIndex(
           (item) =>
             item.itemCode === searchedItem.itemCode &&
-          item.mrp === searchedItem.mrp &&
-          item.batch === searchedItem.batchNo
+            item.mrp === searchedItem.mrp &&
+            item.batch === searchedItem.batchNo
         );
 
         if (formData.billType === "CASHBILL") {
           // for exisiting item
           if (existingItemIndex !== -1) {
             const updatedSalesData = [...salesData];
-            
-            if (
-              updatedSalesData[existingItemIndex].pcs >= currentItemsStock
-            ) {
+
+            if (updatedSalesData[existingItemIndex].pcs >= currentItemsStock) {
               NotificationManager.warning(
                 `Out of Stock! Currently you have ${
                   currentItemsStock || 0
@@ -345,38 +348,30 @@ const SaleBill = () => {
               },
             ]);
           }
-          setFormData({...formData, itemCode: ""})
+          setFormData({ ...formData, itemCode: "" });
           itemCodeRef.current.focus();
         } else {
           setFormData({
             ...formData,
             itemId: searchedItem?.itemId,
-                itemDetailsId: searchedItem?._id,
-                itemCode: searchedItem?.itemCode || 0,
-                itemName: searchedItem?.item?.name || 0,
-                mrp: searchedItem?.mrp || 0,
-                batch: searchedItem?.batchNo || 0,
-                pcs: formData.pcs,
-                rate: searchedItem?.mrp || 0,
-                currentStock: searchedItem?.currentStock || 0,
-                volume: searchedItem?.item?.volume || 0,
-                discount: formData.discount || 0,
-                brk: formData.brk || 0,
-                split: formData.split || 0,
-                amount: searchedItem?.mrp || 0,
-                stockAt: searchedItem?.store?._id,
-                group: searchedItem?.item?.group,
+            itemDetailsId: searchedItem?._id,
+            itemCode: searchedItem?.itemCode || 0,
+            itemName: searchedItem?.item?.name || 0,
+            mrp: searchedItem?.mrp || 0,
+            batch: searchedItem?.batchNo || 0,
+            pcs: formData.pcs,
+            rate: searchedItem?.mrp || 0,
+            currentStock: searchedItem?.currentStock || 0,
+            volume: searchedItem?.item?.volume || 0,
+            discount: formData.discount || 0,
+            brk: formData.brk || 0,
+            split: formData.split || 0,
+            amount: searchedItem?.mrp || 0,
+            stockAt: searchedItem?.store?._id,
+            group: searchedItem?.item?.group,
           });
           pcsRef.current.focus();
         }
-
-        // setTotalValues({
-        //   ...totalValues,
-        //   totalVolume: formData.volume,
-        //   grossAmt: formData.amount,
-        //   receiptMode1: formData.amount,
-        //   netAmt: formData.amount,
-        // });
       } else {
         setSearchResults([]);
       }
@@ -785,7 +780,7 @@ const SaleBill = () => {
 
     if (salesData.length === 0) {
       NotificationManager.warning("Enter some item in table.", "Warning");
-      itemNameRef.current.focus();
+      itemCodeRef.current.focus();
       return;
     }
 
@@ -945,7 +940,7 @@ const SaleBill = () => {
 
     if (salesData.length === 0) {
       NotificationManager.warning("Enter some item in table.", "Warning");
-      itemNameRef.current.focus();
+      itemCodeRef.current.focus();
       return;
     }
 
@@ -1326,7 +1321,7 @@ const SaleBill = () => {
             volume: sale?.itemId?.volume,
             group: sale?.itemId?.group,
             stockAt: sale?.stockAt?._id,
-            currentStock: sale?.itemDetailsId?.currentStock
+            currentStock: sale?.itemDetailsId?.currentStock,
           }));
           // console.log("newSalesItems: ", newSalesItems);
 
@@ -1372,6 +1367,26 @@ const SaleBill = () => {
       0
     );
 
+    const flBeerVolume = salesData.reduce((total, item) => {
+      if (item.group === "FL" || item.group === "BEER") {
+        return (
+          total + (parseFloat(item.volume) || 0) * (parseInt(item.pcs) || 0)
+        );
+      }
+      return total;
+    }, 0);
+
+    const imlVolume = salesData.reduce((total, item) => {
+      if (item.group === "IML") {
+        return (
+          total + (parseFloat(item.volume) || 0) * (parseInt(item.pcs) || 0)
+        );
+      }
+      return total;
+    }, 0);
+
+    console.log("flBeerVolume: ", flBeerVolume);
+
     const totalPcs = salesData.reduce(
       (total, item) => total + (parseInt(item.pcs) || 0),
       0
@@ -1398,29 +1413,20 @@ const SaleBill = () => {
 
     const newNetAmount = netAmt - totalDiscount;
 
-    // if(totalValues.receiptMode2){
-    //   setTotalValues({
-    //     ...totalValues,
-    //     totalVolume: totalVolume.toFixed(2),
-    //     totalPcs: totalPcs,
-    //     grossAmt: grossAmt.toFixed(2),
-    //     receiptMode1: calculateGrossAmt(),
-    //     splDiscAmount: (splDiscAmount + totalDiscount).toFixed(0),
-    //     discountAmt: totalDiscount.toFixed(0),
-    //     netAmt: parseFloat(newNetAmount - receiptMode1).toFixed(0),
-    //   });
-    // } else {
     setTotalValues({
       ...totalValues,
       totalVolume: totalVolume.toFixed(2),
+      flBeerVolume: flBeerVolume.toFixed(2),
+      imlVolume: imlVolume.toFixed(2),
       totalPcs: totalPcs,
       grossAmt: grossAmt.toFixed(2),
-      receiptMode1: formData.billno ? totalValues.receiptMode1 : newNetAmount.toFixed(2),
+      receiptMode1: formData.billno
+        ? totalValues.receiptMode1
+        : newNetAmount.toFixed(2),
       splDiscAmount: (splDiscAmount + totalDiscount).toFixed(0),
       discountAmt: totalDiscount.toFixed(0),
       netAmt: newNetAmount.toFixed(2),
     });
-    // }
   };
 
   useEffect(() => {
@@ -1662,7 +1668,7 @@ const SaleBill = () => {
                 fullWidth
                 value={formData.itemCode}
                 onChange={handleItemCodeChange}
-                onKeyDown={(e) => handleEnterKey(e, itemNameRef)}
+                // onKeyDown={(e) => handleEnterKey(e, itemNameRef)}
               />
             </Grid>
             <Grid item xs={2.2}>
@@ -1808,8 +1814,12 @@ const SaleBill = () => {
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
-                    handleSubmitIntoDataTable(e);
-                    handleEnterKey(e, itemCodeRef);
+                    if (salesData.length > 0) {
+                      flBeerVolRef.current.focus();
+                    } else {
+                      handleSubmitIntoDataTable(e);
+                      handleEnterKey(e, itemCodeRef);
+                    }
                   }
                 }}
               />
@@ -2134,14 +2144,26 @@ const SaleBill = () => {
           }}
         >
           <Grid container spacing={1}>
-            <Grid item xs={0.8}>
-              <InputLabel className="input-label-2">Vol (ml)</InputLabel>
+            <Grid item xs={1}>
+              <InputLabel className="input-label-2">FL/BEER Vol(ml)</InputLabel>
               <TextField
-                inputRef={totalVolRef}
+                inputRef={flBeerVolRef}
                 variant="outlined"
                 size="small"
                 fullWidth
-                value={totalValues.totalVolume}
+                value={totalValues.flBeerVolume}
+                InputProps={{ readOnly: true }}
+                onKeyDown={(e) => handleEnterKey(e, imlVolRef)}
+              />
+            </Grid>
+            <Grid item xs={1}>
+              <InputLabel className="input-label-2">IML Vol(ml)</InputLabel>
+              <TextField
+                inputRef={imlVolRef}
+                variant="outlined"
+                size="small"
+                fullWidth
+                value={totalValues.imlVolume}
                 InputProps={{ readOnly: true }}
                 onKeyDown={(e) => handleEnterKey(e, totalPcsRef)}
               />
@@ -2182,7 +2204,7 @@ const SaleBill = () => {
                 onKeyDown={(e) => handleEnterKey(e, rectMode2Ref)}
               />
             </Grid>
-            <Grid item xs={1.7}>
+            <Grid item xs={1.3}>
               <InputLabel className="input-label-2">Online</InputLabel>
               <TextField
                 select
@@ -2258,10 +2280,10 @@ const SaleBill = () => {
                 fullWidth
                 value={totalValues.discountAmt}
                 InputProps={{ readOnly: true }}
-                onKeyDown={(e) => handleEnterKey(e, taxAmtRef)}
+                onKeyDown={(e) => handleEnterKey(e, adjustmentRef)}
               />
             </Grid>
-            <Grid item xs={0.8}>
+            {/* <Grid item xs={0.8}>
               <InputLabel className="input-label-2">Tax Amt.</InputLabel>
               <TextField
                 inputRef={taxAmtRef}
@@ -2272,7 +2294,7 @@ const SaleBill = () => {
                 InputProps={{ readOnly: true }}
                 onKeyDown={(e) => handleEnterKey(e, adjustmentRef)}
               />
-            </Grid>
+            </Grid> */}
 
             <Grid item xs={0.8}>
               <InputLabel className="input-label-2">Adjustment</InputLabel>
@@ -2399,7 +2421,7 @@ const SaleBill = () => {
                   fontSize: "11px",
                 }}
               >
-                PREV PAGE
+                PREV BILL
               </Button>
               <Button
                 color="secondary"
@@ -2412,7 +2434,7 @@ const SaleBill = () => {
                   fontSize: "11px",
                 }}
               >
-                NEXT PAGE
+                NEXT BILL
               </Button>
 
               <Button
@@ -2458,12 +2480,12 @@ const SaleBill = () => {
                   padding: "4px 10px",
                   fontSize: "11px",
                 }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    // handleCreateSale();
-                    handleEnterKey(e, itemCodeRef);
-                  }
-                }}
+                // onKeyDown={(e) => {
+                //   if (e.key === "Enter") {
+                //     // handleCreateSale();
+                //     handleEnterKey(e, itemCodeRef);
+                //   }
+                // }}
               >
                 SAVE
               </Button>
