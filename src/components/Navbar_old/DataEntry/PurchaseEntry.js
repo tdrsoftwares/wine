@@ -99,6 +99,8 @@ const PurchaseEntry = () => {
   const [editableIndex, setEditableIndex] = useState(-1);
   const [editedRow, setEditedRow] = useState({});
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
+  const [isRowUpdated, setIsRowUpdated] = useState(false);
+  // console.log("isRowUpdated: ",  isRowUpdated)
 
 
   const tableRef = useRef(null);
@@ -352,6 +354,7 @@ const PurchaseEntry = () => {
   };
 
   const handleSaveClick = (index) => {
+    setIsRowUpdated(true);
     const updatedPurchases = [...purchases];
     const updatedRow = { ...updatedPurchases[index] };
 
@@ -1159,11 +1162,21 @@ const PurchaseEntry = () => {
     }, 0);
 
     // Updating total special purpose and gro in totalValues
-    setTotalValues((prevValues) => ({
-      ...prevValues,
-      govtRate: totalGro.toFixed(2),
-      spcPurpose: totalSP.toFixed(2),
-    }));
+    if(!entryNumber || isRowUpdated) {
+      console.log("exc...")
+      if(totalGro) {
+        setTotalValues((prevValues) => ({
+          ...prevValues,
+          govtRate: totalGro.toFixed(2)
+        }));
+      } 
+      if (totalSP) {
+        setTotalValues((prevValues) => ({
+          ...prevValues,
+          spcPurpose: totalSP.toFixed(2)
+        }));
+      }
+    }
   }, [purchases]);
 
   useEffect(() => {
