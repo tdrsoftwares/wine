@@ -278,7 +278,7 @@ const SaleBill = () => {
     }
   }, 500);
 
-  const itemCodeSearch = debounce(async (itemCode) => {
+  const itemCodeSearch = async (itemCode) => {
     try {
       setIsLoading(true);
       const response = await searchAllSalesByItemCode(itemCode);
@@ -382,7 +382,7 @@ const SaleBill = () => {
     } finally {
       setIsLoading(false);
     }
-  }, 200);
+  };
 
   // const updateTotalDiscounts = (salesData) => {
   //   const totalDiscounts = salesData.reduce((total, item) => {
@@ -1136,18 +1136,28 @@ const SaleBill = () => {
     }
   };
 
-  const handleItemCodeChange = async (e) => {
+  const handleItemCodeChange = (e) => {
     const itemCode = e.target.value;
     setFormData({ ...formData, itemCode });
-    await itemCodeSearch(itemCode);
-    // console.log("search result: ", searchResults);
-
+  
     if (!itemCode) {
       resetMiddleFormData();
     }
-
+  
     setEditedRow({});
     setEditableIndex(-1);
+  };
+
+  const handleKeyDown = async (e) => {
+    if (e.key === 'Enter') {
+      const barcodes = e.target.value.split('\n');
+      for (const barcode of barcodes) {
+        if (barcode.trim()) {
+          await itemCodeSearch(barcode.trim());
+        }
+      }
+      setFormData({ ...formData, itemCode: '' });
+    }
   };
 
   const handleCustomerNameChange = (e) => {
@@ -1668,6 +1678,7 @@ const SaleBill = () => {
                 fullWidth
                 value={formData.itemCode}
                 onChange={handleItemCodeChange}
+                onKeyDown={handleKeyDown}
                 // onKeyDown={(e) => handleEnterKey(e, itemNameRef)}
               />
             </Grid>

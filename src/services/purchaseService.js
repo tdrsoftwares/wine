@@ -159,3 +159,14 @@ export const removePurchaseDetails = async (entryNo) => {
     return error;
   }
 };
+
+
+export const getAllEntryNo = async () => {
+  try {
+    const apiURL = `/purchases/bill-no`;
+    const getAllDetails = await axiosInstance.get(apiURL);
+    return getAllDetails;
+  } catch (error){
+    return error
+  }
+}

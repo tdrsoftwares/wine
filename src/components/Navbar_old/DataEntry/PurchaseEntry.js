@@ -22,6 +22,7 @@ import { getAllSuppliers } from "../../../services/supplierService";
 import { getAllStores } from "../../../services/storeService";
 import {
   createPurchase,
+  getAllEntryNo,
   getPurchaseDetailsByEntryNo,
   removePurchaseDetails,
   searchAllPurchasesByItemCode,
@@ -48,7 +49,7 @@ const PurchaseEntry = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [purchases, setPurchases] = useState([]);
   const [searchMode, setSearchMode] = useState(false);
-
+  const [allEntries, setAllEntries] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [entryNumber, setEntryNumber] = useState("");
@@ -279,6 +280,8 @@ const PurchaseEntry = () => {
     // console.log("handleItemNameChange formData: ", formData);
   };
 
+
+
   const handleSupplierNameChange = (e) => {
     setFormData({ ...formData, supplierName: e.target.value });
   };
@@ -383,6 +386,19 @@ const PurchaseEntry = () => {
     }
   };
 
+  const fetchAllEntries = async () => {
+    try {
+      const response = await getAllEntryNo();
+      console.log("response: ", response);
+      setAllEntries(response?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching suppliers. Please try again later.",
+        "Error"
+      );
+    }
+  };
+
   const fetchAllStores = async () => {
     try {
       const allStoresResponse = await getAllStores();
@@ -420,7 +436,7 @@ const PurchaseEntry = () => {
     }
   }, 500);
 
-  const itemCodeSearch = debounce(async (itemCode) => {
+  const itemCodeSearch = async (itemCode) => {
     try {
       setIsLoading(true);
       const response = await searchAllPurchasesByItemCode(itemCode);
@@ -459,7 +475,7 @@ const PurchaseEntry = () => {
     } finally {
       setIsLoading(false);
     }
-  }, 700);
+  };
 
   const convertToDayjsObject = (dateStr) => {
     return dayjs(dateStr, "DD/MM/YYYY");
@@ -1036,6 +1052,7 @@ const PurchaseEntry = () => {
   useEffect(() => {
     fetchAllSuppliers();
     fetchAllStores();
+    fetchAllEntries();
   }, []);
 
   useEffect(() => {
@@ -1199,21 +1216,22 @@ const PurchaseEntry = () => {
     }
   }, []);
 
-  const handleItemCodeChange = async (e) => {
+  const handleItemCodeChange = (e) => {
     const itemCode = e.target.value;
-
-    // console.log("search result: ", searchResults);
+    setFormData({ ...formData, itemCode });
 
     // if (!itemCode) {
-    //   setSearchMode(false);
     //   resetMiddleFormData();
-    // } else {
-    setFormData({ ...formData, itemCode: itemCode });
-    await itemCodeSearch(itemCode);
     // }
 
     setEditedRow({});
     setEditableIndex(-1);
+  };
+
+  const handleKeyDown = async (e) => {
+    if (e.key === "Enter") {
+      await itemCodeSearch(e.target.value);
+    }
   };
 
   const handleEntryNumberChange = (e) => {
@@ -1376,15 +1394,31 @@ const PurchaseEntry = () => {
                 Entry No :
               </InputLabel>
               <TextField
+                select
                 inputRef={entryNoRef}
                 id="entryNo"
                 size="small"
-                className="input-field entryNo-adjustment"
+                className="input-field"
                 value={entryNumber}
                 disabled={entryNoEditable}
                 onChange={handleEntryNumberChange}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
+                    },
+                  },
+                }}
                 onKeyDown={(e) => handleEnterKey(e, billNoRef)}
-              />
+              >
+                {allEntries?.map((entry) => (
+                  <MenuItem key={entry._id} value={entry.entryNo}>
+                    {`${entry.entryNo}`}
+                  </MenuItem>
+                ))}
+              </TextField>
             </div>
           </Grid>
           <Grid item xs={3}>
@@ -1458,7 +1492,8 @@ const PurchaseEntry = () => {
                 fullWidth
                 value={formData.itemCode}
                 onChange={handleItemCodeChange}
-                onKeyDown={(e) => handleEnterKey(e, itemNameRef)}
+                onKeyDown={handleKeyDown}
+                // onKeyDown={(e) => handleEnterKey(e, itemNameRef)}
               />
             </Grid>
             <Grid item xs={1.8}>
