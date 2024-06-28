@@ -109,7 +109,7 @@ const ItemRegister = () => {
       if (createItemResponse.status === 200) {
         NotificationManager.success("Item created successfully", "Success");
         clearForm();
-        // fetchAllItems();
+        fetchAllItems();
       } else {
         NotificationManager.error(
           "Error creating item. Please try again later.",
@@ -134,7 +134,7 @@ const ItemRegister = () => {
         NotificationManager.success("Item updated successfully", "Success");
         setEditableIndex(null);
         setEditedRow({});
-        // fetchAllItems();
+        fetchAllItems();
       } else {
         NotificationManager.error(
           "Error updating item. Please try again later.",
@@ -153,8 +153,10 @@ const ItemRegister = () => {
     try {
       setLoading(true);
       const allItemsResponse = await getAllItems();
-      setAllItems(allItemsResponse?.data?.data);
-      setLoading(false);
+      if (allItemsResponse.status === 200) {
+        setAllItems(allItemsResponse?.data?.data);
+        setLoading(false);
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching items. Please try again later.",
@@ -168,7 +170,9 @@ const ItemRegister = () => {
   const fetchAllCategory = async () => {
     try {
       const getAllCategoryResponse = await getAllItemCategory();
-      setAllCategory(getAllCategoryResponse?.data?.data);
+      if (getAllCategoryResponse.status === 200) {
+        setAllCategory(getAllCategoryResponse?.data?.data);
+      }
     } catch (err) {
       NotificationManager.error(
         "Something went Wrong, Please try again later.",
@@ -181,7 +185,9 @@ const ItemRegister = () => {
     try {
       const allBrandsResponse = await getAllBrands();
       // console.log("allBrandsResponse ---> ", allBrandsResponse);
-      setAllBrands(allBrandsResponse?.data?.data);
+      if (allBrandsResponse.status === 200) {
+        setAllBrands(allBrandsResponse?.data?.data);
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching brands. Please try again later.",
@@ -195,7 +201,9 @@ const ItemRegister = () => {
     try {
       const allCompaniesResponse = await getAllCompanies();
       // console.log("allCompaniesResponse ---> ", allCompaniesResponse);
-      setAllCompanies(allCompaniesResponse?.data?.data);
+      if (allCompaniesResponse.status === 200) {
+        setAllCompanies(allCompaniesResponse?.data?.data);
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching companies. Please try again later.",
@@ -209,7 +217,7 @@ const ItemRegister = () => {
     fetchAllCategory();
     fetchAllBrands();
     fetchAllCompanies();
-    // fetchAllItems();
+    fetchAllItems();
   }, []);
 
   const handleClickOutside = (event) => {
@@ -231,7 +239,7 @@ const ItemRegister = () => {
       const deleteItemResponse = await deleteItem(itemId);
       if (deleteItemResponse.status === 200) {
         NotificationManager.success("Item deleted successfully", "Success");
-        // fetchAllItems();
+        fetchAllItems();
       } else {
         NotificationManager.error(
           "Error deleting item. Please try again later.",
@@ -718,7 +726,7 @@ const ItemRegister = () => {
               </TableHead>
 
               <TableBody>
-                {allItems.length > 0 ? (
+                {allItems?.length > 0 ? (
                   filteredData
                     ?.slice(
                       page * rowsPerPage,

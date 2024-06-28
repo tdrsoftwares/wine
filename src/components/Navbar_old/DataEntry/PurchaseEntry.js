@@ -544,9 +544,11 @@ const PurchaseEntry = () => {
     }
   }, 700);
 
+
   const handleRowClick = (index) => {
     const selectedRow = searchResults[index];
 
+    console.log("selectedRow: ", selectedRow);
     setFormData({
       ...formData,
       itemId: selectedRow.item._id,
@@ -559,7 +561,7 @@ const PurchaseEntry = () => {
       pcs: selectedRow.pcs || null,
       brk: selectedRow.brk || 0,
       purchaseRate: selectedRow.purchaseRate || 0,
-      btlRate: selectedRow.mrp || 0,
+      btlRate: selectedRow.mrp || formData.btlRate,
       gro: selectedRow.gro || 0,
       sp: selectedRow.sp || 0,
       amount: selectedRow.amount || 0,
@@ -623,7 +625,8 @@ const PurchaseEntry = () => {
       return;
     }
 
-    setPurchases([...purchases, formData]);
+    setPurchases([...purchases, {...formData, btlRate: formData.mrp}]);
+    // setPurchases([...purchases, formData]);
     resetMiddleFormData();
     handleEnterKey(e, itemCodeRef);
     setSearchMode(false);
