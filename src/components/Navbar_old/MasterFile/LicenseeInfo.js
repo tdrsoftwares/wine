@@ -18,9 +18,12 @@ import {
   Input,
   FormHelperText,Select
 } from "@mui/material";
+import axiosInstance from "../../../utils/axiosInstance";
 import { NotificationContainer, NotificationManager } from "react-notifications";
 import axios from "axios";
 import { Bloodtype, Label } from "@mui/icons-material";
+import { createLicenseInfo } from "../../../services/stockService";
+//import axiosInstance from "../../../utils/axiosInstance";
 
 
 const LicenseeInfo = () => {
@@ -95,13 +98,37 @@ const LicenseeInfo = () => {
     
   // });
   const save = async (e) => {
+   
+   // const updateCategoryData = await axiosInstance.put(apiURL, payload);
+   const payload={
+    "nameOfLicence":licenseData.nameOfLicence,
+      "businessType":licenseData.businessType,
+      "address":licenseData.address,
+      "district":licenseData.district,
+      "phoneNo":licenseData.phoneNo,
+
+      "fiancialPeriodTo":licenseData.fiancialPeriodTo,
+      "fiancialPeriodfrom":licenseData.fiancialPeriodfrom,
+      "licenceId":licenseData.licenceId,
+      "billCategory":licenseData.billCategory,
+      "noOfBillCopies":licenseData.noOfBillCopies,
+
+      "autoBillPrint":licenseData.autoBillPrint,
+      "eposUserId":licenseData.eposUserId,
+      "eposPassword":licenseData.eposPassword,
+      "noOfItemPerBill":licenseData.noOfItemPerBill,
+      "perBillMaxWine":licenseData.perBillMaxWine,
+      "perBillMaxCs":licenseData.perBillMaxCs,
+   };
     e.preventDefault();
     try {
-      const response = await axios.post("https://api.wine.tdrsoftware.in/api/v1/licence/create",{
-        licenseData
-      });
+      const response = await createLicenseInfo(payload);
+      
       console.log(response.data)
       NotificationManager.success("Data Submitted Successfully",response.data.message);
+      
+      
+      
       
     } catch (error) {
       console.log(error);
@@ -115,6 +142,7 @@ const LicenseeInfo = () => {
       NotificationManager.error(errorMessage);
     }
     console.log(licenseData);
+    console.log("payload"+payload);
   };
   
   const handleSubmit =async (e) => {

@@ -9,6 +9,15 @@ export const createPurchase = async (payload) => {
     return error;
   }
 };
+export const createLicenseInfo = async (payload) => {
+  try {
+    const apiURL = `/licence/create`;
+    const createLicenseData = await axiosInstance.post(apiURL, payload);
+    return createLicenseData;
+  } catch (error) {
+    return error;
+  }
+};
 
 export const updatePurchase = async (payload, id) => {
   try {
