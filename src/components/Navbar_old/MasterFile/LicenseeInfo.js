@@ -18,60 +18,142 @@ import {
   Input,
   FormHelperText,Select
 } from "@mui/material";
+import { NotificationContainer, NotificationManager } from "react-notifications";
+import axios from "axios";
 import { Bloodtype, Label } from "@mui/icons-material";
 
 
 const LicenseeInfo = () => {
   
-  const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-    ...theme.typography.body2,
-    padding: theme.spacing(1),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-  }));
+  // const Item = styled(Paper)(({ theme }) => ({
+  //   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+  //   ...theme.typography.body2,
+  //   padding: theme.spacing(1),
+  //   textAlign: 'center',
+  //   color: theme.palette.text.secondary,
+  // }));
   const [licenseData, setLicenseData] = useState({
-    licenseName: "",
+    nameOfLicence: "",
     businessType: "",
     address: "",
     district: "",
-    phNo: "",
-    allowNegativeStocks: "allow",
-    periodStartDate: "mm/dd/yyyy",
-    periodEndDate: "mm/dd/yyyy",
-    licenseId: "",
-    billCategory: "",
-    numberOfBillPrint: "",
-    activateAutoBillSeparate: "no",
+    phoneNo: 0,
+    
+    fiancialPeriodTo: "mm/dd/yyyy",
+    fiancialPeriodfrom: "mm/dd/yyyy",
+    licenceId: "",
+    billCategory: 0,
+    noOfBillCopies: 0,
+    
     autoBillPrint: "no",
-    stockCalculateOn: "closing",
-  });
-
-  const [bankAccountData, setBankAccountData] = useState({
-    accountNo: "",
-    bankName: "",
-    branchName: "",
-    ifsc: "",
-    installDate: "mm/dd/yyyy", // date
-    renewalDate: "mm/dd/yyyy", //date
-    renewalMode: "", //select
-    renewalAmt: "",
-    renewalBy: "",
-  });
-
-  const [eposData, setEposData] = useState({
     eposUserId: "",
     eposPassword: "",
-    itemPerBill: "",
-    maxWinePerBill: "",
-    maxCSPerBill: "",
-    remotePath: "",
-    backupDrive: "",
+    noOfItemPerBill: 0,
+    perBillMaxWine: 0,
+    perBillMaxCs: 0,
+    
     billMessages: "",
-    messageMobile: "",
-    excelConvtFile: "",
+    messageMobile: 0,
+    
   });
 
+  // const [bankAccountData, setBankAccountData] = useState({
+  //   accountNo: "",
+  //   bankName: "",
+  //   branchName: "",
+  //   ifsc: "",
+  //   installDate: "mm/dd/yyyy", // date
+  //   renewalDate: "mm/dd/yyyy", //date
+  //   renewalMode: "", //select
+  //   renewalAmt: "",
+  //   renewalBy: "",
+  // });
+  const handleInputChange1 = (e) => {
+    const { name, value } = e.target;
+    setLicenseData({
+      ...licenseData,
+      [name]: value,
+    });
+  };
+  // const handleInputChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setlicenseData({
+  //     ...licenseData,
+  //     [name]: value,
+  //   });
+  // };
+
+  // const [licenseData, setlicenseData] = useState({
+  //   eposUserId: "",
+  //   eposPassword: "",
+  //   noOfItemPerBill: "",
+  //   perBillMaxWine: "",
+  //   perBillMaxCs: "",
+    
+  //   billMessages: "",
+  //   messageMobile: "",
+    
+  // });
+  const save = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post("https://api.wine.tdrsoftware.in/api/v1/licence/create",{
+        licenseData
+      });
+      console.log(response.data)
+      NotificationManager.success("Data Submitted Successfully",response.data.message);
+      
+    } catch (error) {
+      console.log(error);
+      // Extract the error message or relevant information
+      let errorMessage = "An error occurred while submitting the data.";
+      if (error.response && error.response.data && error.response.data.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      NotificationManager.error(errorMessage);
+    }
+    console.log(licenseData);
+  };
+  
+  const handleSubmit =async (e) => {
+    e.preventDefault();
+    // Here you can send formData to your backend server or process it further
+   
+    // Reset form after submission
+    
+    setLicenseData({
+      nameOfLicence: licenseData.nameOfLicence,
+    businessType: licenseData.businessType,
+    address: licenseData.address,
+    district: licenseData.district,
+    phoneNo: licenseData.phoneNo,
+    
+    fiancialPeriodTo: licenseData.fiancialPeriodTo,
+    fiancialPeriodfrom: licenseData.fiancialPeriodfrom,
+    licenceId: licenseData.licenceId,
+    billCategory: licenseData.billCategory,
+    noOfBillCopies: licenseData.noOfBillCopies,
+    
+    autoBillPrint: licenseData.autoBillPrint,
+    eposUserId: licenseData.eposUserId,
+    eposPassword: licenseData.eposPassword,
+    noOfItemPerBill: licenseData.noOfItemPerBill,
+    perBillMaxWine:  licenseData.perBillMaxWine,
+    perBillMaxCs:   licenseData.perBillMaxCs,
+    
+    billMessages:   licenseData.billMessages,
+    messageMobile:  licenseData.messageMobile,
+    
+    
+     
+    });
+    
+ 
+    
+  };
+ // console.log("form Submitted"+[Object.entries(licenseData)]);
   const clearForm = () => {};
 
   return (
@@ -119,15 +201,15 @@ const LicenseeInfo = () => {
     //         <TextField
     //           fullWidth
     //           type="text"
-    //           name="licenseName"
+    //           name="nameOfLicence"
     //           label="Name of License/Shop"
     //           variant="outlined"
     //           className="input-field"
-    //           value={licenseData.licenseName}
+    //           value={licenseData.nameOfLicence}
     //           onChange={(e) =>
     //             setLicenseData({
     //               ...licenseData,
-    //               licenseName: e.target.value,
+    //               nameOfLicence: e.target.value,
     //             })
     //           }
     //         />
@@ -185,13 +267,13 @@ const LicenseeInfo = () => {
     //         <TextField
     //           fullWidth
     //           type="number"
-    //           name="phNo"
+    //           name="phoneNo"
     //           label="Phone Number"
     //           variant="outlined"
     //           className="input-field"
-    //           value={licenseData.phNo}
+    //           value={licenseData.phoneNo}
     //           onChange={(e) =>
-    //             setLicenseData({ ...licenseData, phNo: e.target.value })
+    //             setLicenseData({ ...licenseData, phoneNo: e.target.value })
     //           }
     //         />
     //       </Grid>
@@ -200,13 +282,13 @@ const LicenseeInfo = () => {
     //         <TextField
     //           fullWidth
     //           type="number"
-    //           name="licenseId"
-    //           label="licenseId"
+    //           name="licenceId"
+    //           label="licenceId"
     //           variant="outlined"
     //           className="input-field"
-    //           value={licenseData.licenseId}
+    //           value={licenseData.licenceId}
     //           onChange={(e) =>
-    //             setLicenseData({ ...licenseData, licenseId: e.target.value })
+    //             setLicenseData({ ...licenseData, licenceId: e.target.value })
     //           }
     //         />
     //       </Grid>
@@ -249,15 +331,15 @@ const LicenseeInfo = () => {
     //         <TextField
     //           fullWidth
     //           type="date"
-    //           name="periodStartDate"
+    //           name="fiancialPeriodTo"
     //           label="Period Start Date"
     //           variant="outlined"
     //           className="input-field"
-    //           value={licenseData.periodStartDate}
+    //           value={licenseData.fiancialPeriodTo}
     //           onChange={(e) =>
     //             setLicenseData({
     //               ...licenseData,
-    //               periodStartDate: e.target.value,
+    //               fiancialPeriodTo: e.target.value,
     //             })
     //           }
     //         />
@@ -267,15 +349,15 @@ const LicenseeInfo = () => {
     //         <TextField
     //           fullWidth
     //           type="date"
-    //           name="periodEndDate"
+    //           name="fiancialPeriodfrom"
     //           label="Period End Date"
     //           variant="outlined"
     //           className="input-field"
-    //           value={licenseData.periodEndDate}
+    //           value={licenseData.fiancialPeriodfrom}
     //           onChange={(e) =>
     //             setLicenseData({
     //               ...licenseData,
-    //               periodEndDate: e.target.value,
+    //               fiancialPeriodfrom: e.target.value,
     //             })
     //           }
     //         />
@@ -301,15 +383,15 @@ const LicenseeInfo = () => {
     //           select
     //           fullWidth
     //           type="number"
-    //           name="numberOfBillPrint"
+    //           name="noOfBillCopies"
     //           label="Number Of Bill Print"
     //           variant="outlined"
     //           className="input-field"
-    //           value={licenseData.numberOfBillPrint}
+    //           value={licenseData.noOfBillCopies}
     //           onChange={(e) =>
     //             setLicenseData({
     //               ...licenseData,
-    //               numberOfBillPrint: e.target.value,
+    //               noOfBillCopies: e.target.value,
     //             })
     //           }
     //         >
@@ -590,10 +672,10 @@ const LicenseeInfo = () => {
     //           label="Epos User Id"
     //           variant="outlined"
     //           className="input-field"
-    //           value={eposData.eposUserId}
+    //           value={licenseData.eposUserId}
     //           onChange={(e) =>
-    //             setEposData({
-    //               ...eposData,
+    //             setlicenseData({
+    //               ...licenseData,
     //               eposUserId: e.target.value,
     //             })
     //           }
@@ -608,10 +690,10 @@ const LicenseeInfo = () => {
     //           label="Epos Password"
     //           variant="outlined"
     //           className="input-field"
-    //           value={eposData.eposPassword}
+    //           value={licenseData.eposPassword}
     //           onChange={(e) =>
-    //             setEposData({
-    //               ...eposData,
+    //             setlicenseData({
+    //               ...licenseData,
     //               eposPassword: e.target.value,
     //             })
     //           }
@@ -622,15 +704,15 @@ const LicenseeInfo = () => {
     //         <TextField
     //           fullWidth
     //           type="number"
-    //           name="itemPerBill"
+    //           name="noOfItemPerBill"
     //           label="No. of Item Per Bill"
     //           variant="outlined"
     //           className="input-field"
-    //           value={eposData.itemPerBill}
+    //           value={licenseData.noOfItemPerBill}
     //           onChange={(e) =>
-    //             setEposData({
-    //               ...eposData,
-    //               itemPerBill: e.target.value,
+    //             setlicenseData({
+    //               ...licenseData,
+    //               noOfItemPerBill: e.target.value,
     //             })
     //           }
     //         />
@@ -640,15 +722,15 @@ const LicenseeInfo = () => {
     //         <TextField
     //           fullWidth
     //           type="number"
-    //           name="maxWinePerBill"
+    //           name="perBillMaxWine"
     //           label="Max Wine Per Bill(ML)"
     //           variant="outlined"
     //           className="input-field"
-    //           value={eposData.maxWinePerBill}
+    //           value={licenseData.perBillMaxWine}
     //           onChange={(e) =>
-    //             setEposData({
-    //               ...eposData,
-    //               maxWinePerBill: e.target.value,
+    //             setlicenseData({
+    //               ...licenseData,
+    //               perBillMaxWine: e.target.value,
     //             })
     //           }
     //         />
@@ -658,15 +740,15 @@ const LicenseeInfo = () => {
     //         <TextField
     //           fullWidth
     //           type="number"
-    //           name="maxCSPerBill"
+    //           name="perBillMaxCs"
     //           label="Max CS Per Bill(ML)"
     //           variant="outlined"
     //           className="input-field"
-    //           value={eposData.maxCSPerBill}
+    //           value={licenseData.perBillMaxCs}
     //           onChange={(e) =>
-    //             setEposData({
-    //               ...eposData,
-    //               maxCSPerBill: e.target.value,
+    //             setlicenseData({
+    //               ...licenseData,
+    //               perBillMaxCs: e.target.value,
     //             })
     //           }
     //         />
@@ -680,10 +762,10 @@ const LicenseeInfo = () => {
     //           label="Remote Path"
     //           variant="outlined"
     //           className="input-field"
-    //           value={eposData.remotePath}
+    //           value={licenseData.remotePath}
     //           onChange={(e) =>
-    //             setEposData({
-    //               ...eposData,
+    //             setlicenseData({
+    //               ...licenseData,
     //               remotePath: e.target.value,
     //             })
     //           }
@@ -698,10 +780,10 @@ const LicenseeInfo = () => {
     //           label="Backup Drive"
     //           variant="outlined"
     //           className="input-field"
-    //           value={eposData.backupDrive}
+    //           value={licenseData.backupDrive}
     //           onChange={(e) =>
-    //             setEposData({
-    //               ...eposData,
+    //             setlicenseData({
+    //               ...licenseData,
     //               backupDrive: e.target.value,
     //             })
     //           }
@@ -722,10 +804,10 @@ const LicenseeInfo = () => {
     //           label="Bill Messages"
     //           variant="outlined"
     //           className="input-field"
-    //           value={eposData.billMessages}
+    //           value={licenseData.billMessages}
     //           onChange={(e) =>
-    //             setEposData({
-    //               ...eposData,
+    //             setlicenseData({
+    //               ...licenseData,
     //               billMessages: e.target.value,
     //             })
     //           }
@@ -740,9 +822,9 @@ const LicenseeInfo = () => {
     //           label="Message Mobile"
     //           variant="outlined"
     //           className="input-field"
-    //           value={eposData.messageMobile}
+    //           value={licenseData.messageMobile}
     //           onChange={(e) =>
-    //             setEposData({
+    //             setlicenseData({
     //               ...bankAccountData,
     //               messageMobile: e.target.value,
     //             })
@@ -790,102 +872,145 @@ const LicenseeInfo = () => {
     //   </Box>
     // </form>
   
-        
+    <form>   
     <Box sx={{ flexGrow: 1 }} >
-      <Grid container spacing={4} sx={{display:"flex"}}>
+      <Grid item container spacing={4} sx={{display:"flex"}}>
         <Grid item xs={6} p={4} sx={{marginTop:"50px",marginLeft:"40px",textAlign:"center",background:"#d3dce8",borderRadius:"6px"}}>
          <h1 sx={{marginBottom:"30px"}}>Information of License</h1>
          
         <Grid container spacing={2} sx={{marginTop:"10px"}}>
           <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"5px",alignItems:"center",justifyContent:"space-between"}}>
-          <InputLabel htmlFor="name">NAME OF LICENSE/SHOP</InputLabel>
+          <InputLabel htmlFor="nameOfLicence">NAME OF LICENSE/SHOP</InputLabel>
+          <FormControl variant="standard" sx={{ m: 1, width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
+          {/* <InputLabel htmlFor="nameOfLicence">NAME OF LICENSE/SHOP</InputLabel> */}
             <Input
-              id="name"
-              sx={{width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}
-              name="name"
+              required
+              id="nameOfLicence"
+             
+              name="nameOfLicence"
+              value={licenseData.nameOfLicence}
+              onChange={handleInputChange1}
               
             />
+            </FormControl>
           </Grid>
           <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
-          <InputLabel htmlFor="name">BUSINESS TYPE</InputLabel>
+          <InputLabel htmlFor="businessType">BUSINESS TYPE</InputLabel>
+          <FormControl variant="standard" sx={{ m: 1, width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
             <Input
-              id="business"
-              sx={{width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}
+            required
+              id="businessType"
+              
               fullWidth
-              name="business"
+              name="businessType"
+              value={licenseData.businessType}
+              onChange={handleInputChange1}
               
             />
+            </FormControl>
           </Grid>
           <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
-          <InputLabel htmlFor="name">ADDRESS</InputLabel>
-            <Input
-              sx={{width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}
+          <InputLabel htmlFor="address">ADDRESS</InputLabel>
+          <FormControl variant="standard" sx={{ m: 1, width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
+            <Input required
+             
               id="address"
               fullWidth
               name="address"
+              value={licenseData.address}
+              onChange={handleInputChange1}
               
             />
+            </FormControl>
           </Grid>
           <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
-          <InputLabel htmlFor="name">DISTRICT</InputLabel>
+          <InputLabel htmlFor="district">DISTRICT</InputLabel>
+          <FormControl variant="standard" sx={{ m: 1, width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
             <Input
-               sx={{width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}
+             required
               id="district"
               fullWidth
               name="district"
+              value={licenseData.district}
+              onChange={handleInputChange1}  
               
             />
+            </FormControl>
           </Grid>
           <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
-          <InputLabel htmlFor="name">PHONE NO</InputLabel>
-            <Input
-               sx={{width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}
-              id="phone"
+          <InputLabel htmlFor="phoneNo">PHONE NO</InputLabel>
+          <FormControl variant="standard" sx={{ m: 1, width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
+            <Input required
+              type="number"
+              id="phoneNo"
               fullWidth
-              name="phone"
+              name="phoneNo"
+              value={licenseData.phoneNo}
+              onChange={handleInputChange1}
               
             />
+            </FormControl>
           </Grid>
           <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
-          <InputLabel htmlFor="name">FINANCIAL PERIOD</InputLabel>
-            <Input
+          <InputLabel htmlFor="fiancialPeriodTo">FINANCIAL PERIOD</InputLabel>
+          <FormControl variant="standard" sx={{ m: 1, width:"20%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
+            <Input required
             type='date'
-            sx={{width:"28%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}
-              id="period1"
+            
+              id="fiancialPeriodTo"
               fullWidth
-              name="period1"
+              name="fiancialPeriodTo"
+              value={licenseData.fiancialPeriodTo}
+              onChange={handleInputChange1}
               
             />
+            </FormControl>
             TO
-            <Input
+            <FormControl variant="standard" sx={{ m: 1, width:"20%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
+            <Input required
             type='date'
-            sx={{width:"28%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}
-              id="period2"
+            
+              id="fiancialPeriodfrom"
               fullWidth
-              name="period2"
+              name="fiancialPeriodfrom"
+              value={licenseData.fiancialPeriodfrom} 
+              onChange={handleInputChange1}
               
             />
+            </FormControl>
           </Grid>
           <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
-          <InputLabel htmlFor="name">LICENSE ID(12 DIGIT)</InputLabel>
-            <Input
-            sx={{width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}
-              id="licenseID"
+          <InputLabel htmlFor="licenceId">LICENSE ID(12 DIGIT)</InputLabel>
+          <FormControl variant="standard" sx={{ m: 1, width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
+            <Input required
+            
+              id="licenceId"
               fullWidth
-              name="licenseId"
+              name="licenceId"
+              vcalue={licenseData.licenceId} 
+              onChange={handleInputChange1} 
+
               
             />
+            </FormControl>
           </Grid>
           <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
-          <InputLabel htmlFor="name">BILL CATEGORY</InputLabel>
+          <InputLabel htmlFor="billCategory">BILL CATEGORY</InputLabel>
+          <FormControl variant="standard" sx={{ m: 1, width:"20%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
             <Input
-            sx={{width:"20%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}
-              id="bill"
+            type="number"
+              required
+              id="billCategory"
               fullWidth
-              name="bill"
+              name="billCategory"
+              value={licenseData.billCategory}
+              onChange={handleInputChange1}
               
             />
-            <InputLabel htmlFor="name">NO OF BILL COPIES</InputLabel>
+            </FormControl>
+
+            <InputLabel htmlFor="noOfBillCopies">NO OF BILL COPIES</InputLabel>
+            
             {/* <Select
             sx={{width:"16%",height:"49px",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none',textAlign:"center"}}
               id="noBill"
@@ -898,38 +1023,69 @@ const LicenseeInfo = () => {
               <option sx={{padding:"10px"}}>2</option>
               <option sx={{padding:"10px"}}>3</option>
             </Select> */}
-            <Select
+            {/* <Select
           labelId="demo-simple-select-standard-label"
-          id="demo-simple-select-standard"
+          id="noOfBillCopies"
            sx={{width:"12%",padding:"4px",borderRadius:'6px',background:"white"}}
-          label="Bill"
+          label="noOfBillCopies"
           placeholder="Bill No"
-          value='Bill'
+          name='noOfBillCopies'
+          value={licenseData.noOfBillCopies}
+          onChange={handleInputChange1}
           
         >
-          <MenuItem value="Bill">
+          <option>One</option>
+          <option>Two</option>
+          <option>Three</option>
+        </Select> */}
+        <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+       
+        <InputLabel id="demo-simple-select-standard-label">No of Copies</InputLabel>
+        <Select required
+        type="number"
+          labelId="demo-simple-select-standard-label"
+          id="demo-simple-select-standard"
+          value={licenseData.noOfBillCopies}
+          name='noOfBillCopies'
+          onChange={handleInputChange1}
+          label="No of Copies"
+        >
+          <MenuItem value="">
             <em>None</em>
           </MenuItem>
-          <MenuItem value={1}>1</MenuItem>
-          <MenuItem value={2}>2</MenuItem>
-          <MenuItem value={3}>3</MenuItem>
+          <MenuItem value={1}>One</MenuItem>
+          <MenuItem value={2}>Two</MenuItem>
+          <MenuItem value={3}>Three</MenuItem>
         </Select>
+      </FormControl>
           </Grid>
           <Grid xs={12} sx={{display:"flex",gap:"4px",padding:"12px",alignItems:"center",justifyContent:"space-between"}}>
-          <InputLabel htmlFor="name">AUTO BILL PRINT</InputLabel>
-            <Input
-            sx={{width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}
-              id="print"
-              fullWidth
-              name="print"
-              
-            />
+          <InputLabel htmlFor="autoBillPrint">AUTO BILL PRINT</InputLabel>
+          <FormControl variant="standard" sx={{ m: 1,minWidth:320,padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'  }}>
+       
+       <InputLabel id="demo-simple-select-standard-label">Auto Bill Print</InputLabel>
+       <Select required
+         labelId="demo-simple-select-standard-label"
+         id="demo-simple-select-standard"
+         value={licenseData.autoBillPrint}
+         name='autoBillPrint'
+         onChange={handleInputChange1}
+         label="Auto Bill Print"
+       >
+         <MenuItem value="">
+           <em>None</em>
+         </MenuItem>
+         <MenuItem value={"YES"}>Yes</MenuItem>
+         <MenuItem value={"NO"}>No</MenuItem>
+         
+       </Select>
+     </FormControl>
             </Grid>
           <Grid item xs={12} sx={{display:"flex",gap:"18px",padding:"12px",alignItems:"center",justifyContent:"center"}} >
-            <Button variant="contained" color="primary" type="submit">
+            <Button variant="contained" color="primary" type="submit" onClick={save}>
               SAVE
             </Button>
-            <Button variant="contained" color="success" type="submit">
+            <Button variant="contained" color="success" type="submit" onClick={handleSubmit}>
               EDIT
             </Button>
             <Button variant="contained" color="error" type="submit">
@@ -947,137 +1103,183 @@ const LicenseeInfo = () => {
           <h3>GSTIN:   19AAECT848D1ZX</h3>
           <h3>CONTACT NO:   9830657184/ 8670920038</h3>
           </div>
-          <form>
+          
           <Grid container spacing={2} sx={{marginTop:"10px"}}>
           <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between",overflowX:"auto"}}>
-          <InputLabel htmlFor="name">EPOS USER ID(15 DIGIT)</InputLabel>
+          <InputLabel htmlFor="eposUserId">EPOS USER ID(15 DIGIT)</InputLabel>
+          <FormControl variant="standard" sx={{ m: 1, width:"30%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
             <Input
-               sx={{width:"30%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}
-              id="phone"
+              required
+              id="eposUserId"
               fullWidth
-              name="phone"
+              name="eposUserId"
+              value={licenseData.eposUserId}
+              onChange={handleInputChange1}
               
             />
+            </FormControl>
             <Button variant="contained" color="primary" type="submit" sx={{width:"25%",height:"40px",fontSize:"12px"}}>
               EPOS CONFIGURE
             </Button>
+
           </Grid>
           <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
-          <InputLabel htmlFor="name">EPOS PASSWORD</InputLabel>
+          <InputLabel htmlFor="eposPassword">EPOS PASSWORD</InputLabel>
+          <FormControl variant="standard" sx={{ m: 1, width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
+            <Input
+               required
+              id="eposPassword"
+              fullWidth
+              name="eposPassword"
+              value={licenseData.eposPassword}
+              onChange={handleInputChange1}
+              
+            />
+            </FormControl>
+            
+          </Grid>
+          <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
+          <InputLabel htmlFor="noOfItemPerBill">NO OF ITEM PER BILL</InputLabel>
+          <FormControl variant="standard" sx={{ m: 1, width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
+            <Input
+            type="number"
+              required
+              id="noOfItemPerBill"
+              fullWidth
+              name="noOfItemPerBill"
+              value={licenseData.noOfItemPerBill}
+              onChange={handleInputChange1}
+              
+            />
+            </FormControl>
+            
+          </Grid>
+          <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
+          <InputLabel htmlFor="perBillMaxWine">Per Bill Max Wine(ML)</InputLabel>
+          <FormControl variant="standard" sx={{ m: 1, width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
+            <Input
+            type="number"
+               required
+              id="perBillMaxWine"
+              fullWidth
+              name="perBillMaxWine"
+              value={licenseData.perBillMaxWine}
+              onChange={handleInputChange1}
+              
+            />
+            </FormControl>
+            
+          </Grid>
+          <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
+          <InputLabel htmlFor="perBillMaxCs">Per Bill Max CS(ML)</InputLabel>
+          <FormControl variant="standard" sx={{ m: 1, width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
+            <Input
+            type="number"
+              required
+              id="perBillMaxCs"
+              fullWidth
+              name="perBillMaxCs"
+              value={licenseData.perBillMaxCs}
+              onChange={handleInputChange1}
+              
+            />
+            </FormControl>
+            
+          </Grid>
+          {/* <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
+          <InputLabel htmlFor="remotePath">Remote Path</InputLabel>
             <Input
                sx={{width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}
-              id="phone"
+              id="remotePath"
               fullWidth
-              name="phone"
+              name="remotePath"
+              value={licenseData.remotePath}
+              onChange={handleInputChange}
               
             />
             
-          </Grid>
+          </Grid> */}
+          {/* <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
+          <InputLabel htmlFor="backupDrive">Backup Drive</InputLabel>
+          <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+       
+       <InputLabel id="demo-simple-select-standard-label">Backup Drive</InputLabel>
+       <Select
+         labelId="demo-simple-select-standard-label"
+         id="demo-simple-select-standard"
+         value={licenseData.backupDrive}
+         name='backupDrive'
+         onChange={handleInputChange}
+         label="Back Up Drive"
+       >
+         <MenuItem value="">
+           <em>None</em>
+         </MenuItem>
+         <MenuItem value={"C:/"}>C:/</MenuItem>
+         <MenuItem value={"D:/"}>D:/</MenuItem>
+         <MenuItem value={"E:/"}>E:/</MenuItem>
+       </Select>
+     </FormControl>
+            
+            
+          </Grid> */}
           <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
-          <InputLabel htmlFor="name">NO OF ITEM PER BILL</InputLabel>
+          <InputLabel htmlFor="billMessages">Bill Messages</InputLabel>
+          <FormControl variant="standard" sx={{ m: 1, width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
             <Input
-               sx={{width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}
-              id="phone"
+              required
+              id="billMessages"
               fullWidth
-              name="phone"
+              name="billMessages"
+              value={licenseData.billMessages}
+              onChange={handleInputChange1}
               
             />
+            </FormControl>
             
           </Grid>
           <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
-          <InputLabel htmlFor="name">Per Bill Max Wine(ML)</InputLabel>
+          <InputLabel htmlFor="messageMobile">Message Mobile</InputLabel>
+          <FormControl variant="standard" sx={{ m: 1, width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
             <Input
-               sx={{width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}
-              id="phone"
+            type="number"
+              required
+              id="messageMobile"
               fullWidth
-              name="phone"
+              name="messageMobile"
+              value={licenseData.messageMobile}
+              onChange={handleInputChange1}
               
             />
+            </FormControl>
             
           </Grid>
-          <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
-          <InputLabel htmlFor="name">Per Bill Max CS(ML)</InputLabel>
-            <Input
-               sx={{width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}
-              id="phone"
-              fullWidth
-              name="phone"
-              
-            />
-            
-          </Grid>
-          <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
-          <InputLabel htmlFor="name">Remote Path</InputLabel>
-            <Input
-               sx={{width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}
-              id="phone"
-              fullWidth
-              name="phone"
-              
-            />
-            
-          </Grid>
-          <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
-          <InputLabel htmlFor="name">Backup Drive</InputLabel>
-            <Select
-               sx={{width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}
-              id="phone"
-              fullWidth
-              name="phone"
-              
-            >
-              <MenuItem value="Bill">
-            <em>None</em>
-          </MenuItem>
-          <MenuItem value={1}>C:\</MenuItem>
-          <MenuItem value={2}>D:\</MenuItem>
-          <MenuItem value={3}>E:\</MenuItem>
-            </Select>
-            
-          </Grid>
-          <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
-          <InputLabel htmlFor="name">Bill Messages</InputLabel>
-            <Input
-               sx={{width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}
-              id="phone"
-              fullWidth
-              name="phone"
-              
-            />
-            
-          </Grid>
-          <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
-          <InputLabel htmlFor="name">Message Mobile</InputLabel>
-            <Input
-               sx={{width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}
-              id="phone"
-              fullWidth
-              name="phone"
-              
-            />
-            
-          </Grid>
-          <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
+          {/* <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
           <Button variant="contained" color="primary" type="submit">
               EXCEL CONVT FILE
             </Button>
+            <FormControl variant="standard" sx={{ m: 1, width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
             <Input
-               sx={{width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}
-              id="phone"
+              required
+              id="excelConvtFile"
               fullWidth
-              name="phone"
+              name="excelConvtFile"
+              value={licenseData.excelConvtFile}
+              onChange={handleInputChange}
               
             />
+            </FormControl>
             
-          </Grid>
+          </Grid> */}
           
           </Grid>
-          </form>
+          
          
         </Grid>
        
       </Grid>
     </Box>
+    </form> 
   );
 }
 
