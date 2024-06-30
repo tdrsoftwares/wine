@@ -18,6 +18,15 @@ export const createLicenseInfo = async (payload) => {
     return error;
   }
 };
+export const getLicenseInfo = async () => {
+  try {
+    const apiURL = `licence/get-licence`;
+    const getLicenseData = await axiosInstance.get(apiURL);
+    return getLicenseData.data;
+  } catch (error) {
+    return error;
+  }
+};
 
 export const updatePurchase = async (payload, id) => {
   try {

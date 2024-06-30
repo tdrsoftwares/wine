@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -23,6 +23,7 @@ import { NotificationContainer, NotificationManager } from "react-notifications"
 import axios from "axios";
 import { Bloodtype, Label } from "@mui/icons-material";
 import { createLicenseInfo } from "../../../services/stockService";
+import { getLicenseInfo } from "../../../services/stockService";
 //import axiosInstance from "../../../utils/axiosInstance";
 
 
@@ -35,8 +36,37 @@ const LicenseeInfo = () => {
   //   textAlign: 'center',
   //   color: theme.palette.text.secondary,
   // }));
+  let [getData,setGetData] = useState([]);
+  const fetchData = async () => {
+    try {
+      
+      const getLicenseData = await getLicenseInfo().then((res) => {
+        setGetData(res.data);
+      });
+
+      
+     console.log("getLicenseData"+getLicenseData.data)
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  // useEffect(() => {
+  //   fetchData()
+    
+  // }, []);
+  // console.log(getData[0]);
+  // const firstData=getData.data;
+  //  const mappedData = getData.map((item) => {
+  //    return item;
+  //  });
+  //  console.log(mappedData);
+  
+  // let obj={};
+  // Object.assign(obj,getData[0]);
+  //  console.log(obj.nameOfLicence);
+ 
   const [licenseData, setLicenseData] = useState({
-    nameOfLicence: "",
+    nameOfLicence: '',
     businessType: "",
     address: "",
     district: "",
@@ -59,6 +89,11 @@ const LicenseeInfo = () => {
     messageMobile: 0,
     
   });
+ // console.log(getData.data)
+  // const data=getData.map((item)=>{
+  //   return item[0];
+  // })
+  // console.log(data);
 
   // const [bankAccountData, setBankAccountData] = useState({
   //   accountNo: "",
@@ -78,6 +113,46 @@ const LicenseeInfo = () => {
       [name]: value,
     });
   };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const getLicenseData = await getLicenseInfo(); // Assuming async function to fetch license data
+        const obj = {};
+        Object.assign(obj, getLicenseData.data[0]); // Copy properties from first object in getLicenseData.data to obj
+        console.log(obj.licenceId); // Check if obj is populated correctly
+
+        // Update state with fetched data
+        setLicenseData({
+          ...licenseData,
+          nameOfLicence: obj.nameOfLicence,
+          businessType: obj.businessType,
+          address: obj.address,
+          district: obj.district,
+          phoneNo: obj.phoneNo,
+          
+          fiancialPeriodTo: obj.fiancialPeriodTo,
+          fiancialPeriodfrom: obj.fiancialPeriodfrom,
+          licenceId: obj.licenceId,
+          billCategory: obj.billCategory,
+          noOfBillCopies: obj.noOfBillCopies,
+          
+          autoBillPrint: obj.autoBillPrint,
+          eposUserId: obj.eposUserId,
+          eposPassword: obj.eposPassword,
+          noOfItemPerBill: obj.noOfItemPerBill,
+          perBillMaxWine: obj.perBillMaxWine,
+          perBillMaxCs: obj.perBillMaxCs,
+          
+          billMessages: obj.billMessages,
+          messageMobile: obj.messageMobile,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchData(); // Call the fetch data function
+  }, []);
   // const handleInputChange = (e) => {
   //   const { name, value } = e.target;
   //   setlicenseData({
@@ -171,8 +246,8 @@ const LicenseeInfo = () => {
     perBillMaxWine:  licenseData.perBillMaxWine,
     perBillMaxCs:   licenseData.perBillMaxCs,
     
-    billMessages:   licenseData.billMessages,
-    messageMobile:  licenseData.messageMobile,
+    
+    
     
     
      
@@ -1015,7 +1090,7 @@ const LicenseeInfo = () => {
               id="licenceId"
               fullWidth
               name="licenceId"
-              vcalue={licenseData.licenceId} 
+              value={licenseData.licenceId} 
               onChange={handleInputChange1} 
 
               
@@ -1126,6 +1201,7 @@ const LicenseeInfo = () => {
         </Grid>
         <Grid item xs={5} sx={{marginTop:"50px",marginLeft:"25px",textAlign:"left",background:"#d3dce8",padding:"12px",borderRadius:"6px"}}>
           <div sx={{display:"flex",flexDirection:"column",marginBottom:"10px"}}>
+          
           <h3>Wine Application Developed By:  TDR SOFTWARE PRIVATE LIMITED</h3>
           <h3>COMPANY CIN NO:   U72300WB2013PTC196614</h3>
           <h3>GSTIN:   19AAECT848D1ZX</h3>
@@ -1251,7 +1327,7 @@ const LicenseeInfo = () => {
             
             
           </Grid> */}
-          <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
+          {/* <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
           <InputLabel htmlFor="billMessages">Bill Messages</InputLabel>
           <FormControl variant="standard" sx={{ m: 1, width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
             <Input
@@ -1265,9 +1341,9 @@ const LicenseeInfo = () => {
             />
             </FormControl>
             
-          </Grid>
+          </Grid> */}
           <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
-          <InputLabel htmlFor="messageMobile">Message Mobile</InputLabel>
+          {/* <InputLabel htmlFor="messageMobile">Message Mobile</InputLabel>
           <FormControl variant="standard" sx={{ m: 1, width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
             <Input
             type="number"
@@ -1279,7 +1355,7 @@ const LicenseeInfo = () => {
               onChange={handleInputChange1}
               
             />
-            </FormControl>
+            </FormControl> */}
             
           </Grid>
           {/* <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
