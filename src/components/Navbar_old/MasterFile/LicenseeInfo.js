@@ -24,6 +24,7 @@ import axios from "axios";
 import { Bloodtype, Label } from "@mui/icons-material";
 import { createLicenseInfo } from "../../../services/stockService";
 import { getLicenseInfo } from "../../../services/stockService";
+import { updateLicenseInfo } from "../../../services/stockService";
 //import axiosInstance from "../../../utils/axiosInstance";
 
 
@@ -66,6 +67,7 @@ const LicenseeInfo = () => {
   //  console.log(obj.nameOfLicence);
  
   const [licenseData, setLicenseData] = useState({
+    id:"",
     nameOfLicence: '',
     businessType: "",
     address: "",
@@ -113,17 +115,21 @@ const LicenseeInfo = () => {
       [name]: value,
     });
   };
+  let obj={}
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
         const getLicenseData = await getLicenseInfo(); // Assuming async function to fetch license data
-        const obj = {};
+        
         Object.assign(obj, getLicenseData.data[0]); // Copy properties from first object in getLicenseData.data to obj
-        console.log(obj.licenceId); // Check if obj is populated correctly
+        console.log(obj._id); 
+        // Check if obj is populated correctly
 
         // Update state with fetched data
         setLicenseData({
           ...licenseData,
+          id:obj._id,
           nameOfLicence: obj.nameOfLicence,
           businessType: obj.businessType,
           address: obj.address,
@@ -150,6 +156,8 @@ const LicenseeInfo = () => {
         console.log(error);
       }
     };
+   
+    console.log("id: "+licenseData.id)
 
     fetchData(); // Call the fetch data function
   }, []);
@@ -194,6 +202,8 @@ const LicenseeInfo = () => {
       "noOfItemPerBill":licenseData.noOfItemPerBill,
       "perBillMaxWine":licenseData.perBillMaxWine,
       "perBillMaxCs":licenseData.perBillMaxCs,
+      "billMessages":licenseData.billMessages,
+      "messageMobile":licenseData.messageMobile,
    };
     e.preventDefault();
     try {
@@ -219,6 +229,55 @@ const LicenseeInfo = () => {
     console.log(licenseData);
     console.log("payload"+payload);
   };
+  console.log("obj"+Object.keys(obj))
+  const edit = async (e) => {
+   
+    // const updateCategoryData = await axiosInstance.put(apiURL, payload);
+    const payload={
+     "nameOfLicence":licenseData.nameOfLicence,
+       "businessType":licenseData.businessType,
+       "address":licenseData.address,
+       "district":licenseData.district,
+       "phoneNo":licenseData.phoneNo,
+ 
+       "fiancialPeriodTo":licenseData.fiancialPeriodTo,
+       "fiancialPeriodfrom":licenseData.fiancialPeriodfrom,
+       "licenceId":licenseData.licenceId,
+       "billCategory":licenseData.billCategory,
+       "noOfBillCopies":licenseData.noOfBillCopies,
+ 
+       "autoBillPrint":licenseData.autoBillPrint,
+       "eposUserId":licenseData.eposUserId,
+       "eposPassword":licenseData.eposPassword,
+       "noOfItemPerBill":licenseData.noOfItemPerBill,
+       "perBillMaxWine":licenseData.perBillMaxWine,
+       "perBillMaxCs":licenseData.perBillMaxCs,
+       "billMessages":licenseData.billMessages,
+       "messageMobile":licenseData.messageMobile,
+    };
+     e.preventDefault();
+     
+     try {
+       const response = await updateLicenseInfo(payload,licenseData.id);
+       
+       console.log(response.data)
+       NotificationManager.success("Data Updated Successfully",response.data.message);
+       
+       
+       
+       
+     } catch (error) {
+       console.log(error);
+       // Extract the error message or relevant information
+       let errorMessage = "An error occurred while updatting the data.";
+       if (error.response && error.response.data && error.response.data.message) {
+         errorMessage = error.response.data.message;
+       } 
+       NotificationManager.error(errorMessage);
+     }
+     console.log(licenseData);
+     console.log("payload"+Object.entries(payload),licenseData.id);
+   };
   
   const handleSubmit =async (e) => {
     e.preventDefault();
@@ -1188,7 +1247,7 @@ const LicenseeInfo = () => {
             <Button variant="contained" color="primary" type="submit" onClick={save}>
               SAVE
             </Button>
-            <Button variant="contained" color="success" type="submit" onClick={handleSubmit}>
+            <Button variant="contained" color="success" type="submit" onClick={edit}>
               EDIT
             </Button>
             <Button variant="contained" color="error" type="submit">
@@ -1327,7 +1386,7 @@ const LicenseeInfo = () => {
             
             
           </Grid> */}
-          {/* <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
+          <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
           <InputLabel htmlFor="billMessages">Bill Messages</InputLabel>
           <FormControl variant="standard" sx={{ m: 1, width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
             <Input
@@ -1341,9 +1400,9 @@ const LicenseeInfo = () => {
             />
             </FormControl>
             
-          </Grid> */}
+          </Grid>
           <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
-          {/* <InputLabel htmlFor="messageMobile">Message Mobile</InputLabel>
+          <InputLabel htmlFor="messageMobile">Message Mobile</InputLabel>
           <FormControl variant="standard" sx={{ m: 1, width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
             <Input
             type="number"
@@ -1355,7 +1414,7 @@ const LicenseeInfo = () => {
               onChange={handleInputChange1}
               
             />
-            </FormControl> */}
+            </FormControl>
             
           </Grid>
           {/* <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>

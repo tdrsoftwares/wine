@@ -27,7 +27,15 @@ export const getLicenseInfo = async () => {
     return error;
   }
 };
-
+export const updateLicenseInfo = async (payload, id) => {
+  try {
+    const apiURL = `/licence/update/${id}`;
+    const updateLicenseData = await axiosInstance.put(apiURL,payload);
+    return updateLicenseData.data;
+  } catch (error) {
+    return error;
+  }
+};
 export const updatePurchase = async (payload, id) => {
   try {
     const apiURL = `/stocks/update/${id}`;
