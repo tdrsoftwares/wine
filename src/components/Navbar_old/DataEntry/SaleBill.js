@@ -1672,7 +1672,10 @@ const SaleBill = () => {
   };
 
   useEffect(() => {
-    if (totalValues.flBeerVolume >= 32000 || totalValues.imlVolume >= 11000) {
+    if (
+      formData.billType === "CASHBILL" &&
+      (totalValues.flBeerVolume >= 32000 || totalValues.imlVolume >= 11000)
+    ) {
       handleAutoSaveCreateBill();
     }
   }, [handleSaveClick, handleSubmitIntoDataTable]);
