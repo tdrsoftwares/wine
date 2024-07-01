@@ -1158,7 +1158,7 @@ const LicenseeInfo = () => {
           </Grid>
           <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
           <InputLabel htmlFor="billCategory">BILL CATEGORY</InputLabel>
-          <FormControl variant="standard" sx={{ m: 1, width:"20%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
+          <FormControl variant="standard" sx={{ m: 1, width:"10%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
             <Input
             type="number"
               required
@@ -1200,7 +1200,7 @@ const LicenseeInfo = () => {
           <option>Two</option>
           <option>Three</option>
         </Select> */}
-        <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+        <FormControl variant="standard" sx={{ m: 1, width:"19%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
        
         <InputLabel id="demo-simple-select-standard-label">No of Copies</InputLabel>
         <Select required
@@ -1223,7 +1223,7 @@ const LicenseeInfo = () => {
           </Grid>
           <Grid xs={12} sx={{display:"flex",gap:"4px",padding:"12px",alignItems:"center",justifyContent:"space-between"}}>
           <InputLabel htmlFor="autoBillPrint">AUTO BILL PRINT</InputLabel>
-          <FormControl variant="standard" sx={{ m: 1,minWidth:320,padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'  }}>
+          <FormControl variant="standard" sx={{ m: 1,minWidth:200,padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'  }}>
        
        <InputLabel id="demo-simple-select-standard-label">Auto Bill Print</InputLabel>
        <Select required
@@ -1288,7 +1288,7 @@ const LicenseeInfo = () => {
           </Grid>
           <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
           <InputLabel htmlFor="eposPassword">EPOS PASSWORD</InputLabel>
-          <FormControl variant="standard" sx={{ m: 1, width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
+          <FormControl variant="standard" sx={{ m: 1, width:"50%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
             <Input
                required
               id="eposPassword"
@@ -1303,7 +1303,7 @@ const LicenseeInfo = () => {
           </Grid>
           <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
           <InputLabel htmlFor="noOfItemPerBill">NO OF ITEM PER BILL</InputLabel>
-          <FormControl variant="standard" sx={{ m: 1, width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
+          <FormControl variant="standard" sx={{ m: 1, width:"50%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
             <Input
             type="number"
               required
@@ -1319,7 +1319,7 @@ const LicenseeInfo = () => {
           </Grid>
           <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
           <InputLabel htmlFor="perBillMaxWine">Per Bill Max Wine(ML)</InputLabel>
-          <FormControl variant="standard" sx={{ m: 1, width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
+          <FormControl variant="standard" sx={{ m: 1, width:"50%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
             <Input
             type="number"
                required
@@ -1335,7 +1335,7 @@ const LicenseeInfo = () => {
           </Grid>
           <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
           <InputLabel htmlFor="perBillMaxCs">Per Bill Max CS(ML)</InputLabel>
-          <FormControl variant="standard" sx={{ m: 1, width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
+          <FormControl variant="standard" sx={{ m: 1, width:"50%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
             <Input
             type="number"
               required
@@ -1388,7 +1388,7 @@ const LicenseeInfo = () => {
           </Grid> */}
           <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
           <InputLabel htmlFor="billMessages">Bill Messages</InputLabel>
-          <FormControl variant="standard" sx={{ m: 1, width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
+          <FormControl variant="standard" sx={{ m: 1, width:"50%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
             <Input
               required
               id="billMessages"
@@ -1403,7 +1403,7 @@ const LicenseeInfo = () => {
           </Grid>
           <Grid item xs={12} sx={{display:"flex",gap:"4px",padding:"2px",alignItems:"center",justifyContent:"space-between"}}>
           <InputLabel htmlFor="messageMobile">Message Mobile</InputLabel>
-          <FormControl variant="standard" sx={{ m: 1, width:"60%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
+          <FormControl variant="standard" sx={{ m: 1, width:"50%",padding:"4px",background:"white",borderRadius:'6px',borderBottom:'none'}}>
             <Input
             type="number"
               required

@@ -13,16 +13,18 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { getSupplierData } from "../../../services/stockService";
 import dayjs from "dayjs";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const PartyPayment = () => {
   const todaysDate = dayjs();
+  const [data,setData]=useState([]);
   const [formData, setFormData] = useState({
     supName: "",
     address: "",
-    contact: "",
-    currentBal: "",
+    contactNo: "",
+    openingBlance: "",
     paymentNo: "",
     paymentBillNo: "",
     amtPaidRs: "",
@@ -34,34 +36,63 @@ const PartyPayment = () => {
     remarks: "",
     bankBal: "",
     adjustAmt: "",
+    mrpValue:"",
+    billNo:'',
+    billDate:"",
+    netAmount:''
+
   });
+   
+  // const [tableData, setTableData] = useState(
+  //   Array.from({ length: 4 }, () => ({
+  //     billNo: "",
+  //     billDate: "",
+  //     mrpValue: "",
+  //     netAmount: "",
+  //   }))
+  // );
+  const fetchData=async()=>{
+    const response=await getSupplierData();
+    setData(response.data);
+  }
+  console.log("data",data)
 
-  const [tableData, setTableData] = useState(
-    Array.from({ length: 4 }, () => ({
-      billNo: "",
-      billDate: "",
-      billAmt: "",
-      balanceAmt: "",
-    }))
-  );
+  // const handleSupplierNameChange = (selectedItem) => {
+  //   setFormData((prevData) => ({
+  //     ...prevData,
+  //     supName: selectedItem,
+  //   }));
+  //   console.log(selectedItem);
+  // };
+  const handleSupplierChange = (e) => {
+    const selected = data.find(item => item.supplierId.name === e.target.value);
+    if (selected) {
+      setFormData({
+        ...formData,
+        supName:selected.supplierId.name,
+        contactNo:selected.supplierId.contactNo,
+        address: selected.supplierId.address,
+        openingBlance: selected.supplierId.openingBlance,
+        mrpValue:selected.mrpValue,
+        billNo:selected.billNo,
+        billDate:selected.billDate,
+        netAmount:selected.netAmount
+        
 
-  const handleSupplierNameChange = (selectedItem) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      supName: selectedItem,
-    }));
-    console.log(selectedItem);
-  };
-
-  const handleItemCodeChange = (event, index, fieldName) => {
-    const { value } = event.target;
-    setTableData((prevData) =>
-      prevData.map((item, idx) =>
-        idx === index ? { ...item, [fieldName]: value } : item
-      )
-    );
-  };
-
+      });
+    }
+  }
+  // const handleItemCodeChange = (event, index, fieldName) => {
+  //   const { value } = event.target;
+  //   setTableData((prevData) =>
+  //     prevData.map((item, idx) =>
+  //       idx === index ? { ...item, [fieldName]: value } : item
+  //     )
+  //   );
+  // };
+  useEffect(()=>{
+    fetchData()
+  },[])
   return (
     <form>
       <Box sx={{ p: 2, width: "900px" }}>
@@ -83,11 +114,12 @@ const PartyPayment = () => {
               className="input-field"
               value={formData.supName}
               select
-              onChange={(e) => handleSupplierNameChange(e.target.value)}
+              onChange={handleSupplierChange}
             >
-              <MenuItem value="sur">Surinder Singh</MenuItem>
-              <MenuItem value="dip">Dipak Adhikari</MenuItem>
-              <MenuItem value="ark">Arka Das</MenuItem>
+              {data?.map((item,index)=>(
+                <MenuItem value={item.supplierId.name} key={item._id}>{item.supplierId.name}</MenuItem>
+              ))}
+              
             </TextField>
           </Grid>
 
@@ -108,30 +140,30 @@ const PartyPayment = () => {
 
           <Grid item xs={2}>
             <TextField
-              name="contactNo"
-              label="Contact No."
+              name="contactNoNo"
+              label="contactNo No."
               variant="outlined"
               type="number"
               fullWidth
               className="input-field"
-              value={formData.contact}
+              value={formData.contactNo}
               onChange={(e) =>
-                setFormData({ ...formData, contact: e.target.value })
+                setFormData({ ...formData, contactNo: e.target.value })
               }
             />
           </Grid>
 
           <Grid item xs={2}>
             <TextField
-              name="currentBal"
+              name="openingBlance"
               label="Current Balance"
               variant="outlined"
               type="number"
               fullWidth
               className="input-field"
-              value={formData.currentBal}
+              value={formData.openingBlance}
               onChange={(e) =>
-                setFormData({ ...formData, currentBal: e.target.value })
+                setFormData({ ...formData, openingBlance: e.target.value })
               }
             />
           </Grid>
@@ -182,7 +214,7 @@ const PartyPayment = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {tableData.map((row, index) => (
+              {data.map((row, index) => (
                 <TableRow key={index}>
                   <TableCell sx={{ padding: "8px" }}>
                     <TextField
@@ -195,9 +227,9 @@ const PartyPayment = () => {
                   <TableCell sx={{ padding: "8px" }}>
                     <TextField
                       size="small"
-                      value={row.billNo}
-                      onChange={(event) =>
-                        handleItemCodeChange(event, index, "billNo")
+                      value={formData.billNo}
+                      onChange={(e) =>
+                        setFormData({ ...formData, address: e.target.value })
                       }
                       fullWidth
                       // InputProps={{ readOnly: row.itemDescription !== "" }}
@@ -206,9 +238,9 @@ const PartyPayment = () => {
                   <TableCell sx={{ padding: "10px" }}>
                     <TextField
                       size="small"
-                      value={row.billDate}
-                      onChange={(event) =>
-                        handleItemCodeChange(event, index, "billDate")
+                      value={formData.billDate}
+                      onChange={(e) =>
+                        setFormData({ ...formData, address: e.target.value })
                       }
                       fullWidth
                     />
@@ -216,9 +248,9 @@ const PartyPayment = () => {
                   <TableCell sx={{ padding: "8px" }}>
                     <TextField
                       size="small"
-                      value={row.billAmt}
-                      onChange={(event) =>
-                        handleItemCodeChange(event, index, "billAmt")
+                      value={formData.mrpValue}
+                      onChange={(e) =>
+                        setFormData({ ...formData, address: e.target.value })
                       }
                       fullWidth
                     />
@@ -226,9 +258,10 @@ const PartyPayment = () => {
                   <TableCell sx={{ padding: "8px" }}>
                     <TextField
                       size="small"
-                      value={row.balanceAmt || ""}
-                      onChange={(event) =>
-                        handleItemCodeChange(event, index, "balanceAmt")
+                      value={formData
+                        .netAmount || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, address: e.target.value })
                       }
                       fullWidth
                     />

@@ -36,6 +36,16 @@ export const updateLicenseInfo = async (payload, id) => {
     return error;
   }
 };
+export const getSupplierData = async () => {
+  try {
+    const apiURL = `/supplierPaymentReciept/get-biils/664de7050996563516aab751`;
+    const getLicenseData = await axiosInstance.get(apiURL);
+    return getLicenseData.data;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const updatePurchase = async (payload, id) => {
   try {
     const apiURL = `/stocks/update/${id}`;
