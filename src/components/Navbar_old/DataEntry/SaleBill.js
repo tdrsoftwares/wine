@@ -630,7 +630,7 @@ const SaleBill = () => {
     setEditableIndex(index);
   };
 
-  const handleSaveClick = (index) => {
+  const handleSaveClick = async (index) => {
     const updatedSales = [...salesData];
     // console.log("updatedSales: ", updatedSales);
 
@@ -644,6 +644,10 @@ const SaleBill = () => {
         }pcs in stock.`
       );
       return;
+    }
+
+    if (totalValues.flBeerVolume >= 32000 || totalValues.imlVolume >= 11000) {
+      await handleAutoSaveCreateBill();
     }
 
     for (const key in editedRow) {
@@ -764,7 +768,11 @@ const SaleBill = () => {
 
       resetMiddleFormData();
     } catch (error) {
-      console.error("Error submitting data:", error);
+      console.error("Error submitting item:", error);
+      NotificationManager.error(
+        "Error submitting item. Please try again later.",
+        "Error"
+      );
     }
   };
 
@@ -1456,6 +1464,219 @@ const SaleBill = () => {
       );
     }
   }, []);
+
+  // working code for IML
+  const handleAutoSaveCreateBill = async () => {
+    const formatDate = (date) => {
+      return dayjs(date).format("YYYY-MM-DD");
+    };
+
+    const createBillPayload = (groupedItems, series, maxVolume) => {
+      let totalVolume = 0;
+      let totalPcs = 0;
+      let grossAmount = 0;
+      let discountAmt = 0;
+
+      const salesItem = [];
+      groupedItems.forEach((item) => {
+        const itemVolume = parseFloat(item.volume);
+        const itemPcs = parseFloat(item.pcs);
+        let currentPcs = Math.floor((maxVolume - totalVolume) / itemVolume);
+
+        if (currentPcs > itemPcs) {
+          currentPcs = itemPcs;
+        }
+
+        const itemAmount = currentPcs * item.rate;
+        const itemDiscountAmt = currentPcs * item.discount;
+
+        // console.log("currentPcs: ", currentPcs);
+        // console.log("totalPcs: ", totalPcs);
+        // console.log("salesItem: ", salesItem);
+
+        totalVolume += currentPcs * itemVolume;
+        totalPcs += currentPcs;
+        grossAmount += itemAmount;
+        discountAmt += itemDiscountAmt;
+
+        salesItem.push({
+          itemDetailsId: item.itemDetailsId,
+          itemCode: item.itemCode,
+          itemId: item.itemId,
+          batchNo: item.batch,
+          mrp: parseFloat(item.mrp),
+          pcs: currentPcs,
+          rate: parseFloat(item.rate),
+          discount: parseFloat(item.discount),
+          amount: itemAmount,
+          split: parseFloat(item.split),
+          break: parseFloat(item.brk),
+          stockAt: item.stockAt,
+        });
+
+        item.pcs -= currentPcs;
+      });
+
+      const netAmount = grossAmount - discountAmt;
+
+      return {
+        billType: formData.billType,
+        customer: formData.customerName._id,
+        billSeries: series,
+        billDate: formData.billDate
+          ? formatDate(formData.billDate)
+          : formatDate(new Date()),
+        volume: totalVolume,
+        totalPcs: totalPcs,
+        splDisc: parseFloat(totalValues.splDiscount || 0),
+        splDiscAmount: parseFloat(totalValues.splDiscAmount || 0),
+        grossAmount: grossAmount,
+        discAmount: discountAmt,
+        taxAmount: parseFloat(totalValues.taxAmt || 0),
+        adjustment: parseFloat(totalValues.adjustment || 0),
+        netAmount: netAmount,
+        receiptMode1: parseFloat(totalValues.receiptMode1),
+        salesItem: salesItem,
+        receiptAmount: parseFloat(totalValues.receiptAmt || 0),
+        ...(totalValues.receiptMode2 && {
+          receiptMode2: totalValues.receiptMode2,
+        }),
+      };
+    };
+
+    if (totalValues.flBeerVolume >= 32000 || totalValues.imlVolume >= 11000) {
+      let payload = [];
+
+      const groupedItems = {
+        FL: salesData.filter((item) => item.group === "FL"),
+        BEER: salesData.filter((item) => item.group === "BEER"),
+        IML: salesData.filter((item) => item.group === "IML"),
+      };
+
+      // console.log("groupedItems ---> ", groupedItems);
+
+      // FL and BEER bill creation
+      if (totalValues.flBeerVolume >= 32000) {
+        let remainingFLVolume = totalValues.flBeerVolume;
+
+        while (remainingFLVolume > 0) {
+          const currentVolume = Math.min(remainingFLVolume, 32000);
+          let flPayload = createBillPayload(
+            groupedItems.FL,
+            "FL",
+            currentVolume
+          );
+          let beerPayload = createBillPayload(
+            groupedItems.BEER,
+            "BEER",
+            currentVolume
+          );
+
+          if (flPayload.volume > 0) payload.push(flPayload);
+          if (beerPayload.volume > 0) payload.push(beerPayload);
+
+          remainingFLVolume -= currentVolume;
+        }
+      }
+
+      // IML bill creation
+      if (totalValues.imlVolume >= 11000) {
+        let remainingIMLVolume = totalValues.imlVolume;
+
+        while (remainingIMLVolume > 0) {
+          const currentVolume = Math.min(remainingIMLVolume, 11000);
+          let imlPayload = createBillPayload(
+            groupedItems.IML,
+            "IML",
+            currentVolume
+          );
+
+          if (imlPayload.volume > 0) payload.push(imlPayload);
+
+          remainingIMLVolume -= currentVolume;
+        }
+      } else if (totalValues.imlVolume > 0) {
+        // Add logic for volumes less than 11000
+        let imlPayload = createBillPayload(
+          groupedItems.IML,
+          "IML",
+          totalValues.imlVolume
+        );
+        if (imlPayload.volume > 0) payload.push(imlPayload);
+      }
+
+      // Ensure remaining items with pieces are included
+      Object.values(groupedItems).forEach((group) => {
+        group.forEach((item) => {
+          if (item.pcs > 0) {
+            let remainingPayload = createBillPayload(
+              [item],
+              item.group,
+              item.pcs * item.volume
+            );
+            if (remainingPayload.volume > 0) payload.push(remainingPayload);
+          }
+        });
+      });
+
+      // Consolidate IML payloads if needed
+      if (groupedItems.IML.length > 0) {
+        const remainingIMLItems = groupedItems.IML.filter(
+          (item) => item.pcs > 0
+        );
+        if (remainingIMLItems.length > 0) {
+          let remainingVolume = remainingIMLItems.reduce(
+            (sum, item) => sum + item.volume * item.pcs,
+            0
+          );
+          let imlPayload = createBillPayload(
+            remainingIMLItems,
+            "IML",
+            remainingVolume
+          );
+          if (imlPayload.volume > 0) payload.push(imlPayload);
+        }
+      }
+
+      if (payload.length > 0) {
+        try {
+          const response = await createSale(payload);
+
+          if (response.status === 200) {
+            NotificationManager.success(
+              "Bill created successfully",
+              "Success"
+            );
+
+            resetTopFormData();
+            resetMiddleFormData();
+            resetTotalValues();
+            setSearchResults([]);
+            setSalesData([]);
+            setSearchMode(false);
+          } else {
+            NotificationManager.error(
+              "Error creating bills. Please try again later.",
+              "Error"
+            );
+          }
+        } catch (error) {
+          console.error("Error creating bills:", error);
+          NotificationManager.error(
+            "Error creating bills. Please try again later.",
+            "Error"
+          );
+        }
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (totalValues.flBeerVolume >= 32000 || totalValues.imlVolume >= 11000) {
+      handleAutoSaveCreateBill();
+    }
+  }, [handleSaveClick, handleSubmitIntoDataTable]);
+    
 
   useEffect(() => {
     if (
