@@ -62,6 +62,20 @@ const PurchaseReportSummary = () => {
       headerClassName: "custom-header",
     },
     {
+      field: "billDate",
+      headerName: "Bill Date",
+      width: 180,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "passDate",
+      headerName: "Pass Date",
+      width: 180,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
       field: "entryNo",
       headerName: "Entry No.",
       width: 120,
@@ -82,20 +96,7 @@ const PurchaseReportSummary = () => {
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
-    {
-      field: "billDate",
-      headerName: "Bill Date",
-      width: 180,
-      cellClassName: "custom-cell",
-      headerClassName: "custom-header",
-    },
-    {
-      field: "passDate",
-      headerName: "Pass Date",
-      width: 180,
-      cellClassName: "custom-cell",
-      headerClassName: "custom-header",
-    },
+    
     {
       field: "supplierName",
       headerName: "Supplier Name",
@@ -218,6 +219,7 @@ const PurchaseReportSummary = () => {
         storeName: stockIn
       };
       const response = await getAllPurchases(filterOptions);
+      // console.log("Purchases fetched", response?.data?.data)
       setAllPurchases(response?.data?.data || []);
       setTotalCount(response?.data?.data?.length || 0);
     } catch (error) {
@@ -447,10 +449,20 @@ const PurchaseReportSummary = () => {
             rows={(allPurchases || []).map((purchase, index) => ({
               id: index,
               sNo: index + 1,
-              supplierName: purchase.supplier?.name,
-              storeName: purchase.store?.name,
-              discountAmount: purchase.discount,
-              ...purchase,
+              billDate: purchase.billDate || "No Data",
+              passDate: purchase.passDate || "No Data",
+              entryNo: purchase.entryNo || 0,
+              billNo: purchase.billNo || 0,
+              passNo: purchase.passNo || 0,
+              supplierName: purchase.supplier?.name || "No Data",
+              storeName: purchase.store?.name || "No Data",
+              mrpValue: purchase.mrpValue.toFixed(2) || 0,
+              grossAmount: purchase.grossAmount.toFixed(2) || 0,
+              discount: purchase.discount || 0,
+              govtROff: purchase.govtROff.toFixed(2) || 0,
+              specialPurpose: purchase.specialPurpose.toFixed(2) || 0,
+              tcsAmount: purchase.tcsAmount.toFixed(2) || 0,
+              netAmount: purchase.netAmount.toFixed(2) || 0,
               action: (
                 <Button
                   variant="contained"

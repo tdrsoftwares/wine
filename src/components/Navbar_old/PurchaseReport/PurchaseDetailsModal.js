@@ -10,11 +10,11 @@ import { getItemPurchaseDetails } from "../../../services/purchaseService";
 import { DataGrid } from "@mui/x-data-grid";
 
 const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
-  console.log("rowData: ", rowData);
-  console.log("open: ", open);
+  // console.log("rowData: ", rowData);
+  // console.log("open: ", open);
   const [itemPurchaseDetails, setItemPurchaseDetails] = useState([]);
   const [loading, setLoading] = useState(false);
-  console.log("itemPurchaseDetails: ", itemPurchaseDetails);
+  // console.log("itemPurchaseDetails: ", itemPurchaseDetails);
 
   const columns = [
     {
@@ -123,7 +123,7 @@ const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
       const allItemPurchasesResponse = await getItemPurchaseDetails(
         rowData.entryNo
       );
-      console.log("allItemPurchasesResponse: ", allItemPurchasesResponse);
+      // console.log("allItemPurchasesResponse: ", allItemPurchasesResponse);
       setItemPurchaseDetails(allItemPurchasesResponse?.data?.data?.purchaseItems);
     } catch (error) {
       // NotificationManager.error(
@@ -180,17 +180,17 @@ const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
               createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
               itemCode: item.itemCode || "No Data",
               itemName: item.itemId?.name || "No Data",
-              batchNo: item.batchNo || "No Data",
-              brokenNo: item.brokenNo || "No Data",
-              caseNo: item.caseNo || "No Data",
+              batchNo: item.batchNo || 0,
+              brokenNo: item.brokenNo || 0,
+              caseNo: item.caseNo || 0,
               // updatedAt: new Date(item.updatedAt).toLocaleDateString("en-GB"),
-              mrp: item.mrp || "No Data",
-              pcs: item.pcs || "No Data",
-              purchaseRate: item.purchaseRate || "No Data",
-              saleRate: item.saleRate || "No Data",
-              gro: item.gro || "No Data",
-              sp: item.sp || "No Data",
-              itemAmount: item.itemAmount || "No Data",
+              mrp: item.mrp.toFixed(2) || 0,
+              pcs: item.pcs || 0,
+              purchaseRate: item.purchaseRate.toFixed(2) || 0,
+              saleRate: item.saleRate.toFixed(2) || 0,
+              gro: item.gro.toFixed(2) || 0,
+              sp: item.sp.toFixed(2) || 0,
+              itemAmount: item.itemAmount.toFixed(2) || 0,
             }))}
             columns={columns}
             rowsPerPageOptions={[10, 25, 50]}
