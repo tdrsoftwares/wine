@@ -38,6 +38,7 @@ const LicenseeInfo = () => {
   //   color: theme.palette.text.secondary,
   // }));
   let [getData,setGetData] = useState([]);
+  const [toggle,setToggle]=useState(false)
   const fetchData = async () => {
     try {
       
@@ -208,7 +209,7 @@ const LicenseeInfo = () => {
     e.preventDefault();
     try {
       const response = await createLicenseInfo(payload);
-      
+      setToggle(true)
       console.log(response.data)
       NotificationManager.success("Data Submitted Successfully",response.data.message);
       
@@ -1244,9 +1245,9 @@ const LicenseeInfo = () => {
      </FormControl>
             </Grid>
           <Grid item xs={12} sx={{display:"flex",gap:"18px",padding:"12px",alignItems:"center",justifyContent:"center"}} >
-            <Button variant="contained" color="primary" type="submit" onClick={save}>
+             <Button variant="contained" color="primary" type="submit" onClick={save} disabled={toggle}>
               SAVE
-            </Button>
+            </Button> 
             <Button variant="contained" color="success" type="submit" onClick={edit}>
               EDIT
             </Button>
