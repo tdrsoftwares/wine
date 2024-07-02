@@ -38,7 +38,11 @@ const LicenseeInfo = () => {
   //   color: theme.palette.text.secondary,
   // }));
   let [getData,setGetData] = useState([]);
-  const [toggle,setToggle]=useState(false)
+  const [isButtonDisabled, setIsButtonDisabled] = useState(() => {
+    // Initialize state from localStorage if it exists
+    const storedValue = localStorage.getItem('isButtonDisabled');
+    return storedValue ? JSON.parse(storedValue) : false;
+  });
   const fetchData = async () => {
     try {
       
@@ -52,10 +56,7 @@ const LicenseeInfo = () => {
       console.log(error);
     }
   };
-  // useEffect(() => {
-  //   fetchData()
-    
-  // }, []);
+
   // console.log(getData[0]);
   // const firstData=getData.data;
   //  const mappedData = getData.map((item) => {
@@ -119,6 +120,7 @@ const LicenseeInfo = () => {
   let obj={}
   
   useEffect(() => {
+    localStorage.setItem('isButtonDisabled', JSON.stringify(isButtonDisabled));
     const fetchData = async () => {
       try {
         const getLicenseData = await getLicenseInfo(); // Assuming async function to fetch license data
@@ -161,7 +163,7 @@ const LicenseeInfo = () => {
     console.log("id: "+licenseData.id)
 
     fetchData(); // Call the fetch data function
-  }, []);
+  }, [isButtonDisabled]);
   // const handleInputChange = (e) => {
   //   const { name, value } = e.target;
   //   setlicenseData({
@@ -209,7 +211,7 @@ const LicenseeInfo = () => {
     e.preventDefault();
     try {
       const response = await createLicenseInfo(payload);
-      setToggle(true)
+      setIsButtonDisabled(true)
       console.log(response.data)
       NotificationManager.success("Data Submitted Successfully",response.data.message);
       
@@ -1245,7 +1247,7 @@ const LicenseeInfo = () => {
      </FormControl>
             </Grid>
           <Grid item xs={12} sx={{display:"flex",gap:"18px",padding:"12px",alignItems:"center",justifyContent:"center"}} >
-             <Button variant="contained" color="primary" type="submit" onClick={save} disabled={toggle}>
+             <Button variant="contained" color="primary" type="submit" onClick={save} disabled={isButtonDisabled}>
               SAVE
             </Button> 
             <Button variant="contained" color="success" type="submit" onClick={edit}>
