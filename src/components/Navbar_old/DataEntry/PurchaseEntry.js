@@ -295,7 +295,6 @@ const PurchaseEntry = () => {
   };
 
   const handleEdit = (index, field, value) => {
-    // console.log("field: ", field);
     if (
       field === "mrp" ||
       field === "case" ||
@@ -311,15 +310,33 @@ const PurchaseEntry = () => {
         return;
       }
     }
-
+  
     const editedRowCopy = { ...editedRow };
-    // console.log("editedRowCopy: ", editedRowCopy);
+    // console.log("editedRowCopy: ",editedRowCopy);
     editedRowCopy[field] = value;
-
+  
     if (field === "mrp") {
       editedRowCopy.btlRate = editedRowCopy.mrp;
     }
+  
+    if (field === "case") {
+      const newCase = parseFloat(value) || 0;
+      // console.log("newCase: ", newCase)
+      const newPcsValue = newCase * purchases[index].caseValue || 0;
+      // console.log("newPcsValue: ", newPcsValue);
 
+      editedRowCopy.case = newCase;
+      editedRowCopy.pcs = newPcsValue;
+    }
+  
+    if (field === "pcs") {
+      const regex = /^\d*\.?\d*$/;
+      if (regex.test(value) || value === "") {
+        editedRowCopy.case = 0;
+        editedRowCopy.pcs = value;
+      }
+    }
+  
     if (
       field === "purchaseRate" ||
       field === "pcs" ||
@@ -328,27 +345,31 @@ const PurchaseEntry = () => {
       field === "sp"
     ) {
       let amount = 0;
-      // console.log("editedRowCopy: ", editedRowCopy);
       const purRate =
         parseFloat(
           editedRowCopy.purchaseRate || purchases[index].purchaseRate
         ) || 0;
-      const pcs = parseFloat(editedRowCopy.pcs || purchases[index].pcs) || 0;
-      const caseValue =
-        parseFloat(editedRowCopy.case || purchases[index].case) || 0;
+
+      const pcs = parseFloat(editedRowCopy.pcs || purchases[index].pcs || 0);
+      const caseNo =
+        parseFloat(editedRowCopy.case || purchases[index].caseNo || 0);
+        // console.log("caseNo: ", caseNo)
+
       const gro = parseFloat(editedRowCopy.gro || purchases[index].gro) || 0;
       const sp = parseFloat(editedRowCopy.sp || purchases[index].sp) || 0;
-
-      if (parseFloat(caseValue) === 0) {
+  
+      if (parseFloat(caseNo) === 0) {
         amount = (purRate * pcs).toFixed(2);
-      } else if (parseFloat(caseValue) > 0) {
-        amount = (purRate * parseFloat(caseValue) + gro + sp).toFixed(2);
+      } else if (parseFloat(caseNo) > 0) {
+        amount = (purRate * parseFloat(caseNo) + gro + sp).toFixed(2);
       }
-
+  
       editedRowCopy.amount = amount;
     }
+    
     setEditedRow(editedRowCopy);
   };
+  
 
   const handleEditClick = (index) => {
     setEditableIndex(index);
@@ -389,7 +410,7 @@ const PurchaseEntry = () => {
   const fetchAllEntries = async () => {
     try {
       const response = await getAllEntryNo();
-      console.log("response: ", response);
+      // console.log("response: ", response);
       setAllEntries(response?.data?.data);
     } catch (error) {
       NotificationManager.error(
@@ -516,6 +537,7 @@ const PurchaseEntry = () => {
             mrp: purchase?.mrp,
             batch: purchase?.batchNo,
             case: purchase?.caseNo,
+            caseValue: purchase?.itemId?.caseValue,
             pcs: purchase?.pcs,
             brk: purchase?.brokenNo,
             purchaseRate: purchase?.purchaseRate,
@@ -736,9 +758,10 @@ const PurchaseEntry = () => {
 
     try {
       const response = await createPurchase(payload);
-      // console.log("Purchase created successfully:", response);
+      console.log("Purchase created successfully:", response?.data?.data);
 
       if (response.status === 200) {
+        setEntryNumber("");
         NotificationManager.success("Purchase created successfully", "Success");
         setEntryNumber(response?.data?.data?.purchase?.entryNo);
         clearButtonRef.current.focus();
@@ -964,6 +987,13 @@ const PurchaseEntry = () => {
     });
   };
 
+  const handlePcsChanges = (e) => {
+    const regex = /^\d*\.?\d*$/;
+    if (regex.test(e.target.value) || e.target.value === "") {
+      setFormData({ ...formData, case: 0, pcs: e.target.value });
+    }
+  };
+
   const handleGROChange = (event) => {
     const newGROValue =
       event.target.value === "" ? "" : parseFloat(event.target.value);
@@ -1042,18 +1072,12 @@ const PurchaseEntry = () => {
     setFormData({ ...formData, billDate: date });
   };
 
-  const handlePcsChanges = (e) => {
-    const regex = /^\d*\.?\d*$/;
-    if (regex.test(e.target.value) || e.target.value === "") {
-      setFormData({ ...formData, case: 0, pcs: e.target.value });
-    }
-  };
-
   useEffect(() => {
     fetchAllSuppliers();
     fetchAllStores();
-    fetchAllEntries();
   }, []);
+
+  useEffect(() => { fetchAllEntries() },[entryNumber, entryNoEditable]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -1902,7 +1926,7 @@ const PurchaseEntry = () => {
                       <TableCell align="center">
                         {editableIndex === index ? (
                           <Input
-                            value={editedRow.case || row.case || ""}
+                            value={editedRow.case || row.case}
                             onChange={(e) =>
                               handleEdit(index, "case", e.target.value)
                             }
@@ -1915,7 +1939,7 @@ const PurchaseEntry = () => {
                       <TableCell align="center">
                         {editableIndex === index ? (
                           <Input
-                            value={editedRow.pcs || row.pcs || ""}
+                            value={editedRow.pcs || row.pcs}
                             onChange={(e) =>
                               handleEdit(index, "pcs", e.target.value)
                             }
@@ -1928,7 +1952,7 @@ const PurchaseEntry = () => {
                       <TableCell align="center">
                         {editableIndex === index ? (
                           <Input
-                            value={editedRow.brk || row.brk || ""}
+                            value={editedRow.brk || row.brk}
                             onChange={(e) =>
                               handleEdit(index, "brk", e.target.value)
                             }
@@ -1942,7 +1966,7 @@ const PurchaseEntry = () => {
                         {editableIndex === index ? (
                           <Input
                             value={
-                              editedRow.purchaseRate || row.purchaseRate || ""
+                              editedRow.purchaseRate || row.purchaseRate
                             }
                             onChange={(e) =>
                               handleEdit(index, "purchaseRate", e.target.value)
@@ -1956,7 +1980,7 @@ const PurchaseEntry = () => {
                       <TableCell align="center">
                         {editableIndex === index ? (
                           <Input
-                            value={editedRow.btlRate || row.btlRate || ""}
+                            value={editedRow.btlRate || row.btlRate}
                             onChange={(e) =>
                               handleEdit(index, "btlRate", e.target.value)
                             }
@@ -1969,7 +1993,7 @@ const PurchaseEntry = () => {
                       <TableCell align="center">
                         {editableIndex === index ? (
                           <Input
-                            value={editedRow.gro || row.gro || ""}
+                            value={editedRow.gro || row.gro}
                             onChange={(e) =>
                               handleEdit(index, "gro", e.target.value)
                             }
@@ -1982,7 +2006,7 @@ const PurchaseEntry = () => {
                       <TableCell align="center">
                         {editableIndex === index ? (
                           <Input
-                            value={editedRow.sp || row.sp || ""}
+                            value={editedRow.sp || row.sp}
                             onChange={(e) =>
                               handleEdit(index, "sp", e.target.value)
                             }
@@ -1996,7 +2020,7 @@ const PurchaseEntry = () => {
                         {editableIndex === index ? (
                           <Input
                             size="medium"
-                            value={editedRow.amount || row.amount || ""}
+                            value={editedRow.amount || row.amount}
                             onChange={(e) =>
                               handleEdit(index, "amount", e.target.value)
                             }

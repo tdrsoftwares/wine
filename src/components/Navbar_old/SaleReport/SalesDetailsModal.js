@@ -75,7 +75,7 @@ const SalesDetailsModal = ({ open, handleClose, rowData }) => {
       setLoading(true);
       try {
         const allItemSalesResponse = await getItemSaleDetails(rowData.billNo);
-        console.log("allItemSalesResponse: ",allItemSalesResponse?.data?.data)
+        // console.log("allItemSalesResponse: ",allItemSalesResponse?.data?.data)
         setItemSalesDetails(allItemSalesResponse?.data?.data?.salesItems);
       } catch (error) {
         console.log("Error fetching ItemSales.", error);
@@ -125,13 +125,13 @@ const SalesDetailsModal = ({ open, handleClose, rowData }) => {
               sNo: index + 1,
               itemCode: item.itemCode || "No Data",
               batchNo: item.batchNo || "No Data",
-              break: item.break || "No Data",
-              split: item.split || "No Data",
-              mrp: item.mrp || "No Data",
-              pcs: item.pcs || "No Data",
-              rate: item.rate || "No Data",
-              discount: item.discount || "No Data",
-              amount: item.amount || "No Data",
+              break: item.break || 0,
+              split: item.split || 0,
+              mrp: item.mrp.toFixed(2) || 0,
+              pcs: item.pcs || 0,
+              rate: item.rate.toFixed(2) || 0,
+              discount: item.discount.toFixed(2) || 0,
+              amount: item.amount.toFixed(2) || 0,
             }))}
             columns={columns}
             pageSize={5}

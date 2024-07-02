@@ -227,7 +227,7 @@ const SaleReportSummary = () => {
         customerType: filterData.customerType,
       };
       const allSalesResponse = await getAllSales(filterOptions);
-      console.log("allSalesResponse ---> ", allSalesResponse?.data?.data);
+      // console.log("allSalesResponse ---> ", allSalesResponse?.data?.data);
       if (allSalesResponse.status === 200) {
         setAllSalesData(allSalesResponse?.data?.data);
         setTotalCount(allSalesResponse?.data.data?.length);
@@ -243,14 +243,14 @@ const SaleReportSummary = () => {
       console.error("Error fetching sales:", error);
     } finally {
       setLoading(false);
-      console.log("Data fetching completed.");
+      // console.log("Data fetching completed.");
     }
   };
 
   const fetchAllCustomers = async () => {
     try {
       const allCustomerResponse = await getAllCustomer();
-      console.log("allCustomerResponse ---> ", allCustomerResponse);
+      // console.log("allCustomerResponse ---> ", allCustomerResponse);
       setAllCustomerData(allCustomerResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
@@ -499,7 +499,7 @@ const SaleReportSummary = () => {
             rows={(allSalesData || [])?.map((sale, index) => ({
               id: index,
               sNo: index + 1,
-              billNo: sale.billNo || "No Data",
+              billNo: sale.billNo || 0,
               billDate: sale.billDate || "No Data",
               // new Date(sale.billDate).toLocaleDateString("en-GB"),
               billType: sale.billType || "No Data",
@@ -507,15 +507,15 @@ const SaleReportSummary = () => {
               customer: sale.customer?.name || "No Data",
               customerType: sale.customer?.type || "No Data",
               phoneNumber: sale.customer?.contactNo || "No Data",
-              volume: sale.volume || "No Data",
-              totalPcs: sale.totalPcs || "No Data",
-              grossAmount: sale.grossAmount || "No Data",
+              volume: sale.volume || 0,
+              totalPcs: sale.totalPcs || 0,
+              grossAmount: sale.grossAmount.toFixed(2) || 0,
               // discAmount: sale.discAmount || "No Data",
               // splDisc: sale.splDisc,
-              splDiscAmount: sale.splDiscAmount || "No Data",
+              splDiscAmount: sale.splDiscAmount.toFixed(2) || 0,
               // taxAmount: sale.taxAmount || "No Data",
-              adjustment: sale.adjustment || "No Data",
-              netAmount: sale.netAmount || "No Data",
+              adjustment: sale.adjustment.toFixed(2) || 0,
+              netAmount: sale.netAmount.toFixed(2) || 0,
               action: (
                 <Button
                   variant="contained"
