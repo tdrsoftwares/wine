@@ -27,6 +27,7 @@ export const getLicenseInfo = async () => {
     return error;
   }
 };
+
 export const updateLicenseInfo = async (payload, id) => {
   try {
     const apiURL = `/licence/update/${id}`;
@@ -38,7 +39,16 @@ export const updateLicenseInfo = async (payload, id) => {
 };
 export const getSupplierData = async () => {
   try {
-    const apiURL = `/supplierPaymentReciept/get-biils/664de7050996563516aab751`;
+    const apiURL = `/supplier/get-all`;
+    const getLicenseData = await axiosInstance.get(apiURL);
+    return getLicenseData.data;
+  } catch (error) {
+    return error;
+  }
+};
+export const getSupplierDataById = async (id) => {
+  try {
+    const apiURL = `/supplierPaymentReciept/get-biils/${id}`;
     const getLicenseData = await axiosInstance.get(apiURL);
     return getLicenseData.data;
   } catch (error) {

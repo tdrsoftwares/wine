@@ -13,91 +13,96 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { getSupplierData } from "../../../services/stockService";
+import { NotificationManager } from "react-notifications";
+import { getSupplierData, getSupplierDataById } from "../../../services/stockService";
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 
 const PartyPayment = () => {
   const todaysDate = dayjs();
-  const [data,setData]=useState([]);
+ 
+  const [data, setData] = useState([]);
+  const [supplierData, setSupplierData] = useState([]);
   const [formData, setFormData] = useState({
     supName: "",
     address: "",
     contactNo: "",
     openingBlance: "",
-    paymentNo: "",
-    paymentBillNo: "",
-    amtPaidRs: "",
-    amtPaidDate: todaysDate,
-    mode: ["CASH", "ONLINE"],
-    chequeNo: "",
-    chequeDate: todaysDate,
-    bankAccnt: "",
-    remarks: "",
-    bankBal: "",
-    adjustAmt: "",
-    mrpValue:"",
-    billNo:'',
-    billDate:"",
-    netAmount:''
-
+    mrpValue: "",
+    billNo: "",
+    billDate: "",
+    netAmount: ""
   });
-   
-  // const [tableData, setTableData] = useState(
-  //   Array.from({ length: 4 }, () => ({
-  //     billNo: "",
-  //     billDate: "",
-  //     mrpValue: "",
-  //     netAmount: "",
-  //   }))
-  // );
-  const fetchData=async()=>{
-    const response=await getSupplierData();
-    setData(response.data);
-  }
-  console.log("data",data)
 
-  // const handleSupplierNameChange = (selectedItem) => {
-  //   setFormData((prevData) => ({
-  //     ...prevData,
-  //     supName: selectedItem,
-  //   }));
-  //   console.log(selectedItem);
-  // };
-  const handleSupplierChange = (e) => {
-    const selected = data.find(item => item.supplierId.name === e.target.value);
-    if (selected) {
-      setFormData({
-        ...formData,
-        supName:selected.supplierId.name,
-        contactNo:selected.supplierId.contactNo,
-        address: selected.supplierId.address,
-        openingBlance: selected.supplierId.openingBlance,
-        mrpValue:selected.mrpValue,
-        billNo:selected.billNo,
-        billDate:selected.billDate,
-        netAmount:selected.netAmount
-        
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-      });
+  const fetchData = async () => {
+    try {
+      const response = await getSupplierData(); // Assuming this fetches an array of suppliers
+      setData(response.data);
+    } catch (error) {
+      console.error('Error fetching supplier data:', error);
     }
-  }
-  // const handleItemCodeChange = (event, index, fieldName) => {
-  //   const { value } = event.target;
-  //   setTableData((prevData) =>
-  //     prevData.map((item, idx) =>
-  //       idx === index ? { ...item, [fieldName]: value } : item
-  //     )
-  //   );
-  // };
-  useEffect(()=>{
-    fetchData()
-  },[])
+  };
+
+  const change = async (id) => {
+    try {
+      const response = await getSupplierDataById(id);
+      setSupplierData(response.data);
+
+      // Update formData with the details of the first supplier in response
+      if (response.data.length > 0) {
+        const selected = response.data[0]; // Assuming only one supplier is returned
+        setFormData({
+          ...formData,
+          supName: selected.supplierId.name,
+          contactNo: selected.supplierId.contactNo,
+          address: selected.supplierId.address,
+          openingBlance: selected.supplierId.openingBlance,
+          mrpValue: selected.mrpValue,
+          billNo: selected.billNo,
+          billDate: selected.billDate,
+          netAmount: selected.netAmount
+        });
+      }
+      NotificationManager.success("Data Found")
+    } catch (error) {
+      NotificationManager.error('Error fetching supplier data by ID:');
+    }
+  };
+
+  const handleSupplierChange = (e) => {
+    const selectedSupplierName = e.target.value;
+
+    // Find the selected supplier from supplierData
+    const selected = supplierData?.find((item) => item.supplierId.name === selectedSupplierName);
+    
+      if (selected) {
+        // Update formData with the selected supplier details
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+          supName: selected.supplierId.name,
+          contactNo: selected.supplierId.contactNo,
+          address: selected.supplierId.address,
+          openingBlance: selected.supplierId.openingBlance,
+          mrpValue: selected.mrpValue,
+          billNo: selected.billNo,
+          billDate: selected.billDate,
+          netAmount: selected.netAmount
+        }));
+      }
+     
+
+    
+  };
+console.log(formData,"formData")
   return (
     <form>
       <Box sx={{ p: 2, width: "900px" }}>
         <Typography variant="h5" component="div" gutterBottom>
-          Supplier Payment
+          Supplier Payment 
         </Typography>
         <Typography variant="subtitle2" gutterBottom>
           Supplier Details
@@ -117,7 +122,7 @@ const PartyPayment = () => {
               onChange={handleSupplierChange}
             >
               {data?.map((item,index)=>(
-                <MenuItem value={item.supplierId.name} key={item._id}>{item.supplierId.name}</MenuItem>
+                <MenuItem value={item.name} key={item._id} onClick={()=>change(item._id)}>{item.name}</MenuItem>
               ))}
               
             </TextField>
@@ -214,7 +219,7 @@ const PartyPayment = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map((row, index) => (
+              {supplierData?.map((row, index) => (
                 <TableRow key={index}>
                   <TableCell sx={{ padding: "8px" }}>
                     <TextField
@@ -227,7 +232,7 @@ const PartyPayment = () => {
                   <TableCell sx={{ padding: "8px" }}>
                     <TextField
                       size="small"
-                      value={formData.billNo}
+                      value={row.billNo}
                       onChange={(e) =>
                         setFormData({ ...formData, address: e.target.value })
                       }
@@ -238,7 +243,7 @@ const PartyPayment = () => {
                   <TableCell sx={{ padding: "10px" }}>
                     <TextField
                       size="small"
-                      value={formData.billDate}
+                      value={row.billDate}
                       onChange={(e) =>
                         setFormData({ ...formData, address: e.target.value })
                       }
@@ -248,7 +253,7 @@ const PartyPayment = () => {
                   <TableCell sx={{ padding: "8px" }}>
                     <TextField
                       size="small"
-                      value={formData.mrpValue}
+                      value={row.mrpValue}
                       onChange={(e) =>
                         setFormData({ ...formData, address: e.target.value })
                       }
@@ -258,7 +263,7 @@ const PartyPayment = () => {
                   <TableCell sx={{ padding: "8px" }}>
                     <TextField
                       size="small"
-                      value={formData
+                      value={row
                         .netAmount || ""}
                       onChange={(e) =>
                         setFormData({ ...formData, address: e.target.value })
