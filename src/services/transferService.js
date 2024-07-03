@@ -104,3 +104,14 @@ export const updateTransferDetails = async (payload, transferNo) => {
     return error;
   }
 };
+
+
+export const getAllTransfers = async () => {
+  try{
+    const apiURL = `stock-transfer/bill-no`;
+    const allTransfers = await axiosInstance.get(apiURL);
+    return allTransfers;
+  } catch(err) {
+    return err;
+  }
+}

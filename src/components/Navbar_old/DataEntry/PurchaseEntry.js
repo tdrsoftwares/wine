@@ -414,7 +414,7 @@ const PurchaseEntry = () => {
       setAllEntries(response?.data?.data);
     } catch (error) {
       NotificationManager.error(
-        "Error fetching suppliers. Please try again later.",
+        "Error fetching transfers. Please try again later.",
         "Error"
       );
     }

@@ -26,6 +26,7 @@ import { getAllStores } from "../../../services/storeService";
 import { NotificationManager } from "react-notifications";
 import {
   createTransfer,
+  getAllTransfers,
   getTransferDetails,
   getTransferDetailsByItemCode,
   getTransferDetailsByItemName,
@@ -70,6 +71,7 @@ const StockTransfer = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [transferNo, setTransferNo] = useState("");
   const [transferNoEditable, setTransferNoEditable] = useState(false);
+  const [allTransfers, setAllTransfers] = useState([]);
 
   const tableRef = useRef(null);
   const itemCodeRef = useRef(null);
@@ -260,9 +262,27 @@ const StockTransfer = () => {
     };
   }, [searchMode, formData.itemName, searchResults, selectedRowIndex]);
 
+  
+  const fetchAllTransfers = async () => {
+    try {
+      const response = await getAllTransfers();
+      // console.log("response: ", response);
+      setAllTransfers(response?.data?.data);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching transfers. Please try again later.",
+        "Error"
+      );
+    }
+  };
+
   useEffect(() => {
     fetchAllStores();
   }, []);
+
+  useEffect(() => {
+    fetchAllTransfers();
+  }, [transferNo, transferNoEditable]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -796,6 +816,7 @@ const StockTransfer = () => {
                 Transfer No :
               </InputLabel>
               <TextField
+                select
                 fullWidth
                 inputRef={transferNoRef}
                 name="transferNo"
@@ -807,7 +828,22 @@ const StockTransfer = () => {
                     setTransferNo(value);
                   }
                 }}
-              />
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
+                    },
+                  },
+                }}
+                >
+                  {allTransfers?.map((item) => (
+                  <MenuItem key={item._id} value={item.transferNo}>
+                    {`${item.transferNo}`}
+                  </MenuItem>
+                ))} 
+              </TextField>
             </div>
           </Grid>
 
