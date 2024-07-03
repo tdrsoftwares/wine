@@ -14,37 +14,103 @@ import {
   Typography,
 } from "@mui/material";
 import dayjs from "dayjs";
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
+import { NotificationManager } from "react-notifications";
+import { getCustomerData, getCustomerDataById } from "../../../services/stockService";
+
+//import { getCustomerDataById } from "../../../services/stockService";
 
 const CustomerReceipt = () => {
   const todaysDate = dayjs();
-  const [custName, setcustName] = useState("");
-  const [address, setAddress] = useState("");
-  const [contact, setContact] = useState("");
-  const [currentBal, setCurrentBal] = useState("");
-  const [receiptNo, setreceipttNo] = useState("");
-  
-  const [amtPaidRs, setAmtPaidRs] = useState("");
-  const [amtPaidDate, setAmtPaidDate] = useState(todaysDate);
-  const [mode, setMode] = useState([]);
-  const [chequeNo, setChequeNo] = useState("");
-  const [chequeDate, setChequeDate] = useState(todaysDate);
-  const [bankAccnt, setBankAccnt] = useState("");
-  const [remarks, setRemarks] = useState("");
-  const [bankBal, setBankBal] = useState("");
-  const [adjustAmt, setAdjustAmt] = useState("");
+  const [data, setData] = useState([]);
+  const [customerData, setcustomerData] = useState([]);
+  const [formData, setFormData] = useState({
+    cusName: "",
+    address: "",
+    contactNo: "",
+    openingBlance: "",
+    grossAmount: "",
+    billNo: "",
+    billDate: "",
+    netAmount: "",
+    currentBal:"",
+    reciptNo:"",
+    amtPaidRs:'',
+    amtPaidDate:'',
+    bankAccnt:'',
+    chequeNo:'',
+    chequeDate:'',
+    bankBal:'',
+    adjustAmt:'',
+    remarks:''
+  });
 
-  const [tableData, setTableData] = useState(
-    Array.from({ length: 4 }, () => ({
-      billNo: "",
-      billDate: "",
-      billAmt: "",
-      balanceAmt: "",
-    }))
-  );
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  const handleItemCodeChange = () => {};
+  const fetchData = async () => {
+    try {
+      const response = await getCustomerData(); // Assuming this fetches an array of suppliers
+      setData(response.data);
+    } catch (error) {
+      console.error('Error fetching customer data:', error);
+    }
+  };
 
+  const change = async (id) => {
+    console.log(id,"id")
+    try {
+      const response = await getCustomerDataById(id);
+      setcustomerData(response.data);
+
+      // Update formData with the details of the first supplier in response
+      if (response.data.length > 0) {
+        const selected = response.data[0]; // Assuming only one supplier is returned
+        setFormData({
+          ...formData,
+          cusName: selected.customer.name,
+          contactNo: selected.customer.contactNo,
+          address: selected.customer.address,
+          openingBlance: selected.customer.openingBlance,
+          grossAmount: selected.grossAmount,
+          billNo: selected.billNo,
+          billDate: selected.billDate,
+          netAmount: selected.netAmount
+        });
+      }
+      NotificationManager.success("Data Found")
+    } catch (error) {
+      NotificationManager.error('Error fetching customer data');
+    }
+  };
+
+  const handleSupplierChange = (e) => {
+    const selectedSupplierName = e.target.value;
+
+    // Find the selected supplier from customerData
+    const selected = customerData?.find((item) => item.customer.name === selectedSupplierName);
+    
+      if (selected) {
+        // Update formData with the selected supplier details
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+          cusName: selected.customer.name,
+          contactNo: selected.customer.contactNo,
+          address: selected.customer.address,
+          openingBlance: selected.customer.openingBlance,
+          grossAmount: selected.grossAmount,
+          billNo: selected.billNo,
+          billDate: selected.billDate,
+          netAmount: selected.netAmount
+        }));
+      }
+     
+
+    
+  };
+// console.log(customerData,"formData")
+// console.log(data,"Data")
   return (
     <form>
       <Box sx={{ p: 2, width: "900px" }}>
@@ -57,20 +123,21 @@ const CustomerReceipt = () => {
 
         <Grid container spacing={2}>
           <Grid item xs={4}>
-            <TextField
-              name="custName"
+          <TextField
+              name="cusName"
               label="Customer Name"
               variant="outlined"
               type="text"
               fullWidth
               className="input-field"
-              value={custName}
+              value={formData.cusName}
               select
-              onChange={(e) => setcustName(e.target.value)}
+              onChange={handleSupplierChange}
             >
-              <MenuItem value="sur">Surinder Singh</MenuItem>
-              <MenuItem value="dip">Dipak Adhikari</MenuItem>
-              <MenuItem value="ark">Arka Das</MenuItem>
+              {data?.map((item,index)=>(
+                <MenuItem value={item.name} key={item._id} onClick={()=>change(item._id)}>{item.name}</MenuItem>
+              ))}
+              
             </TextField>
           </Grid>
 
@@ -82,8 +149,9 @@ const CustomerReceipt = () => {
               type="text"
               fullWidth
               className="input-field"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              value={formData.address}
+              onChange={(e) =>
+                setFormData({ ...formData, address: e.target.value })}
             />
           </Grid>
 
@@ -95,12 +163,13 @@ const CustomerReceipt = () => {
               type="tel"
               fullWidth
               className="input-field"
-              value={contact}
-              onChange={(e) => setContact(e.target.value)}
+              value={formData.contactNo}
+              onChange={(e) =>
+                setFormData({ ...formData, address: e.target.value })}
             />
           </Grid>
 
-          <Grid item xs={4}>
+           <Grid item xs={4}>
             <TextField
               name="currentBal"
               label="Current Balance"
@@ -108,8 +177,10 @@ const CustomerReceipt = () => {
               type="number"
               fullWidth
               className="input-field"
-              value={currentBal}
-              onChange={(e) => setCurrentBal(e.target.value)}
+             
+              value={formData.currentBal}
+              onChange={(e) =>
+                setFormData({ ...formData, currentBal: e.target.value })}
             />
           </Grid>
 
@@ -121,8 +192,10 @@ const CustomerReceipt = () => {
               type="number"
               fullWidth
               className="input-field"
-              value={receiptNo}
-              onChange={(e) => setreceipttNo(e.target.value)}
+              
+              value={formData.reciptNo}
+              onChange={(e) =>
+                setFormData({ ...formData, reciptNo: e.target.value })}
             />
           </Grid>
           <Grid item xs={4}>
@@ -133,11 +206,12 @@ const CustomerReceipt = () => {
               type="number"
               fullWidth
               className="input-field"
-              value={receiptNo}
-              onChange={(e) => setreceipttNo(e.target.value)}
+              value={formData.billNo}
+              onChange={(e) =>
+                setFormData({ ...formData, billNo: e.target.value })}
             />
           </Grid>
-        </Grid>
+        </Grid> 
 
         <TableContainer
           component={Paper}
@@ -154,7 +228,7 @@ const CustomerReceipt = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {tableData.map((row, index) => (
+            {customerData?.map((row, index) => (
                 <TableRow key={index}>
                   <TableCell sx={{ padding: "8px" }}>
                     <TextField
@@ -168,8 +242,8 @@ const CustomerReceipt = () => {
                     <TextField
                       size="small"
                       value={row.billNo}
-                      onChange={(event) =>
-                        handleItemCodeChange(event, index, "billNo")
+                      onChange={(e) =>
+                        setFormData({ ...formData, address: e.target.value })
                       }
                       fullWidth
                       // InputProps={{ readOnly: row.itemDescription !== "" }}
@@ -179,8 +253,8 @@ const CustomerReceipt = () => {
                     <TextField
                       size="small"
                       value={row.billDate}
-                      onChange={(event) =>
-                        handleItemCodeChange(event, index, "billDate")
+                      onChange={(e) =>
+                        setFormData({ ...formData, address: e.target.value })
                       }
                       fullWidth
                     />
@@ -188,9 +262,9 @@ const CustomerReceipt = () => {
                   <TableCell sx={{ padding: "8px" }}>
                     <TextField
                       size="small"
-                      value={row.billAmt}
-                      onChange={(event) =>
-                        handleItemCodeChange(event, index, "billAmt")
+                      value={row.grossAmount}
+                      onChange={(e) =>
+                        setFormData({ ...formData, address: e.target.value })
                       }
                       fullWidth
                     />
@@ -198,9 +272,10 @@ const CustomerReceipt = () => {
                   <TableCell sx={{ padding: "8px" }}>
                     <TextField
                       size="small"
-                      value={row.balanceAmt || ""}
-                      onChange={(event) =>
-                        handleItemCodeChange(event, index, "balanceAmt")
+                      value={row
+                        .netAmount || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, address: e.target.value })
                       }
                       fullWidth
                     />
@@ -226,8 +301,10 @@ const CustomerReceipt = () => {
                 type="number"
                 fullWidth
                 className="input-field"
-                value={amtPaidRs}
-                onChange={(e) => setAmtPaidRs(e.target.value)}
+                
+                value={formData.amtPaidRs}
+                onChange={(e) =>
+                  setFormData({ ...formData, amtPaidRs: e.target.value })}
               />
             </Grid>
             <Grid item xs={3}>
@@ -239,8 +316,10 @@ const CustomerReceipt = () => {
                 type="date"
                 fullWidth
                 className="input-field"
-                value={dayjs(amtPaidDate).format("YYYY-MM-DD")}
-                onChange={(e) => setAmtPaidDate(dayjs(e.target.value))}
+                value={dayjs(formData.amtPaidDate).format("YYYY-MM-DD")}
+               
+              onChange={(e) =>
+                setFormData({ ...formData, amtPaidDate: e.target.value })}
               />
             </Grid>
             <Grid item xs={3}>
@@ -251,8 +330,9 @@ const CustomerReceipt = () => {
                 size="small"
                 fullWidth
                 select
-                value={mode}
-                onChange={(e) => setMode(e.target.value)}
+                value={formData.mode}
+              onChange={(e) =>
+                setFormData({ ...formData, mode: e.target.value })}
               >
                 {["CASH", "ONLINE"].map((option) => (
                   <MenuItem key={option} value={option}>
@@ -270,8 +350,9 @@ const CustomerReceipt = () => {
                 type="text"
                 fullWidth
                 className="input-field"
-                value={bankAccnt}
-                onChange={(e) => setBankAccnt(e.target.value)}
+                value={formData.bankAccnt}
+              onChange={(e) =>
+                setFormData({ ...formData, bankAccnt: e.target.value })}
               />
             </Grid>
             <Grid item xs={3}>
@@ -283,8 +364,9 @@ const CustomerReceipt = () => {
                 type="text"
                 fullWidth
                 className="input-field"
-                value={chequeNo}
-                onChange={(e) => setChequeNo(e.target.value)}
+                value={formData.chequeNo}
+              onChange={(e) =>
+                setFormData({ ...formData, chequeNo: e.target.value })}
               />
             </Grid>
             <Grid item xs={3}>
@@ -296,8 +378,10 @@ const CustomerReceipt = () => {
                 type="date"
                 fullWidth
                 className="input-field"
-                value={chequeDate}
-                onChange={(e) => setChequeDate(e.target.value)}
+                value={formData.chequeDate}
+               
+                onChange={(e) =>
+                  setFormData({ ...formData, chequeDate: e.target.value })}
               />
             </Grid>
 
@@ -310,8 +394,9 @@ const CustomerReceipt = () => {
                 type="text"
                 fullWidth
                 className="input-field"
-                value={bankBal}
-                onChange={(e) => setBankBal(e.target.value)}
+                value={formData.bankBal}
+              onChange={(e) =>
+                setFormData({ ...formData, bankBal: e.target.value })}
               />
             </Grid>
 
@@ -324,8 +409,9 @@ const CustomerReceipt = () => {
                 type="text"
                 fullWidth
                 className="input-field"
-                value={adjustAmt}
-                onChange={(e) => setAdjustAmt(e.target.value)}
+                value={formData.adjustAmt}
+              onChange={(e) =>
+                setFormData({ ...formData, adjustAmt: e.target.value })}
               />
             </Grid>
 
@@ -338,8 +424,9 @@ const CustomerReceipt = () => {
                 type="text"
                 fullWidth
                 className="input-field"
-                value={remarks}
-                onChange={(e) => setRemarks(e.target.value)}
+                value={formData.remarks}
+              onChange={(e) =>
+                setFormData({ ...formData, remarks: e.target.value })}
               />
             </Grid>
             <Grid item xs={9}>

@@ -69,7 +69,7 @@ const PartyPayment = () => {
       }
       NotificationManager.success("Data Found")
     } catch (error) {
-      NotificationManager.error('Error fetching supplier data by ID:');
+      NotificationManager.error('Error fetching supplier data');
     }
   };
 

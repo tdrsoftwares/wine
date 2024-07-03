@@ -48,9 +48,28 @@ export const getSupplierData = async () => {
 };
 export const getSupplierDataById = async (id) => {
   try {
-    const apiURL = `/supplierPaymentReciept/get-biils/${id}`;
-    const getLicenseData = await axiosInstance.get(apiURL);
-    return getLicenseData.data;
+    const apiURL = `/supplier-payment-reciept/get-biils/${id}`;
+    const getSupplierData = await axiosInstance.get(apiURL);
+    return getSupplierData.data;
+  } catch (error) {
+    return error;
+  }
+};
+export const getCustomerData = async () => {
+  try {
+    const apiURL = `/customer/get-all`;
+    const getCustomerData = await axiosInstance.get(apiURL);
+    return getCustomerData.data;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const getCustomerDataById = async (id) => {
+  try {
+    const apiURL = `/customer-reciept/get-biils/${id}`;
+    const getCustomerData = await axiosInstance.get(apiURL);
+    return getCustomerData.data;
   } catch (error) {
     return error;
   }
