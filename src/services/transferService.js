@@ -93,3 +93,14 @@ export const removeTransferDetails = async (transferNo) => {
     return error;
   }
 };
+
+
+export const updateTransferDetails = async (payload, transferNo) => {
+  try {
+    const apiURL = `/stock-transfer/update/${transferNo}`;
+    const updateDetails = await axiosInstance.put(apiURL, payload);
+    return updateDetails;
+  } catch (error) {
+    return error;
+  }
+};

@@ -124,7 +124,7 @@ const SalesDetailsModal = ({ open, handleClose, rowData }) => {
               id: index,
               sNo: index + 1,
               itemCode: item.itemCode || "No Data",
-              batchNo: item.batchNo || "No Data",
+              batchNo: item.batchNo || 0,
               break: item.break || 0,
               split: item.split || 0,
               mrp: item.mrp.toFixed(2) || 0,

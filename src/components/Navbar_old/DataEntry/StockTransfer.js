@@ -30,9 +30,12 @@ import {
   getTransferDetailsByItemCode,
   getTransferDetailsByItemName,
   removeTransferDetails,
+  updateTransferDetails,
 } from "../../../services/transferService";
 import debounce from "lodash.debounce";
 import CloseIcon from "@mui/icons-material/Close";
+import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
 
 const StockTransfer = () => {
   const toDaysDate = dayjs();
@@ -57,11 +60,13 @@ const StockTransfer = () => {
     category: "",
     volume: "",
     currentStock: "",
+    caseValue: ""
   });
   const [searchMode, setSearchMode] = useState(false);
   const [editableIndex, setEditableIndex] = useState(-1);
   const [editedRow, setEditedRow] = useState({});
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
+  const [isRowUpdated, setIsRowUpdated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [transferNo, setTransferNo] = useState("");
   const [transferNoEditable, setTransferNoEditable] = useState(false);
@@ -135,8 +140,6 @@ const StockTransfer = () => {
       setAllGodownStores(allGodowns);
       setAllNonGodownStores(allNonGodowns);
 
-      // console.log("allGodowns ---> ", allGodowns);
-      // console.log("allNonGodowns ---> ", allNonGodowns);
     } catch (error) {
       NotificationManager.error(
         "Error fetching stores. Please try again later.",
@@ -334,9 +337,7 @@ const StockTransfer = () => {
 
   const handleCaseChange = (event) => {
     const newCase = parseFloat(event.target.value) || 0;
-    // console.log("newCase: ", newCase);
     const newPcsValue = newCase * parseFloat(formData.caseValue) || 0;
-    // console.log("newPcsValue: ", newPcsValue);
     setFormData({
       ...formData,
       case: newCase,
@@ -376,10 +377,67 @@ const StockTransfer = () => {
     setSearchMode(false);
   };
 
-  const handleEdit = (e) => {};
-  const handleEditClick = (e) => {};
+  const handleEdit = (index, field, value) => {
+    const updatedRow = { ...transferData[index] };
 
-  const handleSaveClick = (e) => {};
+    updatedRow[field] = value;
+
+    
+    if (field === "case") {
+      const newCase = parseFloat(value) || 0;
+      const newPcsValue = newCase * transferData[index].caseValue || 0;
+
+      updatedRow.case = newCase;
+      updatedRow.pcs = newPcsValue;
+    }
+  
+    if (field === "pcs") {
+      const regex = /^\d*\.?\d*$/;
+      if (regex.test(value) || value === "") {
+        updatedRow.case = 0;
+        updatedRow.pcs = value;
+      }
+    }
+
+    const updatedTransferData = [...transferData];
+    updatedTransferData[index] = updatedRow;
+
+    setTransferData(updatedTransferData);
+  };
+
+
+  const handleEditClick = (index) => {
+    setEditableIndex(index);
+  };
+
+  const handleSaveClick = async (index) => {
+    const updatedTransfer = [...transferData];
+
+    const updatedRow = { ...updatedTransfer[index] };
+    // console.log("updatedRow: ", updatedRow);
+
+    // if (updatedRow.pcs > updatedRow.currentStock) {
+    //   NotificationManager.warning(
+    //     `Out of Stock! Currently you have ${
+    //       updatedRow.currentStock || 0
+    //     }pcs in stock.`
+    //   );
+    //   return;
+    // }
+
+    for (const key in editedRow) {
+      if (editedRow.hasOwnProperty(key)) {
+        updatedRow[key] = editedRow[key];
+      }
+    }
+
+    updatedTransfer[index] = updatedRow;
+    setIsRowUpdated(true);
+    setTransferData(updatedTransfer);
+
+    setEditedRow({});
+    setEditableIndex(-1);
+  };
 
   const handleRowClick = (index) => {
     const selectedRow = searchResults[index];
@@ -420,14 +478,12 @@ const StockTransfer = () => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    // console.log("date: ", date);
 
     const day = date.getDate().toString().padStart(2, "0");
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const year = date.getFullYear().toString();
 
     const formattedDate = `${day}/${month}/${year}`;
-    // console.log("formattedDate: ", formattedDate);
     return formattedDate;
   };
 
@@ -439,7 +495,6 @@ const StockTransfer = () => {
         if (response?.data?.data) {
           const receivedData = response.data.data;
 
-          // console.log("transferNoSearch Data: ", receivedData);
           const transferDateObject = convertToDayjsObject(
             receivedData.transferDate
           );
@@ -464,6 +519,7 @@ const StockTransfer = () => {
             volume: transfer.itemId?.volume || 0,
             brand: transfer.itemId?.brandId?.name || "",
             category: transfer.itemId?.categoryId?.categoryName || "",
+            caseValue: transfer?.itemId?.caseValue,
             // currentStock: transfer.itemId?.stock || 0
           }));
           // console.log("newTransferItems: ", newTransferItems);
@@ -549,6 +605,72 @@ const StockTransfer = () => {
     }
   };
 
+  const handleUpdateTransfer = async () => {
+    const transferDateObj = formatDate(formData.transferDate);
+
+    if(isRowUpdated === false) {
+      NotificationManager.warning("Please change some values to update the transfer!");
+      // transferFromRef.current.focus();
+      return;
+    }
+
+    if (!formData.transferFrom) {
+      NotificationManager.warning("Please input in Transfer From field.");
+      transferFromRef.current.focus();
+      return;
+    }
+
+    if (!formData.transferTo) {
+      NotificationManager.warning("Please input in Transfer To field.");
+      transferToRef.current.focus();
+      return;
+    }
+
+    if (!formData.transferDate) {
+      NotificationManager.warning("Please input in Transfer Date field.");
+      transferDateRef.current.focus();
+      return;
+    }
+
+    if (transferData.length <= 0) {
+      NotificationManager.warning("Enter some item to transfer.", "Warning");
+      itemNameRef.current.focus();
+      return;
+    }
+
+    const payload = {
+      transferFrom: formData.transferFrom,
+      transferTo: formData.transferTo,
+      transferDate: transferDateObj,
+
+      transferItems: transferData.map((item) => ({
+        transferItemId: item.itemDetailsId || "",
+        itemCode: item.itemCode.toString() || "",
+        itemId: item.itemId.toString() || "",
+        mrp: parseFloat(item.mrp) || 0,
+        batchNo: item.batch.toString() || "",
+        caseNo: parseFloat(item.case) || 0,
+        pcs: parseFloat(item.pcs) || 0,
+      })),
+    };
+
+    try {
+      const response = await updateTransferDetails(payload, transferNo);
+      // console.log("response: ", response?.data?.data);
+      if (response.status === 200) {
+        NotificationManager.success("Transfer updated successfully", "Success");
+        setSearchMode(false);
+        newTransferRef.current.focus();
+        setTransferNo(response.data.data.transferNo);
+        setIsRowUpdated(false);
+      } else {
+        NotificationManager.error("Problem updating transfer", "Error");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   const handleDeleteTransfer = async () => {
     try {
       if (transferNoEditable && transferNo) {
@@ -566,6 +688,7 @@ const StockTransfer = () => {
           setEditedRow({});
           setSelectedRowIndex(null);
           setSearchMode(false);
+          setIsRowUpdated(false);
           setEditableIndex(-1);
         } else {
           console.log("error: ", response);
@@ -597,10 +720,8 @@ const StockTransfer = () => {
   };
 
   const handlePreviousTransfer = () => {
-    // console.log(transferNoEditable);
     if (transferNo && transferNoEditable) {
       if (parseInt(transferNo) > 1) {
-        // console.log("prev executing...");
         setTransferNo(parseInt(transferNo) - 1);
       }
     }
@@ -608,7 +729,6 @@ const StockTransfer = () => {
 
   const handleNextTransfer = () => {
     if (transferNo && transferNoEditable)
-      // console.log("next executing...")
       setTransferNo(parseInt(transferNo) + 1);
   };
 
@@ -1076,7 +1196,7 @@ const StockTransfer = () => {
                       <TableCell>{row.volume}</TableCell>
 
                       <TableCell>
-                        {/* {editableIndex !== index ? (
+                        {editableIndex !== index ? (
                           <EditIcon
                             sx={{ cursor: "pointer", color: "blue" }}
                             onClick={() => handleEditClick(index)}
@@ -1086,7 +1206,7 @@ const StockTransfer = () => {
                             sx={{ cursor: "pointer", color: "green" }}
                             onClick={() => handleSaveClick(index)}
                           />
-                        )} */}
+                        )}
                         <CloseIcon
                           sx={{ cursor: "pointer", color: "red" }}
                           onClick={() => handleRemoveClick(index)}
@@ -1215,7 +1335,13 @@ const StockTransfer = () => {
                 color="success"
                 size="small"
                 variant="contained"
-                onClick={handleCreateTransfer}
+                onClick={(e) => {
+                  if (transferNoEditable && transferNo) {
+                    handleUpdateTransfer();
+                  } else {
+                    handleCreateTransfer(e);
+                  }
+                }}
                 sx={{
                   padding: "4px 10px",
                   fontSize: "11px",
