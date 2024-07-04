@@ -957,13 +957,6 @@ const SaleBill = () => {
         itemCodeRef.current.focus();
       }
 
-      if (
-        formData.billType === "CASHBILL" &&
-        (totalValues.flBeerVolume >= 32000 || totalValues.imlVolume >= 11000)
-      ) {
-        await autoSaveCashBill();
-      }
-
       resetMiddleFormData();
 
     } catch (error) {
@@ -1646,14 +1639,14 @@ const SaleBill = () => {
   }, []);
 
 
-  // useEffect(() => {
-  //   if (
-  //     formData.billType === "CASHBILL" &&
-  //     (totalValues.flBeerVolume >= 32000 || totalValues.imlVolume >= 11000)
-  //   ) {
-  //     autoSaveCashBill();
-  //   }
-  // }, [formData.billType, totalValues.flBeerVolume, totalValues.imlVolume]);
+  useEffect(() => {
+    if (
+      formData.billType === "CASHBILL" &&
+      (totalValues.flBeerVolume >= 32000 || totalValues.imlVolume >= 11000)
+    ) {
+      autoSaveCashBill();
+    }
+  }, [handleSubmitIntoDataTable]);
   
 
 
