@@ -39,56 +39,102 @@ const SaleBillPrintModal = ({ open, handleClose, salesData, formData, totalValue
     >
       <Box sx={printModalStyles}>
         <Box ref={printRef} sx={{ p: 1, width: "80mm" }}>
-          <Typography variant="h6" component="h2" align="center" sx={{ fontSize: "12px" }}>
+          {/* <Typography variant="h6" component="h2" align="center" sx={{ fontSize: "12px", fontWeight: "bold" }}>
             Original
+          </Typography> */}
+          <Typography
+            variant="h2"
+            component="h1"
+            align="center"
+            sx={{ fontSize: "12px", fontWeight: "bold", mb: 1 }}
+          >
+            CASH MEMO
           </Typography>
-          <Typography variant="h6" component="h2" align="center" sx={{ fontSize: "12px" }}>
-            Cash Memo
-          </Typography>
-          <Typography variant="h5" component="h2" align="center" sx={{ fontSize: "12px" }}>
+          <Typography
+            variant="h2"
+            component="h1"
+            align="center"
+            sx={{ fontSize: "12px" }}
+          >
             {licenseDetails?.nameOfLicence}
           </Typography>
-          <Typography variant="h6" component="h2" align="center" sx={{ fontSize: "12px" }}>
+          <Typography
+            variant="h4"
+            component="h2"
+            align="center"
+            sx={{ fontSize: "12px" }}
+          >
             {licenseDetails?.businessType}
           </Typography>
-          <Typography variant="body1" align="center" sx={{ fontSize: "10px" }}>
+          <Typography
+            variant="h6"
+            component="h2"
+            align="center"
+            sx={{ fontSize: "10px" }}
+          >
             {licenseDetails?.address}
           </Typography>
-          <Typography variant="body1" align="center" sx={{ fontSize: "10px" }}>
-            {`${licenseDetails?.district || ''}`}
+          <Typography
+            variant="h6"
+            component="h2"
+            align="center"
+            sx={{ fontSize: "10px" }}
+          >
+            {`${licenseDetails?.district || ""}`}
           </Typography>
 
           <Divider sx={{ my: 1 }} />
 
-          <Box sx={{ display: "flex", justifyContent: "space-between", fontSize: "10px" }}>
-            <Typography variant="body1">
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              fontSize: "10px",
+            }}
+          >
+            <Typography variant="body1" sx={{ fontSize: "11px" }}>
               Customer: {saleBillData.customer}
             </Typography>
-            <Typography variant="body1">
+            <Typography variant="body1" sx={{ fontSize: "11px" }}>
               *{saleBillData.billNo}*
             </Typography>
           </Box>
-          <Box sx={{ display: "flex", justifyContent: "space-between", fontSize: "10px" }}>
-            <Typography variant="body1">
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              fontSize: "10px",
+            }}
+          >
+            <Typography variant="body1" sx={{ fontSize: "11px" }}>
               Bill No.: {saleBillData.billNo}
             </Typography>
-            <Typography variant="body1">
+            <Typography variant="body1" sx={{ fontSize: "11px" }}></Typography>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              fontSize: "10px",
+            }}
+          >
+            <Typography variant="body1" sx={{ fontSize: "10px" }}>
+              Date: {saleBillData.date}
+            </Typography>
+            <Typography variant="body1" sx={{ fontSize: "10px" }}>
               Time: {saleBillData.time}
             </Typography>
           </Box>
-          <Typography variant="body1" sx={{ fontSize: "10px" }}>
-            Date: {saleBillData.date}
-          </Typography>
 
           <Divider sx={{ my: 1 }} />
 
           <Typography variant="body2" sx={{ fontSize: "10px" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-              <Box sx={{ width: "25%" }}>BATCH</Box>
-              <Box sx={{ width: "35%" }}>ITEM</Box>
-              <Box sx={{ width: "10%" }}>QTY</Box>
-              <Box sx={{ width: "15%" }}>RATE</Box>
-              <Box sx={{ width: "15%" }}>AMT.</Box>
+              <Box sx={{ width: "25%", fontWeight: "bold" }}>BATCH</Box>
+              <Box sx={{ width: "35%", fontWeight: "bold" }}>ITEM</Box>
+              <Box sx={{ width: "10%", fontWeight: "bold" }}>QTY</Box>
+              <Box sx={{ width: "15%", fontWeight: "bold" }}>RATE</Box>
+              <Box sx={{ width: "15%", fontWeight: "bold" }}>AMT.</Box>
             </Box>
           </Typography>
           {saleBillData.items.map((item, index) => (
@@ -105,19 +151,31 @@ const SaleBillPrintModal = ({ open, handleClose, salesData, formData, totalValue
 
           <Divider sx={{ my: 1 }} />
 
-          <Box sx={{ display: "flex", justifyContent: "space-between", fontSize: "10px" }}>
-            <Typography variant="body1">
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              fontSize: "10px",
+            }}
+          >
+            <Typography variant="body1" sx={{ fontSize: "11px" }}>
               Total Qty: {saleBillData.totalQty}
             </Typography>
-            <Typography variant="body1">
+            <Typography variant="body1" sx={{ fontSize: "11px" }}>
               Gross Amt: {saleBillData.grossAmt.toFixed(2)}
             </Typography>
           </Box>
-          <Box sx={{ display: "flex", justifyContent: "space-between", fontSize: "10px" }}>
-            <Typography variant="body1">
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              fontSize: "10px",
+            }}
+          >
+            <Typography variant="body1" sx={{ fontSize: "11px" }}>
               Total BL: {saleBillData.totalBL}
             </Typography>
-            <Typography variant="body1">
+            <Typography variant="body1" sx={{ fontSize: "11px" }}>
               Net Amount: {saleBillData.netAmount.toFixed(2)}
             </Typography>
           </Box>
@@ -132,14 +190,26 @@ const SaleBillPrintModal = ({ open, handleClose, salesData, formData, totalValue
           </Typography>
         </Box>
 
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handlePrint}
-          sx={{ mt: 1 }}
-        >
-          Print
-        </Button>
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            onClick={handlePrint}
+            sx={{ mt: 1 }}
+          >
+            Print
+          </Button>
+          <Button
+            variant="contained"
+            color="inherit"
+            size="small"
+            onClick={handleClose}
+            sx={{ mt: 1 }}
+          >
+            Cancel
+          </Button>
+        </Box>
       </Box>
     </Modal>
   );

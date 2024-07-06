@@ -359,3 +359,9 @@ body {
     max-width: 100%;
   }
 }
+
+@media print {
+  .print-container {
+    display: block !important;
+  }
+}

@@ -110,12 +110,12 @@ const SaleBill = () => {
     receiptMode1: "",
     receiptMode2: "",
   });
-  console.log("formData: ", formData)
-  console.log("salesData: ",salesData)
-  console.log("totalValues: ",totalValues)
+  // console.log("formData: ", formData)
+  // console.log("salesData: ",salesData)
+  // console.log("totalValues: ",totalValues)
   
   const { licenseDetails } = useLicenseContext();
-  console.log("licenseDetails: ", licenseDetails);
+  // console.log("licenseDetails: ", licenseDetails);
   const tableRef = useRef(null);
   const customerNameRef = useRef(null);
   const addressRef = useRef(null);
@@ -1150,12 +1150,12 @@ const SaleBill = () => {
   
     try {
       const response = await createSale(payload);
-      console.log("Sale created: ",response)
-  
+      // console.log("Sale created: ", response);
+
       if (response.status === 200) {
         NotificationManager.success("Sale created successfully", "Success");
-        setShowSaleBillPrintModal(true);
-        setFormData({...formData, billno: response.data.data.billno})
+        // setShowSaleBillPrintModal(true);
+        setFormData({ ...formData, billno: response.data.data.billno });
       } else {
         NotificationManager.error(
           "Error creating Sale. Please try again later.",
@@ -1164,13 +1164,13 @@ const SaleBill = () => {
       }
     } catch (error) {
       console.error("Error creating sale:", error);
-    } finally{
-      // resetTopFormData();
-      //   resetMiddleFormData();
-      //   resetTotalValues();
-      //   setSearchResults([]);
-      //   setSalesData([]);
-        setSearchMode(false);
+    } finally {
+      resetTopFormData();
+      resetMiddleFormData();
+      resetTotalValues();
+      setSearchResults([]);
+      setSalesData([]);
+      setSearchMode(false);
     }
   };
   
@@ -2776,6 +2776,21 @@ const SaleBill = () => {
                 }}
               >
                 OPEN
+              </Button>
+              <Button
+                color="warning"
+                size="small"
+                variant="contained"
+                onClick={() => {
+                  setShowSaleBillPrintModal(true);
+                }}
+                sx={{
+                  marginRight: 1,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+              >
+                PRINT
               </Button>
               <Button
                 ref={saveButtonRef}
