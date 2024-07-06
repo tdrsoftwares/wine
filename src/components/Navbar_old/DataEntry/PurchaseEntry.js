@@ -41,6 +41,8 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { customTheme } from "../../../utils/customTheme";
+import PurchaseBillPrintModal from "./PurchaseBillPrintModal";
+import { useLicenseContext } from "../../../utils/licenseContext";
 
 const PurchaseEntry = () => {
   const [allSuppliers, setAllSuppliers] = useState([]);
@@ -54,7 +56,7 @@ const PurchaseEntry = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [entryNumber, setEntryNumber] = useState("");
   const [entryNoEditable, setEntryNoEditable] = useState(true);
-  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+  const [showPurchaseBillPrintModal, setShowPurchaseBillPrintModal] = useState(false);
   const [formData, setFormData] = useState({
     _id: "",
     supplierName: "",
@@ -82,6 +84,8 @@ const PurchaseEntry = () => {
 
   dayjs.extend(utc);
   dayjs.extend(customParseFormat);
+  const { licenseDetails } = useLicenseContext();
+  // console.log("licenseDetails: ", licenseDetails);
 
   const [totalValues, setTotalValues] = useState({
     totalMrp: "",
@@ -136,6 +140,10 @@ const PurchaseEntry = () => {
   const netAmountRef = useRef(null);
   const saveButtonRef = useRef(null);
   const clearButtonRef = useRef(null);
+
+  const handleClosePurchaseBillPrintModal = () => {
+    setShowPurchaseBillPrintModal(false);
+  };
 
   const resetTopFormData = () => {
     setFormData((prevFormData) => ({
@@ -765,7 +773,6 @@ const PurchaseEntry = () => {
         setEntryNumber("");
         NotificationManager.success("Purchase created successfully", "Success");
         setEntryNumber(response?.data?.data?.purchase?.entryNo);
-        setIsPrintModalOpen(true);
         clearButtonRef.current.focus();
         setSearchMode(false);
       } else if (response.response.status === 400) {
@@ -1967,9 +1974,7 @@ const PurchaseEntry = () => {
                       <TableCell align="center">
                         {editableIndex === index ? (
                           <Input
-                            value={
-                              editedRow.purchaseRate || row.purchaseRate
-                            }
+                            value={editedRow.purchaseRate || row.purchaseRate}
                             onChange={(e) =>
                               handleEdit(index, "purchaseRate", e.target.value)
                             }
@@ -2312,6 +2317,22 @@ const PurchaseEntry = () => {
             OPEN
           </Button>
           <Button
+            color="info"
+            size="small"
+            variant="contained"
+            onClick={() => {
+              setShowPurchaseBillPrintModal(true);
+            }}
+            sx={{
+              marginTop: 1,
+              marginRight: 1,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
+          >
+            PRINT
+          </Button>
+          <Button
             ref={saveButtonRef}
             color="success"
             size="small"
@@ -2331,6 +2352,14 @@ const PurchaseEntry = () => {
           </Button>
         </Box>
       </Box>
+      <PurchaseBillPrintModal
+        open={showPurchaseBillPrintModal}
+        handleClose={handleClosePurchaseBillPrintModal}
+        purchases={purchases}
+        formData={formData}
+        totalValues={totalValues}
+        licenseDetails={licenseDetails}
+      />
     </ThemeProvider>
   );
 };

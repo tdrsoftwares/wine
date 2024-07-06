@@ -2778,7 +2778,7 @@ const SaleBill = () => {
                 OPEN
               </Button>
               <Button
-                color="warning"
+                color="info"
                 size="small"
                 variant="contained"
                 onClick={() => {
