@@ -54,6 +54,7 @@ const PurchaseEntry = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [entryNumber, setEntryNumber] = useState("");
   const [entryNoEditable, setEntryNoEditable] = useState(true);
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     _id: "",
     supplierName: "",
@@ -586,7 +587,7 @@ const PurchaseEntry = () => {
   const handleRowClick = (index) => {
     const selectedRow = searchResults[index];
 
-    console.log("selectedRow: ", selectedRow);
+    // console.log("selectedRow: ", selectedRow);
     setFormData({
       ...formData,
       itemId: selectedRow.item._id,
@@ -758,12 +759,13 @@ const PurchaseEntry = () => {
 
     try {
       const response = await createPurchase(payload);
-      console.log("Purchase created successfully:", response?.data?.data);
+      // console.log("Purchase created successfully:", response?.data?.data);
 
       if (response.status === 200) {
         setEntryNumber("");
         NotificationManager.success("Purchase created successfully", "Success");
         setEntryNumber(response?.data?.data?.purchase?.entryNo);
+        setIsPrintModalOpen(true);
         clearButtonRef.current.focus();
         setSearchMode(false);
       } else if (response.response.status === 400) {
@@ -1211,7 +1213,7 @@ const PurchaseEntry = () => {
 
     // Updating total special purpose and gro in totalValues
     if (!entryNumber || isRowUpdated) {
-      console.log("exc...");
+      // console.log("exc...");
       if (totalGro) {
         setTotalValues((prevValues) => ({
           ...prevValues,

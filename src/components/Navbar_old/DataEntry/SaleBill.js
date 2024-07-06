@@ -29,6 +29,7 @@ import debounce from "lodash.debounce";
 import {
   createSale,
   getAllBillsBySeries,
+  getAllSaleStores,
   getSaleDetailsByEntryNo,
   removeSaleDetails,
   searchAllSalesByItemCode,
@@ -41,6 +42,9 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { utc } from "dayjs";
 import { customTheme } from "../../../utils/customTheme";
+// import { getLicenseInfo } from "../../../services/licenseService";
+import { useLicenseContext } from "../../../utils/licenseContext";
+import SaleBillPrintModal from "./SaleBillPrintModal";
 
 const SaleBill = () => {
   const [allCustomerData, setAllCustomerData] = useState([]);
@@ -48,13 +52,15 @@ const SaleBill = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [salesData, setSalesData] = useState([]);
   const [allLedgers, setAllLedgers] = useState([]);
-
+  const [allStores, setAllStores] = useState([]);
+  const [showSaleBillPrintModal, setShowSaleBillPrintModal] = useState(false);
   const todaysDate = dayjs();
   const [searchMode, setSearchMode] = useState(false);
   const [formData, setFormData] = useState({
     barCode: "",
     billType: "CASHBILL",
     customerName: "",
+    store: allStores.length > 0 ? allStores[0] : { _id: '', name: '' },
     phoneNo: "",
     address: "",
     series: "",
@@ -77,7 +83,7 @@ const SaleBill = () => {
     group: "",
     stockAt: "",
   });
-
+  // const [licenseDetails, setLicenseDetails] = useState({});
   const [editableIndex, setEditableIndex] = useState(-1);
   const [editedRow, setEditedRow] = useState({});
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
@@ -104,8 +110,12 @@ const SaleBill = () => {
     receiptMode1: "",
     receiptMode2: "",
   });
-
-
+  console.log("formData: ", formData)
+  console.log("salesData: ",salesData)
+  console.log("totalValues: ",totalValues)
+  
+  const { licenseDetails } = useLicenseContext();
+  console.log("licenseDetails: ", licenseDetails);
   const tableRef = useRef(null);
   const customerNameRef = useRef(null);
   const addressRef = useRef(null);
@@ -133,10 +143,45 @@ const SaleBill = () => {
   const sDiscPercentRef = useRef(null);
   const sDiscAmtRef = useRef(null);
   const discAmtRef = useRef(null);
-  const taxAmtRef = useRef(null);
+  const storeNameRef = useRef(null);
   const adjustmentRef = useRef(null);
   const netAmtRef = useRef(null);
   const saveButtonRef = useRef(null);
+
+  const fetchAllStores = async () => {
+    try {
+      const response = await getAllSaleStores();
+      if (response.status === 200) {
+        setAllStores(response?.data?.data);
+        
+        // If allStores has items and formData.store is not initialized, set it to the first store
+        if (response?.data?.data.length > 0 && formData.store._id === '') {
+          setFormData({ ...formData, store: response.data.data[0] });
+        }
+      }
+    } catch (err) {
+      NotificationManager.error("Failed to fetch all stores", "Error");
+      console.log(err)
+    }
+  }
+  
+  
+    // const fetchLicenseData = async () => {
+    //   try {
+    //     const response = await getLicenseInfo();
+    //     console.log("getLicenseInfo ---> ", response.data[0]);
+    //     if (response.status === 200) {
+    //       setLicenseDetails(response.data[0]);
+    //       console.log("licenseDetails: ", licenseDetails);
+    //     }
+    //   } catch (error) {
+    //     NotificationManager.error(
+    //       "Error fetching license. Please try again later.",
+    //       "Error"
+    //     );
+    //   }
+    // };
+  
 
   const fetchAllCustomers = async () => {
     try {
@@ -199,6 +244,16 @@ const SaleBill = () => {
     }
   };
 
+  const handleCloseSaleBillPrintModal = () => {
+    setShowSaleBillPrintModal(false);
+  };
+
+  const handleStoreChange = (event) => {
+    const selectedStore = allStores.find(store => store._id === event.target.value);
+    setFormData({ ...formData, store: selectedStore });
+  };
+
+
   const resetTopFormData = () => {
     setFormData((prevFormData) => ({
       ...prevFormData,
@@ -254,10 +309,10 @@ const SaleBill = () => {
     }));
   };
 
-  const itemNameSearch = debounce(async (itemName) => {
+  const itemNameSearch = debounce(async (itemName, storeName) => {
     try {
       setIsLoading(true);
-      const response = await searchAllSalesByItemName(itemName);
+      const response = await searchAllSalesByItemName(itemName, storeName);
       // console.log("itemNameSearch response: ", response);
 
       if (response?.data?.data) {
@@ -275,10 +330,10 @@ const SaleBill = () => {
     }
   }, 500);
 
-  const itemCodeSearch = async (itemCode) => {
+  const itemCodeSearch = async (itemCode, storeName) => {
     try {
       setIsLoading(true);
-      const response = await searchAllSalesByItemCode(itemCode);
+      const response = await searchAllSalesByItemCode(itemCode, storeName);
       const searchedItem = response?.data?.data[0];
       const currentItemsStock = searchedItem.currentStock;
 
@@ -350,7 +405,7 @@ const SaleBill = () => {
                 brk: formData.brk || 0,
                 split: formData.split || 0,
                 amount: searchedItem?.mrp || 0,
-                stockAt: searchedItem?.store?._id,
+                // stockAt: searchedItem?.store?._id,
                 group: searchedItem?.item?.group,
               },
             ]);
@@ -378,7 +433,7 @@ const SaleBill = () => {
             brk: formData.brk || 0,
             split: formData.split || 0,
             amount: searchedItem?.mrp || 0,
-            stockAt: searchedItem?.store?._id,
+            // stockAt: searchedItem?.store?._id,
             group: searchedItem?.item?.group,
           });
           pcsRef.current.focus();
@@ -457,8 +512,10 @@ const SaleBill = () => {
 
   useEffect(() => {
     itemCodeRef.current.focus();
+    // fetchLicenseData();
     fetchAllCustomers();
     fetchAllLedger();
+    fetchAllStores();
   }, []);
 
 
@@ -497,7 +554,7 @@ const SaleBill = () => {
             volume: selectedRow.item?.volume || 0,
             currentStock: selectedRow.currentStock || 0,
             group: selectedRow.item?.group || "",
-            stockAt: selectedRow.store?._id,
+            // stockAt: selectedRow.store?._id,
           });
           pcsRef.current.focus();
           setSearchMode(false);
@@ -528,7 +585,7 @@ const SaleBill = () => {
 
   const handleItemNameChange = (event) => {
     const itemName = event.target.value;
-    itemNameSearch(itemName);
+    itemNameSearch(itemName, formData.store?.name);
     setFormData({
       ...formData,
       itemName,
@@ -622,7 +679,7 @@ const SaleBill = () => {
       volume: selectedRow.item?.volume || 0,
       currentStock: selectedRow.currentStock || 0,
       group: selectedRow.item?.group,
-      stockAt: selectedRow.store?._id,
+      // stockAt: selectedRow.store?._id,
     });
     pcsRef.current.focus();
   };
@@ -631,6 +688,7 @@ const SaleBill = () => {
   const handleEditClick = (index) => {
     setEditableIndex(index);
   };
+
 
   const autoSaveCashBill = async () => {
     const billDateObj = formatDate(formData.billDate);
@@ -695,6 +753,7 @@ const SaleBill = () => {
         const newPayload = {
           billType: formData.billType,
           customer: formData.customerName?._id || null,
+          storeId: formData.store?._id,
           billSeries: items[0].group,
           billDate: formData.billDate ? billDateObj : todaysDateObj,
           volume: currentVolume,
@@ -719,7 +778,7 @@ const SaleBill = () => {
             amount: parseFloat(item.pcs) * parseFloat(item.rate),
             split: parseFloat(item.split),
             break: parseFloat(item.brk),
-            stockAt: item.stockAt,
+            // stockAt: item.stockAt,
           })),
           receiptAmount: 0,
         };
@@ -731,13 +790,14 @@ const SaleBill = () => {
     };
 
     let payload = [];
+    
 
     if (groupedItems.IML.length > 0) {
-      payload = payload.concat(splitBill(groupedItems.IML, 11000));
+      payload = payload.concat(splitBill(groupedItems.IML, licenseDetails?.perBillMaxCs));
     }
 
     if (groupedItems.FL_BEER.length > 0) {
-      payload = payload.concat(splitBill(groupedItems.FL_BEER, 32000));
+      payload = payload.concat(splitBill(groupedItems.FL_BEER, licenseDetails?.perBillMaxWine));
     }
 
     if (salesData.length === 0) {
@@ -836,7 +896,8 @@ const SaleBill = () => {
 
     if (
       formData.billType === "CASHBILL" &&
-      (totalValues.flBeerVolume >= 32000 || totalValues.imlVolume >= 11000)
+      (totalValues.flBeerVolume >= licenseDetails?.perBillMaxWine ||
+        totalValues.imlVolume >= licenseDetails?.perBillMaxCs)
     ) {
       await autoSaveCashBill();
     }
@@ -951,7 +1012,7 @@ const SaleBill = () => {
             brk: formData.brk || 0,
             split: formData.split || 0,
             amount: formData.amount || 0,
-            stockAt: formData.stockAt,
+            // stockAt: formData.stockAt,
           },
         ]);
         itemCodeRef.current.focus();
@@ -1037,6 +1098,7 @@ const SaleBill = () => {
         const newPayload = {
           billType: formData.billType,
           customer: formData.customerName._id,
+          storeId: formData.store?._id,
           billSeries: items[0].group,
           billDate: formData.billDate ? billDateObj : todaysDateObj,
           volume: currentVolume,
@@ -1061,7 +1123,7 @@ const SaleBill = () => {
             amount: parseFloat(item.pcs) * parseFloat(item.rate),
             split: parseFloat(item.split),
             break: parseFloat(item.brk),
-            stockAt: item.stockAt,
+            // stockAt: item.stockAt,
           })),
           receiptAmount: 0,
         };
@@ -1075,24 +1137,25 @@ const SaleBill = () => {
     let payload = [];
   
     if (groupedItems.IML.length > 0) {
-      payload = payload.concat(splitBill(groupedItems.IML, 11000));
+      payload = payload.concat(
+        splitBill(groupedItems.IML, licenseDetails?.perBillMaxCs)
+      );
     }
-  
+
     if (groupedItems.FL_BEER.length > 0) {
-      payload = payload.concat(splitBill(groupedItems.FL_BEER, 32000));
+      payload = payload.concat(
+        splitBill(groupedItems.FL_BEER, licenseDetails?.perBillMaxWine)
+      );
     }
   
     try {
       const response = await createSale(payload);
+      console.log("Sale created: ",response)
   
       if (response.status === 200) {
         NotificationManager.success("Sale created successfully", "Success");
-        resetTopFormData();
-        resetMiddleFormData();
-        resetTotalValues();
-        setSearchResults([]);
-        setSalesData([]);
-        setSearchMode(false);
+        setShowSaleBillPrintModal(true);
+        setFormData({...formData, billno: response.data.data.billno})
       } else {
         NotificationManager.error(
           "Error creating Sale. Please try again later.",
@@ -1101,6 +1164,13 @@ const SaleBill = () => {
       }
     } catch (error) {
       console.error("Error creating sale:", error);
+    } finally{
+      // resetTopFormData();
+      //   resetMiddleFormData();
+      //   resetTotalValues();
+      //   setSearchResults([]);
+      //   setSalesData([]);
+        setSearchMode(false);
     }
   };
   
@@ -1172,7 +1242,7 @@ const SaleBill = () => {
           amount: parseFloat(item.amount),
           split: parseFloat(item.split),
           break: parseFloat(item.brk),
-          stockAt: item.stockAt,
+          // stockAt: item.stockAt,
         });
       });
 
@@ -1220,7 +1290,7 @@ const SaleBill = () => {
           amount: parseFloat(item.amount),
           split: parseFloat(item.split),
           break: parseFloat(item.brk),
-          stockAt: item.stockAt,
+          // stockAt: item.stockAt,
         });
       });
 
@@ -1325,7 +1395,7 @@ const SaleBill = () => {
       const barcodes = e.target.value.split("\n");
       for (const barcode of barcodes) {
         if (barcode.trim()) {
-          await itemCodeSearch(barcode.trim());
+          await itemCodeSearch(barcode.trim(), formData.store?.name);
         }
       }
       // setFormData({ ...formData, itemCode: "" });
@@ -1510,7 +1580,7 @@ const SaleBill = () => {
             split: sale?.split,
             volume: sale?.itemId?.volume,
             group: sale?.itemId?.group,
-            stockAt: sale?.stockAt?._id,
+            // stockAt: sale?.stockAt?._id,
             currentStock: sale?.itemDetailsId?.currentStock,
           }));
 
@@ -1642,7 +1712,8 @@ const SaleBill = () => {
   useEffect(() => {
     if (
       formData.billType === "CASHBILL" &&
-      (totalValues.flBeerVolume >= 32000 || totalValues.imlVolume >= 11000)
+      (totalValues.flBeerVolume >= licenseDetails?.perBillMaxWine ||
+        totalValues.imlVolume >= licenseDetails?.perBillMaxCs)
     ) {
       autoSaveCashBill();
     }
@@ -1696,7 +1767,42 @@ const SaleBill = () => {
             </div>
           </Grid>
 
-          <Grid item xs={3}></Grid>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel
+                htmlFor="stockIn"
+                className="input-label"
+                required
+              >
+                Store Name :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                inputRef={storeNameRef}
+                id="stockIn"
+                size="small"
+                value={formData.store._id}
+                onChange={handleStoreChange}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
+                    },
+                  },
+                }}
+                onKeyDown={(e) => handleEnterKey(e, customerNameRef)}
+              >
+                {allStores?.map((store) => (
+                  <MenuItem key={store._id} value={store._id}>
+                    {store.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </Grid>
           <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel
@@ -2691,6 +2797,15 @@ const SaleBill = () => {
           </Grid>
         </Box>
       </Box>
+
+      <SaleBillPrintModal
+        open={showSaleBillPrintModal}
+        handleClose={handleCloseSaleBillPrintModal}
+        salesData={salesData}
+        formData={formData}
+        totalValues={totalValues}
+        licenseDetails={licenseDetails}
+      />
     </ThemeProvider>
   );
 };

@@ -2,33 +2,20 @@ import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
-  Divider,
-  FormControlLabel,
   Grid,
   InputLabel,
   MenuItem,
-  Radio,
-  RadioGroup,
-  TextField,
-  Typography,
-  Card,CardHeader,CardBody,CardFooter,
-  styled,
-  Paper,
   FormControl,
   Input,
-  FormHelperText,Select
+  Select
 } from "@mui/material";
-import axiosInstance from "../../../utils/axiosInstance";
-import { NotificationContainer, NotificationManager } from "react-notifications";
-import axios from "axios";
-import { Bloodtype, Label } from "@mui/icons-material";
-import { createLicenseInfo } from "../../../services/stockService";
-import { getLicenseInfo } from "../../../services/stockService";
-import { updateLicenseInfo } from "../../../services/stockService";
-//import axiosInstance from "../../../utils/axiosInstance";
+import { NotificationManager } from "react-notifications";
+import { createLicenseInfo, getLicenseInfo, updateLicenseInfo } from "../../../services/licenseService";
+import { useLicenseContext } from "../../../utils/licenseContext";
 
 
 const LicenseeInfo = () => {
+  const { setLicenseDetails } = useLicenseContext();
   
   // const Item = styled(Paper)(({ theme }) => ({
   //   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -38,28 +25,13 @@ const LicenseeInfo = () => {
   //   color: theme.palette.text.secondary,
   // }));
   let [getData,setGetData] = useState([]);
+
   const [isButtonDisabled, setIsButtonDisabled] = useState(() => {
     // Initialize state from localStorage if it exists
     const storedValue = localStorage.getItem('isButtonDisabled');
     return storedValue ? JSON.parse(storedValue) : false;
   });
-  const fetchData = async () => {
-    try {
-      
-      const getLicenseData = await getLicenseInfo().then((res) => {
-        setGetData(res.data);
-      });
 
-      
-     console.log("getLicenseData"+getLicenseData.data)
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  // useEffect(() => {
-  //   fetchData()
-    
-  // }, []);
   // console.log(getData[0]);
   // const firstData=getData.data;
   //  const mappedData = getData.map((item) => {
@@ -129,7 +101,8 @@ const LicenseeInfo = () => {
         const getLicenseData = await getLicenseInfo(); // Assuming async function to fetch license data
         
         Object.assign(obj, getLicenseData.data[0]); // Copy properties from first object in getLicenseData.data to obj
-        console.log(obj._id); 
+        setLicenseDetails(getLicenseData?.data[0]);
+
         // Check if obj is populated correctly
 
         // Update state with fetched data

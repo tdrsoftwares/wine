@@ -382,6 +382,7 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen, itemName, setItemName 
             </Grid>
             <Grid item xs={12}>
               <TextField
+                select
                 fullWidth
                 size="small"
                 type="text"
@@ -390,7 +391,15 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen, itemName, setItemName 
                 onChange={(e) => setSubCategory(e.target.value)}
                 variant="outlined"
                 required
-              />
+              >
+                {["OS", "OSBI", "IMFL", "IML", "BEER", "LAB"].map(
+                  (item, id) => (
+                    <MenuItem key={id} value={item}>
+                      {item}
+                    </MenuItem>
+                  )
+                )}
+              </TextField>
             </Grid>
             <Grid item xs={12}>
               <Grid container spacing={1}>
@@ -565,7 +574,7 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen, itemName, setItemName 
         handleCreateBrand={handleCreateBrand}
         handleClose={() => setIsBrandModalOpen(false)}
       />
-      <CategoryModal 
+      <CategoryModal
         isOpen={isCategoryModalOpen}
         fetchAllCategory={fetchAllItemCategory}
         categoryName={categoryName}

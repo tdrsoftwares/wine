@@ -20,9 +20,9 @@ export const updateSaleDetailsByBillNo = async (payload, billNo) => {
   }
 };
 
-export const searchAllSalesByItemName = async (itemName) => {
+export const searchAllSalesByItemName = async (itemName, storeName) => {
   try {
-    const apiURL = `/sales/get-items?name=${itemName}`;
+    const apiURL = `/sales/get-items?name=${itemName}&storeName=${storeName}`;
     const allSalesData = await axiosInstance.get(apiURL);
     return allSalesData;
   } catch (error) {
@@ -30,9 +30,9 @@ export const searchAllSalesByItemName = async (itemName) => {
   }
 };
 
-export const searchAllSalesByItemCode = async (itemCode) => {
+export const searchAllSalesByItemCode = async (itemCode, storeName) => {
   try {
-    const apiURL = `/sales/get-items/${encodeURIComponent(itemCode)}`;
+    const apiURL = `/sales/get-items/${storeName}/${encodeURIComponent(itemCode)}`;
     const allSalesData = await axiosInstance.get(apiURL);
     return allSalesData;
   } catch (error) {
@@ -208,3 +208,14 @@ export const getAllBillsBySeries = async (series) => {
     return error;
   }
 };
+
+
+export const getAllSaleStores = async () => {
+  try {
+    const apiURL = `/sales/stores`;
+    const response = await axiosInstance.get(apiURL);
+    return response;
+  } catch (error) {
+    return error;
+  }
+}

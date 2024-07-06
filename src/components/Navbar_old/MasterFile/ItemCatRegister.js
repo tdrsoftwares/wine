@@ -15,6 +15,7 @@ import {
   TablePagination,
   TableRow,
   TextField,
+  ThemeProvider,
   Typography,
 } from "@mui/material";
 import { NotificationManager } from "react-notifications";
@@ -28,6 +29,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import TableSortLabel from "@mui/material/TableSortLabel";
+import { customTheme } from "../../../utils/customTheme";
 
 const ItemCatRegister = () => {
   const [categoryName, setCategoryName] = useState("");
@@ -41,17 +43,9 @@ const ItemCatRegister = () => {
   const [sortBy, setSortBy] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
 
-  const groupOptions = [
-    "All",
-    "Beer",
-    "Country Sprit",
-    "Foreign Liquor",
-    "India Made Liquor",
-  ];
-
   const tableRef = useRef(null);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const handleClickOutside = (event) => {
     if (tableRef.current && !tableRef.current.contains(event.target)) {
@@ -199,305 +193,310 @@ const ItemCatRegister = () => {
   }, []);
 
   return (
-    <Box sx={{ p: 2, width: "900px" }}>
-      <Typography variant="subtitle2" sx={{ marginBottom: 2 }}>
-        Create Category:
-      </Typography>
+    <ThemeProvider theme={customTheme}>
+      <Box sx={{ p: 2, width: "900px" }}>
+        <Typography variant="subtitle2" sx={{ marginBottom: 2 }}>
+          Create Category:
+        </Typography>
 
-      <Grid container spacing={2}>
-        <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="categoryName" className="input-label">
-              Category Name :
-            </InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              type="text"
-              name="categoryName"
-              className="input-field"
-              value={categoryName}
-              onChange={(e) => setCategoryName(e.target.value)}
-            />
-          </div>
+        <Grid container spacing={2}>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="categoryName" className="input-label">
+                Category Name :
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                type="text"
+                name="categoryName"
+                value={categoryName}
+                onChange={(e) => setCategoryName(e.target.value)}
+              />
+            </div>
+          </Grid>
+
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="groupName" className="input-label">
+                Group Name :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                type="number"
+                name="groupName"
+                value={groupName}
+                onChange={(e) => setGroupName(e.target.value)}
+              >
+                {["FL", "BEER", "IML"].map((item, id) => (
+                  <MenuItem key={id} value={item}>
+                    {item}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </Grid>
+
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="indexNo" className="input-label">
+                Index No. :
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                name="indexNo"
+                value={indexNo}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (!isNaN(value)) setIndexNo(value);
+                }}
+                InputProps={{
+                  inputProps: { type: "number", inputMode: "numeric", min: 0 },
+                }}
+              />
+            </div>
+          </Grid>
+
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="groupNo" className="input-label">
+                Group No. :
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                name="groupNo"
+                value={groupNo}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (!isNaN(value)) setGroupNo(value);
+                }}
+                InputProps={{
+                  inputProps: { type: "number", inputMode: "numeric", min: 0 },
+                }}
+              />
+            </div>
+          </Grid>
         </Grid>
-
-        <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="groupName" className="input-label">
-              Group Name :
-            </InputLabel>
-            <TextField
-              select
-              fullWidth
-              size="small"
-              type="number"
-              name="groupName"
-              className="input-field"
-              value={groupName}
-              onChange={(e) => setGroupName(e.target.value)}
-            >
-              {groupOptions.map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
-        </Grid>
-
-        <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="indexNo" className="input-label">
-              Index No. :
-            </InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              type="number"
-              name="indexNo"
-              className="input-field"
-              value={indexNo}
-              onChange={(e) => setIndexNo(e.target.value)}
-              InputProps={{
-                inputProps: { type: "number", inputMode: "numeric", min: 0 },
-              }}
-            />
-          </div>
-        </Grid>
-
-        <Grid item xs={4}>
-          <div className="input-wrapper">
-            <InputLabel htmlFor="groupNo" className="input-label">
-              Group No. :
-            </InputLabel>
-            <TextField
-              fullWidth
-              size="small"
-              type="number"
-              name="groupNo"
-              className="input-field"
-              value={groupNo}
-              onChange={(e) => setGroupNo(e.target.value)}
-              InputProps={{
-                inputProps: { type: "number", inputMode: "numeric", min: 0 },
-              }}
-            />
-          </div>
-        </Grid>
-      </Grid>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "flex-end",
-          "& button": { marginTop: 2, marginLeft: 2 },
-        }}
-      >
-        <Button
-          color="primary"
-          size="medium"
-          variant="contained"
-          onClick={handleCreateCategory}
-          sx={{ borderRadius: 8 }}
-        >
-          Create
-        </Button>
-        <Button
-          color="warning"
-          size="medium"
-          variant="outlined"
-          onClick={() => handleClear()}
-          sx={{ borderRadius: 8 }}
-        >
-          Clear
-        </Button>
-      </Box>
-
-      <Box sx={{ borderRadius: 1, marginTop: 2 }}>
-        <TableContainer
-          ref={tableRef}
-          component={Paper}
+        <Box
           sx={{
-            height: 300,
-            width: "100%",
-            overflowY: "auto",
-            "&::-webkit-scrollbar": {
-              width: 10,
-              height: 10,
-            },
-            "&::-webkit-scrollbar-track": {
-              backgroundColor: "#fff",
-            },
-            "&::-webkit-scrollbar-thumb": {
-              backgroundColor: "#d5d8df",
-              borderRadius: 2,
-            },
+            display: "flex",
+            justifyContent: "flex-end",
+            "& button": { marginTop: 2, marginLeft: 2 },
           }}
         >
-          <Table>
-            <TableHead>
-              <TableRow className="table-head-2">
-                <TableCell align="center" sx={{ minWidth: "80px" }}>
-                  S. No.
-                </TableCell>
-                <TableCell align="center" sx={{ minWidth: "200px" }}>
-                  <TableSortLabel
-                    active={sortBy === "categoryName"}
-                    direction={sortOrder}
-                    onClick={() => handleSort("categoryName")}
-                  >
-                    Category Name
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell align="center" sx={{ minWidth: "200px" }}>
-                  <TableSortLabel
-                    active={sortBy === "mainGroup"}
-                    direction={sortOrder}
-                    onClick={() => handleSort("mainGroup")}
-                  >
-                    Main Group
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell align="center" sx={{ minWidth: "200px" }}>
-                  <TableSortLabel
-                    active={sortBy === "indexNo"}
-                    direction={sortOrder}
-                    onClick={() => handleSort("indexNo")}
-                  >
-                    Index Number
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell align="center" sx={{ minWidth: "200px" }}>
-                  <TableSortLabel
-                    active={sortBy === "groupNo"}
-                    direction={sortOrder}
-                    onClick={() => handleSort("groupNo")}
-                  >
-                    Group Number
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell align="center" sx={{ minWidth: "200px" }}>
-                  Action
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {sortedData()
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((categoryName, index) => (
-                  <TableRow
-                    key={categoryName._id}
-                    sx={{
-                      backgroundColor: "#fff",
-                    }}
-                  >
-                    <TableCell align="center" sx={{ minWidth: "80px" }}>
-                      {page * rowsPerPage + index + 1}
-                    </TableCell>
-                    <TableCell align="center" sx={{ minWidth: "200px" }}>
-                      {editableIndex === index ? (
-                        <Input
-                          value={
-                            editedRow.categoryName || categoryName.categoryName
-                          }
-                          onChange={(e) =>
-                            setEditedRow({
-                              ...editedRow,
-                              categoryName: e.target.value,
-                            })
-                          }
-                        />
-                      ) : (
-                        categoryName.categoryName
-                      )}
-                    </TableCell>
-                    <TableCell align="center" sx={{ minWidth: "200px" }}>
-                      {editableIndex === index ? (
-                        <Input
-                          value={editedRow.mainGroup || categoryName.mainGroup}
-                          onChange={(e) =>
-                            setEditedRow({
-                              ...editedRow,
-                              mainGroup: e.target.value,
-                            })
-                          }
-                        />
-                      ) : (
-                        categoryName.mainGroup
-                      )}
-                    </TableCell>
-                    <TableCell align="center" sx={{ minWidth: "200px" }}>
-                      {editableIndex === index ? (
-                        <Input
-                          value={editedRow.indexNo || categoryName.indexNo}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            if (!isNaN(value)) {
-                              setEditedRow({
-                                ...editedRow,
-                                indexNo: value,
-                              });
-                            }
-                          }}
-                        />
-                      ) : (
-                        categoryName.indexNo
-                      )}
-                    </TableCell>
-                    <TableCell align="center" sx={{ minWidth: "200px" }}>
-                      {editableIndex === index ? (
-                        <Input
-                          value={editedRow.groupNo || categoryName.groupNo}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            if (!isNaN(value)) {
-                              setEditedRow({
-                                ...editedRow,
-                                groupNo: value,
-                              });
-                            }
-                          }}
-                        />
-                      ) : (
-                        categoryName.groupNo
-                      )}
-                    </TableCell>
-                    <TableCell align="center" sx={{ minWidth: "200px" }}>
-                      {editableIndex === index ? (
-                        <SaveIcon
-                          sx={{ cursor: "pointer", color: "green" }}
-                          onClick={() => handleSaveCategory(categoryName._id)}
-                        />
-                      ) : (
-                        <EditIcon
-                          sx={{ cursor: "pointer", color: "blue" }}
-                          onClick={() =>
-                            handleEditCategory(index, categoryName._id)
-                          }
-                        />
-                      )}
-                      <CloseIcon
-                        sx={{ cursor: "pointer", color: "red" }}
-                        onClick={() => handleRemoveCategory(categoryName._id)}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+          <Button
+            color="primary"
+            size="medium"
+            variant="contained"
+            onClick={handleCreateCategory}
+            sx={{ borderRadius: 8 }}
+          >
+            Create
+          </Button>
+          <Button
+            color="warning"
+            size="medium"
+            variant="outlined"
+            onClick={() => handleClear()}
+            sx={{ borderRadius: 8 }}
+          >
+            Clear
+          </Button>
+        </Box>
 
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={allCategory.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+        <Box sx={{ borderRadius: 1, marginTop: 2 }}>
+          <TableContainer
+            ref={tableRef}
+            component={Paper}
+            sx={{
+              height: 300,
+              width: "100%",
+              overflowY: "auto",
+              "&::-webkit-scrollbar": {
+                width: 10,
+                height: 10,
+              },
+              "&::-webkit-scrollbar-track": {
+                backgroundColor: "#fff",
+              },
+              "&::-webkit-scrollbar-thumb": {
+                backgroundColor: "#d5d8df",
+                borderRadius: 2,
+              },
+            }}
+          >
+            <Table size="small">
+              <TableHead>
+                <TableRow className="table-head-2">
+                  <TableCell align="center" sx={{ minWidth: "80px" }}>
+                    S. No.
+                  </TableCell>
+                  <TableCell align="center" sx={{ minWidth: "200px" }}>
+                    <TableSortLabel
+                      active={sortBy === "categoryName"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("categoryName")}
+                    >
+                      Category Name
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell align="center" sx={{ minWidth: "200px" }}>
+                    <TableSortLabel
+                      active={sortBy === "mainGroup"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("mainGroup")}
+                    >
+                      Main Group
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell align="center" sx={{ minWidth: "200px" }}>
+                    <TableSortLabel
+                      active={sortBy === "indexNo"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("indexNo")}
+                    >
+                      Index Number
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell align="center" sx={{ minWidth: "200px" }}>
+                    <TableSortLabel
+                      active={sortBy === "groupNo"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("groupNo")}
+                    >
+                      Group Number
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell align="center" sx={{ minWidth: "200px" }}>
+                    Action
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {sortedData()
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((categoryName, index) => (
+                    <TableRow
+                      key={categoryName._id}
+                      sx={{
+                        backgroundColor: "#fff",
+                      }}
+                    >
+                      <TableCell align="center" sx={{ minWidth: "80px" }}>
+                        {page * rowsPerPage + index + 1}
+                      </TableCell>
+                      <TableCell align="center" sx={{ minWidth: "200px" }}>
+                        {editableIndex === index ? (
+                          <Input
+                            value={
+                              editedRow.categoryName ||
+                              categoryName.categoryName
+                            }
+                            onChange={(e) =>
+                              setEditedRow({
+                                ...editedRow,
+                                categoryName: e.target.value,
+                              })
+                            }
+                          />
+                        ) : (
+                          categoryName.categoryName
+                        )}
+                      </TableCell>
+                      <TableCell align="center" sx={{ minWidth: "200px" }}>
+                        {editableIndex === index ? (
+                          <Input
+                            value={
+                              editedRow.mainGroup || categoryName.mainGroup
+                            }
+                            onChange={(e) =>
+                              setEditedRow({
+                                ...editedRow,
+                                mainGroup: e.target.value,
+                              })
+                            }
+                          />
+                        ) : (
+                          categoryName.mainGroup
+                        )}
+                      </TableCell>
+                      <TableCell align="center" sx={{ minWidth: "200px" }}>
+                        {editableIndex === index ? (
+                          <Input
+                            value={editedRow.indexNo || categoryName.indexNo}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (!isNaN(value)) {
+                                setEditedRow({
+                                  ...editedRow,
+                                  indexNo: value,
+                                });
+                              }
+                            }}
+                          />
+                        ) : (
+                          categoryName.indexNo
+                        )}
+                      </TableCell>
+                      <TableCell align="center" sx={{ minWidth: "200px" }}>
+                        {editableIndex === index ? (
+                          <Input
+                            value={editedRow.groupNo || categoryName.groupNo}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (!isNaN(value)) {
+                                setEditedRow({
+                                  ...editedRow,
+                                  groupNo: value,
+                                });
+                              }
+                            }}
+                          />
+                        ) : (
+                          categoryName.groupNo
+                        )}
+                      </TableCell>
+                      <TableCell align="center" sx={{ minWidth: "200px" }}>
+                        {editableIndex === index ? (
+                          <SaveIcon
+                            sx={{ cursor: "pointer", color: "green" }}
+                            onClick={() => handleSaveCategory(categoryName._id)}
+                          />
+                        ) : (
+                          <EditIcon
+                            sx={{ cursor: "pointer", color: "blue" }}
+                            onClick={() =>
+                              handleEditCategory(index, categoryName._id)
+                            }
+                          />
+                        )}
+                        <CloseIcon
+                          sx={{ cursor: "pointer", color: "red" }}
+                          onClick={() => handleRemoveCategory(categoryName._id)}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={allCategory.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </Box>
       </Box>
-    </Box>
+    </ThemeProvider>
   );
 };
 

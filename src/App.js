@@ -1,22 +1,46 @@
 import React, { useState, useEffect } from "react";
-import { Navigate, BrowserRouter as Router, useNavigate } from "react-router-dom";
+import { BrowserRouter as Router } from "react-router-dom";
 import NavbarOld from "./components/Navbar_old/NavbarOld";
 import SidebarOld from "./components/Sidebar_old/SidebarOld";
 import AppRoutes from "./AppRoutes";
-import { LoginProvider } from "./utils/loginContext";
-import { NotificationContainer } from "react-notifications";
+import {
+  LicenseDetailsProvider,
+  useLicenseContext,
+} from "./utils/licenseContext";
+import {
+  NotificationContainer,
+  NotificationManager,
+} from "react-notifications";
 import "react-notifications/lib/notifications.css";
 import "./App.css";
 import { clearCookie, getCookie } from "./utils/cookie";
+import { getLicenseInfo } from "./services/licenseService";
 
-function App() {
+const AppContent = () => {
   const [authenticatedUser, setAuthenticatedUser] = useState(null);
+  const { licenseDetails, setLicenseDetails } = useLicenseContext();
 
-  // const navigate = useNavigate();
+  const fetchLicenseData = async () => {
+    try {
+      const response = await getLicenseInfo();
+      console.log("response ---> ", response?.data[0]);
+      setLicenseDetails(response?.data[0]);
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching license. Please try again later.",
+        "Error"
+      );
+    }
+  };
+
+  useEffect(() => {
+    fetchLicenseData();
+  }, [authenticatedUser]);
+
   useEffect(() => {
     const token = getCookie("accessToken");
     if (token) {
-      setAuthenticatedUser(token); 
+      setAuthenticatedUser(token);
     }
   }, []);
 
@@ -25,38 +49,46 @@ function App() {
   };
 
   const handleLogin = (email) => {
-    console.log("email: ", email);
+    // console.log("email: ", email);
     setAuthenticatedUser(email);
   };
 
   const handleSignout = () => {
     clearCookie("accessToken");
     setAuthenticatedUser(null);
-  }
+  };
 
   return (
-    <LoginProvider>
-      <Router>
-        <div className="container">
-          {authenticatedUser && <NavbarOld />}
-          <div className="row">
-            {authenticatedUser && (
-              <div className="col-md-3">
-                <SidebarOld handleSignout={handleSignout} />
-              </div>
-            )}
-            <div className={authenticatedUser ? "col-md-9" : "col-md-12"}>
-              <AppRoutes
-                authenticatedUser={authenticatedUser}
-                handleLogin={handleLogin}
-                handleSignUp={handleSignUp}
-              />
+    <Router>
+      <div className="container">
+        {authenticatedUser && <NavbarOld />}
+        <div className="row">
+          {authenticatedUser && (
+            <div className="col-md-3">
+              <SidebarOld handleSignout={handleSignout} />
             </div>
+          )}
+          <div className={authenticatedUser ? "col-md-9" : "col-md-12"}>
+            <AppRoutes
+              authenticatedUser={authenticatedUser}
+              handleLogin={handleLogin}
+              handleSignUp={handleSignUp}
+            />
           </div>
         </div>
-      </Router>
+      </div>
       <NotificationContainer />
-    </LoginProvider>
+    </Router>
+  );
+};
+
+
+
+const App = () => {
+  return (
+    <LicenseDetailsProvider>
+      <AppContent />
+    </LicenseDetailsProvider>
   );
 }
 

@@ -53,7 +53,7 @@ const ItemRegister = () => {
   const [editableIndex, setEditableIndex] = useState(null);
   const [editedRow, setEditedRow] = useState({});
   // console.log("editedRow: ", editedRow);
-  console.log("allItems -->  ", allItems);
+  // console.log("allItems -->  ", allItems);
 
   const [sortBy, setSortBy] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
@@ -425,7 +425,7 @@ const ItemRegister = () => {
                   },
                 }}
               >
-                {["FL", "IMFL", "CS", "IML"].map((item, id) => (
+                {["OS", "OSBI", "IMFL", "IML" , "BEER", "LAB"].map((item, id) => (
                   <MenuItem key={id} value={item}>
                     {item}
                   </MenuItem>
@@ -507,11 +507,13 @@ const ItemRegister = () => {
               <TextField
                 fullWidth
                 size="small"
-                type="number"
                 name="volume"
                 variant="outlined"
                 value={volume}
-                onChange={(e) => setVolume(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (!isNaN(value)) setVolume(value);
+                }}
               />
             </div>
           </Grid>
