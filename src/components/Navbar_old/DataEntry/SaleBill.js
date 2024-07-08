@@ -1214,6 +1214,7 @@ const SaleBill = () => {
       let flBeerPayload = {
         billType: formData.billType,
         customer: formData.customerName._id,
+        storeId: formData.store?._id,
         billSeries: flBeerBillSeries,
         billDate: formData.billDate ? billDateObj : todaysDateObj,
         volume: parseInt(totalValues.totalVolume),
@@ -1262,6 +1263,7 @@ const SaleBill = () => {
       let imlPayload = {
         billType: formData.billType,
         customer: formData.customerName._id,
+        storeId: formData.store?._id,
         billSeries: "IML",
         billDate: formData.billDate ? billDateObj : todaysDateObj,
         volume: parseInt(totalValues.totalVolume),
@@ -1545,6 +1547,7 @@ const SaleBill = () => {
     return dayjs(dateStr, "DD/MM/YYYY");
   };
 
+
   const billNumberSearch = debounce(async () => {
     try {
       if (seriesData && formData.billno) {
@@ -1552,6 +1555,7 @@ const SaleBill = () => {
 
         if (response?.data?.data) {
           const receivedData = response.data.data;
+          // console.log("data received: " , receivedData)
 
           const billDateObject = convertToDayjsObject(receivedData.billDate);
 
@@ -1559,6 +1563,7 @@ const SaleBill = () => {
             ...prevData,
             billType: receivedData.billType,
             customerName: receivedData.customer,
+            store: {_id: receivedData.storeId},
             address: receivedData.customer?.address,
             phoneNo: receivedData.customer?.contactNo,
             billDate: billDateObject,
@@ -2698,10 +2703,12 @@ const SaleBill = () => {
                     ...prevFormData,
                     billType: "CASHBILL",
                     customerName: "",
+                    store: { _id: '', name: '' },
                     address: "",
                     phoneNo: "",
                     billDate: todaysDate,
-                    billno: "",
+                    billno: null,
+                    storeId: ""
                   }));
                   resetMiddleFormData();
                   resetTotalValues();
