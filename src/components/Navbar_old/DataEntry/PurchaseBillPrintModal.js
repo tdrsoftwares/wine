@@ -154,7 +154,7 @@ const PurchaseBillPrintModal = ({ open, handleClose, purchases, formData, totalV
                 <Box sx={{ width: "35%" }}>{item.itemName}</Box>
                 <Box sx={{ width: "10%" }}>{item.pcs}</Box>
                 <Box sx={{ width: "15%" }}>{item.btlRate}</Box>
-                <Box sx={{ width: "15%" }}>{item.amount.toFixed(2)}</Box>
+                <Box sx={{ width: "15%" }}>{item.amount}</Box>
               </Box>
             </Typography>
           ))}
