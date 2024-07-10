@@ -45,6 +45,7 @@ import { customTheme } from "../../../utils/customTheme";
 // import { getLicenseInfo } from "../../../services/licenseService";
 import { useLicenseContext } from "../../../utils/licenseContext";
 import SaleBillPrintModal from "./SaleBillPrintModal";
+import { useReactToPrint } from "react-to-print";
 
 const SaleBill = () => {
   const [allCustomerData, setAllCustomerData] = useState([]);
@@ -115,7 +116,7 @@ const SaleBill = () => {
   // console.log("totalValues: ",totalValues)
   
   const { licenseDetails } = useLicenseContext();
-  // console.log("licenseDetails: ", licenseDetails);
+  console.log("licenseDetails: ", licenseDetails);
   const tableRef = useRef(null);
   const customerNameRef = useRef(null);
   const addressRef = useRef(null);
@@ -147,6 +148,11 @@ const SaleBill = () => {
   const adjustmentRef = useRef(null);
   const netAmtRef = useRef(null);
   const saveButtonRef = useRef(null);
+  const printRef = useRef();
+
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+  });
 
   const fetchAllStores = async () => {
     try {
@@ -813,6 +819,12 @@ const SaleBill = () => {
 
       if (response.status === 200) {
         NotificationManager.success("Sale created successfully", "Success");
+        if (licenseDetails?.autoBillPrint === "YES") {
+          // console.log("executing...") 
+          setShowSaleBillPrintModal(true);
+          handlePrint();
+          // 
+        }
         resetTopFormData();
         resetMiddleFormData();
         resetTotalValues();
@@ -1151,11 +1163,31 @@ const SaleBill = () => {
     try {
       const response = await createSale(payload);
       // console.log("Sale created: ", response);
+      const billNo = response?.data?.data[0]?.billNo;
+      console.log("bill no: ", response.data.data[0]?.billNo);
 
       if (response.status === 200) {
         NotificationManager.success("Sale created successfully", "Success");
-        // setShowSaleBillPrintModal(true);
-        setFormData({ ...formData, billno: response.data.data.billno });
+        setFormData((prevData) => ({
+          ...prevData,
+          billno: billNo,
+        }));
+
+        if (licenseDetails?.autoBillPrint === "YES") {
+          // console.log("executing...") 
+          setShowSaleBillPrintModal(true);
+          handlePrint();
+          // 
+        }
+        // if(licenseDetails?.autoBillPrint === "NO" || !showSaleBillPrintModal){
+          resetTopFormData();
+          resetMiddleFormData();
+          resetTotalValues();
+          setSearchResults([]);
+          setSalesData([]);
+          setSearchMode(false);
+        // }
+        // setShowSaleBillPrintModal(false);
       } else {
         NotificationManager.error(
           "Error creating Sale. Please try again later.",
@@ -1164,13 +1196,6 @@ const SaleBill = () => {
       }
     } catch (error) {
       console.error("Error creating sale:", error);
-    } finally {
-      resetTopFormData();
-      resetMiddleFormData();
-      resetTotalValues();
-      setSearchResults([]);
-      setSalesData([]);
-      setSearchMode(false);
     }
   };
   
@@ -1550,7 +1575,7 @@ const SaleBill = () => {
 
   const billNumberSearch = debounce(async () => {
     try {
-      if (seriesData && formData.billno) {
+      if (billNoEditable && formData.billno) {
         const response = await getSaleDetailsByEntryNo(formData.billno);
 
         if (response?.data?.data) {
@@ -1727,13 +1752,16 @@ const SaleBill = () => {
 
 
   useEffect(() => {
+    // console.log("seriesData: ",seriesData);
+    // console.log(formData.billno);
+    // console.log("billNoEditable: ",billNoEditable);
     if (
       (formData.billno && billNoEditable) ||
       (formData.billno && seriesData)
     ) {
       billNumberSearch(formData.billno);
     }
-  }, [formData.billno]);
+  }, [formData.billno, billNoEditable]);
 
 
   return (
@@ -1774,11 +1802,7 @@ const SaleBill = () => {
 
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel
-                htmlFor="stockIn"
-                className="input-label"
-                required
-              >
+              <InputLabel htmlFor="stockIn" className="input-label" required>
                 Store Name :
               </InputLabel>
               <TextField
@@ -2703,12 +2727,12 @@ const SaleBill = () => {
                     ...prevFormData,
                     billType: "CASHBILL",
                     customerName: "",
-                    store: { _id: '', name: '' },
+                    store: { _id: "", name: "" },
                     address: "",
                     phoneNo: "",
                     billDate: todaysDate,
                     billno: null,
-                    storeId: ""
+                    storeId: "",
                   }));
                   resetMiddleFormData();
                   resetTotalValues();
@@ -2790,6 +2814,7 @@ const SaleBill = () => {
                 variant="contained"
                 onClick={() => {
                   setShowSaleBillPrintModal(true);
+                  handlePrint();
                 }}
                 sx={{
                   marginRight: 1,
@@ -2827,6 +2852,8 @@ const SaleBill = () => {
         formData={formData}
         totalValues={totalValues}
         licenseDetails={licenseDetails}
+        handlePrint={handlePrint}
+        printRef={printRef}
       />
     </ThemeProvider>
   );

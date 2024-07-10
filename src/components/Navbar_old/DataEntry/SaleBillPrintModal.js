@@ -3,22 +3,29 @@ import { Box, Modal, Typography, Divider, Button } from "@mui/material";
 import { useReactToPrint } from "react-to-print";
 import { toWords } from "number-to-words";
 
-const SaleBillPrintModal = ({ open, handleClose, salesData, formData, totalValues, licenseDetails }) => {
-  const printRef = useRef();
+const SaleBillPrintModal = ({
+  open,
+  handleClose,
+  salesData,
+  formData,
+  totalValues,
+  licenseDetails,
+  handlePrint,
+  printRef
+}) => {
+  // const printRef = useRef();
 
-  const handlePrint = useReactToPrint({
-    content: () => printRef.current,
-  });
-
+  // console.log("formData.billDate: ", formData.billDate)
+  
   const amountInWords = (amount) => {
     if (isNaN(amount) || amount === undefined || amount === null) {
       return "Zero Only";
     }
     return toWords(amount) + " Only";
   };
-
+  
   const saleBillData = {
-    customer: formData.customerName ? formData.customerName.name : "",
+    customer: formData.customerName ? formData.customerName.name : "N/A",
     billNo: formData.billno || "N/A",
     date: new Date(formData.billDate).toLocaleDateString(),
     time: new Date(formData.billDate).toLocaleTimeString(),
@@ -29,13 +36,14 @@ const SaleBillPrintModal = ({ open, handleClose, salesData, formData, totalValue
     netAmount: parseFloat(totalValues.netAmt) || 0.0,
     amountInWords: amountInWords(parseFloat(totalValues.netAmt) || 0.0),
   };
-
+  // console.log("saleBillData: ", saleBillData);
+  
   return (
     <Modal
       open={open}
       onClose={handleClose}
       aria-labelledby="sale-bill-print-title"
-      sx={{ p: 1 }}
+      sx={{ p: 1, display: "none" }}
     >
       <Box sx={printModalStyles}>
         <Box ref={printRef} sx={{ p: 1, width: "80mm" }}>
@@ -190,7 +198,7 @@ const SaleBillPrintModal = ({ open, handleClose, salesData, formData, totalValue
           </Typography>
         </Box>
 
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
+        {/* <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
           <Button
             variant="contained"
             color="primary"
@@ -209,7 +217,7 @@ const SaleBillPrintModal = ({ open, handleClose, salesData, formData, totalValue
           >
             Cancel
           </Button>
-        </Box>
+        </Box> */}
       </Box>
     </Modal>
   );
