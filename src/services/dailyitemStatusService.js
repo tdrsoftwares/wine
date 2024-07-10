@@ -4,30 +4,33 @@ export const getAllItemStatuses = async (filterOptions) => {
 
     try {
         const {
-          page,
-          pageSize,
-          toDate,
+        //   page,
+        //   pageSize,
+          storeName,
+          toDayDate,
           brandName,
           itemName,
           categoryName,
           group,
-          companyName
+          companyName,
         } = filterOptions;
     
-        let apiURL = `/reports/daily-item-status?page=${page}&pageSize=${pageSize}`;
+        // let apiURL = `/reports/daily-item-status?page=${page}&pageSize=${pageSize}`;
+        let apiURL = `/reports/daily-item-status?storeName=${storeName}`;
     
         const filters = {
-            toDate,
+            // storeName,
+            toDayDate,
             brandName,
             itemName,
             categoryName,
             group,
-            companyName
+            companyName,
         };
     
         Object.keys(filters).forEach((key) => {
           if (filters[key]) {
-            apiURL += `&${key}=${encodeURIComponent(filters[key])}`;
+            apiURL += `&${key}=${filters[key]}`;
           }
         });
         const getItemSalesData = await axiosInstance.get(apiURL);

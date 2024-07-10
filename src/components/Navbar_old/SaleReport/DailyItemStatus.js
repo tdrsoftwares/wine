@@ -205,9 +205,9 @@ const DailyItemStatus = () => {
     setLoading(true);
     try {
       const filterOptions = {
-        page: paginationModel.page + 1,
-        pageSize: paginationModel.pageSize,
-        toDate: toDate,
+        // page: paginationModel.page + 1,
+        // pageSize: paginationModel.pageSize,
+        toDayDate: toDate,
         categoryName: filterData.categoryName,
         company: filterData.company,
         brandName: filterData.brandName,
@@ -246,6 +246,21 @@ const DailyItemStatus = () => {
     fetchAllItemStatus();
   }, []);
 
+  const debounce = (func, delay) => {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        func(...args);
+      }, delay);
+    };
+  };
+
+  useEffect(() => {
+    const debouncedFetch = debounce(fetchAllItemStatus, 300);
+    debouncedFetch();
+  }, [filterData]);
+
   return (
     <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, width: "900px" }}>
@@ -280,7 +295,7 @@ const DailyItemStatus = () => {
           <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="dateTo" className="input-label">
-                Date to:
+                Date :
               </InputLabel>
 
               <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -298,7 +313,7 @@ const DailyItemStatus = () => {
             </div>
           </Grid>
 
-          <Grid item xs={3}>
+          {/* <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="itemName" className="input-label">
                 Item:
@@ -329,7 +344,7 @@ const DailyItemStatus = () => {
                 ))}
               </TextField>
             </div>
-          </Grid>
+          </Grid> */}
 
           {/* <Grid item xs={3}>
             <div className="input-wrapper">
@@ -348,7 +363,7 @@ const DailyItemStatus = () => {
             </div>
           </Grid> */}
 
-          <Grid item xs={3}>
+          {/* <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="brandName" className="input-label">
                 Brand:
@@ -379,9 +394,9 @@ const DailyItemStatus = () => {
                 ))}
               </TextField>
             </div>
-          </Grid>
+          </Grid> */}
 
-          <Grid item xs={3}>
+          {/* <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="company" className="input-label">
                 Company :
@@ -412,10 +427,10 @@ const DailyItemStatus = () => {
                 ))}
               </TextField>
             </div>
-          </Grid>
+          </Grid> */}
         
 
-          <Grid item xs={3}>
+          {/* <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="categoryName" className="input-label">
                 Category :
@@ -446,7 +461,7 @@ const DailyItemStatus = () => {
                 ))}
               </TextField>
             </div>
-          </Grid>
+          </Grid> */}
           <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="storeName" className="input-label">
@@ -480,7 +495,7 @@ const DailyItemStatus = () => {
             </div>
           </Grid>
 
-          <Grid item xs={3}>
+          {/* <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="group" className="input-label">
                 Group:
@@ -502,7 +517,7 @@ const DailyItemStatus = () => {
                 ))}
               </TextField>
             </div>
-          </Grid>
+          </Grid> */}
 
         </Grid>
 
@@ -583,9 +598,9 @@ const DailyItemStatus = () => {
             columns={columns}
             rowCount={totalCount}
             pagination
-            paginationMode="server"
+            // paginationMode="server"
             pageSizeOptions={[10, 25, 50, 100]}
-            onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
+            // onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
             sx={{ backgroundColor: "#fff" }}
             disableRowSelectionOnClick
             loading={loading}
