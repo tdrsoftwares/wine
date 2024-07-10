@@ -283,9 +283,9 @@ const DailySaleReport = () => {
             // margin: "0 20px",
           }}
         >
-          <span>Total Volume: {totalVolume.toFixed(2) + "ltr"}</span>
-          <span>Total Amount: {totalAmount.toFixed(2)}</span>
-          <span>Total Pcs: {totalPcs.toFixed(0)}</span>
+          <span>Total Volume: {totalVolume?.toFixed(2) + "ltr"}</span>
+          <span>Total Amount: {totalAmount?.toFixed(2)}</span>
+          <span>Total Pcs: {totalPcs?.toFixed(0)}</span>
         </div>
         <GridFooter />
       </GridFooterContainer>

@@ -169,11 +169,11 @@ const PurchaseBillPrintModal = ({ open, handleClose, purchases, formData, totalV
             }}
           >
             <Typography variant="body1" sx={{ fontSize: "11px" }}>
-              TCS Amt.: {purchaseBillData.tcsAmt.toFixed(2)}
+              TCS Amt.: {purchaseBillData.tcsAmt?.toFixed(2)}
             </Typography>
             
             <Typography variant="body1" sx={{ fontSize: "11px" }}>
-              Total MRP: {purchaseBillData.totalMrp.toFixed(2)}
+              Total MRP: {purchaseBillData.totalMrp?.toFixed(2)}
             </Typography>
           </Box>
 
@@ -185,30 +185,11 @@ const PurchaseBillPrintModal = ({ open, handleClose, purchases, formData, totalV
             }}
           >
             <Typography variant="body1" sx={{ fontSize: "11px" }}>
-              Govt. Rate Off: {purchaseBillData.govtRate.toFixed(2)}
+              Govt. Rate Off: {purchaseBillData.govtRate?.toFixed(2)}
             </Typography>
 
             <Typography variant="body1" sx={{ fontSize: "11px" }}>
-              Discount Amt.: {purchaseBillData.discountAmt.toFixed(2)}
-            </Typography>
-            
-            
-          </Box>
-
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              fontSize: "10px",
-            }}
-          >
-            
-            <Typography variant="body1" sx={{ fontSize: "11px" }}>
-              S. Purpose: {purchaseBillData.spcPurpose.toFixed(2)}
-            </Typography>
-
-            <Typography variant="body1" sx={{ fontSize: "11px" }}>
-              Gross Amt: {purchaseBillData.grossAmt.toFixed(2)}
+              Discount Amt.: {purchaseBillData.discountAmt?.toFixed(2)}
             </Typography>
             
             
@@ -223,11 +204,30 @@ const PurchaseBillPrintModal = ({ open, handleClose, purchases, formData, totalV
           >
             
             <Typography variant="body1" sx={{ fontSize: "11px" }}>
-              Other Chrgs: {purchaseBillData.otherCharges.toFixed(2)}
+              S. Purpose: {purchaseBillData.spcPurpose?.toFixed(2)}
             </Typography>
 
             <Typography variant="body1" sx={{ fontSize: "11px" }}>
-              Net Amt.: {purchaseBillData.netAmount.toFixed(2)}
+              Gross Amt: {purchaseBillData.grossAmt?.toFixed(2)}
+            </Typography>
+            
+            
+          </Box>
+
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              fontSize: "10px",
+            }}
+          >
+            
+            <Typography variant="body1" sx={{ fontSize: "11px" }}>
+              Other Chrgs: {purchaseBillData.otherCharges?.toFixed(2)}
+            </Typography>
+
+            <Typography variant="body1" sx={{ fontSize: "11px" }}>
+              Net Amt.: {purchaseBillData.netAmount?.toFixed(2)}
             </Typography>
           </Box>
           

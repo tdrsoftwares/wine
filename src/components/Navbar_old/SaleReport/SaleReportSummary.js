@@ -509,13 +509,13 @@ const SaleReportSummary = () => {
               phoneNumber: sale.customer?.contactNo || "No Data",
               volume: sale.volume || 0,
               totalPcs: sale.totalPcs || 0,
-              grossAmount: sale.grossAmount.toFixed(2) || 0,
+              grossAmount: sale.grossAmount?.toFixed(2) || 0,
               // discAmount: sale.discAmount || "No Data",
               // splDisc: sale.splDisc,
-              splDiscAmount: sale.splDiscAmount.toFixed(2) || 0,
+              splDiscAmount: sale.splDiscAmount?.toFixed(2) || 0,
               // taxAmount: sale.taxAmount || "No Data",
-              adjustment: sale.adjustment.toFixed(2) || 0,
-              netAmount: sale.netAmount.toFixed(2) || 0,
+              adjustment: sale.adjustment?.toFixed(2) || 0,
+              netAmount: sale.netAmount?.toFixed(2) || 0,
               action: (
                 <Button
                   variant="contained"

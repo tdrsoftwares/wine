@@ -184,13 +184,13 @@ const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
               brokenNo: item.brokenNo || 0,
               caseNo: item.caseNo || 0,
               // updatedAt: new Date(item.updatedAt).toLocaleDateString("en-GB"),
-              mrp: item.mrp.toFixed(2) || 0,
+              mrp: item.mrp?.toFixed(2) || 0,
               pcs: item.pcs || 0,
-              purchaseRate: item.purchaseRate.toFixed(2) || 0,
-              saleRate: item.saleRate.toFixed(2) || 0,
-              gro: item.gro.toFixed(2) || 0,
-              sp: item.sp.toFixed(2) || 0,
-              itemAmount: item.itemAmount.toFixed(2) || 0,
+              purchaseRate: item.purchaseRate?.toFixed(2) || 0,
+              saleRate: item.saleRate?.toFixed(2) || 0,
+              gro: item.gro?.toFixed(2) || 0,
+              sp: item.sp?.toFixed(2) || 0,
+              itemAmount: item.itemAmount?.toFixed(2) || 0,
             }))}
             columns={columns}
             rowsPerPageOptions={[10, 25, 50]}

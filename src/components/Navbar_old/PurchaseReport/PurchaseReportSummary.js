@@ -456,13 +456,13 @@ const PurchaseReportSummary = () => {
               passNo: purchase.passNo || 0,
               supplierName: purchase.supplier?.name || "No Data",
               storeName: purchase.store?.name || "No Data",
-              mrpValue: purchase.mrpValue.toFixed(2) || 0,
-              grossAmount: purchase.grossAmount.toFixed(2) || 0,
+              mrpValue: purchase.mrpValue?.toFixed(2) || 0,
+              grossAmount: purchase.grossAmount?.toFixed(2) || 0,
               discount: purchase.discount || 0,
-              govtROff: purchase.govtROff.toFixed(2) || 0,
-              specialPurpose: purchase.specialPurpose.toFixed(2) || 0,
-              tcsAmount: purchase.tcsAmount.toFixed(2) || 0,
-              netAmount: purchase.netAmount.toFixed(2) || 0,
+              govtROff: purchase.govtROff?.toFixed(2) || 0,
+              specialPurpose: purchase.specialPurpose?.toFixed(2) || 0,
+              tcsAmount: purchase.tcsAmount?.toFixed(2) || 0,
+              netAmount: purchase.netAmount?.toFixed(2) || 0,
               action: (
                 <Button
                   variant="contained"
