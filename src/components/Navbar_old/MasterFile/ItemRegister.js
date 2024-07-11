@@ -777,7 +777,7 @@ const ItemRegister = () => {
                         </TableCell>
 
                         <TableCell>
-                          {/* {editableIndex === index ? (
+                          {editableIndex === index ? (
                             <Input
                               value={editedRow?.categoryId?.categoryName || item?.categoryId?.categoryName}
                               onChange={(e) =>
@@ -792,7 +792,7 @@ const ItemRegister = () => {
                             />
                           ) : (
                             item?.categoryId?.categoryName || "No Data"
-                          )} */}
+                          )}
                         </TableCell>
 
                         <TableCell>
@@ -812,7 +812,7 @@ const ItemRegister = () => {
                         </TableCell>
 
                         <TableCell>
-                          {/* {editableIndex === index ? (
+                          {editableIndex === index ? (
                             <Input
                               value={editedRow?.companyId?.name || item?.companyId?.name}
                               onChange={(e) =>
@@ -824,11 +824,11 @@ const ItemRegister = () => {
                             />
                           ) : (
                             item?.companyId?.name || "No Data"
-                          )} */}
+                          )}
                         </TableCell>
 
                         <TableCell>
-                          {/* {editableIndex === index ? (
+                          {editableIndex === index ? (
                             <Input
                               value={editedRow?.brandId?.name || item?.brandId?.name}
                               onChange={(e) =>
@@ -840,7 +840,7 @@ const ItemRegister = () => {
                             />
                           ) : (
                             item?.brandId?.name || "No Data"
-                          )} */}
+                          )}
                         </TableCell>
 
                         <TableCell>
