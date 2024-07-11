@@ -1,26 +1,15 @@
 import {
   Box,
   Button,
-  Checkbox,
   CircularProgress,
-  FormControlLabel,
   Grid,
   InputLabel,
   MenuItem,
-  Paper,
-  Radio,
-  RadioGroup,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   TextField,
   ThemeProvider,
   Typography,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { customTheme } from "../../../utils/customTheme";
 import dayjs from "dayjs";
 import { getAllCompanies } from "../../../services/companyService";
@@ -28,35 +17,41 @@ import { NotificationManager } from "react-notifications";
 import { getAllItems } from "../../../services/itemService";
 import { getAllBrands } from "../../../services/brandService";
 import { getAllItemCategory } from "../../../services/categoryService";
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { getAllStores } from "../../../services/storeService";
 import { getAllItemStatuses } from "../../../services/dailyitemStatusService";
+import CustomFooter from "./CustomItemStatusFooter";
+import ReactToPrint, { useReactToPrint } from "react-to-print";
+
 
 const DailyItemStatus = () => {
+  const todaysDate = dayjs();
   const [allItemStatusData, setAllItemStatusData] = useState([]);
   const [allBrands, setAllBrands] = useState([]);
   const [allCategory, setAllCategory] = useState([]);
+  const [allStores, setAllStores] = useState([]);
   const [filterData, setFilterData] = useState({
     dateFrom: null,
-    dateTo: null,
+    dateTo: todaysDate,
     company: "",
     brandName: "",
     itemName: "",
     group: "",
     categoryName: "",
+    // storeName: allStores.length > 0 ? allStores[0] : "",
     storeName: "",
   });
   const [allCompanies, setAllCompanies] = useState([]);
   const [allItems, setAllItems] = useState([]);
-  const [allStores, setAllStores] = useState([]);
   const [loading, setLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: 10,
   });
   const [totalCount, setTotalCount] = useState(0);
+  const printRef = useRef();
 
   const columns = [
     {
@@ -75,42 +70,42 @@ const DailyItemStatus = () => {
     },
     {
       field: "openingBalance",
-      headerName: "Opening Balance",
+      headerName: "Opening Stock (Pcs)",
       flex: 1,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "totalPurchased",
-      headerName: "Total Purchased",
+      headerName: "Total Purchased (Pcs)",
       flex: 1,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "totalTransferredFrom",
-      headerName: "Total Transfered from",
+      headerName: "Total Transfer Out (Pcs)",
       flex: 1,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "totalTransferredTo",
-      headerName: "Total Transfered to",
+      headerName: "Total Transfer In (Pcs)",
       flex: 1,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "totalSold",
-      headerName: "Total Sold",
+      headerName: "Total Sold (Pcs)",
       flex: 1,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "closingBalance",
-      headerName: "Closing Balance",
+      headerName: "Closing Stock (Pcs)",
       flex: 1,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
@@ -212,15 +207,16 @@ const DailyItemStatus = () => {
         company: filterData.company,
         brandName: filterData.brandName,
         itemName: filterData.itemName,
-        groupName: filterData.group,
+        group: filterData.group,
         storeName: filterData.storeName,
       };
       const response = await getAllItemStatuses(filterOptions);
-      // console.log("Response salesData: ", response);
+      // console.log("Response itemStatusData: ", response);
+      const itemStatusData = response?.data?.data;
 
-      if (response.status === 200) {
-        setAllItemStatusData(response?.data?.data || []);
-        setTotalCount(response.data.data.length || 0);
+      if (itemStatusData) {
+        setAllItemStatusData(itemStatusData || []);
+        setTotalCount(itemStatusData?.length || 0);
       } else {
         // console.log("Error", response);
         NotificationManager.error("No items found.", "Error");
@@ -228,10 +224,10 @@ const DailyItemStatus = () => {
       }
     } catch (error) {
       NotificationManager.error(
-        "Error fetching sales. Please try again later.",
+        "Error fetching items. Please try again later.",
         "Error"
       );
-      console.log("Error fetching sales", error);
+      console.log("Error fetching items", error);
     } finally {
       setLoading(false);
     }
@@ -261,6 +257,10 @@ const DailyItemStatus = () => {
     debouncedFetch();
   }, [filterData]);
 
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+  });
+
   return (
     <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, width: "900px" }}>
@@ -272,26 +272,6 @@ const DailyItemStatus = () => {
         </Typography>
 
         <Grid container spacing={2}>
-          {/* <Grid item xs={3}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="dateFrom" className="input-label">
-                Date from:
-              </InputLabel>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  id="dateFrom"
-                  format="DD/MM/YYYY"
-                  value={filterData.dateFrom}
-                  className="input-field date-picker"
-                  onChange={(newDate) =>
-                    setFilterData({ ...filterData, dateFrom: newDate })
-                  }
-                  renderInput={(params) => <TextField {...params} />}
-                />
-              </LocalizationProvider>
-            </div>
-          </Grid> */}
-
           <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="dateTo" className="input-label">
@@ -313,7 +293,7 @@ const DailyItemStatus = () => {
             </div>
           </Grid>
 
-          {/* <Grid item xs={3}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="itemName" className="input-label">
                 Item:
@@ -344,7 +324,7 @@ const DailyItemStatus = () => {
                 ))}
               </TextField>
             </div>
-          </Grid> */}
+          </Grid>
 
           {/* <Grid item xs={3}>
             <div className="input-wrapper">
@@ -363,7 +343,7 @@ const DailyItemStatus = () => {
             </div>
           </Grid> */}
 
-          {/* <Grid item xs={3}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="brandName" className="input-label">
                 Brand:
@@ -394,9 +374,9 @@ const DailyItemStatus = () => {
                 ))}
               </TextField>
             </div>
-          </Grid> */}
+          </Grid>
 
-          {/* <Grid item xs={3}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="company" className="input-label">
                 Company :
@@ -427,10 +407,9 @@ const DailyItemStatus = () => {
                 ))}
               </TextField>
             </div>
-          </Grid> */}
-        
+          </Grid>
 
-          {/* <Grid item xs={3}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="categoryName" className="input-label">
                 Category :
@@ -461,11 +440,12 @@ const DailyItemStatus = () => {
                 ))}
               </TextField>
             </div>
-          </Grid> */}
+          </Grid>
+
           <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="storeName" className="input-label">
-              Store Name :
+                Store Name :
               </InputLabel>
               <TextField
                 select
@@ -495,7 +475,7 @@ const DailyItemStatus = () => {
             </div>
           </Grid>
 
-          {/* <Grid item xs={3}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="group" className="input-label">
                 Group:
@@ -517,8 +497,7 @@ const DailyItemStatus = () => {
                 ))}
               </TextField>
             </div>
-          </Grid> */}
-
+          </Grid>
         </Grid>
 
         <Box
@@ -535,7 +514,7 @@ const DailyItemStatus = () => {
             onClick={() => {
               setFilterData({
                 dateFrom: null,
-                dateTo: null,
+                dateTo: todaysDate,
                 company: "",
                 brandName: "",
                 categoryName: "",
@@ -544,19 +523,34 @@ const DailyItemStatus = () => {
                 storeName: "",
               });
               setPaginationModel({ page: 0, pageSize: 10 });
-              // fetchAllSales();
+              fetchAllItemStatus();
             }}
           >
             Clear Filters
           </Button>
           <div>
-            <Button
-              color="inherit"
+            <ReactToPrint
+              trigger={() => (
+                <Button
+                  color="inherit"
+                  size="small"
+                  variant="contained"
+                  disabled
+                >
+                  Print
+                </Button>
+              )}
+              content={() => printRef.current}
+            />
+            {/* <Button
+              color="primary"
               size="small"
               variant="contained"
+              onClick={handleExportCSV}
+              sx={{ marginLeft: 2 }}
             >
-              Print
-            </Button>
+              Export CSV
+            </Button> */}
             <Button
               color="info"
               size="small"
@@ -573,7 +567,7 @@ const DailyItemStatus = () => {
           sx={{
             height: 500,
             width: "100%",
-            marginTop: 2,
+            marginTop: 1,
             "& .custom-header": { backgroundColor: "#dae4ed", paddingLeft: 4 },
             "& .custom-cell": { paddingLeft: 4 },
           }}
@@ -585,23 +579,18 @@ const DailyItemStatus = () => {
               item: item.item || "No Data",
               openingBalance: item.openingBalance || 0,
               totalPurchased: item.totalPurchased || 0,
-              totalTransferredFrom: item.totalTransferredFrom || "No Data",
-              totalTransferredTo: item.totalTransferredTo || "No Data",
-              // itemName: item.salesItems?.item?.name || "No Data",
-              // brandName: item.salesItems?.item?.brand?.name || "No Data",
-              // categoryName: item.item?.category?.categoryName || "No Data",
+              totalTransferredFrom: item.totalTransferredFrom || 0,
+              totalTransferredTo: item.totalTransferredTo || 0,
               totalSold: item.totalSold || 0,
               closingBalance: item.closingBalance || 0,
-              // group: item.salesItems?.item?.group || "No Data",
-              
             }))}
             columns={columns}
             rowCount={totalCount}
             pagination
-            // paginationMode="server"
+            paginationMode="server"
             pageSizeOptions={[10, 25, 50, 100]}
-            // onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
-            sx={{ backgroundColor: "#fff" }}
+            paginationModel={paginationModel}
+            onPaginationModelChange={setPaginationModel}
             disableRowSelectionOnClick
             loading={loading}
             loadingOverlay={
@@ -609,18 +598,24 @@ const DailyItemStatus = () => {
                 <CircularProgress />
               </Box>
             }
+            initialState={{
+              density: "compact",
+            }}
             slots={{
+              footer: CustomFooter,
               toolbar: GridToolbar,
             }}
-            initialState={{
-              pagination: {
-                paginationModel: {
-                  page: paginationModel.page,
-                  pageSize: paginationModel.pageSize,
+            slotProps={{
+              toolbar: {
+                printOptions: {
+                  hideFooter: false,
+                  hideToolbar: true,
                 },
-                rowCount: totalCount,
               },
-              density: "compact",
+              footer: { allItemStatusData },
+            }}
+            sx={{
+              backgroundColor: "#fff",
             }}
           />
         </Box>

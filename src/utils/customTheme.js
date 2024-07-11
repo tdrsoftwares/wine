@@ -67,6 +67,9 @@ export const customTheme = createTheme({
             fontSize: "14px",
             fontWeight: "bolder",
           },
+          // "& .MuiTypography-body1" : {
+          //   fontSize: "10px",
+          // }
         },
       },
     },

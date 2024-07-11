@@ -12,7 +12,7 @@ export const getAllItemStatuses = async (filterOptions) => {
           itemName,
           categoryName,
           group,
-          companyName,
+          company,
         } = filterOptions;
     
         // let apiURL = `/reports/daily-item-status?page=${page}&pageSize=${pageSize}`;
@@ -25,7 +25,7 @@ export const getAllItemStatuses = async (filterOptions) => {
             itemName,
             categoryName,
             group,
-            companyName,
+            company,
         };
     
         Object.keys(filters).forEach((key) => {
