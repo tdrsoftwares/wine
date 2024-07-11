@@ -273,10 +273,29 @@ const ItemRegister = () => {
     let sorted = [...allItems];
     if (sortBy) {
       sorted.sort((a, b) => {
-        const firstValue =
-          typeof a[sortBy] === "string" ? a[sortBy].toLowerCase() : a[sortBy];
-        const secondValue =
-          typeof b[sortBy] === "string" ? b[sortBy].toLowerCase() : b[sortBy];
+        let firstValue, secondValue;
+
+        
+        if (sortBy === "companyId") {
+          firstValue = a.companyId?.name ? a.companyId.name.toLowerCase() : "";
+          secondValue = b.companyId?.name ? b.companyId.name.toLowerCase() : "";
+        } else if (sortBy === "categoryId") {
+          firstValue = a.categoryId?.categoryName
+            ? a.categoryId.categoryName.toLowerCase()
+            : "";
+          secondValue = b.categoryId?.categoryName
+            ? b.categoryId.categoryName.toLowerCase()
+            : "";
+        } else if (sortBy === "brandId") {
+          firstValue = a.brandId?.name ? a.brandId.name.toLowerCase() : "";
+          secondValue = b.brandId?.name ? b.brandId.name.toLowerCase() : "";
+        } else {
+          firstValue =
+            typeof a[sortBy] === "string" ? a[sortBy].toLowerCase() : a[sortBy];
+          secondValue =
+            typeof b[sortBy] === "string" ? b[sortBy].toLowerCase() : b[sortBy];
+        }
+
         if (firstValue < secondValue) {
           return sortOrder === "asc" ? -1 : 1;
         }
@@ -288,6 +307,7 @@ const ItemRegister = () => {
     }
     return sorted;
   };
+  
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
