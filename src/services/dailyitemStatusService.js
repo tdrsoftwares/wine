@@ -9,8 +9,10 @@ export const getAllItemStatuses = async (filterOptions) => {
           storeName,
           toDayDate,
           brandName,
+          AllBrand,
           itemName,
           categoryName,
+          AllCategory,
           group,
           company,
         } = filterOptions;
@@ -22,8 +24,10 @@ export const getAllItemStatuses = async (filterOptions) => {
             // storeName,
             toDayDate,
             brandName,
+            AllBrand,
             itemName,
             categoryName,
+            AllCategory,
             group,
             company,
         };

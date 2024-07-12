@@ -190,11 +190,12 @@ const ItemTransferReport = () => {
       };
 
       const response = await getItemTransferDetails(filterOptions);
-      console.log("Response: ", response.data.data);
+      const itemsData = response?.data?.data;
+      // console.log("itemsDataResponse: ", itemsData);
 
-      if (response.status === 200) {
-        setAllTransfers(response?.data?.data || []);
-        setTotalCount(response.data.data.length || 0);
+      if (itemsData) {
+        setAllTransfers(itemsData || []);
+        setTotalCount(itemsData?.length || 0);
       } else {
         console.log("Error", response);
         NotificationManager.error("No items found.", "Error");

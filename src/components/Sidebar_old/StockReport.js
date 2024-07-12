@@ -641,13 +641,6 @@ const StockReport = () => {
             pagination
             paginationMode="server"
             initialState={{
-              pagination: {
-                paginationModel: {
-                  page: paginationModel.page,
-                  pageSize: paginationModel.pageSize,
-                },
-                rowCount: totalCount,
-              },
               density: "compact",
             }}
             pageSizeOptions={[10, 25, 50, 100]}

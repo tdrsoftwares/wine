@@ -148,6 +148,7 @@ const DailyItemStatus = () => {
       );
     }
   };
+  // console.log(allBrands)
 
   const fetchAllCategory = async () => {
     try {
@@ -203,13 +204,27 @@ const DailyItemStatus = () => {
         // page: paginationModel.page + 1,
         // pageSize: paginationModel.pageSize,
         toDayDate: toDate,
-        categoryName: filterData.categoryName,
         company: filterData.company,
-        brandName: filterData.brandName,
         itemName: filterData.itemName,
         group: filterData.group,
         storeName: filterData.storeName,
       };
+      // console.log("filterData:", filterData)
+
+      if(filterData.brandName === "All Brands") {
+        filterOptions.AllBrand = true
+      } 
+      else {
+        filterOptions.brandName = filterData.brandName
+      } 
+
+      if(filterData.categoryName === "All Categories") {
+        filterOptions.AllCategory = true
+      } 
+      else {
+        filterOptions.categoryName = filterData.categoryName
+      }
+
       const response = await getAllItemStatuses(filterOptions);
       // console.log("Response itemStatusData: ", response);
       const itemStatusData = response?.data?.data;
@@ -241,6 +256,17 @@ const DailyItemStatus = () => {
     fetchAllStores();
     fetchAllItemStatus();
   }, []);
+
+  const handleBrandChange = (e) => {
+    const selectedBrand = e.target.value;
+    // console.log("selectedBrand", selectedBrand);
+    // if (selectedBrand === "All Brands") {
+      // const allBrandNames = allBrands.map(brand => brand.name).join(", ");
+      setFilterData({ ...filterData, brandName: selectedBrand });
+    // } else {
+      // setFilterData({ ...filterData, brandName: selectedBrand });
+    // }
+  };
 
   const debounce = (func, delay) => {
     let timeout;
@@ -353,10 +379,8 @@ const DailyItemStatus = () => {
                 fullWidth
                 size="small"
                 name="brandName"
-                value={filterData.brandName}
-                onChange={(e) =>
-                  setFilterData({ ...filterData, brandName: e.target.value })
-                }
+                value={filterData.brandName || ""}
+                onChange={handleBrandChange}
                 SelectProps={{
                   MenuProps: {
                     PaperProps: {
@@ -367,9 +391,10 @@ const DailyItemStatus = () => {
                   },
                 }}
               >
+                <MenuItem value="All Brands">All Brands</MenuItem>
                 {allBrands?.map((brand) => (
                   <MenuItem key={brand._id} value={brand.name}>
-                    {brand.name}
+                    {`${brand.name}`}
                   </MenuItem>
                 ))}
               </TextField>
@@ -433,6 +458,7 @@ const DailyItemStatus = () => {
                   setFilterData({ ...filterData, categoryName: e.target.value })
                 }
               >
+                <MenuItem value="All Categories">All Categories</MenuItem>
                 {allCategory?.map((item) => (
                   <MenuItem key={item._id} value={item.categoryName}>
                     {item.categoryName}
@@ -605,17 +631,18 @@ const DailyItemStatus = () => {
               footer: CustomFooter,
               toolbar: GridToolbar,
             }}
-            slotProps={{
-              toolbar: {
-                printOptions: {
-                  hideFooter: false,
-                  hideToolbar: true,
-                },
-              },
-              footer: { allItemStatusData },
-            }}
+            // slotProps={{
+            //   toolbar: {
+            //     printOptions: {
+            //       hideFooter: false,
+            //       hideToolbar: true,
+            //     },
+            //   },
+            //   footer: { allItemStatusData },
+            // }}
             sx={{
               backgroundColor: "#fff",
+              fontSize: "12px",
             }}
           />
         </Box>
