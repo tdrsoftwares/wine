@@ -631,15 +631,15 @@ const DailyItemStatus = () => {
               footer: CustomFooter,
               toolbar: GridToolbar,
             }}
-            // slotProps={{
-            //   toolbar: {
-            //     printOptions: {
-            //       hideFooter: false,
-            //       hideToolbar: true,
-            //     },
-            //   },
-            //   footer: { allItemStatusData },
-            // }}
+            slotProps={{
+              // toolbar: {
+              //   printOptions: {
+              //     hideFooter: false,
+              //     hideToolbar: true,
+              //   },
+              // },
+              footer: { allItemStatusData },
+            }}
             sx={{
               backgroundColor: "#fff",
               fontSize: "12px",

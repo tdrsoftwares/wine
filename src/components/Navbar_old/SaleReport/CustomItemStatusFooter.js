@@ -33,7 +33,7 @@ const CustomFooter = ({ allItemStatusData }) => {
       <Box
         display="flex"
         justifyContent="space-between"
-        sx={{ padding: "12px", paddingLeft: 4, borderTop: "1px solid #e0e0e0" }}
+        sx={{ padding: "12px", paddingLeft: 2, borderTop: "1px solid #e0e0e0" }}
       >
         <Typography variant="body1" sx={{ flexBasis: "15%", fontSize: "14px" }}>
           Total
