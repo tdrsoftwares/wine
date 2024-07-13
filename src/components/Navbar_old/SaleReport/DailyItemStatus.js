@@ -226,8 +226,8 @@ const DailyItemStatus = () => {
       }
 
       const response = await getAllItemStatuses(filterOptions);
-      // console.log("Response itemStatusData: ", response);
       const itemStatusData = response?.data?.data;
+      // console.log("Response itemStatusData: ", itemStatusData);
 
       if (itemStatusData) {
         setAllItemStatusData(itemStatusData || []);
@@ -254,18 +254,12 @@ const DailyItemStatus = () => {
     fetchAllCompanies();
     fetchAllCategory();
     fetchAllStores();
-    fetchAllItemStatus();
+    // fetchAllItemStatus();
   }, []);
 
   const handleBrandChange = (e) => {
     const selectedBrand = e.target.value;
-    // console.log("selectedBrand", selectedBrand);
-    // if (selectedBrand === "All Brands") {
-      // const allBrandNames = allBrands.map(brand => brand.name).join(", ");
       setFilterData({ ...filterData, brandName: selectedBrand });
-    // } else {
-      // setFilterData({ ...filterData, brandName: selectedBrand });
-    // }
   };
 
   const debounce = (func, delay) => {
@@ -280,12 +274,73 @@ const DailyItemStatus = () => {
 
   useEffect(() => {
     const debouncedFetch = debounce(fetchAllItemStatus, 300);
-    debouncedFetch();
+    // console.log("debounce effect runs...");
+    if (filterData.storeName) {
+      debouncedFetch();
+    }
   }, [filterData]);
 
   const handlePrint = useReactToPrint({
     content: () => printRef.current,
   });
+
+  const flattenItemStatusData = (data) => {
+    let flattenedData = [];
+    data.forEach((item, index) => {
+      if (item.items && Array.isArray(item.items)) {
+        item.items.forEach((nestedItem, nestedIndex) => {
+          flattenedData.push({
+            id: `${index}-${nestedIndex}`,
+            sNo: flattenedData.length + 1,
+            // brand: nestedItem.brand,
+            // category: nestedItem.category,
+            item: nestedItem.item,
+            openingBalance: nestedItem.openingBalance,
+            totalPurchased: nestedItem.totalPurchased,
+            totalTransferredFrom: nestedItem.totalTransferredFrom,
+            totalTransferredTo: nestedItem.totalTransferredTo,
+            totalSold: nestedItem.totalSold,
+            closingBalance: nestedItem.closingBalance,
+            // storeName: item.storeName,
+          });
+        });
+
+        // Subtotal row for each category
+        flattenedData.push({
+          id: `${index}-subtotal`,
+          sNo: item.brand
+          ? `Subtotal (${item.brand})`
+          : `Subtotal (${item.category})`,
+          item: null,
+          openingBalance: item.openingBalance,
+          totalPurchased: item.totalPurchased,
+          totalTransferredFrom: item.totalTransferredFrom,
+          totalTransferredTo: item.totalTransferredTo,
+          totalSold: item.totalSold,
+          closingBalance: item.closingBalance,
+          // category: item.category,
+        });
+      } else {
+        flattenedData.push({
+          id: index,
+          sNo: index + 1,
+          // brand: item.brand,
+          // category: item.category,
+          item: item.item,
+          openingBalance: item.openingBalance,
+          totalPurchased: item.totalPurchased,
+          totalTransferredFrom: item.totalTransferredFrom,
+          totalTransferredTo: item.totalTransferredTo,
+          totalSold: item.totalSold,
+          closingBalance: item.closingBalance,
+          // storeName: item.storeName,
+        });
+      }
+    });
+    return flattenedData;
+  };
+
+  const rows = flattenItemStatusData(allItemStatusData);
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -549,7 +604,7 @@ const DailyItemStatus = () => {
                 storeName: "",
               });
               setPaginationModel({ page: 0, pageSize: 10 });
-              fetchAllItemStatus();
+              setAllItemStatusData([])
             }}
           >
             Clear Filters
@@ -599,17 +654,19 @@ const DailyItemStatus = () => {
           }}
         >
           <DataGrid
-            rows={(allItemStatusData || [])?.map((item, index) => ({
-              id: index,
-              sNo: index + 1,
-              item: item.item || "No Data",
-              openingBalance: item.openingBalance || 0,
-              totalPurchased: item.totalPurchased || 0,
-              totalTransferredFrom: item.totalTransferredFrom || 0,
-              totalTransferredTo: item.totalTransferredTo || 0,
-              totalSold: item.totalSold || 0,
-              closingBalance: item.closingBalance || 0,
-            }))}
+            // rows={(allItemStatusData || [])?.map((item, index) => ({
+            //   id: index,
+            //   sNo: index + 1,
+            //   item: item.item || "No Data",
+            //   openingBalance: item.openingBalance || 0,
+            //   totalPurchased: item.totalPurchased || 0,
+            //   totalTransferredFrom: item.totalTransferredFrom || 0,
+            //   totalTransferredTo: item.totalTransferredTo || 0,
+            //   totalSold: item.totalSold || 0,
+            //   closingBalance: item.closingBalance || 0,
+            // }))}
+            rows={rows}
+            getRowId={(row) => row.id}
             columns={columns}
             rowCount={totalCount}
             pagination
