@@ -178,8 +178,10 @@ const ItemCatRegister = () => {
   const fetchAllCategory = async () => {
     try {
       const getAllCategoryResponse = await getAllItemCategory();
-      console.log("getAllCategoryResponse: ", getAllCategoryResponse);
-      setAllCategory(getAllCategoryResponse?.data?.data);
+      // console.log("getAllCategoryResponse: ", getAllCategoryResponse);
+      if(getAllCategoryResponse?.data?.data) {
+        setAllCategory(getAllCategoryResponse?.data?.data);
+      }
     } catch (err) {
       NotificationManager.error(
         "Something went Wrong, Please try again later.",
@@ -488,7 +490,7 @@ const ItemCatRegister = () => {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={allCategory.length}
+            count={allCategory?.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
