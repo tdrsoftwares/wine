@@ -65,7 +65,7 @@ const SaleBill = () => {
     phoneNo: "",
     address: "",
     series: "",
-    billno: null,
+    billno: "",
     billDate: todaysDate,
     itemId: "",
     itemDetailsId: "",
@@ -84,6 +84,8 @@ const SaleBill = () => {
     group: "",
     stockAt: "",
   });
+  const [billNumber, setBillNumber] = useState("");
+  const [printBillOpened, setPrintBillOpened] = useState(false);
   // const [licenseDetails, setLicenseDetails] = useState({});
   const [editableIndex, setEditableIndex] = useState(-1);
   const [editedRow, setEditedRow] = useState({});
@@ -113,10 +115,9 @@ const SaleBill = () => {
   });
   // console.log("formData: ", formData)
   // console.log("salesData: ",salesData)
-  // console.log("totalValues: ",totalValues)
   
   const { licenseDetails } = useLicenseContext();
-  console.log("licenseDetails: ", licenseDetails);
+  // console.log("licenseDetails: ", licenseDetails);
   const tableRef = useRef(null);
   const customerNameRef = useRef(null);
   const addressRef = useRef(null);
@@ -148,10 +149,10 @@ const SaleBill = () => {
   const adjustmentRef = useRef(null);
   const netAmtRef = useRef(null);
   const saveButtonRef = useRef(null);
-  const printRef = useRef();
+  const printModalRef = useRef();
 
   const handlePrint = useReactToPrint({
-    content: () => printRef.current,
+    content: () => printModalRef.current,
   });
 
   const fetchAllStores = async () => {
@@ -170,23 +171,6 @@ const SaleBill = () => {
       console.log(err)
     }
   }
-  
-  
-    // const fetchLicenseData = async () => {
-    //   try {
-    //     const response = await getLicenseInfo();
-    //     console.log("getLicenseInfo ---> ", response.data[0]);
-    //     if (response.status === 200) {
-    //       setLicenseDetails(response.data[0]);
-    //       console.log("licenseDetails: ", licenseDetails);
-    //     }
-    //   } catch (error) {
-    //     NotificationManager.error(
-    //       "Error fetching license. Please try again later.",
-    //       "Error"
-    //     );
-    //   }
-    // };
   
 
   const fetchAllCustomers = async () => {
@@ -742,19 +726,21 @@ const SaleBill = () => {
           }
         }
 
-        const grossAmount = billItems.reduce(
-          (sum, item) => sum + item.pcs * item.rate,
-          0
-        );
-        const discountAmount = billItems.reduce(
-          (sum, item) => sum + item.discount,
-          0
-        );
-        const netAmount =
-          grossAmount -
-          discountAmount +
-          parseFloat(totalValues.taxAmt || 0) -
-          parseFloat(totalValues.adjustment || 0);
+        // const grossAmount = billItems.reduce(
+        //   (sum, item) => sum + item.pcs * item.rate,
+        //   0
+        // );
+        // const discountAmount = billItems.reduce(
+        //   (sum, item) => sum + item.discount,
+        //   0
+        // );
+
+        // const netAmount =
+        //   grossAmount -
+        //   discountAmount +
+        //   parseFloat(totalValues.taxAmt || 0) -
+        //   parseFloat(totalValues.adjustment || 0);
+
 
         const newPayload = {
           billType: formData.billType,
@@ -764,14 +750,14 @@ const SaleBill = () => {
           billDate: formData.billDate ? billDateObj : todaysDateObj,
           volume: currentVolume,
           totalPcs: currentPcs,
-          splDisc: parseFloat(totalValues.splDiscount || 0),
-          splDiscAmount: parseFloat(totalValues.splDiscAmount || 0),
-          grossAmount: grossAmount,
-          discAmount: discountAmount,
-          taxAmount: parseFloat(totalValues.taxAmt || 0),
-          adjustment: parseFloat(totalValues.adjustment || 0),
-          netAmount: netAmount,
-          receiptMode1: netAmount,
+          splDisc: parseFloat(totalValues.splDiscount),
+          splDiscAmount: parseFloat(totalValues.splDiscAmount),
+          grossAmount: parseFloat(totalValues.grossAmt),
+          discAmount: parseFloat(totalValues.discountAmt),
+          adjustment:parseFloat(totalValues.adjustment),
+          netAmount: parseFloat(totalValues.netAmt),
+          receiptMode1: parseFloat(totalValues.receiptMode1),
+
           salesItem: billItems.map((item) => ({
             itemDetailsId: item.itemDetailsId,
             itemCode: item.itemCode,
@@ -786,8 +772,15 @@ const SaleBill = () => {
             break: parseFloat(item.brk),
             // stockAt: item.stockAt,
           })),
-          receiptAmount: 0,
         };
+
+        if (totalValues.receiptMode2) {
+          newPayload.receiptMode2 = totalValues.receiptMode2;
+        }
+  
+        if (totalValues.receiptAmt && totalValues.receiptAmt !== 0) {
+          newPayload.receiptAmount = parseFloat(totalValues.receiptAmt);
+        }
 
         payloads.push(newPayload);
       }
@@ -821,9 +814,7 @@ const SaleBill = () => {
         NotificationManager.success("Sale created successfully", "Success");
         if (licenseDetails?.autoBillPrint === "YES") {
           // console.log("executing...") 
-          setShowSaleBillPrintModal(true);
           handlePrint();
-          // 
         }
         resetTopFormData();
         resetMiddleFormData();
@@ -1099,13 +1090,14 @@ const SaleBill = () => {
           }
         }
   
-        const grossAmount = billItems.reduce((sum, item) => sum + item.pcs * item.rate, 0);
-        const splDiscAmount = (parseFloat(totalValues.splDiscount || 0) / 100) * grossAmount;
-        const discAmount = (parseFloat(totalValues.discountAmt || 0) / 100) * grossAmount;
-        const taxAmount = (parseFloat(totalValues.taxAmt || 0) / 100) * grossAmount;
-        const adjustment = parseFloat(totalValues.adjustment || 0);
-        const netAmount = grossAmount - splDiscAmount - discAmount + taxAmount + adjustment;
-        const receiptMode1 = netAmount;
+        // const grossAmount = billItems.reduce((sum, item) => sum + item.pcs * item.rate, 0);
+        // const splDiscAmount = parseFloat(totalValues.splDiscount || 0);
+        // const discAmount = parseFloat(totalValues.discountAmt || 0);
+        // // const taxAmount = (parseFloat(totalValues.taxAmt || 0) / 100) * grossAmount;
+        // const adjustment = parseFloat(totalValues.adjustment || 0);
+        // // const netAmount = parseFloat(totalValues.netAmount || 0);
+        
+        // // console.log("totalValues inside create: ", totalValues);
   
         const newPayload = {
           billType: formData.billType,
@@ -1115,14 +1107,15 @@ const SaleBill = () => {
           billDate: formData.billDate ? billDateObj : todaysDateObj,
           volume: currentVolume,
           totalPcs: currentPcs,
-          splDisc: parseFloat(totalValues.splDiscount || 0),
-          splDiscAmount,
-          grossAmount,
-          discAmount,
-          taxAmount,
-          adjustment,
-          netAmount,
-          receiptMode1,
+          splDisc: parseFloat(totalValues.splDiscount),
+          splDiscAmount: parseFloat(totalValues.splDiscAmount),
+          grossAmount: parseFloat(totalValues.grossAmt),
+          discAmount: parseFloat(totalValues.discountAmt),
+          // taxAmount,
+          adjustment:parseFloat(totalValues.adjustment),
+          netAmount: parseFloat(totalValues.netAmt),
+          receiptMode1: parseFloat(totalValues.receiptMode1),
+          
           salesItem: billItems.map((item) => ({
             itemDetailsId: item.itemDetailsId,
             itemCode: item.itemCode,
@@ -1137,8 +1130,16 @@ const SaleBill = () => {
             break: parseFloat(item.brk),
             // stockAt: item.stockAt,
           })),
-          receiptAmount: 0,
         };
+
+        if (totalValues.receiptMode2) {
+          newPayload.receiptMode2 = totalValues.receiptMode2;
+        }
+  
+        if (totalValues.receiptAmt && totalValues.receiptAmt !== 0) {
+          newPayload.receiptAmount = parseFloat(totalValues.receiptAmt);
+        }
+        
   
         payloads.push(newPayload);
       }
@@ -1164,30 +1165,29 @@ const SaleBill = () => {
       const response = await createSale(payload);
       // console.log("Sale created: ", response);
       const billNo = response?.data?.data[0]?.billNo;
-      console.log("bill no: ", response.data.data[0]?.billNo);
+      // console.log("bill no: ", billNo);
 
-      if (response.status === 200) {
+      if (response?.data?.data) {
         NotificationManager.success("Sale created successfully", "Success");
         setFormData((prevData) => ({
           ...prevData,
           billno: billNo,
-        }));
-
-        if (licenseDetails?.autoBillPrint === "YES") {
-          // console.log("executing...") 
-          setShowSaleBillPrintModal(true);
-          handlePrint();
-          // 
-        }
-        // if(licenseDetails?.autoBillPrint === "NO" || !showSaleBillPrintModal){
+        }), () => {
+          if (licenseDetails?.autoBillPrint === "YES") {
+            // setShowSaleBillPrintModal(true);
+            handlePrint();
+          }
+        });
+  
+        // if(licenseDetails?.autoBillPrint === "NO"){
           resetTopFormData();
           resetMiddleFormData();
           resetTotalValues();
           setSearchResults([]);
           setSalesData([]);
+          fetchAllBills();
           setSearchMode(false);
         // }
-        // setShowSaleBillPrintModal(false);
       } else {
         NotificationManager.error(
           "Error creating Sale. Please try again later.",
@@ -1196,9 +1196,10 @@ const SaleBill = () => {
       }
     } catch (error) {
       console.error("Error creating sale:", error);
-    }
+    } 
   };
   
+  console.log("showSaleBillPrintModal: ",showSaleBillPrintModal)
 
   const handleUpdateSale = async () => {
     let payload = {};
@@ -1248,7 +1249,7 @@ const SaleBill = () => {
         splDiscAmount: parseFloat(totalValues.splDiscAmount || 0),
         grossAmount: parseFloat(totalValues.grossAmt),
         discAmount: parseFloat(totalValues.discountAmt || 0),
-        taxAmount: parseFloat(totalValues.taxAmt || 0),
+        // taxAmount: parseFloat(totalValues.taxAmt || 0),
         adjustment: parseFloat(totalValues.adjustment || 0),
         netAmount: parseFloat(totalValues.netAmt),
         receiptMode1: parseFloat(totalValues.receiptMode1),
@@ -1297,7 +1298,7 @@ const SaleBill = () => {
         splDiscAmount: parseFloat(totalValues.splDiscAmount || 0),
         grossAmount: parseFloat(totalValues.grossAmt),
         discAmount: parseFloat(totalValues.discountAmt || 0),
-        taxAmount: parseFloat(totalValues.taxAmt || 0),
+        // taxAmount: parseFloat(totalValues.taxAmt || 0),
         adjustment: parseFloat(totalValues.adjustment || 0),
         netAmount: parseFloat(totalValues.netAmt),
         receiptMode1: parseFloat(totalValues.receiptMode1),
@@ -1336,7 +1337,7 @@ const SaleBill = () => {
     try {
       const response = await updateSaleDetailsByBillNo(
         payload,
-        formData.billno
+        billNumber
       );
 
       if (response.status === 200) {
@@ -1361,8 +1362,8 @@ const SaleBill = () => {
 
   const handleDeleteSale = async () => {
     try {
-      if (billNoEditable && formData.billno) {
-        const response = await removeSaleDetails(formData.billno);
+      if (billNoEditable && billNumber) {
+        const response = await removeSaleDetails(billNumber);
         if (response.status === 200) {
           NotificationManager.success("Sale deleted successfully.", "Success");
           resetTopFormData();
@@ -1372,6 +1373,7 @@ const SaleBill = () => {
           setBillNoEditable(true);
           setSalesData([]);
           setEditedRow({});
+          fetchAllBills();
           setSelectedRowIndex(null);
           setSearchMode(false);
           setEditableIndex(-1);
@@ -1383,13 +1385,13 @@ const SaleBill = () => {
           );
         }
       } else {
-        if (!billNoEditable && formData.billno) {
+        if (!billNoEditable && billNumber) {
           NotificationManager.warning(
             "Bill no. field is disabled!",
             "Please click on Open Button to enable it."
           );
         }
-        if (billNoEditable && !formData.billno) {
+        if (billNoEditable && !billNumber) {
           NotificationManager.warning(
             "Please input something in bill no. field!"
           );
@@ -1515,7 +1517,8 @@ const SaleBill = () => {
 
   const handleBillNoChange = (e) => {
     const { value } = e.target;
-    setFormData({ ...formData, billno: value });
+    // setFormData({ ...formData, billno: value });
+    setBillNumber(value);
   };
 
 
@@ -1532,10 +1535,10 @@ const SaleBill = () => {
 
   const handlePrevClick = () => {
     if (
-      (formData.billno && billNoEditable) ||
-      (formData.billno && seriesData)
+      (billNumber && billNoEditable) ||
+      (billNumber && seriesData)
     ) {
-      const match = formData.billno.match(/^([A-Za-z]*)(\d+)$/);
+      const match = billNumber.match(/^([A-Za-z]*)(\d+)$/);
       if (match) {
         const prefix = match[1];
 
@@ -1544,29 +1547,28 @@ const SaleBill = () => {
         const paddedNumber = number.toString().padStart(match[2].length, "0");
         const newBillNo = `${prefix}${paddedNumber}`;
 
-        setFormData((prevData) => ({ ...prevData, billno: newBillNo }));
+        // setFormData((prevData) => ({ ...prevData, billno: newBillNo }));
+        setBillNumber(newBillNo)
       }
     }
   };
 
-
   const handleNextClick = () => {
     if (
-      (formData.billno && billNoEditable) ||
-      (formData.billno && seriesData)
+      (billNumber && billNoEditable) ||
+      (billNumber && seriesData)
     ) {
-      const match = formData.billno.match(/^([A-Za-z]*)(\d+)$/);
+      const match = billNumber.match(/^([A-Za-z]*)(\d+)$/);
       if (match) {
         const prefix = match[1];
         const number = parseInt(match[2]) + 1;
         const paddedNumber = number.toString().padStart(match[2].length, "0");
         const newBillNo = `${prefix}${paddedNumber}`;
-        setFormData((prevData) => ({ ...prevData, billno: newBillNo }));
+        // setFormData((prevData) => ({ ...prevData, billno: newBillNo }));
+        setBillNumber(newBillNo)
       }
     }
   };
-
-
 
   const convertToDayjsObject = (dateStr) => {
     return dayjs(dateStr, "DD/MM/YYYY");
@@ -1575,8 +1577,8 @@ const SaleBill = () => {
 
   const billNumberSearch = debounce(async () => {
     try {
-      if (billNoEditable && formData.billno) {
-        const response = await getSaleDetailsByEntryNo(formData.billno);
+      if (billNoEditable && billNumber) {
+        const response = await getSaleDetailsByEntryNo(billNumber);
 
         if (response?.data?.data) {
           const receivedData = response.data.data;
@@ -1694,11 +1696,11 @@ const SaleBill = () => {
     const splDiscAmount =
       (grossAmt * (parseFloat(totalValues.splDiscount) || 0)) / 100;
 
-    const taxAmt = parseFloat(totalValues.taxAmt) || 0;
+    // const taxAmt = parseFloat(totalValues.taxAmt) || 0;
 
     const adjustment = parseFloat(totalValues.adjustment) || 0;
 
-    const netAmt = grossAmt - splDiscAmount + taxAmt - adjustment;
+    const netAmt = grossAmt - splDiscAmount - adjustment;
 
     const newNetAmount = netAmt - totalDiscount;
 
@@ -1709,7 +1711,7 @@ const SaleBill = () => {
       imlVolume: imlVolume.toFixed(2),
       totalPcs: totalPcs,
       grossAmt: grossAmt.toFixed(2),
-      receiptMode1: formData.billno
+      receiptMode1: billNumber
         ? totalValues.receiptMode1
         : newNetAmount.toFixed(2),
       splDiscAmount: (splDiscAmount + totalDiscount).toFixed(0),
@@ -1724,8 +1726,9 @@ const SaleBill = () => {
   }, [
     salesData,
     totalValues.splDiscount,
+    totalValues.splDiscAmount,
     totalValues.discountAmt,
-    totalValues.taxAmt,
+    // totalValues.taxAmt,
     totalValues.adjustment,
   ]);
 
@@ -1752,17 +1755,22 @@ const SaleBill = () => {
 
 
   useEffect(() => {
-    // console.log("seriesData: ",seriesData);
-    // console.log(formData.billno);
-    // console.log("billNoEditable: ",billNoEditable);
     if (
-      (formData.billno && billNoEditable) ||
-      (formData.billno && seriesData)
+      (billNumber && billNoEditable) ||
+      (billNumber && seriesData)
     ) {
-      billNumberSearch(formData.billno);
+      billNumberSearch(billNumber);
     }
-  }, [formData.billno, billNoEditable]);
+  }, [billNumber, billNoEditable]);
 
+
+  // useEffect(() => {
+  //   if (formData.billno && licenseDetails?.autoBillPrint === "YES") {
+  //     // setShowSaleBillPrintModal(true);
+  //     handlePrint();
+  //   }
+  // }, [formData.billno, licenseDetails?.autoBillPrint]);
+  
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -1932,9 +1940,10 @@ const SaleBill = () => {
                 select
                 fullWidth
                 size="small"
-                value={formData.billno}
+                value={billNumber}
                 onChange={(e) =>
-                  setFormData({ ...formData, billno: e.target.value })
+                  // setFormData({ ...formData, billno: e.target.value })
+                  setBillNumber(e.target.value)
                 }
                 disabled={!seriesEditable}
               >
@@ -1958,7 +1967,7 @@ const SaleBill = () => {
                 size="small"
                 name="billno"
                 className="entryNo-adjustment"
-                value={formData.billno}
+                value={billNumber}
                 onChange={handleBillNoChange}
                 disabled={!billNoEditable && !seriesEditable}
                 onKeyDown={(e) => {
@@ -2723,23 +2732,27 @@ const SaleBill = () => {
                 size="small"
                 variant="outlined"
                 onClick={(e) => {
-                  setFormData((prevFormData) => ({
-                    ...prevFormData,
+                  setFormData({
                     billType: "CASHBILL",
                     customerName: "",
-                    store: { _id: "", name: "" },
+                    store:
+                      allStores.length > 0
+                        ? allStores[0]
+                        : { _id: "", name: "" },
                     address: "",
                     phoneNo: "",
                     billDate: todaysDate,
-                    billno: null,
+                    billno: "",
                     storeId: "",
-                  }));
+                  });
+                  setBillNumber("");
                   resetMiddleFormData();
                   resetTotalValues();
                   setSalesData([]);
                   handleEnterKey(e, itemCodeRef);
                   setBillNoEditable(false);
                   setSeriesEditable(false);
+                  setShowSaleBillPrintModal(false);
                   setSearchMode(false);
                 }}
                 sx={{
@@ -2812,10 +2825,7 @@ const SaleBill = () => {
                 color="info"
                 size="small"
                 variant="contained"
-                onClick={() => {
-                  setShowSaleBillPrintModal(true);
-                  handlePrint();
-                }}
+                onClick={handlePrint}
                 sx={{
                   marginRight: 1,
                   padding: "4px 10px",
@@ -2830,8 +2840,8 @@ const SaleBill = () => {
                 size="small"
                 variant="contained"
                 onClick={() => {
-                  if (!formData.billno) handleCreateSale();
-                  else handleUpdateSale();
+                  if (!billNumber && !billNoEditable) handleCreateSale();
+                  else if (billNumber && billNoEditable) handleUpdateSale();
                 }}
                 sx={{
                   padding: "4px 10px",
@@ -2845,16 +2855,18 @@ const SaleBill = () => {
         </Box>
       </Box>
 
-      <SaleBillPrintModal
-        open={showSaleBillPrintModal}
-        handleClose={handleCloseSaleBillPrintModal}
+      {formData.billno && <SaleBillPrintModal
+        ref={printModalRef}
+        // open={showSaleBillPrintModal}
+        // handleClose={handleCloseSaleBillPrintModal}
+        open={false}
+        handleClose={() => {}}
         salesData={salesData}
         formData={formData}
         totalValues={totalValues}
         licenseDetails={licenseDetails}
-        handlePrint={handlePrint}
-        printRef={printRef}
-      />
+        billNumber={billNumber}
+      />}
     </ThemeProvider>
   );
 };
