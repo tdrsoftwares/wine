@@ -822,6 +822,7 @@ const SaleBill = () => {
         setSearchResults([]);
         setSalesData([]);
         setSearchMode(false);
+        fetchAllBills();
       } else {
         NotificationManager.error(
           "Error creating Sale. Please try again later.",
@@ -1172,12 +1173,12 @@ const SaleBill = () => {
         setFormData((prevData) => ({
           ...prevData,
           billno: billNo,
-        }), () => {
-          if (licenseDetails?.autoBillPrint === "YES") {
-            // setShowSaleBillPrintModal(true);
-            handlePrint();
-          }
-        });
+        }));
+
+        if (licenseDetails?.autoBillPrint === "YES") {
+          handlePrint();
+        }
+        
   
         // if(licenseDetails?.autoBillPrint === "NO"){
           resetTopFormData();
@@ -1199,7 +1200,7 @@ const SaleBill = () => {
     } 
   };
   
-  console.log("showSaleBillPrintModal: ",showSaleBillPrintModal)
+  // console.log("showSaleBillPrintModal: ",showSaleBillPrintModal)
 
   const handleUpdateSale = async () => {
     let payload = {};
@@ -2855,10 +2856,8 @@ const SaleBill = () => {
         </Box>
       </Box>
 
-      {formData.billno && <SaleBillPrintModal
+      <SaleBillPrintModal
         ref={printModalRef}
-        // open={showSaleBillPrintModal}
-        // handleClose={handleCloseSaleBillPrintModal}
         open={false}
         handleClose={() => {}}
         salesData={salesData}
@@ -2866,7 +2865,7 @@ const SaleBill = () => {
         totalValues={totalValues}
         licenseDetails={licenseDetails}
         billNumber={billNumber}
-      />}
+      />
     </ThemeProvider>
   );
 };
