@@ -83,6 +83,7 @@ import BrandPackLedgerByMrpRange from "./components/Navbar_old/InventoryReport/B
 import ItemRateChart from "./components/Navbar_old/InventoryReport/ItemRateChart";
 import BarCodeList from "./components/Navbar_old/InventoryReport/BarCodeList";
 import ItemTransferReport from "./components/Navbar_old/InventoryReport/ItemTransferReport";
+import ItemLedgerStatus from "./modules/ItemLedgerStatus";
 
 
 const PrivateRoute = ({ element, authenticatedUser }) => {
@@ -125,6 +126,11 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp, handleSignout
       />
       <Route path="*" element={<NotFound />} />
 
+      
+      <Route
+        path="/item-ledger-status"
+        element={authenticatedUser ? <ItemLedgerStatus /> : <UnAuthorized />}
+      />
       {/* Navbar items */}
       {/* <Route
         path="/inventory-report"

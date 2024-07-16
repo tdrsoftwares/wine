@@ -1,8 +1,8 @@
 import React from "react";
 import { Box, ThemeProvider, Typography } from "@mui/material";
-import { customTheme } from "../../../utils/customTheme";
+import { customTheme } from "../utils/customTheme";
 
-const CustomItemStatusFooter = ({ allItemStatusData, filterData }) => {
+const CustomItemLedgerStatusFooter = ({ allItemStatusData, filterData }) => {
   const totalOpeningBalance = allItemStatusData?.reduce(
     (sum, row) => sum + row.openingBalance,
     0
@@ -43,28 +43,28 @@ const CustomItemStatusFooter = ({ allItemStatusData, filterData }) => {
           sx={{ flexBasis: "15%", fontSize: "13px" }}
         ></Typography>
         <Typography variant="body1" sx={{ flexBasis: "15%", fontSize: "13px" }}>
-          {filterData.isBLTrue
+          {filterData?.isBLTrue
             ? totalOpeningBalance.toFixed(3)
             : totalOpeningBalance}
         </Typography>
         <Typography variant="body1" sx={{ flexBasis: "15%", fontSize: "13px" }}>
-          {filterData.isBLTrue ? totalPurchased.toFixed(3) : totalPurchased}
+          {filterData?.isBLTrue ? totalPurchased.toFixed(3) : totalPurchased}
         </Typography>
         <Typography variant="body1" sx={{ flexBasis: "15%", fontSize: "13px" }}>
-          {filterData.isBLTrue
+          {filterData?.isBLTrue
             ? totalTransferredFrom.toFixed(3)
             : totalTransferredFrom}
         </Typography>
         <Typography variant="body1" sx={{ flexBasis: "15%", fontSize: "13px" }}>
-          {filterData.isBLTrue
+          {filterData?.isBLTrue
             ? totalTransferredTo.toFixed(3)
             : totalTransferredTo}
         </Typography>
         <Typography variant="body1" sx={{ flexBasis: "15%", fontSize: "13px" }}>
-          {filterData.isBLTrue ? totalSold.toFixed(3) : totalSold}
+          {filterData?.isBLTrue ? totalSold.toFixed(3) : totalSold}
         </Typography>
         <Typography variant="body1" sx={{ flexBasis: "15%", fontSize: "13px" }}>
-          {filterData.isBLTrue
+          {filterData?.isBLTrue
             ? totalClosingBalance.toFixed(3)
             : totalClosingBalance}
         </Typography>
@@ -73,4 +73,4 @@ const CustomItemStatusFooter = ({ allItemStatusData, filterData }) => {
   );
 };
 
-export default CustomItemStatusFooter;
+export default CustomItemLedgerStatusFooter;

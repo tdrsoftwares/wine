@@ -200,51 +200,7 @@ function Home() {
 
         <Grid item xs={3}>
           <Card sx={{ maxWidth: 250, margin:'0 auto'  }}>
-            <CardActionArea onClick={() => navigate("/item-register")}>
-              <CardMedia
-                component="img"
-                height="100"
-                image={wineImage10}
-                alt="wine glass"
-                sx={{ objectFit: "contain", padding: "10px" }}
-              />
-              <CardContent>
-                <Typography gutterBottom variant="subtitle1" component="div">
-                  Register Items
-                </Typography>
-                <Typography variant="body3" color="text.secondary">
-                  Click to register a item
-                </Typography>
-              </CardContent>
-            </CardActionArea>
-          </Card>
-        </Grid>
-
-        <Grid item xs={3}>
-          <Card sx={{ maxWidth: 250, margin:'0 auto'  }}>
-            <CardActionArea onClick={() => navigate("/store-register")}>
-              <CardMedia
-                component="img"
-                height="100"
-                image={wineImage11}
-                alt="wine glass"
-                sx={{ objectFit: "contain", padding: "10px" }}
-              />
-              <CardContent>
-                <Typography gutterBottom variant="subtitle1" component="div">
-                  Register Store
-                </Typography>
-                <Typography variant="body3" color="text.secondary">
-                  Click to register a store
-                </Typography>
-              </CardContent>
-            </CardActionArea>
-          </Card>
-        </Grid>
-
-        <Grid item xs={3}>
-          <Card sx={{ maxWidth: 250, margin:'0 auto'  }}>
-            <CardActionArea onClick={() => navigate("/customer-register")}>
+            <CardActionArea onClick={() => navigate("/daily-sale-report")}>
               <CardMedia
                 component="img"
                 height="100"
@@ -254,10 +210,10 @@ function Home() {
               />
               <CardContent>
                 <Typography gutterBottom variant="subtitle1" component="div">
-                  Register Customer
+                  Daily Sale Report
                 </Typography>
                 <Typography variant="body3" color="text.secondary">
-                  Click to register a customer
+                  Click to see daily sale details
                 </Typography>
               </CardContent>
             </CardActionArea>
@@ -266,7 +222,51 @@ function Home() {
 
         <Grid item xs={3}>
           <Card sx={{ maxWidth: 250, margin:'0 auto'  }}>
-            <CardActionArea onClick={() => navigate("/suppliers-register")}>
+            <CardActionArea onClick={() => navigate("/daily-item-status")}>
+              <CardMedia
+                component="img"
+                height="100"
+                image={wineImage10}
+                alt="wine glass"
+                sx={{ objectFit: "contain", padding: "10px" }}
+              />
+              <CardContent>
+                <Typography gutterBottom variant="subtitle1" component="div">
+                  Daily Items Status 
+                </Typography>
+                <Typography variant="body3" color="text.secondary">
+                  Click to see daily item details
+                </Typography>
+              </CardContent>
+            </CardActionArea>
+          </Card>
+        </Grid>
+
+        <Grid item xs={3}>
+          <Card sx={{ maxWidth: 250, margin:'0 auto'  }}>
+            <CardActionArea onClick={() => navigate("/item-ledger-status")}>
+              <CardMedia
+                component="img"
+                height="100"
+                image={wineImage11}
+                alt="wine glass"
+                sx={{ objectFit: "contain", padding: "10px" }}
+              />
+              <CardContent>
+                <Typography gutterBottom variant="subtitle1" component="div">
+                  Items Ledger Status
+                </Typography>
+                <Typography variant="body3" color="text.secondary">
+                  Click to see item ledger details
+                </Typography>
+              </CardContent>
+            </CardActionArea>
+          </Card>
+        </Grid>
+
+        <Grid item xs={3}>
+          <Card sx={{ maxWidth: 250, margin:'0 auto'  }}>
+            <CardActionArea onClick={() => navigate("/monthly-statement")}>
               <CardMedia
                 component="img"
                 height="100"
@@ -276,10 +276,10 @@ function Home() {
               />
               <CardContent>
                 <Typography gutterBottom variant="subtitle1" component="div">
-                  Register Supplier
+                  Monthly Statement
                 </Typography>
                 <Typography variant="body3" color="text.secondary">
-                  Click to register a supplier
+                  Click to see monthly report
                 </Typography>
               </CardContent>
             </CardActionArea>

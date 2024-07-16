@@ -1,9 +1,9 @@
+import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
   Checkbox,
   CircularProgress,
-  FormControlLabel,
   Grid,
   InputLabel,
   MenuItem,
@@ -11,23 +11,23 @@ import {
   ThemeProvider,
   Typography,
 } from "@mui/material";
-import React, { useEffect, useRef, useState } from "react";
-import { customTheme } from "../../../utils/customTheme";
 import dayjs from "dayjs";
-import { getAllCompanies } from "../../../services/companyService";
 import { NotificationManager } from "react-notifications";
-import { getAllItems } from "../../../services/itemService";
-import { getAllBrands } from "../../../services/brandService";
-import { getAllItemCategory } from "../../../services/categoryService";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { getAllStores } from "../../../services/storeService";
-import { getAllItemStatuses } from "../../../services/dailyitemStatusService";
-import CustomItemStatusFooter from "./CustomItemStatusFooter";
 import ReactToPrint, { useReactToPrint } from "react-to-print";
+import { getAllItems } from "../services/itemService";
+import { getAllBrands } from "../services/brandService";
+import { getAllItemCategory } from "../services/categoryService";
+import { getAllCompanies } from "../services/companyService";
+import { getAllStores } from "../services/storeService";
+import { getAllItemLedgerStatuses } from "../services/itemLedgerStatusService";
+import CustomItemLedgerStatusFooter from "./CustomItemLedgerFooter";
+import { customTheme } from "../utils/customTheme";
 
-const DailyItemStatus = () => {
+
+const ItemLedgerStatus = () => {
   const todaysDate = dayjs();
   const [allItemStatusData, setAllItemStatusData] = useState([]);
   const [allBrands, setAllBrands] = useState([]);
@@ -35,7 +35,7 @@ const DailyItemStatus = () => {
   const [allStores, setAllStores] = useState([]);
   const [filterData, setFilterData] = useState({
     dateFrom: null,
-    dateTo: todaysDate,
+    dateTo: null,
     company: "",
     brandName: "",
     itemName: "",
@@ -191,7 +191,7 @@ const DailyItemStatus = () => {
     }
   };
 
-  const fetchAllItemStatus = async () => {
+  const fetchAllItemLedgerStatus = async () => {
     const fromDate = filterData.dateFrom
       ? formatDate(filterData.dateFrom)
       : null;
@@ -202,6 +202,7 @@ const DailyItemStatus = () => {
       const filterOptions = {
         // page: paginationModel.page + 1,
         // pageSize: paginationModel.pageSize,
+        lastDate: fromDate,
         toDayDate: toDate,
         company: filterData.company,
         itemName: filterData.itemName,
@@ -223,7 +224,7 @@ const DailyItemStatus = () => {
         filterOptions.categoryName = filterData.categoryName;
       }
 
-      const response = await getAllItemStatuses(filterOptions);
+      const response = await getAllItemLedgerStatuses(filterOptions);
       const itemStatusData = response?.data?.data;
       // console.log("Response itemStatusData: ", itemStatusData);
 
@@ -252,7 +253,7 @@ const DailyItemStatus = () => {
     fetchAllCompanies();
     fetchAllCategory();
     fetchAllStores();
-    // fetchAllItemStatus();
+    // fetchAllItemLedgerStatus();
   }, []);
 
   const handleBrandChange = (e) => {
@@ -271,7 +272,7 @@ const DailyItemStatus = () => {
   };
 
   useEffect(() => {
-    const debouncedFetch = debounce(fetchAllItemStatus, 300);
+    const debouncedFetch = debounce(fetchAllItemLedgerStatus, 300);
     // console.log("debounce effect runs...");
     if (filterData.storeName) {
       debouncedFetch();
@@ -373,7 +374,7 @@ const DailyItemStatus = () => {
     <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, width: "900px" }}>
         <Typography variant="h6" sx={{ marginBottom: 2 }}>
-          Daily Item Status
+          Item Ledger Status
         </Typography>
         <Typography variant="subtitle2" gutterBottom>
           Filter By:
@@ -382,8 +383,29 @@ const DailyItemStatus = () => {
         <Grid container spacing={2}>
           <Grid item xs={3}>
             <div className="input-wrapper">
+              <InputLabel htmlFor="dateFrom" className="input-label">
+                Date from :
+              </InputLabel>
+
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  id="dateFrom"
+                  format="DD/MM/YYYY"
+                  value={filterData.dateFrom}
+                  className="date-picker"
+                  onChange={(newDate) =>
+                    setFilterData({ ...filterData, dateFrom: newDate })
+                  }
+                  renderInput={(params) => <TextField {...params} />}
+                />
+              </LocalizationProvider>
+            </div>
+          </Grid>
+
+          <Grid item xs={3}>
+            <div className="input-wrapper">
               <InputLabel htmlFor="dateTo" className="input-label">
-                Date :
+                Date To:
               </InputLabel>
 
               <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -520,7 +542,10 @@ const DailyItemStatus = () => {
                   },
                 }}
                 onChange={(e) =>
-                  setFilterData({ ...filterData, categoryName: e.target.value })
+                  setFilterData({
+                    ...filterData,
+                    categoryName: e.target.value,
+                  })
                 }
               >
                 <MenuItem value="All Categories">All Categories</MenuItem>
@@ -605,63 +630,72 @@ const DailyItemStatus = () => {
               />
             </div>
           </Grid>
-        </Grid>
 
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            "& button": { marginTop: 2 },
-          }}
-        >
-          <Button
-            color="inherit"
-            size="small"
-            variant="contained"
-            onClick={() => {
-              setFilterData({
-                dateFrom: null,
-                dateTo: todaysDate,
-                company: "",
-                brandName: "",
-                categoryName: "",
-                itemName: "",
-                group: "",
-                storeName: "",
-                isBLTrue: false,
-              });
-              setPaginationModel({ page: 0, pageSize: 10 });
-              setAllItemStatusData([]);
-            }}
-          >
-            Clear Filters
-          </Button>
-          {/* <Button
-              color="primary"
-              size="small"
-              variant="contained"
-              onClick={handleExportCSV}
-              sx={{ marginLeft: 2 }}
+          <Grid item xs={6}></Grid>
+
+          <Grid item xs={3}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                alignItems: "center",
+                //   "& button": { marginTop: 2 },
+              }}
             >
-              Export CSV
-            </Button> */}
-          <Button
-            color="info"
-            size="small"
-            variant="contained"
-            onClick={fetchAllItemStatus}
-            sx={{ marginLeft: 2 }}
-          >
-            Display
-          </Button>
-        </Box>
+              <Button
+                color="inherit"
+                size="small"
+                variant="contained"
+                onClick={() => {
+                  setFilterData({
+                    dateFrom: null,
+                    dateTo: null,
+                    company: "",
+                    brandName: "",
+                    categoryName: "",
+                    itemName: "",
+                    group: "",
+                    storeName: "",
+                    isBLTrue: false,
+                  });
+                  setPaginationModel({ page: 0, pageSize: 10 });
+                  setAllItemStatusData([]);
+                }}
+              >
+                Clear Filters
+              </Button>
+
+              {/* <Button
+                color="primary"
+                size="small"
+                variant="contained"
+                onClick={handleExportCSV}
+                sx={{ marginLeft: 2 }}
+              >
+                Export CSV
+              </Button> */}
+              <Button
+                color="info"
+                size="small"
+                variant="contained"
+                onClick={fetchAllItemLedgerStatus}
+                sx={{ marginLeft: 2 }}
+              >
+                Display
+              </Button>
+            </Box>
+          </Grid>
+        </Grid>
 
         <Box
           sx={{
             height: 500,
             width: "100%",
-            marginTop: 1,
-            "& .custom-header": { backgroundColor: "#dae4ed", paddingLeft: 4 },
+            //   marginTop: 1,
+            "& .custom-header": {
+              backgroundColor: "#dae4ed",
+              paddingLeft: 4,
+            },
             "& .custom-cell": { paddingLeft: 4 },
           }}
         >
@@ -686,18 +720,20 @@ const DailyItemStatus = () => {
               density: "compact",
             }}
             slots={{
-              footer: CustomItemStatusFooter,
+              footer: CustomItemLedgerStatusFooter,
               toolbar: GridToolbar,
             }}
-            slotProps={{
-              // toolbar: {
-              //   printOptions: {
-              //     hideFooter: false,
-              //     hideToolbar: true,
-              //   },
-              // },
-              footer: { allItemStatusData, filterData },
-            }}
+            slotProps={
+              {
+                // toolbar: {
+                //   printOptions: {
+                //     hideFooter: false,
+                //     hideToolbar: true,
+                //   },
+                // },
+                footer: { allItemStatusData },
+              }
+            }
             sx={{
               backgroundColor: "#fff",
               fontSize: "12px",
@@ -709,4 +745,4 @@ const DailyItemStatus = () => {
   );
 };
 
-export default DailyItemStatus;
+export default ItemLedgerStatus;
