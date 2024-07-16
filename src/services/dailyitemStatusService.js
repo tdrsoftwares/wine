@@ -15,6 +15,7 @@ export const getAllItemStatuses = async (filterOptions) => {
           AllCategory,
           group,
           company,
+          bl
         } = filterOptions;
     
         // let apiURL = `/reports/daily-item-status?page=${page}&pageSize=${pageSize}`;
@@ -30,6 +31,7 @@ export const getAllItemStatuses = async (filterOptions) => {
             AllCategory,
             group,
             company,
+            bl
         };
     
         Object.keys(filters).forEach((key) => {

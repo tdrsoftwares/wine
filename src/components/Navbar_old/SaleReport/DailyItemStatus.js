@@ -1,7 +1,9 @@
 import {
   Box,
   Button,
+  Checkbox,
   CircularProgress,
+  FormControlLabel,
   Grid,
   InputLabel,
   MenuItem,
@@ -42,6 +44,7 @@ const DailyItemStatus = () => {
     categoryName: "",
     // storeName: allStores.length > 0 ? allStores[0] : "",
     storeName: "",
+    isBLTrue: false,
   });
   const [allCompanies, setAllCompanies] = useState([]);
   const [allItems, setAllItems] = useState([]);
@@ -70,42 +73,42 @@ const DailyItemStatus = () => {
     },
     {
       field: "openingBalance",
-      headerName: "Opening Stock (Pcs)",
+      headerName: "Opening Stock",
       flex: 1,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "totalPurchased",
-      headerName: "Total Purchased (Pcs)",
+      headerName: "Total Purchased",
       flex: 1,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "totalTransferredFrom",
-      headerName: "Total Transfer Out (Pcs)",
+      headerName: "Total Transfer Out",
       flex: 1,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "totalTransferredTo",
-      headerName: "Total Transfer In (Pcs)",
+      headerName: "Total Transfer In",
       flex: 1,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "totalSold",
-      headerName: "Total Sold (Pcs)",
+      headerName: "Total Sold",
       flex: 1,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
       field: "closingBalance",
-      headerName: "Closing Stock (Pcs)",
+      headerName: "Closing Stock",
       flex: 1,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
@@ -208,6 +211,7 @@ const DailyItemStatus = () => {
         itemName: filterData.itemName,
         group: filterData.group,
         storeName: filterData.storeName,
+        bl: filterData.isBLTrue
       };
       // console.log("filterData:", filterData)
 
@@ -579,6 +583,22 @@ const DailyItemStatus = () => {
               </TextField>
             </div>
           </Grid>
+
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="blOnly" className="input-label">
+                BL Only:
+              </InputLabel>
+              <Checkbox
+                name="blOnly"
+                checked={filterData.isBLTrue}
+                inputProps={{ "aria-label": "controlled" }}
+                onChange={(e) =>
+                  setFilterData({ ...filterData, isBLTrue: e.target.checked })
+                }
+              />
+            </div>
+          </Grid>
         </Grid>
 
         <Box
@@ -604,7 +624,7 @@ const DailyItemStatus = () => {
                 storeName: "",
               });
               setPaginationModel({ page: 0, pageSize: 10 });
-              setAllItemStatusData([])
+              setAllItemStatusData([]);
             }}
           >
             Clear Filters
