@@ -4,7 +4,6 @@ import Home from "./components/Home/Home";
 import LoginForm from "./components/LoginComponents/LoginForm";
 import SignUpForm from "./components/LoginComponents/SignupForm";
 import InventoryReport from "./components/Navbar_old/InventoryReport/InventoryReport";
-import ExciseReport from "./components/Navbar_old/ExciseReport/ExciseReport";
 import AuditAndAccounts from "./components/Navbar_old/AuditAndAccounts/AuditAndAccounts";
 import Utilities from "./components/Others/Utilities";
 import CustomerRegister from "./components/Navbar_old/MasterFile/CustomerRegister";
@@ -84,6 +83,21 @@ import ItemRateChart from "./components/Navbar_old/InventoryReport/ItemRateChart
 import BarCodeList from "./components/Navbar_old/InventoryReport/BarCodeList";
 import ItemTransferReport from "./components/Navbar_old/InventoryReport/ItemTransferReport";
 import ItemLedgerStatus from "./modules/ItemLedgerStatus";
+import MonthlyStatement from "./components/Navbar_old/ExciseReport/MonthlyStatement";
+import StockStatementAllExcise from "./components/Navbar_old/ExciseReport/StockStatementAllExcise";
+import StockStatementForm1Excise from "./components/Navbar_old/ExciseReport/StockStatementForm1Excise";
+import CategoryRegisterAll from "./components/Navbar_old/ExciseReport/CategoryRegisterAll";
+import CategoryRegisterGodown from "./components/Navbar_old/ExciseReport/CategoryRegisterGodown";
+import CategoryRegisterCounter from "./components/Navbar_old/ExciseReport/CategoryRegisterCounter";
+import BrandRegisterAll from "./components/Navbar_old/ExciseReport/BrandRegisterAll";
+import BrandRegisterGodown from "./components/Navbar_old/ExciseReport/BrandRegisterGodown";
+import BrandRegisterCounter from "./components/Navbar_old/ExciseReport/BrandRegisterCounter";
+import OndateStockRegister from "./components/Navbar_old/ExciseReport/OndateStockRegister";
+import DailyStockBook from "./components/Navbar_old/ExciseReport/DailyStockBook";
+import MonthlyComparativeFigure from "./components/Navbar_old/ExciseReport/MonthlyComparativeFigure";
+import MonthlyCategorySalesFigure from "./components/Navbar_old/ExciseReport/MonthlyCategorySalesFigure";
+import MonthlyBrandSalesFigure from "./components/Navbar_old/ExciseReport/MonthlyBrandSalesFigure";
+import TPPassReport from "./components/Navbar_old/ExciseReport/TPPassReport";
 
 
 const PrivateRoute = ({ element, authenticatedUser }) => {
@@ -132,13 +146,69 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp, handleSignout
         element={authenticatedUser ? <ItemLedgerStatus /> : <UnAuthorized />}
       />
       {/* Navbar items */}
-      {/* <Route
-        path="/inventory-report"
-        element={authenticatedUser ? <InventoryReport /> : <UnAuthorized />}
-      /> */}
+      
+
+      {/* Excise Report */}
       <Route
-        path="/excise-report"
-        element={authenticatedUser ? <ExciseReport /> : <UnAuthorized />}
+        path="/monthly-statement"
+        element={authenticatedUser ? <MonthlyStatement /> : <UnAuthorized />}
+      />
+      <Route
+        path="/stock-statement-all-excise"
+        element={authenticatedUser ? <StockStatementAllExcise /> : <UnAuthorized />}
+      />
+      <Route
+        path="/stock-statement-form1-excise"
+        element={authenticatedUser ? <StockStatementForm1Excise /> : <UnAuthorized />}
+      />
+      <Route
+        path="/category-register-all"
+        element={authenticatedUser ? <CategoryRegisterAll /> : <UnAuthorized />}
+      />
+      <Route
+        path="/category-register-godown"
+        element={authenticatedUser ? <CategoryRegisterGodown /> : <UnAuthorized />}
+      />
+      <Route
+        path="/category-register-counter"
+        element={authenticatedUser ? <CategoryRegisterCounter /> : <UnAuthorized />}
+      />
+      <Route
+        path="/brand-register-all"
+        element={authenticatedUser ? <BrandRegisterAll /> : <UnAuthorized />}
+      />
+      <Route
+        path="/brand-register-godown"
+        element={authenticatedUser ? <BrandRegisterGodown /> : <UnAuthorized />}
+      />
+      <Route
+        path="/brand-register-counter"
+        element={authenticatedUser ? <BrandRegisterCounter /> : <UnAuthorized />}
+      />
+
+      <Route
+        path="/ondate-stock-register"
+        element={authenticatedUser ? <OndateStockRegister /> : <UnAuthorized />}
+      />
+      <Route
+        path="/daily-stock-book"
+        element={authenticatedUser ? <DailyStockBook /> : <UnAuthorized />}
+      />
+      <Route
+        path="/monthly-comparative-figure"
+        element={authenticatedUser ? <MonthlyComparativeFigure /> : <UnAuthorized />}
+      />
+      <Route
+        path="/monthly-category-sales-figure"
+        element={authenticatedUser ? <MonthlyCategorySalesFigure /> : <UnAuthorized />}
+      />
+      <Route
+        path="/monthly-brand-sales-figure"
+        element={authenticatedUser ? <MonthlyBrandSalesFigure /> : <UnAuthorized />}
+      />
+      <Route
+        path="/tp-pass-report"
+        element={authenticatedUser ? <TPPassReport /> : <UnAuthorized />}
       />
       <Route
         path="/audit-accounts"

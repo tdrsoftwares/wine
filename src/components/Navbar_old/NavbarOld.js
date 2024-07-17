@@ -20,6 +20,8 @@ const NavbarOld = () => {
     useState(false);
   const [isGodownShowroomDropdownOpen, setIsGodownShowroomDropdownOpen] =
     useState(false);
+    const [isExciseReportDropdownOpen, setIsExciseReportDropdownOpen] =
+    useState(false);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const masterFileDropdownRef = useRef(null);
@@ -31,6 +33,8 @@ const NavbarOld = () => {
   const transferReportDropdownRef = useRef(null);
   const urgentOrderDropdownRef = useRef(null);
   const godownShowroomLedgerDropdownRef = useRef(null);
+  const exciseReportDropdownRef = useRef(null);
+
 
   const toggleMasterFileDropdown = () => {
     setIsMasterFileDropdownOpen((prevState) => !prevState);
@@ -68,6 +72,10 @@ const NavbarOld = () => {
     setIsGodownShowroomDropdownOpen((prevState) => !prevState);
   };
 
+  const toggleExciseReportDropdown = () => {
+    setIsExciseReportDropdownOpen((prevState) => !prevState);
+  };
+
   const toggleSidebar = () => {
     setIsSidebarOpen((prevState) => !prevState);
   };
@@ -82,6 +90,7 @@ const NavbarOld = () => {
     setIsTransferStatusReportDropdownOpen(false);
     setIsUrgentOrderDropdownOpen(false);
     setIsGodownShowroomDropdownOpen(false);
+    setIsExciseReportDropdownOpen(false);
   };
 
   useEffect(() => {
@@ -139,6 +148,12 @@ const NavbarOld = () => {
         !godownShowroomLedgerDropdownRef.current.contains(event.target)
       ) {
         setIsGodownShowroomDropdownOpen(false);
+      }
+      if (
+        exciseReportDropdownRef.current &&
+        !exciseReportDropdownRef.current.contains(event.target)
+      ) {
+        setIsExciseReportDropdownOpen(false);
       }
     };
 
@@ -520,14 +535,68 @@ const NavbarOld = () => {
             </div>
           </li>
 
-          <li className="nav-item">
-            <Link
-              to="/excise-report"
-              className="nav-link"
-              onClick={closeAllDropdowns}
+          
+          <li className="nav-item dropdown" ref={exciseReportDropdownRef}>
+            <span
+              className="dropdown-toggle nav-link"
+              onClick={toggleExciseReportDropdown}
             >
-              Excise Report
-            </Link>
+              Excise Report <i className="fas fa-caret-down"></i>
+            </span>
+            <div
+              className={`dropdown-content ${
+                isExciseReportDropdownOpen ? "open" : ""
+              }`}
+            >
+              <Link to="/monthly-statement" onClick={closeAllDropdowns}>
+                Monthly Statement
+              </Link>
+              <Link to="/stock-statement-all-excise" onClick={closeAllDropdowns}>
+                Stock Statement All Excise
+              </Link>
+              <Link to="/stock-statement-form1-excise" onClick={closeAllDropdowns}>
+                Stock Statement Form1 Excise
+              </Link>
+              <Link to="/category-register-all" onClick={closeAllDropdowns}>
+                Category Register All
+              </Link>
+              <Link to="/category-register-godown" onClick={closeAllDropdowns}>
+                Category Register Godown
+              </Link>
+              <Link to="/category-register-counter" onClick={closeAllDropdowns}>
+                Category Register counter
+              </Link>
+              <Link
+                to="/brand-register-all"
+                onClick={closeAllDropdowns}
+              >
+                Brand Register All
+              </Link>
+              <Link to="/brand-register-godown" onClick={closeAllDropdowns}>
+                Brand Register Godown
+              </Link>
+              <Link to="/brand-register-counter" onClick={closeAllDropdowns}>
+                Brand Register Counter
+              </Link>
+              <Link to="/ondate-stock-register" onClick={closeAllDropdowns}>
+                On Date Stock Register
+              </Link>
+              <Link to="/daily-stock-book" onClick={closeAllDropdowns}>
+                Daily Stock Book
+              </Link>
+              <Link to="/monthly-comparative-figure" onClick={closeAllDropdowns}>
+                Monthly Comparative Figure
+              </Link>
+              <Link to="/monthly-category-sales-figure" onClick={closeAllDropdowns}>
+                Monthly Category Sales Figure
+              </Link>
+              <Link to="/monthly-brand-sales-figure" onClick={closeAllDropdowns}>
+                Monthly Brand Sales Figure
+              </Link>
+              <Link to="/tp-pass-report" onClick={closeAllDropdowns}>
+                T.P. Pass Report
+              </Link>
+            </div>
           </li>
           <li className="nav-item">
             <Link
