@@ -20,7 +20,9 @@ const NavbarOld = () => {
     useState(false);
   const [isGodownShowroomDropdownOpen, setIsGodownShowroomDropdownOpen] =
     useState(false);
-    const [isExciseReportDropdownOpen, setIsExciseReportDropdownOpen] =
+  const [isExciseReportDropdownOpen, setIsExciseReportDropdownOpen] =
+    useState(false);
+  const [isAuditAccountsDropdownOpen, setIsAuditAccountsDropdownOpen] =
     useState(false);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -34,7 +36,7 @@ const NavbarOld = () => {
   const urgentOrderDropdownRef = useRef(null);
   const godownShowroomLedgerDropdownRef = useRef(null);
   const exciseReportDropdownRef = useRef(null);
-
+  const auditAccountsDropdownRef = useRef(null);
 
   const toggleMasterFileDropdown = () => {
     setIsMasterFileDropdownOpen((prevState) => !prevState);
@@ -76,6 +78,10 @@ const NavbarOld = () => {
     setIsExciseReportDropdownOpen((prevState) => !prevState);
   };
 
+  const toggleAuditAccountsDropdown = () => {
+    setIsAuditAccountsDropdownOpen((prevState) => !prevState);
+  };
+
   const toggleSidebar = () => {
     setIsSidebarOpen((prevState) => !prevState);
   };
@@ -91,6 +97,7 @@ const NavbarOld = () => {
     setIsUrgentOrderDropdownOpen(false);
     setIsGodownShowroomDropdownOpen(false);
     setIsExciseReportDropdownOpen(false);
+    setIsAuditAccountsDropdownOpen(false);
   };
 
   useEffect(() => {
@@ -155,6 +162,12 @@ const NavbarOld = () => {
       ) {
         setIsExciseReportDropdownOpen(false);
       }
+      if (
+        auditAccountsDropdownRef.current &&
+        !auditAccountsDropdownRef.current.contains(event.target)
+      ) {
+        setIsAuditAccountsDropdownOpen(false);
+      }
     };
 
     document.body.addEventListener("click", closeDropdownOnOutsideClick);
@@ -178,6 +191,8 @@ const NavbarOld = () => {
               TDR SOFTWARES
             </Link>
           </li>
+
+          {/* Master File Dropdown */}
           <li className="nav-item dropdown" ref={masterFileDropdownRef}>
             <span
               className="dropdown-toggle nav-link"
@@ -231,6 +246,7 @@ const NavbarOld = () => {
               </Link>
             </div>
           </li>
+          {/* Data Entry Dropdown */}
           <li className="nav-item dropdown" ref={dataEntryDropdownRef}>
             <span
               className="dropdown-toggle nav-link"
@@ -275,7 +291,7 @@ const NavbarOld = () => {
               </Link>
             </div>
           </li>
-
+          {/* Sale Report Dropdown */}
           <li className="nav-item dropdown" ref={saleReportDropdownRef}>
             <span
               className="dropdown-toggle nav-link"
@@ -377,6 +393,7 @@ const NavbarOld = () => {
             </div>
           </li>
 
+          {/* Purchase Report Dropdown */}
           <li className="nav-item dropdown" ref={purchaseReportDropdownRef}>
             <span
               className="dropdown-toggle nav-link"
@@ -410,6 +427,7 @@ const NavbarOld = () => {
             </div>
           </li>
 
+          {/* Inventory Report Dropdown */}
           <li className="nav-item dropdown" ref={inventoryReportDropdownRef}>
             <span
               className="dropdown-toggle nav-link"
@@ -535,7 +553,7 @@ const NavbarOld = () => {
             </div>
           </li>
 
-          
+          {/* Excise Report Dropdown */}
           <li className="nav-item dropdown" ref={exciseReportDropdownRef}>
             <span
               className="dropdown-toggle nav-link"
@@ -551,10 +569,16 @@ const NavbarOld = () => {
               <Link to="/monthly-statement" onClick={closeAllDropdowns}>
                 Monthly Statement
               </Link>
-              <Link to="/stock-statement-all-excise" onClick={closeAllDropdowns}>
+              <Link
+                to="/stock-statement-all-excise"
+                onClick={closeAllDropdowns}
+              >
                 Stock Statement All Excise
               </Link>
-              <Link to="/stock-statement-form1-excise" onClick={closeAllDropdowns}>
+              <Link
+                to="/stock-statement-form1-excise"
+                onClick={closeAllDropdowns}
+              >
                 Stock Statement Form1 Excise
               </Link>
               <Link to="/category-register-all" onClick={closeAllDropdowns}>
@@ -566,10 +590,7 @@ const NavbarOld = () => {
               <Link to="/category-register-counter" onClick={closeAllDropdowns}>
                 Category Register counter
               </Link>
-              <Link
-                to="/brand-register-all"
-                onClick={closeAllDropdowns}
-              >
+              <Link to="/brand-register-all" onClick={closeAllDropdowns}>
                 Brand Register All
               </Link>
               <Link to="/brand-register-godown" onClick={closeAllDropdowns}>
@@ -584,13 +605,22 @@ const NavbarOld = () => {
               <Link to="/daily-stock-book" onClick={closeAllDropdowns}>
                 Daily Stock Book
               </Link>
-              <Link to="/monthly-comparative-figure" onClick={closeAllDropdowns}>
+              <Link
+                to="/monthly-comparative-figure"
+                onClick={closeAllDropdowns}
+              >
                 Monthly Comparative Figure
               </Link>
-              <Link to="/monthly-category-sales-figure" onClick={closeAllDropdowns}>
+              <Link
+                to="/monthly-category-sales-figure"
+                onClick={closeAllDropdowns}
+              >
                 Monthly Category Sales Figure
               </Link>
-              <Link to="/monthly-brand-sales-figure" onClick={closeAllDropdowns}>
+              <Link
+                to="/monthly-brand-sales-figure"
+                onClick={closeAllDropdowns}
+              >
                 Monthly Brand Sales Figure
               </Link>
               <Link to="/tp-pass-report" onClick={closeAllDropdowns}>
@@ -598,14 +628,60 @@ const NavbarOld = () => {
               </Link>
             </div>
           </li>
-          <li className="nav-item">
-            <Link
-              to="/audit-accounts"
-              className="nav-link"
-              onClick={closeAllDropdowns}
+
+          {/* Audit & Accounts Dropdown */}
+          <li className="nav-item dropdown" ref={auditAccountsDropdownRef}>
+            <span
+              className="dropdown-toggle nav-link"
+              onClick={toggleAuditAccountsDropdown}
             >
-              Audit & Accounts
-            </Link>
+              Audit & Accounts <i className="fas fa-caret-down"></i>
+            </span>
+            <div
+              className={`dropdown-content ${
+                isAuditAccountsDropdownOpen ? "open" : ""
+              }`}
+            >
+              <Link to="/annual-ledger" onClick={closeAllDropdowns}>
+                Annual Ledger
+              </Link>
+              <Link to="/cash-book" onClick={closeAllDropdowns}>
+                Cash Book
+              </Link>
+              <Link to="/bank-book" onClick={closeAllDropdowns}>
+                Bank Book
+              </Link>
+              <Link to="/journal-report" onClick={closeAllDropdowns}>
+                Journal Report
+              </Link>
+              <Link to="/daily-sales-figure" onClick={closeAllDropdowns}>
+                Daily Sales Figure
+              </Link>
+              <Link to="/monthly-sales-figure" onClick={closeAllDropdowns}>
+                Monthly Sales Figure
+              </Link>
+              <Link to="/daily-purchase-figure" onClick={closeAllDropdowns}>
+                Daily Purchase Figure
+              </Link>
+              <Link to="/monthly-purchase-figure" onClick={closeAllDropdowns}>
+                Monthly Purchase Figure
+              </Link>
+              <Link to="/pay-taxes-on-purchase" onClick={closeAllDropdowns}>
+                Pay Taxes On Purchase
+              </Link>
+              <Link to="/fl-status" onClick={closeAllDropdowns}>
+                FL Status
+              </Link>
+              <Link to="/trial-balance" onClick={closeAllDropdowns}>
+                Trial Balance
+              </Link>
+              <Link to="/accounts-profit-and-loss" onClick={closeAllDropdowns}>
+                Accounts Profit And Loss
+              </Link>
+              <Link to="/balance-sheet" onClick={closeAllDropdowns}>
+                Balance Sheet
+              </Link>
+            </div>
           </li>
           <li className="nav-item">
             <Link

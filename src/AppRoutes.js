@@ -3,8 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Home from "./components/Home/Home";
 import LoginForm from "./components/LoginComponents/LoginForm";
 import SignUpForm from "./components/LoginComponents/SignupForm";
-import InventoryReport from "./components/Navbar_old/InventoryReport/InventoryReport";
-import AuditAndAccounts from "./components/Navbar_old/AuditAndAccounts/AuditAndAccounts";
+// import AuditAndAccounts from "./components/Navbar_old/AuditAndAccounts/AuditAndAccounts";
 import Utilities from "./components/Others/Utilities";
 import CustomerRegister from "./components/Navbar_old/MasterFile/CustomerRegister";
 import SuppliersRegister from "./components/Navbar_old/MasterFile/SuppliersRegister";
@@ -98,6 +97,19 @@ import MonthlyComparativeFigure from "./components/Navbar_old/ExciseReport/Month
 import MonthlyCategorySalesFigure from "./components/Navbar_old/ExciseReport/MonthlyCategorySalesFigure";
 import MonthlyBrandSalesFigure from "./components/Navbar_old/ExciseReport/MonthlyBrandSalesFigure";
 import TPPassReport from "./components/Navbar_old/ExciseReport/TPPassReport";
+import AnnualLedger from "./components/Navbar_old/AuditAndAccounts/AnnualLedger";
+import CashBook from "./components/Navbar_old/AuditAndAccounts/CashBook";
+import BankBook from "./components/Navbar_old/AuditAndAccounts/BankBook";
+import JournalReport from "./components/Navbar_old/AuditAndAccounts/JournalReport";
+import DailySalesFigure from "./components/Navbar_old/AuditAndAccounts/DailySalesFigure";
+import MonthlySalesFigure from "./components/Navbar_old/AuditAndAccounts/MonthlySalesFigure";
+import DailyPurchaseFigure from "./components/Navbar_old/AuditAndAccounts/DailyPurchaseFigure";
+import MonthlyPurchaseFigure from "./components/Navbar_old/AuditAndAccounts/MonthlyPurchaseFigure";
+import PayTaxesOnPurchase from "./components/Navbar_old/AuditAndAccounts/PayTaxesOnPurchase";
+import FlStatus from "./components/Navbar_old/AuditAndAccounts/FlStatus";
+import TrialBalance from "./components/Navbar_old/AuditAndAccounts/TrialBalance";
+import AccountProfitAndLoss from "./components/Navbar_old/AuditAndAccounts/AccountProfitAndLoss";
+import BalanceSheet from "./components/Navbar_old/AuditAndAccounts/BalanceSheet";
 
 
 const PrivateRoute = ({ element, authenticatedUser }) => {
@@ -146,78 +158,7 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp, handleSignout
         element={authenticatedUser ? <ItemLedgerStatus /> : <UnAuthorized />}
       />
       {/* Navbar items */}
-      
 
-      {/* Excise Report */}
-      <Route
-        path="/monthly-statement"
-        element={authenticatedUser ? <MonthlyStatement /> : <UnAuthorized />}
-      />
-      <Route
-        path="/stock-statement-all-excise"
-        element={authenticatedUser ? <StockStatementAllExcise /> : <UnAuthorized />}
-      />
-      <Route
-        path="/stock-statement-form1-excise"
-        element={authenticatedUser ? <StockStatementForm1Excise /> : <UnAuthorized />}
-      />
-      <Route
-        path="/category-register-all"
-        element={authenticatedUser ? <CategoryRegisterAll /> : <UnAuthorized />}
-      />
-      <Route
-        path="/category-register-godown"
-        element={authenticatedUser ? <CategoryRegisterGodown /> : <UnAuthorized />}
-      />
-      <Route
-        path="/category-register-counter"
-        element={authenticatedUser ? <CategoryRegisterCounter /> : <UnAuthorized />}
-      />
-      <Route
-        path="/brand-register-all"
-        element={authenticatedUser ? <BrandRegisterAll /> : <UnAuthorized />}
-      />
-      <Route
-        path="/brand-register-godown"
-        element={authenticatedUser ? <BrandRegisterGodown /> : <UnAuthorized />}
-      />
-      <Route
-        path="/brand-register-counter"
-        element={authenticatedUser ? <BrandRegisterCounter /> : <UnAuthorized />}
-      />
-
-      <Route
-        path="/ondate-stock-register"
-        element={authenticatedUser ? <OndateStockRegister /> : <UnAuthorized />}
-      />
-      <Route
-        path="/daily-stock-book"
-        element={authenticatedUser ? <DailyStockBook /> : <UnAuthorized />}
-      />
-      <Route
-        path="/monthly-comparative-figure"
-        element={authenticatedUser ? <MonthlyComparativeFigure /> : <UnAuthorized />}
-      />
-      <Route
-        path="/monthly-category-sales-figure"
-        element={authenticatedUser ? <MonthlyCategorySalesFigure /> : <UnAuthorized />}
-      />
-      <Route
-        path="/monthly-brand-sales-figure"
-        element={authenticatedUser ? <MonthlyBrandSalesFigure /> : <UnAuthorized />}
-      />
-      <Route
-        path="/tp-pass-report"
-        element={authenticatedUser ? <TPPassReport /> : <UnAuthorized />}
-      />
-      <Route
-        path="/audit-accounts"
-        element={authenticatedUser ? <AuditAndAccounts /> : <UnAuthorized />}
-      />
-      <Route
-        path="/utilities"
-        element={authenticatedUser ? <Utilities /> : <UnAuthorized />}
-      />
 
       {/* Master File Submenu items */}
       <Route
@@ -490,6 +431,136 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp, handleSignout
         path="/bar-code-list"
         element={authenticatedUser ? <BarCodeList /> : <UnAuthorized />}
       />
+
+            {/* Excise Report */}
+            <Route
+        path="/monthly-statement"
+        element={authenticatedUser ? <MonthlyStatement /> : <UnAuthorized />}
+      />
+      <Route
+        path="/stock-statement-all-excise"
+        element={authenticatedUser ? <StockStatementAllExcise /> : <UnAuthorized />}
+      />
+      <Route
+        path="/stock-statement-form1-excise"
+        element={authenticatedUser ? <StockStatementForm1Excise /> : <UnAuthorized />}
+      />
+      <Route
+        path="/category-register-all"
+        element={authenticatedUser ? <CategoryRegisterAll /> : <UnAuthorized />}
+      />
+      <Route
+        path="/category-register-godown"
+        element={authenticatedUser ? <CategoryRegisterGodown /> : <UnAuthorized />}
+      />
+      <Route
+        path="/category-register-counter"
+        element={authenticatedUser ? <CategoryRegisterCounter /> : <UnAuthorized />}
+      />
+      <Route
+        path="/brand-register-all"
+        element={authenticatedUser ? <BrandRegisterAll /> : <UnAuthorized />}
+      />
+      <Route
+        path="/brand-register-godown"
+        element={authenticatedUser ? <BrandRegisterGodown /> : <UnAuthorized />}
+      />
+      <Route
+        path="/brand-register-counter"
+        element={authenticatedUser ? <BrandRegisterCounter /> : <UnAuthorized />}
+      />
+
+      <Route
+        path="/ondate-stock-register"
+        element={authenticatedUser ? <OndateStockRegister /> : <UnAuthorized />}
+      />
+      <Route
+        path="/daily-stock-book"
+        element={authenticatedUser ? <DailyStockBook /> : <UnAuthorized />}
+      />
+      <Route
+        path="/monthly-comparative-figure"
+        element={authenticatedUser ? <MonthlyComparativeFigure /> : <UnAuthorized />}
+      />
+      <Route
+        path="/monthly-category-sales-figure"
+        element={authenticatedUser ? <MonthlyCategorySalesFigure /> : <UnAuthorized />}
+      />
+      <Route
+        path="/monthly-brand-sales-figure"
+        element={authenticatedUser ? <MonthlyBrandSalesFigure /> : <UnAuthorized />}
+      />
+      <Route
+        path="/tp-pass-report"
+        element={authenticatedUser ? <TPPassReport /> : <UnAuthorized />}
+      />
+      {/* <Route
+        path="/audit-accounts"
+        element={authenticatedUser ? <AuditAndAccounts /> : <UnAuthorized />}
+      /> */}
+      <Route
+        path="/utilities"
+        element={authenticatedUser ? <Utilities /> : <UnAuthorized />}
+      />
+
+
+
+
+            {/* Audit & Accounts */}
+            <Route
+        path="/annual-ledger"
+        element={authenticatedUser ? <AnnualLedger /> : <UnAuthorized />}
+      />
+      <Route
+        path="/cash-book"
+        element={authenticatedUser ? <CashBook /> : <UnAuthorized />}
+      />
+      <Route
+        path="/bank-book"
+        element={authenticatedUser ? <BankBook /> : <UnAuthorized />}
+      />
+      <Route
+        path="/journal-report"
+        element={authenticatedUser ? <JournalReport /> : <UnAuthorized />}
+      />
+      <Route
+        path="/daily-sales-figure"
+        element={authenticatedUser ? <DailySalesFigure /> : <UnAuthorized />}
+      />
+      <Route
+        path="/monthly-sales-figure"
+        element={authenticatedUser ? <MonthlySalesFigure /> : <UnAuthorized />}
+      />
+      <Route
+        path="/daily-purchase-figure"
+        element={authenticatedUser ? <DailyPurchaseFigure /> : <UnAuthorized />}
+      />
+      <Route
+        path="/monthly-purchase-figure"
+        element={authenticatedUser ? <MonthlyPurchaseFigure /> : <UnAuthorized />}
+      />
+      <Route
+        path="/pay-taxes-on-purchase"
+        element={authenticatedUser ? <PayTaxesOnPurchase /> : <UnAuthorized />}
+      />
+
+      <Route
+        path="/fl-status"
+        element={authenticatedUser ? <FlStatus /> : <UnAuthorized />}
+      />
+      <Route
+        path="/trial-balance"
+        element={authenticatedUser ? <TrialBalance /> : <UnAuthorized />}
+      />
+      <Route
+        path="/accounts-profit-and-loss"
+        element={authenticatedUser ? <AccountProfitAndLoss /> : <UnAuthorized />}
+      />
+      <Route
+        path="/balance-sheet"
+        element={authenticatedUser ? <BalanceSheet /> : <UnAuthorized />}
+      />
+
 
       {/* Sidebar items */}
       <Route
