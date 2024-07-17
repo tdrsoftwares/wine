@@ -202,8 +202,8 @@ const ItemLedgerStatus = () => {
       const filterOptions = {
         // page: paginationModel.page + 1,
         // pageSize: paginationModel.pageSize,
-        lastDate: fromDate,
-        toDayDate: toDate,
+        fromDate: fromDate,
+        toDate: toDate,
         company: filterData.company,
         itemName: filterData.itemName,
         group: filterData.group,

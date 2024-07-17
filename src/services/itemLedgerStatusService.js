@@ -6,8 +6,8 @@ export const getAllItemLedgerStatuses = async (filterOptions) => {
       //   page,
       //   pageSize,
       storeName,
-      toDayDate,
-      lastDate,
+      toDate,
+      fromDate,
       brandName,
       AllBrand,
       itemName,
@@ -23,8 +23,8 @@ export const getAllItemLedgerStatuses = async (filterOptions) => {
 
     const filters = {
       // storeName,
-      toDayDate,
-      lastDate,
+      toDate,
+      fromDate,
       brandName,
       AllBrand,
       itemName,
