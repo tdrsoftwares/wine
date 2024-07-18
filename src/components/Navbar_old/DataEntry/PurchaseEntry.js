@@ -85,7 +85,6 @@ const PurchaseEntry = () => {
   dayjs.extend(utc);
   dayjs.extend(customParseFormat);
   const { licenseDetails } = useLicenseContext();
-  // console.log("licenseDetails: ", licenseDetails);
 
   const [totalValues, setTotalValues] = useState({
     totalMrp: "",
@@ -243,7 +242,7 @@ const PurchaseEntry = () => {
         formData;
       if (event.keyCode === 120) {
         // 120 F9 key
-        // console.log("formdata when executing f9: ", formData);
+        
         if (
           supplierName &&
           passNo &&
@@ -272,7 +271,7 @@ const PurchaseEntry = () => {
 
   const handleItemNameChange = (event) => {
     const itemNameValue = event.target.value;
-    // console.log("itemNameValue: ", itemNameValue);
+    
     itemNameSearch(itemNameValue);
     setFormData({
       ...formData,
@@ -286,7 +285,7 @@ const PurchaseEntry = () => {
 
     setEditedRow({});
     setEditableIndex(-1);
-    // console.log("handleItemNameChange formData: ", formData);
+    
   };
 
 
@@ -321,7 +320,7 @@ const PurchaseEntry = () => {
     }
   
     const editedRowCopy = { ...editedRow };
-    // console.log("editedRowCopy: ",editedRowCopy);
+    
     editedRowCopy[field] = value;
   
     if (field === "mrp") {
@@ -330,9 +329,8 @@ const PurchaseEntry = () => {
   
     if (field === "case") {
       const newCase = parseFloat(value) || 0;
-      // console.log("newCase: ", newCase)
+      
       const newPcsValue = newCase * purchases[index].caseValue || 0;
-      // console.log("newPcsValue: ", newPcsValue);
 
       editedRowCopy.case = newCase;
       editedRowCopy.pcs = newPcsValue;
@@ -362,7 +360,7 @@ const PurchaseEntry = () => {
       const pcs = parseFloat(editedRowCopy.pcs || purchases[index].pcs || 0);
       const caseNo =
         parseFloat(editedRowCopy.case || purchases[index].caseNo || 0);
-        // console.log("caseNo: ", caseNo)
+        
 
       const gro = parseFloat(editedRowCopy.gro || purchases[index].gro) || 0;
       const sp = parseFloat(editedRowCopy.sp || purchases[index].sp) || 0;
@@ -395,7 +393,7 @@ const PurchaseEntry = () => {
       }
     }
 
-    // console.log("updatedRow: ", updatedRow);
+    
     updatedPurchases[index] = updatedRow;
     setPurchases(updatedPurchases);
 
@@ -406,7 +404,7 @@ const PurchaseEntry = () => {
   const fetchAllSuppliers = async () => {
     try {
       const allItemsResponse = await getAllSuppliers();
-      // console.log("allItemsResponse: ", allItemsResponse);
+      
       setAllSuppliers(allItemsResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
@@ -419,7 +417,7 @@ const PurchaseEntry = () => {
   const fetchAllEntries = async () => {
     try {
       const response = await getAllEntryNo();
-      // console.log("response: ", response);
+      
       setAllEntries(response?.data?.data);
     } catch (error) {
       NotificationManager.error(
@@ -432,7 +430,7 @@ const PurchaseEntry = () => {
   const fetchAllStores = async () => {
     try {
       const allStoresResponse = await getAllStores();
-      // console.log("allStoresResponse ---> ", allStoresResponse);
+      
       setAllStores(allStoresResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
@@ -447,12 +445,12 @@ const PurchaseEntry = () => {
     try {
       setIsLoading(true);
       const response = await searchAllPurchasesByItemName(item);
-      // console.log("itemNameSearch response: ", response);
+      
       if (response?.data?.data) {
         setSearchResults(response?.data?.data);
-        // console.log("ami itemNameSearch res ", searchResults);
+        
       } else {
-        // NotificationManager.error("No matching items found");
+        
         setSearchResults([]);
         setIsModalOpen(true);
         setItemName(item);
@@ -470,9 +468,9 @@ const PurchaseEntry = () => {
     try {
       setIsLoading(true);
       const response = await searchAllPurchasesByItemCode(itemCode);
-      // console.log("itemCodeSearch response: ", response);
+      
       const searchedItem = response?.data?.data;
-      // console.log("searchedItem: ", searchedItem);
+      
 
       if (searchedItem) {
         setSearchResults(searchedItem);
@@ -512,11 +510,11 @@ const PurchaseEntry = () => {
   };
 
   const entryNumberSearch = debounce(async (entryNumber) => {
-    // console.log("entryNumber search: ", entryNumber);
+    
     try {
       if (entryNumber > 0) {
         const response = await getPurchaseDetailsByEntryNo(entryNumber);
-        // console.log("allPurchasesData response: ", response.data.data);
+        
 
         if (response?.data?.data) {
           const receivedData = response.data.data;
@@ -524,7 +522,6 @@ const PurchaseEntry = () => {
 
           const passDateObject = convertToDayjsObject(receivedData.passDate);
           const billDateObject = convertToDayjsObject(receivedData.billDate);
-          // console.log("passDateObject: ", passDateObject);
 
           setFormData({
             supplierName: receivedData.supplierId?._id,
@@ -536,7 +533,6 @@ const PurchaseEntry = () => {
           });
 
           const purchaseItems = receivedData?.purchaseItems;
-          // console.log("purchaseItems: ", purchaseItems);
 
           const newPurchaseItems = purchaseItems.map((purchase) => ({
             _id: purchase?._id,
@@ -555,8 +551,6 @@ const PurchaseEntry = () => {
             sp: purchase?.sp,
             amount: purchase?.itemAmount,
           }));
-
-          // console.log("newPurchaseItems: ", newPurchaseItems);
 
           setPurchases([...newPurchaseItems]);
 
@@ -595,7 +589,7 @@ const PurchaseEntry = () => {
   const handleRowClick = (index) => {
     const selectedRow = searchResults[index];
 
-    // console.log("selectedRow: ", selectedRow);
+    
     setFormData({
       ...formData,
       itemId: selectedRow.item._id,
@@ -619,7 +613,7 @@ const PurchaseEntry = () => {
     } else {
       batchRef.current.focus();
     }
-    // calculateMRPValue(formData);
+    
   };
 
   const handleRemovePurchasesTableRow = (index) => {
@@ -641,7 +635,6 @@ const PurchaseEntry = () => {
     }
   };
 
-  // console.log("formData: ", formData);
 
   const handleSubmitIntoDataTable = (e) => {
     e.preventDefault();
@@ -767,7 +760,6 @@ const PurchaseEntry = () => {
 
     try {
       const response = await createPurchase(payload);
-      // console.log("Purchase created successfully:", response?.data?.data);
 
       if (response.status === 200) {
         setEntryNumber("");
@@ -776,7 +768,7 @@ const PurchaseEntry = () => {
         clearButtonRef.current.focus();
         setSearchMode(false);
       } else if (response.response.status === 400) {
-        // console.log("executing ...")
+
         const errorMessage = response.response.data.message;
         NotificationManager.error(errorMessage, "Error");
       } else {
@@ -876,13 +868,13 @@ const PurchaseEntry = () => {
 
     try {
       if (entryNumber && !entryNoEditable) {
-        // console.log("update try block executing...");
+
         const response = await updatePurchaseDetailsByEntryNo(
           payload,
           entryNumber
         );
-        // console.log("Purchase updated successfully:", response);
 
+        
         if (response.status === 200) {
           NotificationManager.success(
             "Purchase updated successfully",
@@ -890,7 +882,7 @@ const PurchaseEntry = () => {
           );
           setSearchMode(false);
         } else if (response.response.status === 400) {
-          // console.log("executing ...")
+
           const errorMessage = response.response.data.message;
           NotificationManager.error(errorMessage, "Error");
         } else {
@@ -914,7 +906,7 @@ const PurchaseEntry = () => {
     try {
       if (!entryNoEditable && entryNumber) {
         const response = await removePurchaseDetails(entryNumber);
-        // console.log("entryNoEditable: ", entryNoEditable);
+
         NotificationManager.success(
           "Purchase deleted successfully.",
           "Success"
@@ -966,14 +958,14 @@ const PurchaseEntry = () => {
 
   const handleAmountChange = (event) => {
     const newAmountValue = parseFloat(event.target.value) || 0;
-    // console.log("newAmountValue: ", newAmountValue);
+    
     const pcs = parseFloat(formData.caseValue) || 1;
-    // console.log("pcs: ", pcs);
+    
     let newPurchaseRate = 0;
 
     if (pcs !== 0) {
       newPurchaseRate = parseFloat(newAmountValue / pcs);
-      // console.log("newPurchaseRate: ", newPurchaseRate);
+      
     }
 
     setFormData({
@@ -981,14 +973,14 @@ const PurchaseEntry = () => {
       amount: newAmountValue.toString(),
       purchaseRate: newPurchaseRate.toString(),
     });
-    // console.log("amount formData: ", formData);
+    
   };
 
   const handleCaseChange = (event) => {
     const newCase = parseFloat(event.target.value) || 0;
-    // console.log("newCase: ", newCase);
+    
     const newPcsValue = newCase * parseFloat(formData.caseValue) || 0;
-    // console.log("newPcsValue: ", newPcsValue);
+    
     setFormData({
       ...formData,
       case: newCase,
@@ -1032,7 +1024,7 @@ const PurchaseEntry = () => {
   const handleGovtRateChange = (event) => {
     const govtRate =
       event.target.value === "" ? "" : parseFloat(event.target.value);
-    // console.log("govtRate: ", govtRate);
+      
 
     if (!isNaN(govtRate) || event.target.value === "") {
       setTotalValues((prevValues) => ({
@@ -1045,7 +1037,7 @@ const PurchaseEntry = () => {
   const handleSpcPurchasesChange = (event) => {
     const spcPurpose =
       event.target.value === "" ? "" : parseFloat(event.target.value);
-    // console.log("spcPurpose", spcPurpose)
+      
 
     if (!isNaN(spcPurpose) || event.target.value === "") {
       setTotalValues((prevValues) => ({
@@ -1062,14 +1054,14 @@ const PurchaseEntry = () => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    // console.log("date: ", date);
+    
 
     const day = date.getDate().toString().padStart(2, "0");
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const year = date.getFullYear().toString();
 
     const formattedDate = `${day}/${month}/${year}`;
-    // console.log("formattedDate: ", formattedDate);
+    
     return formattedDate;
   };
 
@@ -1157,7 +1149,7 @@ const PurchaseEntry = () => {
       ...prevValues,
       totalMrp: totalMrpValue,
     }));
-    // console.log("totalMrpValue: ", totalMrpValue);
+    
   }, [formData.amount, purchases]);
 
   useEffect(() => {
@@ -1220,7 +1212,7 @@ const PurchaseEntry = () => {
 
     // Updating total special purpose and gro in totalValues
     if (!entryNumber || isRowUpdated) {
-      // console.log("exc...");
+      
       if (totalGro) {
         setTotalValues((prevValues) => ({
           ...prevValues,
@@ -1269,7 +1261,7 @@ const PurchaseEntry = () => {
 
   const handleEntryNumberChange = (e) => {
     const value = e.target.value;
-    // console.log("handleEntryNo change value: ", value);
+    
     const regex = /^\d*\.?\d*$/;
     if (regex.test(value) || value === "") {
       setEntryNumber(value);
@@ -1277,7 +1269,7 @@ const PurchaseEntry = () => {
   };
 
   const handlePreviousEntryChange = () => {
-    // console.log(entryNoEditable);
+    
     if (entryNumber && !entryNoEditable)
       setEntryNumber(parseInt(entryNumber) - 1);
   };

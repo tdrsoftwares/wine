@@ -85,8 +85,6 @@ const SaleBill = () => {
     stockAt: "",
   });
   const [billNumber, setBillNumber] = useState("");
-  const [printBillOpened, setPrintBillOpened] = useState(false);
-  // const [licenseDetails, setLicenseDetails] = useState({});
   const [editableIndex, setEditableIndex] = useState(-1);
   const [editedRow, setEditedRow] = useState({});
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
@@ -113,16 +111,12 @@ const SaleBill = () => {
     receiptMode1: "",
     receiptMode2: "",
   });
-  // console.log("formData: ", formData)
-  // console.log("salesData: ",salesData)
   
   const { licenseDetails } = useLicenseContext();
-  // console.log("licenseDetails: ", licenseDetails);
   const tableRef = useRef(null);
   const customerNameRef = useRef(null);
   const addressRef = useRef(null);
   const phoneNoRef = useRef(null);
-  const seriesRef = useRef(null);
   const billNoRef = useRef(null);
   const billDateRef = useRef(null);
   const itemCodeRef = useRef(null);
@@ -161,7 +155,6 @@ const SaleBill = () => {
       if (response.status === 200) {
         setAllStores(response?.data?.data);
         
-        // If allStores has items and formData.store is not initialized, set it to the first store
         if (response?.data?.data.length > 0 && formData.store._id === '') {
           setFormData({ ...formData, store: response.data.data[0] });
         }
@@ -176,7 +169,6 @@ const SaleBill = () => {
   const fetchAllCustomers = async () => {
     try {
       const allCustomerResponse = await getAllCustomer();
-      // console.log("allCustomerResponse ---> ", allCustomerResponse);
       setAllCustomerData(allCustomerResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
@@ -303,11 +295,10 @@ const SaleBill = () => {
     try {
       setIsLoading(true);
       const response = await searchAllSalesByItemName(itemName, storeName);
-      // console.log("itemNameSearch response: ", response);
 
       if (response?.data?.data) {
         setSearchResults(response?.data?.data);
-        // console.log("ami serc res ", searchResults);
+        
       } else {
         setSearchResults([]);
       }
@@ -813,7 +804,6 @@ const SaleBill = () => {
       if (response.status === 200) {
         NotificationManager.success("Sale created successfully", "Success");
         if (licenseDetails?.autoBillPrint === "YES") {
-          // console.log("executing...") 
           handlePrint();
         }
         resetTopFormData();
@@ -1090,15 +1080,7 @@ const SaleBill = () => {
             break;
           }
         }
-  
-        // const grossAmount = billItems.reduce((sum, item) => sum + item.pcs * item.rate, 0);
-        // const splDiscAmount = parseFloat(totalValues.splDiscount || 0);
-        // const discAmount = parseFloat(totalValues.discountAmt || 0);
-        // // const taxAmount = (parseFloat(totalValues.taxAmt || 0) / 100) * grossAmount;
-        // const adjustment = parseFloat(totalValues.adjustment || 0);
-        // // const netAmount = parseFloat(totalValues.netAmount || 0);
-        
-        // // console.log("totalValues inside create: ", totalValues);
+
   
         const newPayload = {
           billType: formData.billType,
@@ -1164,7 +1146,7 @@ const SaleBill = () => {
   
     try {
       const response = await createSale(payload);
-      // console.log("Sale created: ", response);
+      
       const billNo = response?.data?.data[0]?.billNo;
       // console.log("bill no: ", billNo);
 
@@ -1199,8 +1181,6 @@ const SaleBill = () => {
       console.error("Error creating sale:", error);
     } 
   };
-  
-  // console.log("showSaleBillPrintModal: ",showSaleBillPrintModal)
 
   const handleUpdateSale = async () => {
     let payload = {};
@@ -2330,6 +2310,7 @@ const SaleBill = () => {
                           <Input
                             type="text"
                             value={editedRow.itemCode || row.itemCode}
+                            readOnly
                             onChange={(e) =>
                               handleEdit(index, "itemCode", e.target.value)
                             }
@@ -2343,6 +2324,7 @@ const SaleBill = () => {
                           <Input
                             type="text"
                             value={editedRow.itemName || row.itemName}
+                            readOnly
                             onChange={(e) =>
                               handleEdit(index, "itemName", e.target.value)
                             }
