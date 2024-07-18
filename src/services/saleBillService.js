@@ -153,7 +153,7 @@ export const getDailySalesDetails = async (filterOptions) => {
       volume,
     } = filterOptions;
 
-    let apiURL = `/sales/daily-sales-reports?page=${page}&pageSize=${pageSize}`;
+    let apiURL = `/reports/daily-sales-reports?page=${page}&pageSize=${pageSize}`;
 
     const filters = {
       fromDate,

@@ -73,7 +73,7 @@ export const getAllStocks = async (filterOptions) => {
       itemCode,
     } = filterOptions;
 
-    let apiURL = `/purchases/stock-reports?page=${page}&pageSize=${pageSize}`;
+    let apiURL = `/reports/stock-reports?page=${page}&pageSize=${pageSize}`;
 
     const filters = {
       itemName,
