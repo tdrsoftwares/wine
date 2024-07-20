@@ -4,7 +4,6 @@ import {
   Button,
   CircularProgress,
   Grid,
-  Input,
   InputLabel,
   MenuItem,
   Paper,
@@ -126,10 +125,7 @@ const ItemRegister = () => {
 
   const handleSaveClick = async (itemId) => {
     try {
-      const updateItemResponse = await updateItem(
-        { ...editedRow, categoryId: categoryId },
-        itemId
-      );
+      const updateItemResponse = await updateItem({ ...editedRow }, itemId);
       if (updateItemResponse.status === 200) {
         NotificationManager.success("Item updated successfully", "Success");
         setEditableIndex(null);
@@ -146,6 +142,12 @@ const ItemRegister = () => {
         "Error updating item. Please try again later.",
         "Error"
       );
+    }
+  };
+
+  const handleKeyDown = (event, item) => {
+    if (event.key === "Enter") {
+      handleSaveClick(item._id);
     }
   };
 
@@ -275,7 +277,6 @@ const ItemRegister = () => {
       sorted.sort((a, b) => {
         let firstValue, secondValue;
 
-        
         if (sortBy === "companyId") {
           firstValue = a.companyId?.name ? a.companyId.name.toLowerCase() : "";
           secondValue = b.companyId?.name ? b.companyId.name.toLowerCase() : "";
@@ -307,7 +308,6 @@ const ItemRegister = () => {
     }
     return sorted;
   };
-  
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -341,12 +341,12 @@ const ItemRegister = () => {
   });
 
   return (
+      <ThemeProvider theme={customTheme}>
     <Box sx={{ p: 2, width: "900px" }}>
       <Typography variant="subtitle2" sx={{ marginBottom: 1 }}>
         Create Item:
       </Typography>
 
-      <ThemeProvider theme={customTheme}>
         <Grid container spacing={2}>
           <Grid item xs={3}>
             <div className="input-wrapper">
@@ -445,11 +445,13 @@ const ItemRegister = () => {
                   },
                 }}
               >
-                {["OS", "OSBI", "IMFL", "IML" , "BEER", "LAB"].map((item, id) => (
-                  <MenuItem key={id} value={item}>
-                    {item}
-                  </MenuItem>
-                ))}
+                {["OS", "OSBI", "IMFL", "IML", "BEER", "LAB"].map(
+                  (item, id) => (
+                    <MenuItem key={id} value={item}>
+                      {item}
+                    </MenuItem>
+                  )
+                )}
               </TextField>
             </div>
           </Grid>
@@ -637,7 +639,7 @@ const ItemRegister = () => {
 
         <Box sx={{ borderRadius: 1, marginTop: 1 }}>
           <TableContainer
-            ref={tableRef}
+            // ref={tableRef}
             component={Paper}
             sx={{
               height: 400,
@@ -748,7 +750,19 @@ const ItemRegister = () => {
               </TableHead>
 
               <TableBody>
-                {allItems?.length > 0 ? (
+                {loading ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={12}
+                      align="center"
+                      sx={{
+                        backgroundColor: "#fff !important",
+                      }}
+                    >
+                      <CircularProgress />
+                    </TableCell>
+                  </TableRow>
+                ) : allItems?.length > 0 ? (
                   filteredData
                     ?.slice(
                       page * rowsPerPage,
@@ -766,7 +780,8 @@ const ItemRegister = () => {
                         </TableCell>
                         <TableCell>
                           {editableIndex === index ? (
-                            <Input
+                            <TextField
+                              fullWidth
                               value={editedRow?.name || item?.name}
                               onChange={(e) =>
                                 setEditedRow({
@@ -774,6 +789,7 @@ const ItemRegister = () => {
                                   name: e.target.value,
                                 })
                               }
+                              onKeyDown={(e) => handleKeyDown(e, item)}
                             />
                           ) : (
                             item?.name || "No Data"
@@ -782,7 +798,8 @@ const ItemRegister = () => {
 
                         <TableCell>
                           {editableIndex === index ? (
-                            <Input
+                            <TextField
+                              fullWidth
                               value={editedRow.description || item.description}
                               onChange={(e) =>
                                 setEditedRow({
@@ -790,6 +807,7 @@ const ItemRegister = () => {
                                   description: e.target.value,
                                 })
                               }
+                              onKeyDown={(e) => handleKeyDown(e, item)}
                             />
                           ) : (
                             item.description || "No Data"
@@ -798,18 +816,35 @@ const ItemRegister = () => {
 
                         <TableCell>
                           {editableIndex === index ? (
-                            <Input
-                              value={editedRow?.categoryId?.categoryName || item?.categoryId?.categoryName}
+                            <TextField
+                              select
+                              fullWidth
+                              value={
+                                editedRow?.categoryId || ""
+                              }
                               onChange={(e) =>
                                 setEditedRow({
                                   ...editedRow,
-                                  categoryId: {
-                                    ...categoryId,
-                                    categoryName: e.target.value,
-                                  },
+                                  categoryId: e.target.value,
                                 })
                               }
-                            />
+                              onKeyDown={(e) => handleKeyDown(e, item)}
+                              SelectProps={{
+                                MenuProps: {
+                                  PaperProps: {
+                                    sx: {
+                                      maxHeight: 200,
+                                    },
+                                  },
+                                },
+                              }}
+                            >
+                              {allCategory?.map((item) => (
+                                <MenuItem key={item._id} value={item._id}>
+                                  {item.categoryName}
+                                </MenuItem>
+                              ))}
+                            </TextField>
                           ) : (
                             item?.categoryId?.categoryName || "No Data"
                           )}
@@ -817,7 +852,9 @@ const ItemRegister = () => {
 
                         <TableCell>
                           {editableIndex === index ? (
-                            <Input
+                            <TextField
+                              select
+                              fullWidth
                               value={editedRow.subCategory || item.subCategory}
                               onChange={(e) =>
                                 setEditedRow({
@@ -825,7 +862,16 @@ const ItemRegister = () => {
                                   subCategory: e.target.value,
                                 })
                               }
-                            />
+                              onKeyDown={(e) => handleKeyDown(e, item)}
+                            >
+                              {["OS", "OSBI", "IMFL", "IML", "BEER", "LAB"].map(
+                                (item, id) => (
+                                  <MenuItem key={id} value={item}>
+                                    {item}
+                                  </MenuItem>
+                                )
+                              )}
+                            </TextField>
                           ) : (
                             item.subCategory || "No Data"
                           )}
@@ -833,15 +879,35 @@ const ItemRegister = () => {
 
                         <TableCell>
                           {editableIndex === index ? (
-                            <Input
-                              value={editedRow?.companyId?.name || item?.companyId?.name}
+                            <TextField
+                              select
+                              fullWidth
+                              value={
+                                editedRow?.companyId ||""
+                              }
                               onChange={(e) =>
                                 setEditedRow({
                                   ...editedRow,
                                   companyId: e.target.value,
                                 })
                               }
-                            />
+                              onKeyDown={(e) => handleKeyDown(e, item)}
+                              SelectProps={{
+                                MenuProps: {
+                                  PaperProps: {
+                                    sx: {
+                                      maxHeight: 200,
+                                    },
+                                  },
+                                },
+                              }}
+                            >
+                              {allCompanies?.map((item) => (
+                                <MenuItem key={item._id} value={item._id}>
+                                  {item.name}
+                                </MenuItem>
+                              ))}
+                            </TextField>
                           ) : (
                             item?.companyId?.name || "No Data"
                           )}
@@ -849,15 +915,35 @@ const ItemRegister = () => {
 
                         <TableCell>
                           {editableIndex === index ? (
-                            <Input
-                              value={editedRow?.brandId?.name || item?.brandId?.name}
+                            <TextField
+                              select
+                              fullWidth
+                              value={
+                                editedRow?.brandId || ""
+                              }
                               onChange={(e) =>
                                 setEditedRow({
                                   ...editedRow,
                                   brandId: e.target.value,
                                 })
                               }
-                            />
+                              onKeyDown={(e) => handleKeyDown(e, item)}
+                              SelectProps={{
+                                MenuProps: {
+                                  PaperProps: {
+                                    sx: {
+                                      maxHeight: 200,
+                                    },
+                                  },
+                                },
+                              }}
+                            >
+                              {allBrands?.map((item) => (
+                                <MenuItem key={item._id} value={item._id}>
+                                  {item.name}
+                                </MenuItem>
+                              ))}
+                            </TextField>
                           ) : (
                             item?.brandId?.name || "No Data"
                           )}
@@ -865,7 +951,8 @@ const ItemRegister = () => {
 
                         <TableCell>
                           {editableIndex === index ? (
-                            <Input
+                            <TextField
+                              fullWidth
                               value={editedRow.volume || item.volume}
                               onChange={(e) =>
                                 setEditedRow({
@@ -873,6 +960,7 @@ const ItemRegister = () => {
                                   volume: e.target.value,
                                 })
                               }
+                              onKeyDown={(e) => handleKeyDown(e, item)}
                             />
                           ) : (
                             item.volume || 0
@@ -881,7 +969,9 @@ const ItemRegister = () => {
 
                         <TableCell>
                           {editableIndex === index ? (
-                            <Input
+                            <TextField
+                              select
+                              fullWidth
                               value={editedRow.group || item.group}
                               onChange={(e) =>
                                 setEditedRow({
@@ -889,7 +979,14 @@ const ItemRegister = () => {
                                   group: e.target.value,
                                 })
                               }
-                            />
+                              onKeyDown={(e) => handleKeyDown(e, item)}
+                            >
+                              {["FL", "BEER", "IML"].map((item, id) => (
+                                <MenuItem key={id} value={item}>
+                                  {item}
+                                </MenuItem>
+                              ))}
+                            </TextField>
                           ) : (
                             item.group || "No Data"
                           )}
@@ -897,7 +994,8 @@ const ItemRegister = () => {
 
                         <TableCell>
                           {editableIndex === index ? (
-                            <Input
+                            <TextField
+                              fullWidth
                               value={editedRow.caseValue || item.caseValue}
                               onChange={(e) =>
                                 setEditedRow({
@@ -905,6 +1003,7 @@ const ItemRegister = () => {
                                   caseValue: e.target.value,
                                 })
                               }
+                              onKeyDown={(e) => handleKeyDown(e, item)}
                             />
                           ) : (
                             item.caseValue || 0
@@ -961,8 +1060,8 @@ const ItemRegister = () => {
             }}
           />
         </Box>
-      </ThemeProvider>
     </Box>
+      </ThemeProvider>
   );
 };
 
