@@ -18,6 +18,7 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { customTheme } from "../../../utils/customTheme";
 import { getAllStatements } from "../../../services/monthlyStatementService";
+import PrintableReport from "./PrintableExport";
 
 const MonthlyStatement = () => {
   const [dateFrom, setDateFrom] = useState(null);
@@ -81,8 +82,6 @@ const MonthlyStatement = () => {
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
-    
-    
   ];
 
   const columnsData = useMemo(
@@ -102,18 +101,27 @@ const MonthlyStatement = () => {
     setLoading(true);
     try {
       const filterOptions = {
-        // page:
-        //   paginationModel.page === 0
-        //     ? paginationModel.page + 1
-        //     : paginationModel.page,
-        // pageSize: paginationModel.pageSize,
         fromDate: fromDate,
-        toDate: toDate
+        toDate: toDate,
       };
       const response = await getAllStatements(filterOptions);
-      console.log("Statement fetched", response?.data?.data)
-      setAllStatements(response?.data?.data || []);
-      setTotalCount(response?.data?.data?.groupedByCategory?.length || 0);
+      // console.log("Statement fetched", response?.data?.data);
+
+      const groupedByCategory = response?.data?.data?.groupedByCategory || [];
+      const totals = response?.data?.data?.group || [];
+
+      const statementsWithTotals = [
+        ...groupedByCategory,
+        ...totals.map((total, index) => ({
+          ...total,
+          sNo: groupedByCategory.length + index + 1,
+          categoryName: `Total ${total.group}`,
+        })),
+      ];
+
+      // console.log("statementsWithTotals: ",statementsWithTotals)
+      setAllStatements(statementsWithTotals);
+      setTotalCount(statementsWithTotals.length);
     } catch (error) {
       NotificationManager.error(
         "Error fetching statements. Please try again later.",
@@ -143,19 +151,15 @@ const MonthlyStatement = () => {
     debouncedFetch();
   }, [dateFrom, dateTo]);
 
-
   return (
     <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, width: "900px" }}>
         <Typography variant="subtitle2" gutterBottom>
           Monthly online statement - excise:
         </Typography>
-        <Typography sx={{ fontSize: "13px" }}>
-          Filter By:
-        </Typography>
+        <Typography sx={{ fontSize: "13px" }}>Filter By:</Typography>
 
         <Grid container spacing={2}>
-
           <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="dateFrom" className="input-label">
@@ -192,16 +196,18 @@ const MonthlyStatement = () => {
               </LocalizationProvider>
             </div>
           </Grid>
-          
         </Grid>
 
         <Box
           sx={{
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
             "& button": { marginTop: 1 },
           }}
         >
+          <PrintableReport data={allStatements} />
+
+          <div>
           <Button
             color="inherit"
             size="small"
@@ -224,6 +230,8 @@ const MonthlyStatement = () => {
           >
             Display
           </Button>
+          </div>
+          
         </Box>
 
         <Box
@@ -236,7 +244,7 @@ const MonthlyStatement = () => {
           }}
         >
           <DataGrid
-            rows={(allStatements?.groupedByCategory || []).map((item, index) => ({
+            rows={allStatements?.map((item, index) => ({
               id: index,
               sNo: index + 1,
               categoryName: item.categoryName || "No Data",
@@ -245,11 +253,12 @@ const MonthlyStatement = () => {
               sales: item.sales || 0,
               closingBalance: item.closingBalance || 0,
             }))}
-
             columns={columnsData}
             rowCount={totalCount}
             pagination
-            pageSizeOptions={[10, 25, 50, 100]}
+            paginationModel={paginationModel}
+            onPaginationModelChange={setPaginationModel}
+            pageSizeOptions={[ 10, 25, 50 ]}
             sx={{ backgroundColor: "#fff" }}
             loading={loading}
             components={{
@@ -265,10 +274,6 @@ const MonthlyStatement = () => {
                   <CircularProgress />
                 </Box>
               ),
-            }}
-            slots={{
-              toolbar: GridToolbar,
-              // pagination: Pagination
             }}
             initialState={{
               density: "compact",
