@@ -84,7 +84,7 @@ const StoreRegister = () => {
   };
 
   const sortedData = () => {
-    let sorted = [...allStores];
+    let sorted = allStores ? [...allStores] : [];
     if (sortBy) {
       sorted.sort((a, b) => {
         const firstValue =
@@ -407,8 +407,7 @@ const StoreRegister = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredData
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  allStores && filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((store, index) => (
                       <TableRow
                         key={index}
