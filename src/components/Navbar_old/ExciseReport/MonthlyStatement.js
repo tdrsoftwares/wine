@@ -24,6 +24,7 @@ const MonthlyStatement = () => {
   const [dateFrom, setDateFrom] = useState(null);
   const [dateTo, setDateTo] = useState(null);
   const [allStatements, setAllStatements] = useState([]);
+  const [allStatementsCopy, setAllStatementsCopy] = useState([]);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: 10,
@@ -118,8 +119,7 @@ const MonthlyStatement = () => {
           categoryName: `Total ${total.group}`,
         })),
       ];
-
-      // console.log("statementsWithTotals: ",statementsWithTotals)
+      console.log("statementsWithTotals: ",statementsWithTotals)
       setAllStatements(statementsWithTotals);
       setTotalCount(statementsWithTotals.length);
     } catch (error) {
