@@ -174,7 +174,7 @@ const SuppliersRegister = () => {
   };
 
   const sortedData = () => {
-    let sorted = [...allSuppliers];
+    let sorted = allSuppliers ? [...allSuppliers] : []
     if (sortBy) {
       sorted.sort((a, b) => {
         const firstValue =

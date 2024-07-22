@@ -272,7 +272,7 @@ const ItemRegister = () => {
   };
 
   const sortedData = () => {
-    let sorted = [...allItems];
+    let sorted = allItems ? [...allItems] : [];
     if (sortBy) {
       sorted.sort((a, b) => {
         let firstValue, secondValue;

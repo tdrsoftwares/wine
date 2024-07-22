@@ -156,7 +156,7 @@ const ItemCatRegister = () => {
   };
 
   const sortedData = () => {
-    let sorted = [...allCategory];
+    let sorted = allCategory ? [...allCategory] : [];
     if (sortBy) {
       sorted.sort((a, b) => {
         const firstValue =

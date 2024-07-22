@@ -213,7 +213,7 @@ const BrandRegister = () => {
   };
 
   const sortedData = () => {
-    let sorted = [...allBrands];
+    let sorted = allBrands ? [...allBrands] : [];
     if (sortBy) {
       sorted.sort((a, b) => {
         let firstValue;

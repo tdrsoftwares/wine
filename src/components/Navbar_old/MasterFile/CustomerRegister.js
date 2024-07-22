@@ -108,7 +108,7 @@ const CustomerRegister = () => {
   };
 
   const sortedData = () => {
-    let sorted = [...allCustomerData];
+    let sorted = allCustomerData ? [...allCustomerData] : [];
     if (sortBy) {
       sorted.sort((a, b) => {
         const firstValue =
