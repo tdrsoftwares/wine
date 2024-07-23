@@ -152,6 +152,7 @@ const SaleBill = () => {
   const fetchAllStores = async () => {
     try {
       const response = await getAllSaleStores();
+      // console.log("sale-stores response: ",response)
       if (response.status === 200) {
         setAllStores(response?.data?.data);
         
@@ -159,6 +160,12 @@ const SaleBill = () => {
           setFormData({ ...formData, store: response.data.data[0] });
         }
       }
+
+      if (response?.response?.status === 400) {
+        setAllStores([]);
+        NotificationManager.error("No Stores Found", "Error");
+      }
+
     } catch (err) {
       NotificationManager.error("Failed to fetch all stores", "Error");
       console.log(err)
@@ -169,7 +176,14 @@ const SaleBill = () => {
   const fetchAllCustomers = async () => {
     try {
       const allCustomerResponse = await getAllCustomer();
-      setAllCustomerData(allCustomerResponse?.data?.data);
+      // console.log("Fetching all customers: ", allCustomerResponse)
+      if (allCustomerResponse.status === 200) {
+        setAllCustomerData(allCustomerResponse?.data?.data);
+      }
+      if (allCustomerResponse?.response?.status === 400) {
+        setAllCustomerData([]);
+        NotificationManager.error("No Customers Found", "Error");
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching customers. Please try again later.",
@@ -182,7 +196,15 @@ const SaleBill = () => {
   const fetchAllLedger = async () => {
     try {
       const allLedgerResponse = await getAllLedgers();
-      setAllLedgers(allLedgerResponse?.data?.data);
+      // console.log("allLedger response: ", allLedgerResponse);
+      if (allLedgerResponse.status === 200) {
+        setAllLedgers(allLedgerResponse?.data?.data);
+      }
+      if (allLedgerResponse?.response?.status === 400) {
+        setAllLedgers([]);
+        NotificationManager.error("No Ledgers Found", "Error");
+      }
+      
     } catch (error) {
       NotificationManager.error(
         "Error fetching ledgers. Please try again later.",

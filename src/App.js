@@ -23,8 +23,16 @@ const AppContent = () => {
   const fetchLicenseData = async () => {
     try {
       const response = await getLicenseInfo();
-      console.log("response ---> ", response?.data[0]);
-      setLicenseDetails(response?.data[0]);
+      // console.log("lic response ---> ", response);
+      if (response.status === 200) {
+        setLicenseDetails(response?.data[0]);
+      }
+
+      if (response?.response?.status === 400) {
+        setLicenseDetails([]);
+        NotificationManager.error("No License Data Found", "Error");
+      }
+
     } catch (error) {
       NotificationManager.error(
         "Error fetching license. Please try again later.",
