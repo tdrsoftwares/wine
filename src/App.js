@@ -62,7 +62,10 @@ const AppContent = () => {
   };
 
   const handleSignout = () => {
+    document.cookie = `accessToken=""; path=/;`;
+    document.cookie = `refreshToken=""; path=/;`;
     clearCookie("accessToken");
+    localStorage.removeItem("x-db-name");
     setAuthenticatedUser(null);
   };
 

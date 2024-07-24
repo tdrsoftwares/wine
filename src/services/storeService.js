@@ -1,6 +1,7 @@
 import axiosInstance from "../utils/axiosInstance";
 
 export const createStore = async (payload) => {
+
   try {
     const apiURL = `/store/create`;
     const createStoreData = await axiosInstance.post(apiURL, payload);
@@ -22,7 +23,8 @@ export const updateStore = async (payload, id) => {
 
 export const getAllStores = async () => {
   try {
-    const apiURL = `/store/get-all/`;
+    const dbName = localStorage.getItem('x-db-name');
+    const apiURL = `/store/get-all?dbName=${dbName}`;
     const allStoresData = await axiosInstance.get(apiURL);
     return allStoresData;
   } catch (error) {

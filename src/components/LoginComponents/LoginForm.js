@@ -51,12 +51,13 @@ function LoginForm({ handleLogin }) {
     }
 
     try {
-      const response = await axios.post(`${url}/user/login`, { email, password, dbName: customerId });
+      const response = await axios.post(url+ `/user/login`, { email, password, dbName: customerId });
 
       const { accessToken, refreshToken } = response.data.data;
-       console.log("accessToken: ", accessToken);
+      //  console.log("accessToken: ", accessToken);
       document.cookie = `accessToken=${accessToken}; path=/;`;
       document.cookie = `refreshToken=${refreshToken}; path=/;`;
+      localStorage.setItem("x-db-name", customerId);
 
       if(response.status === 200) {
         NotificationManager.success("Login successful.", "Success");

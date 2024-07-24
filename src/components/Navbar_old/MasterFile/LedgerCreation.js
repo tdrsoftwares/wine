@@ -103,7 +103,7 @@ const LedgerCreation = () => {
   };
 
   const sortedData = () => {
-    let sorted = [...allLedgers];
+    let sorted = allLedgers ? [...allLedgers] : [];
     if (sortBy) {
       sorted.sort((a, b) => {
         const firstValue =
@@ -138,10 +138,10 @@ const LedgerCreation = () => {
         fetchAllLedger();
       } else {
         NotificationManager.error(
-          "Error creating brand. Please try again later.",
+          "Error creating ledger. Please try again.",
           "Error"
         );
-        console.error("Error creating brand:", response);
+        console.error("Error creating ledger:", response);
       }
     } catch (error) {
       console.log("Error fetching ledgers", error);
