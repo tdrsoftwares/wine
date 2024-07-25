@@ -51,7 +51,7 @@ function LoginForm({ handleLogin }) {
     }
 
     try {
-      const response = await axios.post(url+ `/user/login`, { email, password, dbName: customerId });
+      const response = await axios.post(url+ `/user-master/login`, { email, password, customerId });
 
       const { accessToken, refreshToken } = response.data.data;
       //  console.log("accessToken: ", accessToken);
