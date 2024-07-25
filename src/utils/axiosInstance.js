@@ -9,17 +9,15 @@ const axiosInstance = axios.create({
   },
 });
 
-// Intercepting the request to always include Authorization and x-db-name headers
+
+
 axiosInstance.interceptors.request.use(
   config => {
     const token = getCookie('accessToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    const dbName = localStorage.getItem('x-db-name');
-    if (dbName) {
-      config.headers['x-db-name'] = dbName;
-    }
+    
     return config;
   },
   error => Promise.reject(error)

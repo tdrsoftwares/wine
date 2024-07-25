@@ -23,8 +23,8 @@ export const updateStore = async (payload, id) => {
 
 export const getAllStores = async () => {
   try {
-    const dbName = localStorage.getItem('x-db-name');
-    const apiURL = `/store/get-all?dbName=${dbName}`;
+    // const dbName = localStorage.getItem('x-db-name');
+    const apiURL = `/store/get-all`;
     const allStoresData = await axiosInstance.get(apiURL);
     return allStoresData;
   } catch (error) {

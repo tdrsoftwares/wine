@@ -30,6 +30,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import { customTheme } from "../../../utils/customTheme";
+import { useLicenseContext } from "../../../utils/licenseContext";
 
 const StoreRegister = () => {
   const [storeName, setStoreName] = useState("");
@@ -44,6 +45,7 @@ const StoreRegister = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [search, setSearch] = useState("");
   const tableRef = useRef(null);
+  const { licenseDetails } = useLicenseContext();
 
   const handleClickOutside = (event) => {
     if (tableRef.current && !tableRef.current.contains(event.target)) {
