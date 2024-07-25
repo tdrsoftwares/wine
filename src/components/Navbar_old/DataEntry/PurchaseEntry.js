@@ -403,9 +403,15 @@ const PurchaseEntry = () => {
 
   const fetchAllSuppliers = async () => {
     try {
-      const allItemsResponse = await getAllSuppliers();
+      const response = await getAllSuppliers();
+      // console.log("response: ", response)
+      if(response.status === 200) {
+        setAllSuppliers(response?.data?.data);
+      } else {
+        setAllSuppliers([])
+        NotificationManager.error("No suppliers found.", "Error")
+      }
       
-      setAllSuppliers(allItemsResponse?.data?.data);
     } catch (error) {
       NotificationManager.error(
         "Error fetching suppliers. Please try again later.",
@@ -417,8 +423,13 @@ const PurchaseEntry = () => {
   const fetchAllEntries = async () => {
     try {
       const response = await getAllEntryNo();
-      
-      setAllEntries(response?.data?.data);
+      // console.log("getAllEntryNo response: ", response);
+      if (response.status === 200) {
+        setAllEntries(response?.data?.data);
+      } else {
+        NotificationManager.error("No entry no. found", "Error");
+        setAllEntries([]);
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching transfers. Please try again later.",
@@ -430,8 +441,14 @@ const PurchaseEntry = () => {
   const fetchAllStores = async () => {
     try {
       const allStoresResponse = await getAllStores();
+      // console.log("allStore response: ", allStoresResponse)
       
-      setAllStores(allStoresResponse?.data?.data);
+      if (allStoresResponse.status === 200) {
+        setAllStores(allStoresResponse?.data?.data);
+      } else {
+        NotificationManager.error("No stores found", "Error");
+        setAllStores([]);
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching stores. Please try again later.",

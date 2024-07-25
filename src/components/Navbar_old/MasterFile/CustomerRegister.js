@@ -54,8 +54,9 @@ const CustomerRegister = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  console.log("allCustomerData", allCustomerData);
+  // console.log("allCustomerData", allCustomerData);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -131,13 +132,21 @@ const CustomerRegister = () => {
     try {
       const allCustomerResponse = await getAllCustomer();
       // console.log("allCustomerResponse ---> ", allCustomerResponse);
-      setAllCustomerData(allCustomerResponse?.data?.data);
+
+      if (allCustomerResponse.status === 200) {
+        setAllCustomerData(allCustomerResponse?.data?.data);
+        setLoading(false);
+      } else {
+        setAllCustomerData([]);
+        NotificationManager.error("No Customers Found", "Error");
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching brands. Please try again later.",
         "Error"
       );
       console.error("Error fetching brands:", error);
+      setLoading(false);
     }
   };
 

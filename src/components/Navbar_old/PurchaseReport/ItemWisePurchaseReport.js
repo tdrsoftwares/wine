@@ -267,7 +267,14 @@ const ItemWisePurchaseReport = () => {
   const fetchAllSuppliers = async () => {
     try {
       const response = await getAllSuppliers();
-      setAllSuppliers(response?.data?.data || []);
+      // console.log("response: ", response)
+      if(response.status === 200) {
+        setAllSuppliers(response?.data?.data);
+      } else {
+        setAllSuppliers([])
+        NotificationManager.error("No suppliers found.", "Error")
+      }
+      
     } catch (error) {
       NotificationManager.error(
         "Error fetching suppliers. Please try again later.",
@@ -279,7 +286,14 @@ const ItemWisePurchaseReport = () => {
   const fetchAllItems = async () => {
     try {
       const allItemsResponse = await getAllItems();
-      setAllItems(allItemsResponse?.data?.data);
+      if (allItemsResponse.status === 200) {
+        setAllItems(allItemsResponse?.data?.data);
+      }
+      else {
+        NotificationManager.error("No items found." , "Error");
+        setAllItems([]);
+
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching items. Please try again later.",
@@ -288,13 +302,18 @@ const ItemWisePurchaseReport = () => {
     }
   };
 
-  const fetchAllItemCategory = async () => {
+  const fetchAllCategory = async () => {
     try {
-      const allCategoryResponse = await getAllItemCategory();
-      setAllCategory(allCategoryResponse?.data?.data);
-    } catch (error) {
+      const getAllCategoryResponse = await getAllItemCategory();
+      if (getAllCategoryResponse.status === 200) {
+        setAllCategory(getAllCategoryResponse?.data?.data);
+      } else {
+        NotificationManager.error("No category found." , "Error");
+        setAllCategory([])
+      }
+    } catch (err) {
       NotificationManager.error(
-        "Error fetching categories. Please try again later.",
+        "Something went Wrong, Please try again later.",
         "Error"
       );
     }
@@ -302,13 +321,20 @@ const ItemWisePurchaseReport = () => {
 
   const fetchAllBrands = async () => {
     try {
-      const allBrandResponse = await getAllBrands();
-      setAllBrands(allBrandResponse?.data?.data);
+      const allBrandsResponse = await getAllBrands();
+      // console.log("allBrandsResponse ---> ", allBrandsResponse);
+      if (allBrandsResponse.status === 200) {
+        setAllBrands(allBrandsResponse?.data?.data);
+      } else {
+        setAllBrands([])
+        NotificationManager.error("No brands found." , "Error");
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching brands. Please try again later.",
         "Error"
       );
+      console.error("Error fetching brands:", error);
     }
   };
 
@@ -316,7 +342,7 @@ const ItemWisePurchaseReport = () => {
     fetchAllPurchases();
     fetchAllSuppliers();
     fetchAllItems();
-    fetchAllItemCategory();
+    fetchAllCategory();
     fetchAllBrands();
   }, []);
 

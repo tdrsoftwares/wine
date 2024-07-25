@@ -178,9 +178,11 @@ const ItemCatRegister = () => {
   const fetchAllCategory = async () => {
     try {
       const getAllCategoryResponse = await getAllItemCategory();
-      // console.log("getAllCategoryResponse: ", getAllCategoryResponse);
-      if(getAllCategoryResponse?.data?.data) {
+      if (getAllCategoryResponse.status === 200) {
         setAllCategory(getAllCategoryResponse?.data?.data);
+      } else {
+        NotificationManager.error("No category found." , "Error");
+        setAllCategory([])
       }
     } catch (err) {
       NotificationManager.error(

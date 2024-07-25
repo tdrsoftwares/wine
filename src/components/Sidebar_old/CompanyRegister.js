@@ -131,8 +131,14 @@ const CompanyRegister = () => {
   const fetchAllCompanies = async () => {
     try {
       const allCompaniesResponse = await getAllCompanies();
-      console.log("allCompaniesResponse ---> ", allCompaniesResponse);
-      setAllCompanies(allCompaniesResponse?.data?.data);
+      // console.log("allCompaniesResponse ---> ", allCompaniesResponse);
+      if (allCompaniesResponse.status === 200) {
+        setAllCompanies(allCompaniesResponse?.data?.data);
+      } else {
+        NotificationManager.error("No companies found." , "Error");
+        setAllCompanies([]);
+
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching companies. Please try again later.",

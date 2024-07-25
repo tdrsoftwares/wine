@@ -157,6 +157,28 @@ function Home() {
 
         <Grid item xs={3}>
           <Card sx={{ maxWidth: 250, margin:'0 auto'  }}>
+            <CardActionArea onClick={() => navigate("/epos")}>
+              <CardMedia
+                component="img"
+                height="100"
+                image={wineImage7}
+                alt="wine glass"
+                sx={{ objectFit: "contain", padding: "10px" }}
+              />
+              <CardContent>
+                <Typography gutterBottom variant="subtitle1" component="div">
+                  Epos
+                </Typography>
+                <Typography variant="body3" color="text.secondary">
+                  Click to see epos and send
+                </Typography>
+              </CardContent>
+            </CardActionArea>
+          </Card>
+        </Grid>
+
+        <Grid item xs={3}>
+          <Card sx={{ maxWidth: 250, margin:'0 auto'  }}>
             <CardActionArea onClick={() => navigate("/item-wise-sale-report")}>
               <CardMedia
                 component="img"
@@ -176,7 +198,7 @@ function Home() {
             </CardActionArea>
           </Card>
         </Grid>
-        <Grid item xs={3}>
+        {/* <Grid item xs={3}>
           <Card sx={{ maxWidth: 250, margin:'0 auto'  }}>
             <CardActionArea onClick={() => navigate("/item-wise-purchase-report")}>
               <CardMedia
@@ -196,7 +218,7 @@ function Home() {
               </CardContent>
             </CardActionArea>
           </Card>
-        </Grid>
+        </Grid> */}
 
         <Grid item xs={3}>
           <Card sx={{ maxWidth: 250, margin:'0 auto'  }}>

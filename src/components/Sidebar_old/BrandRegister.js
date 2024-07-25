@@ -161,7 +161,13 @@ const BrandRegister = () => {
   const fetchAllBrands = async () => {
     try {
       const allBrandsResponse = await getAllBrands();
-      setAllBrands(allBrandsResponse?.data?.data);
+      // console.log("allBrandsResponse ---> ", allBrandsResponse);
+      if (allBrandsResponse.status === 200) {
+        setAllBrands(allBrandsResponse?.data?.data);
+      } else {
+        setAllBrands([])
+        NotificationManager.error("No brands found." , "Error");
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching brands. Please try again later.",
@@ -174,7 +180,14 @@ const BrandRegister = () => {
   const fetchAllCompanies = async () => {
     try {
       const allCompaniesResponse = await getAllCompanies();
-      setAllCompanies(allCompaniesResponse?.data?.data);
+      // console.log("allCompaniesResponse ---> ", allCompaniesResponse);
+      if (allCompaniesResponse.status === 200) {
+        setAllCompanies(allCompaniesResponse?.data?.data);
+      } else {
+        NotificationManager.error("No companies found." , "Error");
+        setAllCompanies([]);
+
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching companies. Please try again later.",

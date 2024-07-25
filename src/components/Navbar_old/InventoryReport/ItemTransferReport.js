@@ -212,45 +212,17 @@ const ItemTransferReport = () => {
     }
   };
 
-  // const fetchAllStores = async () => {
-  //   try {
-  //     const allStoresResponse = await getAllStores();
-  //     const allStoresData = allStoresResponse?.data?.data;
-
-  //     if (!allStoresData) {
-  //       throw new Error("No data received from getAllStores");
-  //     }
-
-  //     const allGodowns = [];
-  //     const allNonGodowns = [];
-
-  //     allStoresData.forEach((store) => {
-  //       if (store?.type === "GODOWN") {
-  //         allGodowns.push(store);
-  //       } else {
-  //         allNonGodowns.push(store);
-  //       }
-  //     });
-
-  //     setAllGodownStores(allGodowns);
-  //     setAllNonGodownStores(allNonGodowns);
-
-  //     // console.log("allGodowns ---> ", allGodowns);
-  //     // console.log("allNonGodowns ---> ", allNonGodowns);
-  //   } catch (error) {
-  //     NotificationManager.error(
-  //       "Error fetching stores. Please try again later.",
-  //       "Error"
-  //     );
-  //     console.error("Error fetching stores:", error);
-  //   }
-  // };
-
   const fetchAllStores = async () => {
     try {
       const allStoresResponse = await getAllStores();
-      // console.log("allStoresResponse ---> ", allStoresResponse);
-      setAllStores(allStoresResponse?.data?.data);
+      // console.log("allStore response: ", allStoresResponse)
+      
+      if (allStoresResponse.status === 200) {
+        setAllStores(allStoresResponse?.data?.data);
+      } else {
+        NotificationManager.error("No stores found", "Error");
+        setAllStores([]);
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching stores. Please try again later.",
@@ -259,10 +231,18 @@ const ItemTransferReport = () => {
       console.error("Error fetching stores:", error);
     }
   };
+
   const fetchAllItems = async () => {
     try {
       const allItemsResponse = await getAllItems();
-      setAllItems(allItemsResponse?.data?.data);
+      if (allItemsResponse.status === 200) {
+        setAllItems(allItemsResponse?.data?.data);
+      }
+      else {
+        NotificationManager.error("No items found." , "Error");
+        setAllItems([]);
+
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching items. Please try again later.",
@@ -271,13 +251,18 @@ const ItemTransferReport = () => {
     }
   };
 
-  const fetchAllItemCategory = async () => {
+  const fetchAllCategory = async () => {
     try {
-      const allCategoryResponse = await getAllItemCategory();
-      setAllCategory(allCategoryResponse?.data?.data);
-    } catch (error) {
+      const getAllCategoryResponse = await getAllItemCategory();
+      if (getAllCategoryResponse.status === 200) {
+        setAllCategory(getAllCategoryResponse?.data?.data);
+      } else {
+        NotificationManager.error("No category found." , "Error");
+        setAllCategory([])
+      }
+    } catch (err) {
       NotificationManager.error(
-        "Error fetching categories. Please try again later.",
+        "Something went Wrong, Please try again later.",
         "Error"
       );
     }
@@ -285,13 +270,20 @@ const ItemTransferReport = () => {
 
   const fetchAllBrands = async () => {
     try {
-      const allBrandResponse = await getAllBrands();
-      setAllBrands(allBrandResponse?.data?.data);
+      const allBrandsResponse = await getAllBrands();
+      // console.log("allBrandsResponse ---> ", allBrandsResponse);
+      if (allBrandsResponse.status === 200) {
+        setAllBrands(allBrandsResponse?.data?.data);
+      } else {
+        setAllBrands([])
+        NotificationManager.error("No brands found." , "Error");
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching brands. Please try again later.",
         "Error"
       );
+      console.error("Error fetching brands:", error);
     }
   };
 
@@ -300,7 +292,7 @@ const ItemTransferReport = () => {
     fetchAllStores();
     fetchAllBrands();
     fetchAllItems();
-    fetchAllItemCategory();
+    fetchAllCategory();
   }, []);
 
   const debounce = (func, delay) => {

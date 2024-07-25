@@ -125,7 +125,7 @@ const StockTransfer = () => {
       const allStoresData = allStoresResponse?.data?.data;
 
       if (!allStoresData) {
-        throw new Error("No data received from getAllStores");
+        NotificationManager.error("No store data found", "Error");
       }
 
       const allGodowns = [];

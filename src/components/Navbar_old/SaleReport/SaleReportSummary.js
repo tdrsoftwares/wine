@@ -251,7 +251,13 @@ const SaleReportSummary = () => {
     try {
       const allCustomerResponse = await getAllCustomer();
       // console.log("allCustomerResponse ---> ", allCustomerResponse);
-      setAllCustomerData(allCustomerResponse?.data?.data);
+
+      if (allCustomerResponse.status === 200) {
+        setAllCustomerData(allCustomerResponse?.data?.data);
+      } else {
+        setAllCustomerData([]);
+        NotificationManager.error("No Customers Found", "Error");
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching brands. Please try again later.",

@@ -17,11 +17,6 @@ const SaleBillPrintModal = forwardRef(
     ref
   ) => {
 
-    console.log("print billNumber: ", billNumber);
-    console.log("print formData.billno: ", formData.billno);
-    // console.log("salesData: ", salesData)
-    // console.log("totalValues: ", totalValues)
-
     const amountInWords = (amount) => {
       if (isNaN(amount) || amount === undefined || amount === null) {
         return "Zero Only";

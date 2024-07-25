@@ -235,8 +235,14 @@ const PurchaseReportSummary = () => {
   const fetchAllStores = async () => {
     try {
       const allStoresResponse = await getAllStores();
-      // console.log("allStoresResponse ---> ", allStoresResponse);
-      setAllStores(allStoresResponse?.data?.data);
+      // console.log("allStore response: ", allStoresResponse)
+      
+      if (allStoresResponse.status === 200) {
+        setAllStores(allStoresResponse?.data?.data);
+      } else {
+        NotificationManager.error("No stores found", "Error");
+        setAllStores([]);
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching stores. Please try again later.",
@@ -249,7 +255,14 @@ const PurchaseReportSummary = () => {
   const fetchAllSuppliers = async () => {
     try {
       const response = await getAllSuppliers();
-      setAllSuppliers(response?.data?.data || []);
+      // console.log("response: ", response)
+      if(response.status === 200) {
+        setAllSuppliers(response?.data?.data);
+      } else {
+        setAllSuppliers([])
+        NotificationManager.error("No suppliers found.", "Error")
+      }
+      
     } catch (error) {
       NotificationManager.error(
         "Error fetching suppliers. Please try again later.",

@@ -161,7 +161,7 @@ const SaleBill = () => {
         }
       }
 
-      if (response?.response?.status === 400) {
+      else {
         setAllStores([]);
         NotificationManager.error("No Stores Found", "Error");
       }
@@ -180,7 +180,7 @@ const SaleBill = () => {
       if (allCustomerResponse.status === 200) {
         setAllCustomerData(allCustomerResponse?.data?.data);
       }
-      if (allCustomerResponse?.response?.status === 400) {
+      else {
         setAllCustomerData([]);
         NotificationManager.error("No Customers Found", "Error");
       }

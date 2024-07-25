@@ -110,6 +110,7 @@ import FlStatus from "./components/Navbar_old/AuditAndAccounts/FlStatus";
 import TrialBalance from "./components/Navbar_old/AuditAndAccounts/TrialBalance";
 import AccountProfitAndLoss from "./components/Navbar_old/AuditAndAccounts/AccountProfitAndLoss";
 import BalanceSheet from "./components/Navbar_old/AuditAndAccounts/BalanceSheet";
+import Epos from "./modules/Epos";
 
 
 const PrivateRoute = ({ element, authenticatedUser }) => {
@@ -152,13 +153,11 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp, handleSignout
       />
       <Route path="*" element={<NotFound />} />
 
-      
       <Route
         path="/item-ledger-status"
         element={authenticatedUser ? <ItemLedgerStatus /> : <UnAuthorized />}
       />
       {/* Navbar items */}
-
 
       {/* Master File Submenu items */}
       <Route
@@ -432,18 +431,22 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp, handleSignout
         element={authenticatedUser ? <BarCodeList /> : <UnAuthorized />}
       />
 
-            {/* Excise Report */}
-            <Route
+      {/* Excise Report */}
+      <Route
         path="/monthly-statement"
         element={authenticatedUser ? <MonthlyStatement /> : <UnAuthorized />}
       />
       <Route
         path="/stock-statement-all-excise"
-        element={authenticatedUser ? <StockStatementAllExcise /> : <UnAuthorized />}
+        element={
+          authenticatedUser ? <StockStatementAllExcise /> : <UnAuthorized />
+        }
       />
       <Route
         path="/stock-statement-form1-excise"
-        element={authenticatedUser ? <StockStatementForm1Excise /> : <UnAuthorized />}
+        element={
+          authenticatedUser ? <StockStatementForm1Excise /> : <UnAuthorized />
+        }
       />
       <Route
         path="/category-register-all"
@@ -451,11 +454,15 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp, handleSignout
       />
       <Route
         path="/category-register-godown"
-        element={authenticatedUser ? <CategoryRegisterGodown /> : <UnAuthorized />}
+        element={
+          authenticatedUser ? <CategoryRegisterGodown /> : <UnAuthorized />
+        }
       />
       <Route
         path="/category-register-counter"
-        element={authenticatedUser ? <CategoryRegisterCounter /> : <UnAuthorized />}
+        element={
+          authenticatedUser ? <CategoryRegisterCounter /> : <UnAuthorized />
+        }
       />
       <Route
         path="/brand-register-all"
@@ -467,7 +474,9 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp, handleSignout
       />
       <Route
         path="/brand-register-counter"
-        element={authenticatedUser ? <BrandRegisterCounter /> : <UnAuthorized />}
+        element={
+          authenticatedUser ? <BrandRegisterCounter /> : <UnAuthorized />
+        }
       />
 
       <Route
@@ -480,15 +489,21 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp, handleSignout
       />
       <Route
         path="/monthly-comparative-figure"
-        element={authenticatedUser ? <MonthlyComparativeFigure /> : <UnAuthorized />}
+        element={
+          authenticatedUser ? <MonthlyComparativeFigure /> : <UnAuthorized />
+        }
       />
       <Route
         path="/monthly-category-sales-figure"
-        element={authenticatedUser ? <MonthlyCategorySalesFigure /> : <UnAuthorized />}
+        element={
+          authenticatedUser ? <MonthlyCategorySalesFigure /> : <UnAuthorized />
+        }
       />
       <Route
         path="/monthly-brand-sales-figure"
-        element={authenticatedUser ? <MonthlyBrandSalesFigure /> : <UnAuthorized />}
+        element={
+          authenticatedUser ? <MonthlyBrandSalesFigure /> : <UnAuthorized />
+        }
       />
       <Route
         path="/tp-pass-report"
@@ -503,11 +518,8 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp, handleSignout
         element={authenticatedUser ? <Utilities /> : <UnAuthorized />}
       />
 
-
-
-
-            {/* Audit & Accounts */}
-            <Route
+      {/* Audit & Accounts */}
+      <Route
         path="/annual-ledger"
         element={authenticatedUser ? <AnnualLedger /> : <UnAuthorized />}
       />
@@ -537,7 +549,9 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp, handleSignout
       />
       <Route
         path="/monthly-purchase-figure"
-        element={authenticatedUser ? <MonthlyPurchaseFigure /> : <UnAuthorized />}
+        element={
+          authenticatedUser ? <MonthlyPurchaseFigure /> : <UnAuthorized />
+        }
       />
       <Route
         path="/pay-taxes-on-purchase"
@@ -554,13 +568,14 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp, handleSignout
       />
       <Route
         path="/accounts-profit-and-loss"
-        element={authenticatedUser ? <AccountProfitAndLoss /> : <UnAuthorized />}
+        element={
+          authenticatedUser ? <AccountProfitAndLoss /> : <UnAuthorized />
+        }
       />
       <Route
         path="/balance-sheet"
         element={authenticatedUser ? <BalanceSheet /> : <UnAuthorized />}
       />
-
 
       {/* Sidebar items */}
       <Route
@@ -632,6 +647,11 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp, handleSignout
       <Route
         path="/gtin-stock"
         element={authenticatedUser ? <GtinStock /> : <UnAuthorized />}
+      />
+
+      <Route
+        path="/epos"
+        element={authenticatedUser ? <Epos /> : <UnAuthorized />}
       />
     </Routes>
   );

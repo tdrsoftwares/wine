@@ -159,6 +159,11 @@ const ItemRegister = () => {
         setAllItems(allItemsResponse?.data?.data);
         setLoading(false);
       }
+      else {
+        NotificationManager.error("No items found." , "Error");
+        setAllItems([]);
+
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching items. Please try again later.",
@@ -174,6 +179,9 @@ const ItemRegister = () => {
       const getAllCategoryResponse = await getAllItemCategory();
       if (getAllCategoryResponse.status === 200) {
         setAllCategory(getAllCategoryResponse?.data?.data);
+      } else {
+        NotificationManager.error("No category found." , "Error");
+        setAllCategory([])
       }
     } catch (err) {
       NotificationManager.error(
@@ -189,6 +197,9 @@ const ItemRegister = () => {
       // console.log("allBrandsResponse ---> ", allBrandsResponse);
       if (allBrandsResponse.status === 200) {
         setAllBrands(allBrandsResponse?.data?.data);
+      } else {
+        setAllBrands([])
+        NotificationManager.error("No brands found." , "Error");
       }
     } catch (error) {
       NotificationManager.error(
@@ -205,6 +216,10 @@ const ItemRegister = () => {
       // console.log("allCompaniesResponse ---> ", allCompaniesResponse);
       if (allCompaniesResponse.status === 200) {
         setAllCompanies(allCompaniesResponse?.data?.data);
+      } else {
+        NotificationManager.error("No companies found." , "Error");
+        setAllCompanies([]);
+
       }
     } catch (error) {
       NotificationManager.error(

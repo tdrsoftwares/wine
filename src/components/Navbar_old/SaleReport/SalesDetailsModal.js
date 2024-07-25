@@ -74,9 +74,19 @@ const SalesDetailsModal = ({ open, handleClose, rowData }) => {
     const fetchAllItemSales = async () => {
       setLoading(true);
       try {
-        const allItemSalesResponse = await getItemSaleDetails(rowData.billNo);
+        const allItemSalesResponse = await getItemSaleDetails(rowData?.billNo);
         // console.log("allItemSalesResponse: ",allItemSalesResponse?.data?.data)
-        setItemSalesDetails(allItemSalesResponse?.data?.data?.salesItems);
+        if (allItemSalesResponse.status === 200) {
+          setItemSalesDetails(allItemSalesResponse?.data?.data?.salesItems);
+        } else if (
+          allItemSalesResponse.response.status === 400 ||
+          allItemSalesResponse.response.status === 404
+        ) {
+          console.log("No sales found.", allItemSalesResponse);
+          setItemSalesDetails([]);
+        } else {
+          setItemSalesDetails([]);
+        }
       } catch (error) {
         console.log("Error fetching ItemSales.", error);
       } finally {

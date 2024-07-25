@@ -136,20 +136,34 @@ const DailySaleReport = () => {
 
   const fetchAllBrands = async () => {
     try {
-      const allBrandResponse = await getAllBrands();
-      setAllBrands(allBrandResponse?.data?.data);
+      const allBrandsResponse = await getAllBrands();
+      // console.log("allBrandsResponse ---> ", allBrandsResponse);
+      if (allBrandsResponse.status === 200) {
+        setAllBrands(allBrandsResponse?.data?.data);
+      } else {
+        setAllBrands([])
+        NotificationManager.error("No brands found." , "Error");
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching brands. Please try again later.",
         "Error"
       );
+      console.error("Error fetching brands:", error);
     }
   };
 
   const fetchAllItems = async () => {
     try {
       const allItemsResponse = await getAllItems();
-      setAllItems(allItemsResponse?.data?.data);
+      if (allItemsResponse.status === 200) {
+        setAllItems(allItemsResponse?.data?.data);
+      }
+      else {
+        NotificationManager.error("No items found." , "Error");
+        setAllItems([]);
+
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching items. Please try again later.",
@@ -158,13 +172,18 @@ const DailySaleReport = () => {
     }
   };
 
-  const fetchAllItemCategory = async () => {
+  const fetchAllCategory = async () => {
     try {
-      const allCategoryResponse = await getAllItemCategory();
-      setAllCategory(allCategoryResponse?.data?.data);
-    } catch (error) {
+      const getAllCategoryResponse = await getAllItemCategory();
+      if (getAllCategoryResponse.status === 200) {
+        setAllCategory(getAllCategoryResponse?.data?.data);
+      } else {
+        NotificationManager.error("No category found." , "Error");
+        setAllCategory([])
+      }
+    } catch (err) {
       NotificationManager.error(
-        "Error fetching categories. Please try again later.",
+        "Something went Wrong, Please try again later.",
         "Error"
       );
     }
@@ -174,7 +193,13 @@ const DailySaleReport = () => {
     try {
       const allCustomerResponse = await getAllCustomer();
       // console.log("allCustomerResponse ---> ", allCustomerResponse);
-      setAllCustomerData(allCustomerResponse?.data?.data);
+
+      if (allCustomerResponse.status === 200) {
+        setAllCustomerData(allCustomerResponse?.data?.data);
+      } else {
+        setAllCustomerData([]);
+        NotificationManager.error("No Customers Found", "Error");
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching brands. Please try again later.",
@@ -230,7 +255,7 @@ const DailySaleReport = () => {
 
   useEffect(() => {
     fetchAllBrands();
-    fetchAllItemCategory();
+    fetchAllCategory();
     fetchAllCustomers();
     fetchAllSales();
     fetchAllItems();

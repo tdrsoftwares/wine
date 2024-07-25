@@ -129,7 +129,14 @@ const ItemLedgerStatus = () => {
   const fetchAllItems = async () => {
     try {
       const allItemsResponse = await getAllItems();
-      setAllItems(allItemsResponse?.data?.data);
+      if (allItemsResponse.status === 200) {
+        setAllItems(allItemsResponse?.data?.data);
+      }
+      else {
+        NotificationManager.error("No items found." , "Error");
+        setAllItems([]);
+
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching items. Please try again later.",
@@ -140,13 +147,20 @@ const ItemLedgerStatus = () => {
 
   const fetchAllBrands = async () => {
     try {
-      const allBrandResponse = await getAllBrands();
-      setAllBrands(allBrandResponse?.data?.data);
+      const allBrandsResponse = await getAllBrands();
+      // console.log("allBrandsResponse ---> ", allBrandsResponse);
+      if (allBrandsResponse.status === 200) {
+        setAllBrands(allBrandsResponse?.data?.data);
+      } else {
+        setAllBrands([])
+        NotificationManager.error("No brands found." , "Error");
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching brands. Please try again later.",
         "Error"
       );
+      console.error("Error fetching brands:", error);
     }
   };
   // console.log(allBrands)
@@ -154,7 +168,12 @@ const ItemLedgerStatus = () => {
   const fetchAllCategory = async () => {
     try {
       const getAllCategoryResponse = await getAllItemCategory();
-      setAllCategory(getAllCategoryResponse?.data?.data);
+      if (getAllCategoryResponse.status === 200) {
+        setAllCategory(getAllCategoryResponse?.data?.data);
+      } else {
+        NotificationManager.error("No category found." , "Error");
+        setAllCategory([])
+      }
     } catch (err) {
       NotificationManager.error(
         "Something went Wrong, Please try again later.",
@@ -167,7 +186,13 @@ const ItemLedgerStatus = () => {
     try {
       const allCompaniesResponse = await getAllCompanies();
       // console.log("allCompaniesResponse ---> ", allCompaniesResponse);
-      setAllCompanies(allCompaniesResponse?.data?.data);
+      if (allCompaniesResponse.status === 200) {
+        setAllCompanies(allCompaniesResponse?.data?.data);
+      } else {
+        NotificationManager.error("No companies found." , "Error");
+        setAllCompanies([]);
+
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching companies. Please try again later.",
@@ -180,8 +205,14 @@ const ItemLedgerStatus = () => {
   const fetchAllStores = async () => {
     try {
       const allStoresResponse = await getAllStores();
-      // console.log("allStoresResponse ---> ", allStoresResponse);
-      setAllStores(allStoresResponse?.data?.data);
+      // console.log("allStore response: ", allStoresResponse)
+      
+      if (allStoresResponse.status === 200) {
+        setAllStores(allStoresResponse?.data?.data);
+      } else {
+        NotificationManager.error("No stores found", "Error");
+        setAllStores([]);
+      }
     } catch (error) {
       NotificationManager.error(
         "Error fetching stores. Please try again later.",
