@@ -11,10 +11,13 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import EmailIcon from '@mui/icons-material/Email';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import { NotificationContainer, NotificationManager } from "react-notifications";
+import EmailIcon from "@mui/icons-material/Email";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import {
+  NotificationContainer,
+  NotificationManager,
+} from "react-notifications";
 import axios from "axios";
 import { url } from "../../utils/apiDomain";
 import { FaIdCard } from "react-icons/fa";
@@ -26,7 +29,7 @@ function LoginForm({ handleLogin }) {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const customerIdRef = useRef(null);
+  // const customerIdRef = useRef(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -51,21 +54,23 @@ function LoginForm({ handleLogin }) {
     }
 
     try {
-      const response = await axios.post(url+ `/user-master/login`, { email, password, customerId });
+      const response = await axios.post(url + `/user/login`, {
+        email,
+        password,
+      });
 
       const { accessToken, refreshToken } = response.data.data;
       //  console.log("accessToken: ", accessToken);
       document.cookie = `accessToken=${accessToken}; path=/;`;
       document.cookie = `refreshToken=${refreshToken}; path=/;`;
-      localStorage.setItem("x-db-name", customerId);
+      // localStorage.setItem("x-db-name", customerId);
 
-      if(response.status === 200) {
+      if (response.status === 200) {
         NotificationManager.success("Login successful.", "Success");
         handleLogin(email);
       } else {
         navigate("/");
       }
-
     } catch (error) {
       if (error.response && error.response.status === 401) {
         NotificationManager.error(
@@ -85,9 +90,9 @@ function LoginForm({ handleLogin }) {
     setShowPassword((prevShowPassword) => !prevShowPassword);
   };
 
-  useEffect(()=>{
-    customerIdRef.current.focus();
-  },[])
+  // useEffect(() => {
+  //   customerIdRef.current.focus();
+  // }, []);
 
   return (
     <Container
@@ -103,7 +108,7 @@ function LoginForm({ handleLogin }) {
         Sign In
       </Typography>
       <form onSubmit={handleSubmit} noValidate>
-      <TextField
+        {/* <TextField
           fullWidth
           required
           inputRef={customerIdRef}
@@ -125,7 +130,7 @@ function LoginForm({ handleLogin }) {
               </InputAdornment>
             ),
           }}
-        />
+        /> */}
         <TextField
           fullWidth
           required
@@ -140,9 +145,13 @@ function LoginForm({ handleLogin }) {
           onChange={(e) => setEmail(e.target.value)}
           InputProps={{
             endAdornment: (
-              <InputAdornment position="end" disablePointerEvents sx={{ marginRight: 1}}>
+              <InputAdornment
+                position="end"
+                disablePointerEvents
+                sx={{ marginRight: 1 }}
+              >
                 <IconButton edge="end">
-                  <EmailIcon/>
+                  <EmailIcon />
                 </IconButton>
               </InputAdornment>
             ),
@@ -162,7 +171,7 @@ function LoginForm({ handleLogin }) {
           onChange={(e) => setPassword(e.target.value)}
           InputProps={{
             endAdornment: (
-              <InputAdornment position="end" sx={{ marginRight: 1}}>
+              <InputAdornment position="end" sx={{ marginRight: 1 }}>
                 <IconButton
                   aria-label="toggle password visibility"
                   onClick={handleClickShowPassword}
@@ -174,7 +183,7 @@ function LoginForm({ handleLogin }) {
             ),
           }}
         />
-        
+
         <Button
           type="submit"
           fullWidth
