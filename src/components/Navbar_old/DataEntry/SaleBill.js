@@ -255,6 +255,7 @@ const SaleBill = () => {
 
   const handleStoreChange = (event) => {
     const selectedStore = allStores.find(store => store._id === event.target.value);
+    // console.log("selectedStore: ", selectedStore)
     setFormData({ ...formData, store: selectedStore });
   };
 
@@ -1614,7 +1615,7 @@ const SaleBill = () => {
             ...prevData,
             billType: receivedData.billType,
             customerName: receivedData.customer,
-            store: {_id: receivedData.storeId},
+            store: {_id: receivedData?.storeId?._id, name: receivedData?.storeId?.name},
             address: receivedData.customer?.address,
             phoneNo: receivedData.customer?.contactNo,
             billDate: billDateObject,
