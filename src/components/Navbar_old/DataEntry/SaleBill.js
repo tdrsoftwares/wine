@@ -113,6 +113,7 @@ const SaleBill = () => {
   });
   
   const { licenseDetails } = useLicenseContext();
+  console.log("lc",!licenseDetails)
   const tableRef = useRef(null);
   const customerNameRef = useRef(null);
   const addressRef = useRef(null);
@@ -910,6 +911,16 @@ const SaleBill = () => {
       netAmt: netAmt.toFixed(2),
     });
 
+    if(!licenseDetails?.perBillMaxCs) {
+      NotificationManager.warning("Per Bill Max CS(ML) is missing", "Can't auto save.");
+      return;
+    }
+
+    if(!licenseDetails?.perBillMaxWine) {
+      NotificationManager.warning("Per Bill Max Wine(ML) is missing", "Can't auto save.");
+      return;
+    }
+
     if (
       formData.billType === "CASHBILL" &&
       (totalValues.flBeerVolume >= licenseDetails?.perBillMaxWine ||
@@ -1052,6 +1063,16 @@ const SaleBill = () => {
   
     if (formData.billType === "CREDITBILL" && !formData.customerName) {
       NotificationManager.warning("Customer name is required", "Warning");
+      return;
+    }
+
+    if(!licenseDetails?.perBillMaxCs) {
+      NotificationManager.warning("Per Bill Max CS(ML) is missing", "Please fill in the license details first");
+      return;
+    }
+
+    if(!licenseDetails?.perBillMaxWine) {
+      NotificationManager.warning("Per Bill Max Wine(ML) is missing", "Please fill in the license details first");
       return;
     }
   
@@ -1746,12 +1767,14 @@ const SaleBill = () => {
 
 
   useEffect(() => {
-    if (
-      formData.billType === "CASHBILL" &&
-      (totalValues.flBeerVolume >= licenseDetails?.perBillMaxWine ||
-        totalValues.imlVolume >= licenseDetails?.perBillMaxCs)
-    ) {
-      autoSaveCashBill();
+    if (licenseDetails?.perBillMaxWine && licenseDetails?.perBillMaxCs) {
+      if (
+        formData.billType === "CASHBILL" &&
+        (totalValues.flBeerVolume >= licenseDetails?.perBillMaxWine ||
+          totalValues.imlVolume >= licenseDetails?.perBillMaxCs)
+      ) {
+        autoSaveCashBill();
+      }
     }
   }, [handleSubmitIntoDataTable]);
   
