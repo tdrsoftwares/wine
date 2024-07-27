@@ -112,7 +112,8 @@ const SaleBill = () => {
     receiptMode2: "",
   });
   
-  const { licenseDetails, setLicenseDetails } = useLicenseContext();
+  // const { licenseDetails, setLicenseDetails } = useLicenseContext();
+  const [ licenseDetails, setLicenseDetails ] = useState({});
   // console.log("lc",licenseDetails)
   const tableRef = useRef(null);
   const customerNameRef = useRef(null);
@@ -150,26 +151,51 @@ const SaleBill = () => {
     content: () => printModalRef.current,
   });
 
-  // const fetchLicenseData = async () => {
-  //   try {
-  //     const response = await getLicenseInfo();
-  //     // console.log("lic response ---> ", response);
-  //     if (response.status === 200) {
-  //       setLicenseDetails(response?.data[0]);
-  //     }
+  const fetchLicenseData = async () => {
+    try {
+      const response = await getLicenseInfo();
+      console.log("lic response ---> ", response);
+      
+      if (response.statusCode === 200) {
+        const licenseData = response?.data[0];
+        setLicenseDetails({
+          id: licenseData._id,
+          nameOfLicence: licenseData.nameOfLicence,
+          businessType: licenseData.businessType,
+          address: licenseData.address,
+          district: licenseData.district,
+          phoneNo: licenseData.phoneNo,
 
-  //     if (response?.response?.status === 400) {
-  //       setLicenseDetails([]);
-  //       NotificationManager.error("No License Data Found", "Error");
-  //     }
+          fiancialPeriodTo: licenseData.fiancialPeriodTo,
+          fiancialPeriodfrom: licenseData.fiancialPeriodfrom,
+          licenceId: licenseData.licenceId,
+          billCategory: licenseData.billCategory,
+          noOfBillCopies: licenseData.noOfBillCopies,
 
-  //   } catch (error) {
-  //     NotificationManager.error(
-  //       "Error fetching license. Please try again later.",
-  //       "Error"
-  //     );
-  //   }
-  // };
+          autoBillPrint: licenseData.autoBillPrint,
+          eposUserId: licenseData.eposUserId,
+          eposPassword: licenseData.eposPassword,
+          noOfItemPerBill: licenseData.noOfItemPerBill,
+          perBillMaxWine: licenseData.perBillMaxWine,
+          perBillMaxCs: licenseData.perBillMaxCs,
+
+          billMessages: licenseData.billMessages,
+          messageMobile: licenseData.messageMobile,
+        });
+      }
+
+      if (response?.response?.status === 400) {
+        setLicenseDetails([]);
+        NotificationManager.error("No License Data Found", "Error");
+      }
+
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching license. Please try again later.",
+        "Error"
+      );
+    }
+  };
 
   const fetchAllStores = async () => {
     try {
@@ -538,7 +564,7 @@ const SaleBill = () => {
 
   useEffect(() => {
     itemCodeRef.current.focus();
-    // fetchLicenseData();
+    fetchLicenseData();
     fetchAllCustomers();
     fetchAllLedger();
     fetchAllStores();
@@ -1280,16 +1306,18 @@ const SaleBill = () => {
     } 
   };
 
+  // console.log("salesData --> ",salesData)
+
   const handleUpdateSale = async () => {
     let payload = {};
     const billDateObj = formatDate(formData.billDate);
     const todaysDateObj = formatDate(new Date());
-
+  
     if (formData.billType === "CREDITBILL" && !formData.customerName) {
       NotificationManager.warning("Customer name is required", "Warning");
       return;
     }
-
+  
     if (salesData.length === 0) {
       NotificationManager.warning("Enter some item in table.", "Warning");
       itemCodeRef.current.focus();
@@ -1301,7 +1329,7 @@ const SaleBill = () => {
       FL_BEER: [],
       IML: [],
     };
-
+  
     salesData.forEach((item) => {
       if (item.group === "FL" || item.group === "BEER") {
         groupedItems.FL_BEER.push(item);
@@ -1309,7 +1337,7 @@ const SaleBill = () => {
         groupedItems.IML.push(item);
       }
     });
-
+  
     let flBeerBillSeries = "";
     if (groupedItems.FL_BEER.length > 0) {
       flBeerBillSeries = groupedItems.FL_BEER[0].group;
@@ -1446,7 +1474,7 @@ const SaleBill = () => {
       console.error("Error updating sale:", error);
     }
   };
-
+  
 
   const handleDeleteSale = async () => {
     try {

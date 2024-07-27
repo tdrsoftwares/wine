@@ -8,6 +8,7 @@ export const useLicenseContext = () => {
 
 export const LicenseDetailsProvider = ({ children }) => {
   const [licenseDetails, setLicenseDetails] = useState({});
+  // console.log("LicenseDetailsProvider called", licenseDetails)
 
   return (
     <LicenseContext.Provider value={{ licenseDetails, setLicenseDetails }}>
