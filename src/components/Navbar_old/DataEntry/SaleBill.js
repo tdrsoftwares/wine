@@ -113,7 +113,7 @@ const SaleBill = () => {
   });
   
   const { licenseDetails, setLicenseDetails } = useLicenseContext();
-  console.log("lc",licenseDetails)
+  // console.log("lc",licenseDetails)
   const tableRef = useRef(null);
   const customerNameRef = useRef(null);
   const addressRef = useRef(null);
@@ -691,7 +691,7 @@ const SaleBill = () => {
 
   const handleRowClick = (index) => {
     const selectedRow = searchResults[index];
-    console.log("selectedRow", selectedRow);
+    // console.log("selectedRow", selectedRow);
   
     let found = false;
   
