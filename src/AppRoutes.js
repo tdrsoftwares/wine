@@ -210,7 +210,7 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp, handleSignout
       />
       <Route
         path="/licensee-info"
-        element={authenticatedUser ? <LicenseeInfo /> : <UnAuthorized />}
+        element={authenticatedUser ? <LicenseeInfo authenticatedUser={authenticatedUser} /> : <UnAuthorized />}
       />
 
       {/* Data Entry Submenu items */}

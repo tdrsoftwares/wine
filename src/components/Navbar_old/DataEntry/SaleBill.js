@@ -638,7 +638,7 @@ const SaleBill = () => {
   const handleEdit = (index, field, value) => {
     const updatedRow = { ...salesData[index] };
 
-    updatedRow[field] = value;
+    updatedRow[field] = parseFloat(value);
 
     if (
       field === "rate" ||
@@ -806,21 +806,6 @@ const SaleBill = () => {
             break;
           }
         }
-
-        // const grossAmount = billItems.reduce(
-        //   (sum, item) => sum + item.pcs * item.rate,
-        //   0
-        // );
-        // const discountAmount = billItems.reduce(
-        //   (sum, item) => sum + item.discount,
-        //   0
-        // );
-
-        // const netAmount =
-        //   grossAmount -
-        //   discountAmount +
-        //   parseFloat(totalValues.taxAmt || 0) -
-        //   parseFloat(totalValues.adjustment || 0);
 
 
         const newPayload = {
