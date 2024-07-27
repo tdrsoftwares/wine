@@ -42,10 +42,10 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { utc } from "dayjs";
 import { customTheme } from "../../../utils/customTheme";
-// import { getLicenseInfo } from "../../../services/licenseService";
 import { useLicenseContext } from "../../../utils/licenseContext";
 import SaleBillPrintModal from "./SaleBillPrintModal";
 import { useReactToPrint } from "react-to-print";
+import { getLicenseInfo } from "../../../services/licenseService";
 
 const SaleBill = () => {
   const [allCustomerData, setAllCustomerData] = useState([]);
@@ -112,8 +112,8 @@ const SaleBill = () => {
     receiptMode2: "",
   });
   
-  const { licenseDetails } = useLicenseContext();
-  console.log("lc",!licenseDetails)
+  const { licenseDetails, setLicenseDetails } = useLicenseContext();
+  console.log("lc",licenseDetails)
   const tableRef = useRef(null);
   const customerNameRef = useRef(null);
   const addressRef = useRef(null);
@@ -149,6 +149,27 @@ const SaleBill = () => {
   const handlePrint = useReactToPrint({
     content: () => printModalRef.current,
   });
+
+  // const fetchLicenseData = async () => {
+  //   try {
+  //     const response = await getLicenseInfo();
+  //     // console.log("lic response ---> ", response);
+  //     if (response.status === 200) {
+  //       setLicenseDetails(response?.data[0]);
+  //     }
+
+  //     if (response?.response?.status === 400) {
+  //       setLicenseDetails([]);
+  //       NotificationManager.error("No License Data Found", "Error");
+  //     }
+
+  //   } catch (error) {
+  //     NotificationManager.error(
+  //       "Error fetching license. Please try again later.",
+  //       "Error"
+  //     );
+  //   }
+  // };
 
   const fetchAllStores = async () => {
     try {
@@ -670,22 +691,67 @@ const SaleBill = () => {
 
   const handleRowClick = (index) => {
     const selectedRow = searchResults[index];
-
-    setFormData({
-      ...formData,
-      itemId: selectedRow.item?._id,
-      itemDetailsId: selectedRow._id,
-      itemCode: selectedRow.itemCode || 0,
-      itemName: selectedRow.item?.name || 0,
-      mrp: selectedRow.mrp || 0,
-      batch: selectedRow.batchNo || 0,
-      pcs: selectedRow.pcs || 1,
-      rate: selectedRow.mrp || 0,
-      volume: selectedRow.item?.volume || 0,
-      currentStock: selectedRow.currentStock || 0,
-      group: selectedRow.item?.group,
-      // stockAt: selectedRow.store?._id,
+    console.log("selectedRow", selectedRow);
+  
+    let found = false;
+  
+    salesData.forEach((item) => {
+      if (
+        item.itemCode === selectedRow.itemCode &&
+        item.mrp === selectedRow.mrp &&
+        item.batch === selectedRow.batch
+      ) {
+        setFormData({
+          ...formData,
+          itemId: selectedRow.item?._id,
+          itemDetailsId: selectedRow._id,
+          itemCode: selectedRow.itemCode || 0,
+          itemName: selectedRow.item?.name || 0,
+          mrp: selectedRow.mrp || 0,
+          batch: selectedRow.batchNo || 0,
+          pcs: selectedRow.pcs || 1,
+          rate: selectedRow.mrp || 0,
+          volume: selectedRow.item?.volume || 0,
+          currentStock: selectedRow.currentStock || 0,
+          group: selectedRow.item?.group,
+        });
+        found = true;
+      }
     });
+  
+    if (!found) {
+      setFormData({
+        ...formData,
+        itemId: selectedRow.item?._id,
+        itemCode: selectedRow.itemCode || 0,
+        itemName: selectedRow.item?.name || 0,
+        mrp: selectedRow.mrp || 0,
+        batch: selectedRow.batchNo || 0,
+        pcs: selectedRow.pcs || 1,
+        rate: selectedRow.mrp || 0,
+        volume: selectedRow.item?.volume || 0,
+        currentStock: selectedRow.currentStock || 0,
+        group: selectedRow.item?.group,
+      });
+    }
+
+    if (salesData.length === 0) {
+      setFormData({
+        ...formData,
+        itemId: selectedRow.item?._id,
+        itemDetailsId: selectedRow._id,
+        itemCode: selectedRow.itemCode || 0,
+        itemName: selectedRow.item?.name || 0,
+        mrp: selectedRow.mrp || 0,
+        batch: selectedRow.batchNo || 0,
+        pcs: selectedRow.pcs || 1,
+        rate: selectedRow.mrp || 0,
+        volume: selectedRow.item?.volume || 0,
+        currentStock: selectedRow.currentStock || 0,
+        group: selectedRow.item?.group,
+      });
+    }
+  
     pcsRef.current.focus();
   };
 
@@ -1022,27 +1088,30 @@ const SaleBill = () => {
 
         
       } else {
-        setSalesData([
-          ...salesData,
-          {
-            itemId: formData.itemId,
-            itemDetailsId: formData.itemDetailsId,
-            itemCode: formData.itemCode || 0,
-            itemName: formData.itemName || 0,
-            mrp: formData.mrp || 0,
-            batch: formData.batch || 0,
-            pcs: formData.pcs || 1,
-            rate: formData.rate || 0,
-            currentStock: formData.currentStock || 0,
-            group: formData.group || "",
-            volume: formData.volume || 0,
-            discount: formData.discount || 0,
-            brk: formData.brk || 0,
-            split: formData.split || 0,
-            amount: formData.amount || 0,
-            // stockAt: formData.stockAt,
-          },
-        ]);
+        const newItem = {
+          itemId: formData.itemId,
+          itemCode: formData.itemCode || 0,
+          itemName: formData.itemName || 0,
+          mrp: formData.mrp || 0,
+          batch: formData.batch || 0,
+          pcs: formData.pcs || 1,
+          rate: formData.rate || 0,
+          currentStock: formData.currentStock || 0,
+          group: formData.group || "",
+          volume: formData.volume || 0,
+          discount: formData.discount || 0,
+          brk: formData.brk || 0,
+          split: formData.split || 0,
+          amount: formData.amount || 0,
+          // stockAt: formData.stockAt,
+        };
+        
+        if (formData.itemDetailsId) {
+          newItem.itemDetailsId = formData.itemDetailsId;
+        }
+        
+        setSalesData([...salesData, newItem]);
+        
         itemCodeRef.current.focus();
       }
 
@@ -1282,8 +1351,7 @@ const SaleBill = () => {
       };
 
       groupedItems.FL_BEER.forEach((item) => {
-        flBeerPayload.salesItem.push({
-          _id: item.itemDetailsId,
+        let salesItem = {
           itemCode: item.itemCode,
           itemId: item.itemId,
           batchNo: item.batch,
@@ -1295,7 +1363,13 @@ const SaleBill = () => {
           split: parseFloat(item.split),
           break: parseFloat(item.brk),
           // stockAt: item.stockAt,
-        });
+        };
+
+        if (item.itemDetailsId) {
+          salesItem._id = item.itemDetailsId;
+        }
+
+        flBeerPayload.salesItem.push(salesItem);
       });
 
       if (totalValues.receiptMode2) {
@@ -1308,7 +1382,6 @@ const SaleBill = () => {
 
       payload = flBeerPayload;
     }
-
 
     if (groupedItems.IML.length > 0) {
       let imlPayload = {
@@ -1331,8 +1404,7 @@ const SaleBill = () => {
       };
 
       groupedItems.IML.forEach((item) => {
-        imlPayload.salesItem.push({
-          _id: item.itemDetailsId,
+        let salesItem = {
           itemCode: item.itemCode,
           itemId: item.itemId,
           batchNo: item.batch,
@@ -1344,7 +1416,13 @@ const SaleBill = () => {
           split: parseFloat(item.split),
           break: parseFloat(item.brk),
           // stockAt: item.stockAt,
-        });
+        };
+
+        if (item.itemDetailsId) {
+          salesItem._id = item.itemDetailsId;
+        }
+
+        imlPayload.salesItem.push(salesItem);
       });
 
       if (totalValues.receiptMode2) {

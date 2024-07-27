@@ -136,7 +136,7 @@ const LicenseeInfo = () => {
       }
     };
    
-    console.log("id: "+licenseData.id)
+    // console.log("id: "+licenseData.id)
 
     fetchData(); // Call the fetch data function
   }, [isButtonDisabled]);
@@ -189,7 +189,7 @@ const LicenseeInfo = () => {
 
       const response = await createLicenseInfo(payload);
       
-      console.log(response.data)
+      // console.log(response.data)
       NotificationManager.success("Data Submitted Successfully",response.data.message);
       setIsButtonDisabled(true);
       
@@ -207,10 +207,10 @@ const LicenseeInfo = () => {
       }
       NotificationManager.error(errorMessage);
     }
-    console.log(licenseData);
-    console.log("payload"+payload);
+    // console.log(licenseData);
+    // console.log("payload"+payload);
   };
-  console.log("obj"+Object.keys(obj))
+  // console.log("obj"+Object.keys(obj))
   const edit = async (e) => {
    
     // const updateCategoryData = await axiosInstance.put(apiURL, payload);
@@ -241,7 +241,7 @@ const LicenseeInfo = () => {
      try {
        const response = await updateLicenseInfo(payload,licenseData.id);
        
-       console.log(response.data)
+      //  console.log(response.data)
        NotificationManager.success("Data Updated Successfully",response.data.message);
        
        
@@ -256,8 +256,8 @@ const LicenseeInfo = () => {
        } 
        NotificationManager.error(errorMessage);
      }
-     console.log(licenseData);
-     console.log("payload"+Object.entries(payload),licenseData.id);
+    //  console.log(licenseData);
+    //  console.log("payload"+Object.entries(payload),licenseData.id);
    };
   
   const handleSubmit =async (e) => {
