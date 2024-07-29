@@ -408,7 +408,7 @@ const PurchaseReportSummary = () => {
         <Box
           sx={{
             display: "flex",
-            justifyContent: "space-between",
+            justifyContent: "flex-end",
             "& button": { marginTop: 1 },
           }}
         >
@@ -428,7 +428,7 @@ const PurchaseReportSummary = () => {
           >
             Clear Filters
           </Button>
-          <div>
+          {/* <div>
             <Button
               color="inherit"
               size="small"
@@ -436,7 +436,7 @@ const PurchaseReportSummary = () => {
               // sx={{ borderRadius: 8 }}
             >
               Print
-            </Button>
+            </Button> */}
             <Button
               color="info"
               size="small"
@@ -446,7 +446,7 @@ const PurchaseReportSummary = () => {
             >
               Display
             </Button>
-          </div>
+          {/* </div> */}
         </Box>
 
         <Box

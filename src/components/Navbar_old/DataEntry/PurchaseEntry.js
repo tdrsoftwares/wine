@@ -1893,6 +1893,7 @@ const PurchaseEntry = () => {
                           <Input
                             type="text"
                             value={editedRow.itemCode || row.itemCode}
+                            readOnly
                             onChange={(e) =>
                               handleEdit(index, "itemCode", e.target.value)
                             }
@@ -1906,6 +1907,7 @@ const PurchaseEntry = () => {
                           <Input
                             type="text"
                             value={editedRow.itemName || row.itemName}
+                            readOnly
                             onChange={(e) =>
                               handleEdit(index, "itemName", e.target.value)
                             }

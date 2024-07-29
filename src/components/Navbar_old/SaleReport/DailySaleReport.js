@@ -232,7 +232,7 @@ const DailySaleReport = () => {
         volume: filterData.volume,
       };
       const response = await getDailySalesDetails(filterOptions);
-      console.log("Response salesData: ", response);
+      // console.log("Response salesData: ", response);
 
       if (response.status === 200) {
         setAllSalesData(response?.data?.data || []);
@@ -375,7 +375,7 @@ const DailySaleReport = () => {
                 Brand:
               </InputLabel>
               <TextField
-                select
+                // select
                 fullWidth
                 size="small"
                 name="brandName"
@@ -384,22 +384,22 @@ const DailySaleReport = () => {
                 onChange={(e) =>
                   setFilterData({ ...filterData, brandName: e.target.value })
                 }
-                SelectProps={{
-                  MenuProps: {
-                    PaperProps: {
-                      style: {
-                        maxHeight: 200,
-                      },
-                    },
-                  },
-                }}
-              >
-                {allBrands?.map((brand) => (
+                // SelectProps={{
+                //   MenuProps: {
+                //     PaperProps: {
+                //       style: {
+                //         maxHeight: 200,
+                //       },
+                //     },
+                //   },
+                // }}
+              />
+                {/* {allBrands?.map((brand) => (
                   <MenuItem key={brand._id} value={brand.name}>
                     {brand.name}
                   </MenuItem>
                 ))}
-              </TextField>
+              </TextField> */}
             </div>
           </Grid>
 
@@ -502,7 +502,7 @@ const DailySaleReport = () => {
                 Item:
               </InputLabel>
               <TextField
-                select
+                // select
                 fullWidth
                 size="small"
                 name="itemName"
@@ -511,22 +511,22 @@ const DailySaleReport = () => {
                 onChange={(e) =>
                   setFilterData({ ...filterData, itemName: e.target.value })
                 }
-                SelectProps={{
-                  MenuProps: {
-                    PaperProps: {
-                      style: {
-                        maxHeight: 200,
-                      },
-                    },
-                  },
-                }}
-              >
-                {allItems?.map((item) => (
+                // SelectProps={{
+                //   MenuProps: {
+                //     PaperProps: {
+                //       style: {
+                //         maxHeight: 200,
+                //       },
+                //     },
+                //   },
+                // }}
+              />
+                {/* {allItems?.map((item) => (
                   <MenuItem key={item._id} value={item.name}>
                     {item.name}
                   </MenuItem>
-                ))}
-              </TextField>
+                ))} */}
+              {/* </TextField> */}
             </div>
           </Grid>
 
@@ -552,11 +552,15 @@ const DailySaleReport = () => {
         <Box
           sx={{
             display: "flex",
-            justifyContent: "space-between",
+            justifyContent: "flex-end",
             "& button": { marginTop: 2 },
           }}
         >
-          <Button
+          
+            {/* <Button color="inherit" size="small" variant="contained">
+              Print
+            </Button> */}
+            <Button
             color="inherit"
             size="small"
             variant="contained"
@@ -577,10 +581,6 @@ const DailySaleReport = () => {
           >
             Clear Filters
           </Button>
-          <div>
-            <Button color="inherit" size="small" variant="contained">
-              Print
-            </Button>
             <Button
               color="info"
               size="small"
@@ -590,7 +590,6 @@ const DailySaleReport = () => {
             >
               Display
             </Button>
-          </div>
         </Box>
 
         <Box

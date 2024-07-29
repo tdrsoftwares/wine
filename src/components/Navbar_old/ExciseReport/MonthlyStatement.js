@@ -245,7 +245,7 @@ const MonthlyStatement = () => {
             </div>
           </Grid>
 
-          <Grid item xs={6}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="dateTo" className="input-label">
                 Date to:
@@ -263,11 +263,12 @@ const MonthlyStatement = () => {
               </LocalizationProvider>
             </div>
           </Grid>
+          <Grid item xs={3}></Grid>
 
           <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="pcsOnly" className="input-label">
-                PCs Only:
+                Pcs Only:
               </InputLabel>
               <Checkbox
                 name="pcsOnly"

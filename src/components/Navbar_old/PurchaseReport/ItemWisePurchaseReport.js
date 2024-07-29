@@ -457,28 +457,28 @@ const ItemWisePurchaseReport = () => {
                 Item:
               </InputLabel>
               <TextField
-                select
+                // select
                 fullWidth
                 size="small"
                 name="itemName"
                 value={itemName}
                 onChange={(e) => setItemName(e.target.value)}
-                SelectProps={{
-                  MenuProps: {
-                    PaperProps: {
-                      style: {
-                        maxHeight: 200,
-                      },
-                    },
-                  },
-                }}
-              >
-                {allItems?.map((item) => (
+                // SelectProps={{
+                //   MenuProps: {
+                //     PaperProps: {
+                //       style: {
+                //         maxHeight: 200,
+                //       },
+                //     },
+                //   },
+                // }}
+              />
+                {/* {allItems?.map((item) => (
                   <MenuItem key={item._id} value={item.name}>
                     {item.name}
                   </MenuItem>
                 ))}
-              </TextField>
+              </TextField> */}
             </div>
           </Grid>
 
@@ -503,28 +503,28 @@ const ItemWisePurchaseReport = () => {
                 Brand:
               </InputLabel>
               <TextField
-                select
+                // select
                 fullWidth
                 size="small"
                 name="brandName"
                 value={brandName}
                 onChange={(e) => setBrandName(e.target.value)}
-                SelectProps={{
-                  MenuProps: {
-                    PaperProps: {
-                      style: {
-                        maxHeight: 200,
-                      },
-                    },
-                  },
-                }}
-              >
-                {allBrands.map((brand) => (
+                // SelectProps={{
+                //   MenuProps: {
+                //     PaperProps: {
+                //       style: {
+                //         maxHeight: 200,
+                //       },
+                //     },
+                //   },
+                // }}
+              />
+                {/* {allBrands.map((brand) => (
                   <MenuItem key={brand._id} value={brand.name}>
                     {brand.name}
                   </MenuItem>
                 ))}
-              </TextField>
+              </TextField> */}
             </div>
           </Grid>
 
@@ -578,7 +578,7 @@ const ItemWisePurchaseReport = () => {
         <Box
           sx={{
             display: "flex",
-            justifyContent: "space-between",
+            justifyContent: "flex-end",
             "& button": { marginTop: 1 },
           }}
         >
@@ -604,7 +604,7 @@ const ItemWisePurchaseReport = () => {
           >
             Clear Filters
           </Button>
-          <div>
+          {/* <div>
             <Button
               color="inherit"
               size="small"
@@ -612,7 +612,7 @@ const ItemWisePurchaseReport = () => {
               // sx={{ borderRadius: 8 }}
             >
               Print
-            </Button>
+            </Button> */}
             <Button
               color="info"
               size="small"
@@ -622,7 +622,7 @@ const ItemWisePurchaseReport = () => {
             >
               Display
             </Button>
-          </div>
+          {/* </div> */}
         </Box>
 
         <Box
