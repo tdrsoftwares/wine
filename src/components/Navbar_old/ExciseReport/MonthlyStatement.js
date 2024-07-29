@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Checkbox,
   CircularProgress,
   Grid,
   InputLabel,
@@ -19,17 +20,18 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { customTheme } from "../../../utils/customTheme";
 import { getAllStatements } from "../../../services/monthlyStatementService";
 import PrintableReport from "./PrintableExport";
+import { getLicenseInfo } from "../../../services/licenseService";
 
 const MonthlyStatement = () => {
   const [dateFrom, setDateFrom] = useState(null);
   const [dateTo, setDateTo] = useState(null);
   const [allStatements, setAllStatements] = useState([]);
-  const [allStatementsCopy, setAllStatementsCopy] = useState([]);
+  const [isPcsTrue, setIsPcsTrue] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: 10,
   });
-
+  const [licenseDetails, setLicenseDetails] = useState({});
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
@@ -95,6 +97,51 @@ const MonthlyStatement = () => {
     [columns]
   );
 
+  const fetchLicenseData = async () => {
+    try {
+      const response = await getLicenseInfo();
+      // console.log("monthly statement lic response ---> ", response);
+
+      if (response.statusCode === 200) {
+        const licenseData = response?.data[0];
+        setLicenseDetails({
+          id: licenseData._id,
+          nameOfLicence: licenseData.nameOfLicence,
+          businessType: licenseData.businessType,
+          address: licenseData.address,
+          district: licenseData.district,
+          phoneNo: licenseData.phoneNo,
+
+          fiancialPeriodTo: licenseData.fiancialPeriodTo,
+          fiancialPeriodfrom: licenseData.fiancialPeriodfrom,
+          licenceId: licenseData.licenceId,
+          billCategory: licenseData.billCategory,
+          noOfBillCopies: licenseData.noOfBillCopies,
+
+          autoBillPrint: licenseData.autoBillPrint,
+          eposUserId: licenseData.eposUserId,
+          eposPassword: licenseData.eposPassword,
+          noOfItemPerBill: licenseData.noOfItemPerBill,
+          perBillMaxWine: licenseData.perBillMaxWine,
+          perBillMaxCs: licenseData.perBillMaxCs,
+
+          billMessages: licenseData.billMessages,
+          messageMobile: licenseData.messageMobile,
+        });
+      }
+
+      if (response?.response?.status === 400) {
+        setLicenseDetails([]);
+        NotificationManager.error("No License Data Found", "Error");
+      }
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching license. Please try again later.",
+        "Error"
+      );
+    }
+  };
+
   const fetchAllStatements = async () => {
     const fromDate = dateFrom ? formatDate(dateFrom) : null;
     const toDate = dateTo ? formatDate(dateTo) : null;
@@ -104,6 +151,7 @@ const MonthlyStatement = () => {
       const filterOptions = {
         fromDate: fromDate,
         toDate: toDate,
+        pcs: isPcsTrue,
       };
       const response = await getAllStatements(filterOptions);
       // console.log("Statement fetched", response?.data?.data);
@@ -119,7 +167,7 @@ const MonthlyStatement = () => {
           categoryName: `Total ${total.group}`,
         })),
       ];
-      console.log("statementsWithTotals: ",statementsWithTotals)
+      // console.log("statementsWithTotals: ",statementsWithTotals)
       setAllStatements(statementsWithTotals);
       setTotalCount(statementsWithTotals.length);
     } catch (error) {
@@ -133,8 +181,27 @@ const MonthlyStatement = () => {
   };
 
   useEffect(() => {
+    fetchLicenseData();
     fetchAllStatements();
   }, []);
+
+  const rows = useMemo(() => {
+    return allStatements?.map((item, index) => ({
+      id: index,
+      sNo: index + 1,
+      categoryName: item.categoryName || "No Data",
+      openingBalance: isPcsTrue
+        ? item.openingBalance || 0
+        : item.openingBalance?.toFixed(3) || "0.000",
+      purchases: isPcsTrue
+        ? item.purchases || 0
+        : item.purchases?.toFixed(3) || "0.000",
+      sales: isPcsTrue ? item.sales || 0 : item.sales?.toFixed(3) || "0.000",
+      closingBalance: isPcsTrue
+        ? item.closingBalance || 0
+        : item.closingBalance?.toFixed(3) || "0.000",
+    }));
+  }, [allStatements, isPcsTrue]);
 
   const debounce = (func, delay) => {
     let timeout;
@@ -149,7 +216,7 @@ const MonthlyStatement = () => {
   useEffect(() => {
     const debouncedFetch = debounce(fetchAllStatements, 300);
     debouncedFetch();
-  }, [dateFrom, dateTo]);
+  }, [dateFrom, dateTo, isPcsTrue]);
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -178,7 +245,7 @@ const MonthlyStatement = () => {
             </div>
           </Grid>
 
-          <Grid item xs={3}>
+          <Grid item xs={6}>
             <div className="input-wrapper">
               <InputLabel htmlFor="dateTo" className="input-label">
                 Date to:
@@ -196,6 +263,20 @@ const MonthlyStatement = () => {
               </LocalizationProvider>
             </div>
           </Grid>
+
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="pcsOnly" className="input-label">
+                PCs Only:
+              </InputLabel>
+              <Checkbox
+                name="pcsOnly"
+                checked={isPcsTrue}
+                inputProps={{ "aria-label": "controlled" }}
+                onChange={(e) => setIsPcsTrue(e.target.checked)}
+              />
+            </div>
+          </Grid>
         </Grid>
 
         <Box
@@ -205,33 +286,36 @@ const MonthlyStatement = () => {
             "& button": { marginTop: 1 },
           }}
         >
-          <PrintableReport data={allStatements} />
+          <PrintableReport
+            data={allStatements}
+            licenseDetails={licenseDetails}
+            isPcsTrue={isPcsTrue}
+          />
 
           <div>
-          <Button
-            color="inherit"
-            size="small"
-            variant="contained"
-            onClick={() => {
-              setDateFrom(null);
-              setDateTo(null);
-            }}
-            sx={{ padding: "4px 10px", fontSize: "11px" }}
-          >
-            Clear Filters
-          </Button>
+            <Button
+              color="inherit"
+              size="small"
+              variant="contained"
+              onClick={() => {
+                setDateFrom(null);
+                setDateTo(null);
+              }}
+              sx={{ padding: "4px 10px", fontSize: "11px" }}
+            >
+              Clear Filters
+            </Button>
 
-          <Button
-            color="info"
-            size="small"
-            variant="contained"
-            onClick={fetchAllStatements}
-            sx={{ marginLeft: 2, padding: "4px 10px", fontSize: "11px" }}
-          >
-            Display
-          </Button>
+            <Button
+              color="info"
+              size="small"
+              variant="contained"
+              onClick={fetchAllStatements}
+              sx={{ marginLeft: 2, padding: "4px 10px", fontSize: "11px" }}
+            >
+              Display
+            </Button>
           </div>
-          
         </Box>
 
         <Box
@@ -244,21 +328,13 @@ const MonthlyStatement = () => {
           }}
         >
           <DataGrid
-            rows={allStatements?.map((item, index) => ({
-              id: index,
-              sNo: index + 1,
-              categoryName: item.categoryName || "No Data",
-              openingBalance: item.openingBalance || 0,
-              purchases: item.purchases || 0,
-              sales: item.sales || 0,
-              closingBalance: item.closingBalance || 0,
-            }))}
+            rows={rows}
             columns={columnsData}
             rowCount={totalCount}
             pagination
             paginationModel={paginationModel}
             onPaginationModelChange={setPaginationModel}
-            pageSizeOptions={[ 10, 25, 50 ]}
+            pageSizeOptions={[10, 25, 50]}
             sx={{ backgroundColor: "#fff" }}
             loading={loading}
             components={{

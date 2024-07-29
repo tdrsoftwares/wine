@@ -2,10 +2,10 @@ import axiosInstance from "../utils/axiosInstance";
 
 export const getAllStatements = async (filterOptions) => {
   try {
-    const { fromDate, toDate } = filterOptions;
+    const { fromDate, toDate, pcs } = filterOptions;
     let apiURL = `/reports/monthly-online-statements?`;
 
-    const filters = { fromDate, toDate };
+    const filters = { fromDate, toDate, pcs };
     
     Object.keys(filters).forEach((key) => {
       if (filters[key]) {

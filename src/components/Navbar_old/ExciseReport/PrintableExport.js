@@ -22,224 +22,241 @@ const cellStyle = {
   border: "1px solid #000",
 };
 
-const PrintComponent = forwardRef(({ data }, ref) => {
-  const { licenseDetails } = useLicenseContext();
-  const today = new Date();
-  const todayDate = dayjs(today);
-  const allMonths = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  const todaysMonth = todayDate.month();
-  const todaysYear = todayDate.year();
+const PrintComponent = forwardRef(
+  ({ data, licenseDetails, isPcsTrue }, ref) => {
+    // const { licenseDetails } = useLicenseContext();
+    // console.log("print license data: ", licenseDetails);
+    const today = new Date();
+    const todayDate = dayjs(today);
+    const allMonths = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+    const todaysMonth = todayDate.month();
+    const todaysYear = todayDate.year();
 
-  const removeFieldsFromLastObject = (data) => {
-    if (data.length === 0) return data;
+    const removeFieldsFromLastObject = (data) => {
+      if (data.length === 0) return data;
 
-    const modifiedData = [...data];
-    const lastObject = modifiedData[modifiedData.length - 1];
+      const modifiedData = [...data];
+      const lastObject = modifiedData[modifiedData.length - 1];
 
-    delete lastObject.group;
-    delete lastObject.sNo;
+      delete lastObject.group;
+      delete lastObject.sNo;
 
-    return modifiedData;
-  };
+      return modifiedData;
+    };
 
-  const modifiedData = removeFieldsFromLastObject(data);
+    const modifiedData = removeFieldsFromLastObject(data);
 
-  return (
-    <Box ref={ref} sx={{ padding: 1, color: "#000" }}>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginTop: 0.5,
-        }}
-      >
-        <Box>
-          <Typography variant="subtitle2">
-            Licensee Id No: {licenseDetails?.licenceId}
-          </Typography>
-          <Typography variant="subtitle2">
-            Statement Month: {allMonths[todaysMonth]}
-          </Typography>
-          <Typography variant="subtitle2">
-            Licensee Name: {licenseDetails?.nameOfLicence}
-          </Typography>
-          <Typography variant="subtitle2">
-            District Name: {licenseDetails?.district}
-          </Typography>
-          <Typography variant="subtitle2">
-            Contact No: {licenseDetails?.phoneNo}
-          </Typography>
+    const formatValue = (value) => {
+      return isPcsTrue ? value : value?.toFixed(3);
+    };
+
+    return (
+      <Box ref={ref} sx={{ padding: 1, color: "#000" }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            marginTop: 0.5,
+          }}
+        >
+          <Box>
+            <Typography variant="subtitle2">
+              Licensee Id No: {licenseDetails?.licenceId}
+            </Typography>
+            <Typography variant="subtitle2">
+              Statement Month: {allMonths[todaysMonth]}
+            </Typography>
+            <Typography variant="subtitle2">
+              Licensee Name: {licenseDetails?.nameOfLicence}
+            </Typography>
+            <Typography variant="subtitle2">
+              District Name: {licenseDetails?.district}
+            </Typography>
+            <Typography variant="subtitle2">
+              Contact No: {licenseDetails?.phoneNo}
+            </Typography>
+          </Box>
+          <Box sx={{ textAlign: "right" }}>
+            <Typography variant="subtitle2">
+              <span style={{ display: "block" }}>
+                Government of West Bengal
+              </span>
+              <span style={{ display: "block" }}>Excise Department</span>
+            </Typography>
+          </Box>
         </Box>
-        <Box sx={{ textAlign: "right" }}>
-          <Typography variant="subtitle2">
-            <span style={{ display: "block" }}>Government of West Bengal</span>
-            <span style={{ display: "block" }}>Excise Department</span>
-          </Typography>
-        </Box>
-      </Box>
-      <TableContainer
-        component={Paper}
-        sx={{
-          marginTop: 0.5,
-          border: "1px solid #000",
-          height: "auto",
-          overflow: "hidden",
-        }}
-      >
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell
-                align="right"
-                sx={{ fontWeight: "bold", backgroundColor: "#dae4ed" }}
-              >
-                Index
-              </TableCell>
-              <TableCell
-                sx={{ fontWeight: "bold", backgroundColor: "#dae4ed" }}
-              >
-                Category
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ fontWeight: "bold", backgroundColor: "#dae4ed" }}
-              >
-                Opening Balance
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ fontWeight: "bold", backgroundColor: "#dae4ed" }}
-              >
-                Purchases
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ fontWeight: "bold", backgroundColor: "#dae4ed" }}
-              >
-                Sales
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ fontWeight: "bold", backgroundColor: "#dae4ed" }}
-              >
-                Closing Balance
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ fontWeight: "bold", backgroundColor: "#dae4ed" }}
-              >
-                Sales in {allMonths[todaysMonth] + " " + (todaysYear - 1)}
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {modifiedData.map((row) => (
-              <TableRow key={row.indexNo}>
-                <TableCell align="left" sx={cellStyle}>
-                  {row.indexNo}
+        <TableContainer
+          component={Paper}
+          sx={{
+            marginTop: 0.5,
+            border: "1px solid #000",
+            height: "auto",
+            overflow: "hidden",
+          }}
+        >
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell
+                  align="right"
+                  sx={{ fontWeight: "bold", backgroundColor: "#dae4ed" }}
+                >
+                  Index
                 </TableCell>
-                <TableCell align="left" sx={cellStyle}>
-                  {row.categoryName}
+                <TableCell
+                  sx={{ fontWeight: "bold", backgroundColor: "#dae4ed" }}
+                >
+                  Category
                 </TableCell>
-                <TableCell align="right" sx={cellStyle}>
-                  {row.openingBalance?.toFixed(2)}
+                <TableCell
+                  align="right"
+                  sx={{ fontWeight: "bold", backgroundColor: "#dae4ed" }}
+                >
+                  Opening Balance
                 </TableCell>
-                <TableCell align="right" sx={cellStyle}>
-                  {row.purchases?.toFixed(2)}
+                <TableCell
+                  align="right"
+                  sx={{ fontWeight: "bold", backgroundColor: "#dae4ed" }}
+                >
+                  Purchases
                 </TableCell>
-                <TableCell align="right" sx={cellStyle}>
-                  {row.sales?.toFixed(2)}
+                <TableCell
+                  align="right"
+                  sx={{ fontWeight: "bold", backgroundColor: "#dae4ed" }}
+                >
+                  Sales
                 </TableCell>
-                <TableCell align="right" sx={cellStyle}>
-                  {row.closingBalance?.toFixed(2)}
+                <TableCell
+                  align="right"
+                  sx={{ fontWeight: "bold", backgroundColor: "#dae4ed" }}
+                >
+                  Closing Balance
                 </TableCell>
-                <TableCell align="right" sx={cellStyle}>
-                  {row.salesInJune2023?.toFixed(2) || "0.00"}
+                <TableCell
+                  align="right"
+                  sx={{ fontWeight: "bold", backgroundColor: "#dae4ed" }}
+                >
+                  Sales in {allMonths[todaysMonth] + " " + (todaysYear - 1)}
                 </TableCell>
               </TableRow>
-            ))}
-            <TableRow>
-              <TableCell colSpan={1} sx={cellStyle}>
-                {data?.length + 1}
-              </TableCell>
-              <TableCell colSpan={5} sx={cellStyle}>
-                Initial Grant Fee for the next Period of Settlement
-              </TableCell>
-              <TableCell align="right" sx={cellStyle}>
-                0.00
-              </TableCell>
-            </TableRow>
+            </TableHead>
+            <TableBody>
+              {modifiedData.map((row) => (
+                <TableRow key={row.indexNo}>
+                  <TableCell align="left" sx={cellStyle}>
+                    {row.indexNo}
+                  </TableCell>
+                  <TableCell align="left" sx={cellStyle}>
+                    {row.categoryName}
+                  </TableCell>
+                  <TableCell align="right" sx={cellStyle}>
+                    {formatValue(row.openingBalance)}
+                  </TableCell>
+                  <TableCell align="right" sx={cellStyle}>
+                    {formatValue(row.purchases)}
+                  </TableCell>
+                  <TableCell align="right" sx={cellStyle}>
+                    {formatValue(row.sales)}
+                  </TableCell>
+                  <TableCell align="right" sx={cellStyle}>
+                    {formatValue(row.closingBalance)}
+                  </TableCell>
+                  <TableCell align="right" sx={cellStyle}>
+                    {formatValue(row.salesInJune2023) || isPcsTrue ? 0 : "0.000"}
+                  </TableCell>
+                </TableRow>
+              ))}
+              <TableRow>
+                <TableCell colSpan={1} sx={cellStyle}>
+                  {data?.length + 1}
+                </TableCell>
+                <TableCell colSpan={5} sx={cellStyle}>
+                  Initial Grant Fee for the next Period of Settlement
+                </TableCell>
+                <TableCell align="right" sx={cellStyle}>
+                  {isPcsTrue ? 0 : "0.000"}
+                </TableCell>
+              </TableRow>
 
-            <TableRow>
-              <TableCell colSpan={1} sx={cellStyle}>
-                {data?.length + 2}
-              </TableCell>
-              <TableCell colSpan={5} sx={cellStyle}>
-                Composition Money
-              </TableCell>
-              <TableCell align="right" sx={cellStyle}>
-                0.00
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell colSpan={1} sx={cellStyle}>
-                {data?.length + 3}
-              </TableCell>
-              <TableCell colSpan={5} sx={cellStyle}>
-                Other fees paid, if any
-              </TableCell>
-              <TableCell align="right" sx={cellStyle}>
-                0.00
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell colSpan={1} sx={cellStyle}>
-                {data?.length + 4}
-              </TableCell>
-              <TableCell colSpan={5} sx={cellStyle}>
-                Total fees & other moneys paid
-              </TableCell>
-              <TableCell align="right" sx={cellStyle}>
-                0.00
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </TableContainer>
+              <TableRow>
+                <TableCell colSpan={1} sx={cellStyle}>
+                  {data?.length + 2}
+                </TableCell>
+                <TableCell colSpan={5} sx={cellStyle}>
+                  Composition Money
+                </TableCell>
+                <TableCell align="right" sx={cellStyle}>
+                {isPcsTrue ? 0 : "0.000"}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell colSpan={1} sx={cellStyle}>
+                  {data?.length + 3}
+                </TableCell>
+                <TableCell colSpan={5} sx={cellStyle}>
+                  Other fees paid, if any
+                </TableCell>
+                <TableCell align="right" sx={cellStyle}>
+                {isPcsTrue ? 0 : "0.000"}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell colSpan={1} sx={cellStyle}>
+                  {data?.length + 4}
+                </TableCell>
+                <TableCell colSpan={5} sx={cellStyle}>
+                  Total fees & other moneys paid
+                </TableCell>
+                <TableCell align="right" sx={cellStyle}>
+                {isPcsTrue ? 0 : "0.000"}
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
 
-      <Box
-        sx={{
-          marginTop: 1,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <Typography variant="subtitle2" sx={{ fontSize: "10px" }} gutterBottom>
-          Generated On: {todayDate.format("DD/MM/YYYY")}
-        </Typography>
-        <Typography variant="subtitle2" sx={{ fontSize: "10px" }} gutterBottom>
-          Page No: 1
-        </Typography>
+        <Box
+          sx={{
+            marginTop: 1,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Typography
+            variant="subtitle2"
+            sx={{ fontSize: "10px" }}
+            gutterBottom
+          >
+            Generated On: {todayDate.format("DD/MM/YYYY")}
+          </Typography>
+          <Typography
+            variant="subtitle2"
+            sx={{ fontSize: "10px" }}
+            gutterBottom
+          >
+            Page No: 1
+          </Typography>
+        </Box>
       </Box>
-    </Box>
-  );
-});
+    );
+  }
+);
 
-const PrintableReport = ({ data }) => {
+const PrintableReport = ({ data, licenseDetails, isPcsTrue }) => {
   const componentRef = useRef();
   const XLXS = require("xlsx");
 
@@ -304,12 +321,12 @@ const PrintableReport = ({ data }) => {
 
   const exportToPDF = () => {
     const input = document.getElementById("pdfContent");
-  
+
     if (!input) {
       console.error("Element not found: #pdfContent");
       return;
     }
-  
+
     html2canvas(input, {
       useCORS: true,
       allowTaint: true,
@@ -323,17 +340,16 @@ const PrintableReport = ({ data }) => {
     })
       .then((canvas) => {
         const imgData = canvas.toDataURL("image/png");
-  
+
         if (imgData === "data:,") {
           console.error("Canvas captured empty data.");
           return;
         }
-  
-  
+
         const pdf = new jsPDF("p", "mm", "a4");
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-  
+
         pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
         pdf.save("Monthly_Statement.pdf");
       })
@@ -341,14 +357,16 @@ const PrintableReport = ({ data }) => {
         console.error("Error generating PDF:", error);
       });
   };
-  
-  
-    
 
   return (
     <>
       <Box id="pdfContent" sx={{ display: "none" }}>
-          <PrintComponent ref={componentRef} data={data} />
+        <PrintComponent
+          ref={componentRef}
+          data={data}
+          licenseDetails={licenseDetails}
+          isPcsTrue={isPcsTrue}
+        />
       </Box>
       <div>
         <Button
