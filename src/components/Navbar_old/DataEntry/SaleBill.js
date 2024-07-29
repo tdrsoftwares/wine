@@ -61,7 +61,7 @@ const SaleBill = () => {
     barCode: "",
     billType: "CASHBILL",
     customerName: "",
-    store: allStores.length > 0 ? allStores[0] : { _id: '', name: '' },
+    store: allStores.length > 0 ? allStores[0] : { _id: "", name: "" },
     phoneNo: "",
     address: "",
     series: "",
@@ -111,9 +111,10 @@ const SaleBill = () => {
     receiptMode1: "",
     receiptMode2: "",
   });
-  
+
   // const { licenseDetails, setLicenseDetails } = useLicenseContext();
-  const [ licenseDetails, setLicenseDetails ] = useState({});
+  const [licenseDetails, setLicenseDetails] = useState({});
+  const [hasItems, setHasItems] = useState(false);
   // console.log("lc",licenseDetails)
   const tableRef = useRef(null);
   const customerNameRef = useRef(null);
@@ -154,8 +155,8 @@ const SaleBill = () => {
   const fetchLicenseData = async () => {
     try {
       const response = await getLicenseInfo();
-      console.log("lic response ---> ", response);
-      
+      // console.log("lic response ---> ", response);
+
       if (response.statusCode === 200) {
         const licenseData = response?.data[0];
         setLicenseDetails({
@@ -188,7 +189,6 @@ const SaleBill = () => {
         setLicenseDetails([]);
         NotificationManager.error("No License Data Found", "Error");
       }
-
     } catch (error) {
       NotificationManager.error(
         "Error fetching license. Please try again later.",
@@ -203,23 +203,19 @@ const SaleBill = () => {
       // console.log("sale-stores response: ",response)
       if (response.status === 200) {
         setAllStores(response?.data?.data);
-        
-        if (response?.data?.data.length > 0 && formData.store._id === '') {
+
+        if (response?.data?.data.length > 0 && formData.store._id === "") {
           setFormData({ ...formData, store: response.data.data[0] });
         }
-      }
-
-      else {
+      } else {
         setAllStores([]);
         NotificationManager.error("No Stores Found", "Error");
       }
-
     } catch (err) {
       NotificationManager.error("Failed to fetch all stores", "Error");
-      console.log(err)
+      console.log(err);
     }
-  }
-  
+  };
 
   const fetchAllCustomers = async () => {
     try {
@@ -227,8 +223,7 @@ const SaleBill = () => {
       // console.log("Fetching all customers: ", allCustomerResponse)
       if (allCustomerResponse.status === 200) {
         setAllCustomerData(allCustomerResponse?.data?.data);
-      }
-      else {
+      } else {
         setAllCustomerData([]);
         NotificationManager.error("No Customers Found", "Error");
       }
@@ -252,7 +247,6 @@ const SaleBill = () => {
         setAllLedgers([]);
         NotificationManager.error("No Ledgers Found", "Error");
       }
-      
     } catch (error) {
       NotificationManager.error(
         "Error fetching ledgers. Please try again later.",
@@ -301,11 +295,12 @@ const SaleBill = () => {
   };
 
   const handleStoreChange = (event) => {
-    const selectedStore = allStores.find(store => store._id === event.target.value);
+    const selectedStore = allStores.find(
+      (store) => store._id === event.target.value
+    );
     // console.log("selectedStore: ", selectedStore)
     setFormData({ ...formData, store: selectedStore });
   };
-
 
   const resetTopFormData = () => {
     setFormData((prevFormData) => ({
@@ -369,7 +364,6 @@ const SaleBill = () => {
 
       if (response?.data?.data) {
         setSearchResults(response?.data?.data);
-        
       } else {
         setSearchResults([]);
       }
@@ -464,11 +458,7 @@ const SaleBill = () => {
           }
           setFormData({ ...formData, itemCode: "" });
           itemCodeRef.current.focus();
-
-        }
-        
-        else if (formData.billType === "CREDITBILL") {
-          
+        } else if (formData.billType === "CREDITBILL") {
           setFormData({
             ...formData,
             itemId: searchedItem?.itemId,
@@ -489,7 +479,6 @@ const SaleBill = () => {
             group: searchedItem?.item?.group,
           });
           pcsRef.current.focus();
-          
         }
       } else {
         setSearchResults([]);
@@ -503,7 +492,6 @@ const SaleBill = () => {
     }
   };
 
-
   useEffect(() => {
     const newPcs = parseInt(formData.pcs) * parseInt(formData.mrp);
     setFormData((prevFormData) => ({
@@ -512,14 +500,12 @@ const SaleBill = () => {
     }));
   }, [formData.pcs]);
 
-
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -534,8 +520,6 @@ const SaleBill = () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [formData]);
-
-
 
   useEffect(() => {
     if (formData.customerName) {
@@ -560,8 +544,6 @@ const SaleBill = () => {
     }
   }, [formData.customerName, allCustomerData]);
 
-
-
   useEffect(() => {
     itemCodeRef.current.focus();
     fetchLicenseData();
@@ -569,7 +551,6 @@ const SaleBill = () => {
     fetchAllLedger();
     fetchAllStores();
   }, []);
-
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -593,21 +574,64 @@ const SaleBill = () => {
           });
         } else if (event.key === "Enter" && selectedRowIndex !== null) {
           const selectedRow = searchResults[selectedRowIndex];
-          setFormData({
-            ...formData,
-            itemId: selectedRow.item?._id,
-            itemDetailsId: selectedRow._id,
-            itemCode: selectedRow.itemCode || 0,
-            itemName: selectedRow.item?.name || 0,
-            mrp: selectedRow.mrp || 0,
-            batch: selectedRow.batchNo || 0,
-            pcs: selectedRow.pcs || 1,
-            rate: selectedRow.mrp || 0,
-            volume: selectedRow.item?.volume || 0,
-            currentStock: selectedRow.currentStock || 0,
-            group: selectedRow.item?.group || "",
-            // stockAt: selectedRow.store?._id,
+          let found = false;
+
+          salesData.forEach((item) => {
+            if (
+              item.itemCode === selectedRow.itemCode &&
+              item.mrp === selectedRow.mrp &&
+              item.batch === selectedRow.batch
+            ) {
+              setFormData({
+                ...formData,
+                itemId: selectedRow.item?._id,
+                itemDetailsId: selectedRow._id,
+                itemCode: selectedRow.itemCode || 0,
+                itemName: selectedRow.item?.name || 0,
+                mrp: selectedRow.mrp || 0,
+                batch: selectedRow.batchNo || 0,
+                pcs: selectedRow.pcs || 1,
+                rate: selectedRow.mrp || 0,
+                volume: selectedRow.item?.volume || 0,
+                currentStock: selectedRow.currentStock || 0,
+                group: selectedRow.item?.group,
+              });
+              found = true;
+            }
           });
+
+          if (!found) {
+            setFormData({
+              ...formData,
+              itemId: selectedRow.item?._id,
+              itemCode: selectedRow.itemCode || 0,
+              itemName: selectedRow.item?.name || 0,
+              mrp: selectedRow.mrp || 0,
+              batch: selectedRow.batchNo || 0,
+              pcs: selectedRow.pcs || 1,
+              rate: selectedRow.mrp || 0,
+              volume: selectedRow.item?.volume || 0,
+              currentStock: selectedRow.currentStock || 0,
+              group: selectedRow.item?.group,
+            });
+          }
+
+          if (!hasItems) {
+            setFormData({
+              ...formData,
+              itemId: selectedRow.item?._id,
+              itemDetailsId: selectedRow._id,
+              itemCode: selectedRow.itemCode || 0,
+              itemName: selectedRow.item?.name || 0,
+              mrp: selectedRow.mrp || 0,
+              batch: selectedRow.batchNo || 0,
+              pcs: selectedRow.pcs || 1,
+              rate: selectedRow.mrp || 0,
+              volume: selectedRow.item?.volume || 0,
+              currentStock: selectedRow.currentStock || 0,
+              group: selectedRow.item?.group,
+            });
+          }
           pcsRef.current.focus();
           setSearchMode(false);
           setSelectedRowIndex(null);
@@ -622,7 +646,6 @@ const SaleBill = () => {
     };
   }, [searchMode, formData.itemName, searchResults, selectedRowIndex]);
 
-
   const formatDate = (dateString) => {
     const date = new Date(dateString);
 
@@ -633,7 +656,6 @@ const SaleBill = () => {
     const formattedDate = `${day}/${month}/${year}`;
     return formattedDate;
   };
-
 
   const handleItemNameChange = (event) => {
     const itemName = event.target.value;
@@ -652,14 +674,12 @@ const SaleBill = () => {
     setEditableIndex(-1);
   };
 
-
   const handleEnterKey = (event, nextInputRef) => {
     if (event.key === "Enter" || event.key === "Tab") {
       event.preventDefault();
       nextInputRef.current.focus();
     }
   };
-
 
   const handleEdit = (index, field, value) => {
     const updatedRow = { ...salesData[index] };
@@ -707,20 +727,16 @@ const SaleBill = () => {
     setSalesData(updatedSalesData);
   };
 
-
-
   const handleBillDateChange = (date) => {
     setFormData({ ...formData, billDate: date });
   };
 
-
-
   const handleRowClick = (index) => {
     const selectedRow = searchResults[index];
     // console.log("selectedRow", selectedRow);
-  
+
     let found = false;
-  
+
     salesData.forEach((item) => {
       if (
         item.itemCode === selectedRow.itemCode &&
@@ -744,7 +760,7 @@ const SaleBill = () => {
         found = true;
       }
     });
-  
+
     if (!found) {
       setFormData({
         ...formData,
@@ -761,7 +777,7 @@ const SaleBill = () => {
       });
     }
 
-    if (salesData.length === 0) {
+    if (!hasItems) {
       setFormData({
         ...formData,
         itemId: selectedRow.item?._id,
@@ -777,15 +793,13 @@ const SaleBill = () => {
         group: selectedRow.item?.group,
       });
     }
-  
+
     pcsRef.current.focus();
   };
-
 
   const handleEditClick = (index) => {
     setEditableIndex(index);
   };
-
 
   const autoSaveCashBill = async () => {
     const billDateObj = formatDate(formData.billDate);
@@ -833,7 +847,6 @@ const SaleBill = () => {
           }
         }
 
-
         const newPayload = {
           billType: formData.billType,
           customer: formData.customerName?._id || null,
@@ -846,7 +859,7 @@ const SaleBill = () => {
           splDiscAmount: parseFloat(totalValues.splDiscAmount),
           grossAmount: parseFloat(totalValues.grossAmt),
           discAmount: parseFloat(totalValues.discountAmt),
-          adjustment:parseFloat(totalValues.adjustment),
+          adjustment: parseFloat(totalValues.adjustment),
           netAmount: parseFloat(totalValues.netAmt),
           receiptMode1: parseFloat(totalValues.receiptMode1),
 
@@ -869,7 +882,7 @@ const SaleBill = () => {
         if (totalValues.receiptMode2) {
           newPayload.receiptMode2 = totalValues.receiptMode2;
         }
-  
+
         if (totalValues.receiptAmt && totalValues.receiptAmt !== 0) {
           newPayload.receiptAmount = parseFloat(totalValues.receiptAmt);
         }
@@ -881,14 +894,17 @@ const SaleBill = () => {
     };
 
     let payload = [];
-    
 
     if (groupedItems.IML.length > 0) {
-      payload = payload.concat(splitBill(groupedItems.IML, licenseDetails?.perBillMaxCs));
+      payload = payload.concat(
+        splitBill(groupedItems.IML, licenseDetails?.perBillMaxCs)
+      );
     }
 
     if (groupedItems.FL_BEER.length > 0) {
-      payload = payload.concat(splitBill(groupedItems.FL_BEER, licenseDetails?.perBillMaxWine));
+      payload = payload.concat(
+        splitBill(groupedItems.FL_BEER, licenseDetails?.perBillMaxWine)
+      );
     }
 
     if (salesData.length === 0) {
@@ -896,8 +912,6 @@ const SaleBill = () => {
       itemCodeRef.current.focus();
       return;
     }
-
-    
 
     try {
       const response = await createSale(payload);
@@ -925,10 +939,7 @@ const SaleBill = () => {
     }
   };
 
-
-
   const handleSaveClick = async (index) => {
-
     const updatedSales = [...salesData];
     const updatedRow = { ...updatedSales[index] };
 
@@ -989,13 +1000,19 @@ const SaleBill = () => {
       netAmt: netAmt.toFixed(2),
     });
 
-    if(!licenseDetails?.perBillMaxCs) {
-      NotificationManager.warning("Per Bill Max CS(ML) is missing", "Can't auto save.");
+    if (!licenseDetails?.perBillMaxCs) {
+      NotificationManager.warning(
+        "Per Bill Max CS(ML) is missing",
+        "Can't auto save."
+      );
       return;
     }
 
-    if(!licenseDetails?.perBillMaxWine) {
-      NotificationManager.warning("Per Bill Max Wine(ML) is missing", "Can't auto save.");
+    if (!licenseDetails?.perBillMaxWine) {
+      NotificationManager.warning(
+        "Per Bill Max Wine(ML) is missing",
+        "Can't auto save."
+      );
       return;
     }
 
@@ -1006,7 +1023,6 @@ const SaleBill = () => {
     ) {
       await autoSaveCashBill();
     }
-
   };
 
   const handleRemoveClick = (index) => {
@@ -1051,9 +1067,7 @@ const SaleBill = () => {
         if (
           updatedSalesData[existingItemIndex].pcs >= formData.currentStock ||
           formData.pcs >= formData.currentStock
-        ) 
-        
-        {
+        ) {
           NotificationManager.warning(
             `Out of Stock! Currently you have ${
               formData.currentStock || 0
@@ -1061,10 +1075,7 @@ const SaleBill = () => {
           );
           pcsRef.current.focus();
           return;
-        } 
-        
-        else {
-
+        } else {
           if (formData.pcs >= formData.currentStock) {
             NotificationManager.warning(
               `Out of Stock! Currently you have ${
@@ -1078,9 +1089,8 @@ const SaleBill = () => {
           let currPcs = parseFloat(currItem.pcs);
           let currRate = parseFloat(currItem.rate);
           let totalPcs = parseFloat(currItem.pcs) + parseFloat(formData.pcs);
-          
 
-          if(totalPcs > formData.currentStock){
+          if (totalPcs > formData.currentStock) {
             NotificationManager.warning(
               `Out of Stock! Currently you have ${
                 formData.currentStock || 0
@@ -1088,16 +1098,16 @@ const SaleBill = () => {
             );
             pcsRef.current.focus();
             return;
-          } else{
-            updatedSalesData[existingItemIndex].pcs = currPcs + parseFloat(formData.pcs);
-            updatedSalesData[existingItemIndex].amount = parseFloat(currPcs * currRate);
+          } else {
+            updatedSalesData[existingItemIndex].pcs =
+              currPcs + parseFloat(formData.pcs);
+            updatedSalesData[existingItemIndex].amount = parseFloat(
+              currPcs * currRate
+            );
             setSalesData(updatedSalesData);
             itemCodeRef.current.focus();
           }
-
         }
-
-        
       } else {
         const newItem = {
           itemId: formData.itemId,
@@ -1116,18 +1126,17 @@ const SaleBill = () => {
           amount: formData.amount || 0,
           // stockAt: formData.stockAt,
         };
-        
+
         if (formData.itemDetailsId) {
           newItem.itemDetailsId = formData.itemDetailsId;
         }
-        
+
         setSalesData([...salesData, newItem]);
-        
+
         itemCodeRef.current.focus();
       }
 
       resetMiddleFormData();
-
     } catch (error) {
       console.error("Error submitting item:", error);
       NotificationManager.error(
@@ -1137,54 +1146,59 @@ const SaleBill = () => {
     }
   };
 
-  
   const handleCreateSale = async () => {
     const billDateObj = formatDate(formData.billDate);
     const todaysDateObj = formatDate(new Date());
-  
+
     if (formData.billType === "CREDITBILL" && !formData.customerName) {
       NotificationManager.warning("Customer name is required", "Warning");
       return;
     }
 
-    if(!licenseDetails?.perBillMaxCs) {
-      NotificationManager.warning("Per Bill Max CS(ML) is missing", "Please fill in the license details first");
+    if (!licenseDetails?.perBillMaxCs) {
+      NotificationManager.warning(
+        "Per Bill Max CS(ML) is missing",
+        "Please fill in the license details first"
+      );
       return;
     }
 
-    if(!licenseDetails?.perBillMaxWine) {
-      NotificationManager.warning("Per Bill Max Wine(ML) is missing", "Please fill in the license details first");
+    if (!licenseDetails?.perBillMaxWine) {
+      NotificationManager.warning(
+        "Per Bill Max Wine(ML) is missing",
+        "Please fill in the license details first"
+      );
       return;
     }
-  
+
     if (salesData.length === 0) {
       NotificationManager.warning("Enter some item in table.", "Warning");
       itemCodeRef.current.focus();
       return;
     }
-  
+
     const groupedItems = {
       FL_BEER: salesData.filter(
         (item) => item.group === "FL" || item.group === "BEER"
       ),
       IML: salesData.filter((item) => item.group === "IML"),
     };
-  
+
     const splitBill = (items, volumeLimit) => {
       let payloads = [];
       let remainingItems = [...items];
       let currentVolume = 0;
       let currentPcs = 0;
-  
+
       while (remainingItems.length > 0) {
         let billItems = [];
         currentVolume = 0;
         currentPcs = 0;
-  
+
         for (let i = 0; i < remainingItems.length; ) {
           const item = remainingItems[i];
           const itemVolume = item.volume * item.pcs;
-  
+
           if (currentVolume + itemVolume <= volumeLimit) {
             currentVolume += itemVolume;
             currentPcs += item.pcs;
@@ -1205,7 +1219,6 @@ const SaleBill = () => {
           }
         }
 
-  
         const newPayload = {
           billType: formData.billType,
           customer: formData.customerName._id,
@@ -1219,10 +1232,10 @@ const SaleBill = () => {
           grossAmount: parseFloat(totalValues.grossAmt),
           discAmount: parseFloat(totalValues.discountAmt),
           // taxAmount,
-          adjustment:parseFloat(totalValues.adjustment),
+          adjustment: parseFloat(totalValues.adjustment),
           netAmount: parseFloat(totalValues.netAmt),
           receiptMode1: parseFloat(totalValues.receiptMode1),
-          
+
           salesItem: billItems.map((item) => ({
             itemDetailsId: item.itemDetailsId,
             itemCode: item.itemCode,
@@ -1242,20 +1255,19 @@ const SaleBill = () => {
         if (totalValues.receiptMode2) {
           newPayload.receiptMode2 = totalValues.receiptMode2;
         }
-  
+
         if (totalValues.receiptAmt && totalValues.receiptAmt !== 0) {
           newPayload.receiptAmount = parseFloat(totalValues.receiptAmt);
         }
-        
-  
+
         payloads.push(newPayload);
       }
-  
+
       return payloads;
     };
-  
+
     let payload = [];
-  
+
     if (groupedItems.IML.length > 0) {
       payload = payload.concat(
         splitBill(groupedItems.IML, licenseDetails?.perBillMaxCs)
@@ -1267,10 +1279,10 @@ const SaleBill = () => {
         splitBill(groupedItems.FL_BEER, licenseDetails?.perBillMaxWine)
       );
     }
-  
+
     try {
       const response = await createSale(payload);
-      
+
       const billNo = response?.data?.data[0]?.billNo;
       // console.log("bill no: ", billNo);
 
@@ -1284,16 +1296,15 @@ const SaleBill = () => {
         if (licenseDetails?.autoBillPrint === "YES") {
           handlePrint();
         }
-        
-  
+
         // if(licenseDetails?.autoBillPrint === "NO"){
-          resetTopFormData();
-          resetMiddleFormData();
-          resetTotalValues();
-          setSearchResults([]);
-          setSalesData([]);
-          fetchAllBills();
-          setSearchMode(false);
+        resetTopFormData();
+        resetMiddleFormData();
+        resetTotalValues();
+        setSearchResults([]);
+        setSalesData([]);
+        fetchAllBills();
+        setSearchMode(false);
         // }
       } else {
         NotificationManager.error(
@@ -1303,7 +1314,7 @@ const SaleBill = () => {
       }
     } catch (error) {
       console.error("Error creating sale:", error);
-    } 
+    }
   };
 
   // console.log("salesData --> ",salesData)
@@ -1312,24 +1323,23 @@ const SaleBill = () => {
     let payload = {};
     const billDateObj = formatDate(formData.billDate);
     const todaysDateObj = formatDate(new Date());
-  
+
     if (formData.billType === "CREDITBILL" && !formData.customerName) {
       NotificationManager.warning("Customer name is required", "Warning");
       return;
     }
-  
+
     if (salesData.length === 0) {
       NotificationManager.warning("Enter some item in table.", "Warning");
       itemCodeRef.current.focus();
       return;
     }
 
-
     let groupedItems = {
       FL_BEER: [],
       IML: [],
     };
-  
+
     salesData.forEach((item) => {
       if (item.group === "FL" || item.group === "BEER") {
         groupedItems.FL_BEER.push(item);
@@ -1337,7 +1347,7 @@ const SaleBill = () => {
         groupedItems.IML.push(item);
       }
     });
-  
+
     let flBeerBillSeries = "";
     if (groupedItems.FL_BEER.length > 0) {
       flBeerBillSeries = groupedItems.FL_BEER[0].group;
@@ -1449,12 +1459,8 @@ const SaleBill = () => {
       payload = imlPayload;
     }
 
-
     try {
-      const response = await updateSaleDetailsByBillNo(
-        payload,
-        billNumber
-      );
+      const response = await updateSaleDetailsByBillNo(payload, billNumber);
 
       if (response.status === 200) {
         NotificationManager.success("Sale updated successfully", "Success");
@@ -1474,7 +1480,6 @@ const SaleBill = () => {
       console.error("Error updating sale:", error);
     }
   };
-  
 
   const handleDeleteSale = async () => {
     try {
@@ -1534,7 +1539,6 @@ const SaleBill = () => {
     setEditableIndex(-1);
   };
 
-
   const handleKeyDown = async (e) => {
     if (e.key === "Enter") {
       const barcodes = e.target.value.split("\n");
@@ -1547,11 +1551,9 @@ const SaleBill = () => {
     }
   };
 
-
   const handleCustomerNameChange = (e) => {
     setFormData({ ...formData, customerName: e.target.value });
   };
-
 
   const handlePcsChange = (e) => {
     const value = e.target.value;
@@ -1571,14 +1573,12 @@ const SaleBill = () => {
     setFormData({ ...formData, pcs, amount });
   };
 
-
   const handleRateChange = (e) => {
     const rate = parseFloat(e.target.value) || 1;
     const pcs = parseFloat(formData.pcs) || 1;
     const amount = pcs * rate || 0;
     setFormData({ ...formData, rate, amount });
   };
-
 
   const handleAmountChange = (e) => {
     const amount = parseFloat(e.target.value) || 0;
@@ -1591,7 +1591,6 @@ const SaleBill = () => {
     }
     setFormData({ ...formData, amount, rate });
   };
-
 
   const handleDiscountChange = (e) => {
     const discount = parseFloat(e.target.value) || 0;
@@ -1609,34 +1608,28 @@ const SaleBill = () => {
     }
   };
 
-
   const handleDiscountKeyDown = (e) => {
-
     if (e.key === "Enter" || e.key === "Tab") {
       handleDiscountChange(e);
     }
   };
 
-
   const calculatePcs = () => {
     let totPcs = 0;
 
-    if(salesData.length > 0) {
+    if (salesData.length > 0) {
       salesData.forEach((row) => {
         totPcs += parseInt(row.pcs);
       });
       return totPcs;
-
     }
   };
-
 
   const handleBillNoChange = (e) => {
     const { value } = e.target;
     // setFormData({ ...formData, billno: value });
     setBillNumber(value);
   };
-
 
   const handleReceiptModeChange = (e) => {
     const value = e.target.value;
@@ -1648,12 +1641,8 @@ const SaleBill = () => {
     });
   };
 
-
   const handlePrevClick = () => {
-    if (
-      (billNumber && billNoEditable) ||
-      (billNumber && seriesData)
-    ) {
+    if ((billNumber && billNoEditable) || (billNumber && seriesData)) {
       const match = billNumber.match(/^([A-Za-z]*)(\d+)$/);
       if (match) {
         const prefix = match[1];
@@ -1664,16 +1653,13 @@ const SaleBill = () => {
         const newBillNo = `${prefix}${paddedNumber}`;
 
         // setFormData((prevData) => ({ ...prevData, billno: newBillNo }));
-        setBillNumber(newBillNo)
+        setBillNumber(newBillNo);
       }
     }
   };
 
   const handleNextClick = () => {
-    if (
-      (billNumber && billNoEditable) ||
-      (billNumber && seriesData)
-    ) {
+    if ((billNumber && billNoEditable) || (billNumber && seriesData)) {
       const match = billNumber.match(/^([A-Za-z]*)(\d+)$/);
       if (match) {
         const prefix = match[1];
@@ -1681,7 +1667,7 @@ const SaleBill = () => {
         const paddedNumber = number.toString().padStart(match[2].length, "0");
         const newBillNo = `${prefix}${paddedNumber}`;
         // setFormData((prevData) => ({ ...prevData, billno: newBillNo }));
-        setBillNumber(newBillNo)
+        setBillNumber(newBillNo);
       }
     }
   };
@@ -1689,7 +1675,6 @@ const SaleBill = () => {
   const convertToDayjsObject = (dateStr) => {
     return dayjs(dateStr, "DD/MM/YYYY");
   };
-
 
   const billNumberSearch = debounce(async () => {
     try {
@@ -1706,13 +1691,17 @@ const SaleBill = () => {
             ...prevData,
             billType: receivedData.billType,
             customerName: receivedData.customer,
-            store: {_id: receivedData?.storeId?._id, name: receivedData?.storeId?.name},
+            store: {
+              _id: receivedData?.storeId?._id,
+              name: receivedData?.storeId?.name,
+            },
             address: receivedData.customer?.address,
             phoneNo: receivedData.customer?.contactNo,
             billDate: billDateObject,
           }));
 
           const salesItems = receivedData?.salesItems;
+          salesItems.length > 0 ? setHasItems(true) : setHasItems(false);
           const newSalesItems = salesItems.map((sale) => ({
             itemCode: sale?.itemCode,
             itemDetailsId: sale?._id,
@@ -1767,7 +1756,6 @@ const SaleBill = () => {
     }
   }, 700);
 
-
   const calculateNetAmount = () => {
     const totalVolume = salesData.reduce(
       (total, item) =>
@@ -1792,7 +1780,6 @@ const SaleBill = () => {
       }
       return total;
     }, 0);
-
 
     const totalPcs = salesData.reduce(
       (total, item) => total + (parseInt(item.pcs) || 0),
@@ -1836,7 +1823,6 @@ const SaleBill = () => {
     });
   };
 
-
   useEffect(() => {
     calculateNetAmount();
   }, [
@@ -1848,7 +1834,6 @@ const SaleBill = () => {
     totalValues.adjustment,
   ]);
 
-
   useEffect(() => {
     if (billDateRef.current) {
       billDateRef.current.addEventListener("keydown", (e) =>
@@ -1856,7 +1841,6 @@ const SaleBill = () => {
       );
     }
   }, []);
-
 
   useEffect(() => {
     if (licenseDetails?.perBillMaxWine && licenseDetails?.perBillMaxCs) {
@@ -1869,18 +1853,12 @@ const SaleBill = () => {
       }
     }
   }, [handleSubmitIntoDataTable]);
-  
-
 
   useEffect(() => {
-    if (
-      (billNumber && billNoEditable) ||
-      (billNumber && seriesData)
-    ) {
+    if ((billNumber && billNoEditable) || (billNumber && seriesData)) {
       billNumberSearch(billNumber);
     }
   }, [billNumber, billNoEditable]);
-
 
   // useEffect(() => {
   //   if (formData.billno && licenseDetails?.autoBillPrint === "YES") {
@@ -1888,7 +1866,6 @@ const SaleBill = () => {
   //     handlePrint();
   //   }
   // }, [formData.billno, licenseDetails?.autoBillPrint]);
-  
 
   return (
     <ThemeProvider theme={customTheme}>
