@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -8,6 +8,10 @@ import {
   FormControl,
   Input,
   Select,
+  ThemeProvider,
+  TextField,
+  Typography,
+  Divider,
 } from "@mui/material";
 import { NotificationManager } from "react-notifications";
 import {
@@ -16,11 +20,16 @@ import {
   updateLicenseInfo,
 } from "../../../services/licenseService";
 import { useLicenseContext } from "../../../utils/licenseContext";
+import { customTheme } from "../../../utils/customTheme";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 
-const LicenseeInfo = ({authenticatedUser}) => {
+const LicenseeInfo = ({ authenticatedUser }) => {
   const { setLicenseDetails } = useLicenseContext();
 
   let [getData, setGetData] = useState([]);
+  let [editEnable, setEditEnable] = useState(true);
 
   const [isButtonDisabled, setIsButtonDisabled] = useState(() => {
     // Initialize state from localStorage if it exists
@@ -36,8 +45,8 @@ const LicenseeInfo = ({authenticatedUser}) => {
     district: "",
     phoneNo: 0,
 
-    fiancialPeriodTo: "mm/dd/yyyy",
-    fiancialPeriodfrom: "mm/dd/yyyy",
+    fiancialPeriodTo: null,
+    fiancialPeriodfrom: null,
     licenceId: "",
     billCategory: 0,
     noOfBillCopies: 0,
@@ -53,6 +62,8 @@ const LicenseeInfo = ({authenticatedUser}) => {
     messageMobile: 0,
   });
 
+  const nameOfLicenceRef = useRef(null);
+
   const handleInputChange1 = (e) => {
     const { name, value } = e.target;
     setLicenseData({
@@ -60,56 +71,56 @@ const LicenseeInfo = ({authenticatedUser}) => {
       [name]: value,
     });
   };
+
+  const handleDateChange = (key, newValue) => {
+    setLicenseData((prev) => ({
+      ...prev,
+      [key]: newValue ? newValue.format("YYYY-MM-DD") : null,
+    }));
+  };
+
   let obj = {};
 
   useEffect(() => {
     localStorage.setItem("isButtonDisabled", JSON.stringify(isButtonDisabled));
     const fetchData = async () => {
       try {
-        const getLicenseData = await getLicenseInfo(); // Assuming async function to fetch license data
+        const getLicenseData = await getLicenseInfo();
+        const data = getLicenseData.data[0];
 
-        Object.assign(obj, getLicenseData.data[0]); // Copy properties from first object in getLicenseData.data to obj
-        setLicenseDetails(getLicenseData?.data[0]);
+        setLicenseDetails(data);
 
-        // Check if obj is populated correctly
-
-        // Update state with fetched data
         setLicenseData({
           ...licenseData,
-          id: obj._id,
-          nameOfLicence: obj.nameOfLicence,
-          businessType: obj.businessType,
-          address: obj.address,
-          district: obj.district,
-          phoneNo: obj.phoneNo,
-
-          fiancialPeriodTo: obj.fiancialPeriodTo,
-          fiancialPeriodfrom: obj.fiancialPeriodfrom,
-          licenceId: obj.licenceId,
-          billCategory: obj.billCategory,
-          noOfBillCopies: obj.noOfBillCopies,
-
-          autoBillPrint: obj.autoBillPrint,
-          eposUserId: obj.eposUserId,
-          eposPassword: obj.eposPassword,
-          noOfItemPerBill: obj.noOfItemPerBill,
-          perBillMaxWine: obj.perBillMaxWine,
-          perBillMaxCs: obj.perBillMaxCs,
-
-          billMessages: obj.billMessages,
-          messageMobile: obj.messageMobile,
+          id: data._id,
+          nameOfLicence: data.nameOfLicence,
+          businessType: data.businessType,
+          address: data.address,
+          district: data.district,
+          phoneNo: data.phoneNo,
+          fiancialPeriodTo: data.fiancialPeriodTo,
+          fiancialPeriodfrom: data.fiancialPeriodfrom,
+          licenceId: data.licenceId,
+          billCategory: data.billCategory,
+          noOfBillCopies: data.noOfBillCopies,
+          autoBillPrint: data.autoBillPrint,
+          eposUserId: data.eposUserId,
+          eposPassword: data.eposPassword,
+          noOfItemPerBill: data.noOfItemPerBill,
+          perBillMaxWine: data.perBillMaxWine,
+          perBillMaxCs: data.perBillMaxCs,
+          billMessages: data.billMessages,
+          messageMobile: data.messageMobile,
         });
       } catch (error) {
         console.log(error);
       }
     };
 
-    // console.log("id: "+licenseData.id)
-
-    fetchData(); // Call the fetch data function
+    fetchData();
   }, [isButtonDisabled, authenticatedUser]);
 
-  const save = async (e) => {
+  const handleCreate = async (e) => {
     // const updateCategoryData = await axiosInstance.put(apiURL, payload);
     const payload = {
       nameOfLicence: licenseData.nameOfLicence,
@@ -139,7 +150,7 @@ const LicenseeInfo = ({authenticatedUser}) => {
 
       // console.log(response.data)
       NotificationManager.success(
-        "Data Submitted Successfully",
+        "License Created Successfully",
         response.data.message
       );
       setIsButtonDisabled(true);
@@ -161,56 +172,26 @@ const LicenseeInfo = ({authenticatedUser}) => {
     // console.log(licenseData);
     // console.log("payload"+payload);
   };
-  // console.log("obj"+Object.keys(obj))
-  const edit = async (e) => {
-    // const updateCategoryData = await axiosInstance.put(apiURL, payload);
-    const payload = {
-      nameOfLicence: licenseData.nameOfLicence,
-      businessType: licenseData.businessType,
-      address: licenseData.address,
-      district: licenseData.district,
-      phoneNo: licenseData.phoneNo,
 
-      fiancialPeriodTo: licenseData.fiancialPeriodTo,
-      fiancialPeriodfrom: licenseData.fiancialPeriodfrom,
-      licenceId: licenseData.licenceId,
-      billCategory: licenseData.billCategory,
-      noOfBillCopies: licenseData.noOfBillCopies,
-
-      autoBillPrint: licenseData.autoBillPrint,
-      eposUserId: licenseData.eposUserId,
-      eposPassword: licenseData.eposPassword,
-      noOfItemPerBill: licenseData.noOfItemPerBill,
-      perBillMaxWine: licenseData.perBillMaxWine,
-      perBillMaxCs: licenseData.perBillMaxCs,
-      billMessages: licenseData.billMessages,
-      messageMobile: licenseData.messageMobile,
-    };
+  const handleUpdate = async (e) => {
     e.preventDefault();
 
+    const payload = { ...licenseData };
     try {
       const response = await updateLicenseInfo(payload, licenseData.id);
-
-      //  console.log(response.data)
       NotificationManager.success(
-        "Data Updated Successfully",
+        "License Updated Successfully",
         response.data.message
       );
+      setEditEnable(true);
     } catch (error) {
       console.log(error);
-      // Extract the error message or relevant information
-      let errorMessage = "An error occurred while updatting the data.";
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        errorMessage = error.response.data.message;
-      }
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "An error occurred while updating the data.";
       NotificationManager.error(errorMessage);
     }
-    //  console.log(licenseData);
-    //  console.log("payload"+Object.entries(payload),licenseData.id);
   };
 
   const handleSubmit = async (e) => {
@@ -241,716 +222,520 @@ const LicenseeInfo = ({authenticatedUser}) => {
     });
   };
   // console.log("form Submitted"+[Object.entries(licenseData)]);
-  const clearForm = () => {};
+  const clearForm = () => {
+    setLicenseData({
+      id: "",
+      nameOfLicence: "",
+      businessType: "",
+      address: "",
+      district: "",
+      phoneNo: 0,
+
+      fiancialPeriodTo: null,
+      fiancialPeriodfrom: null,
+      licenceId: "",
+      billCategory: 0,
+      noOfBillCopies: 0,
+
+      autoBillPrint: "no",
+      eposUserId: "",
+      eposPassword: "",
+      noOfItemPerBill: 0,
+      perBillMaxWine: 0,
+      perBillMaxCs: 0,
+
+      billMessages: "",
+      messageMobile: 0,
+    });
+  };
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <Grid item container spacing={4} sx={{ display: "flex" }}>
-        <Grid
-          item
-          xs={6}
-          p={4}
-          sx={{
-            marginTop: "50px",
-            marginLeft: "40px",
-            textAlign: "center",
-            background: "#d3dce8",
-            borderRadius: "6px",
-          }}
-        >
-          <h1 sx={{ marginBottom: "30px" }}>Information of License</h1>
+    <ThemeProvider theme={customTheme}>
+      <Box sx={{ p: 2, width: "900px" }}>
+        <Typography variant="h6" sx={{ marginBottom: 2 }}>
+          Information of License
+        </Typography>
 
-          <Grid container spacing={2} sx={{ marginTop: "10px" }}>
-            <Grid
-              item
-              xs={12}
-              sx={{
-                display: "flex",
-                gap: "4px",
-                padding: "5px",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <InputLabel htmlFor="nameOfLicence">
-                NAME OF LICENSE/SHOP
+        <Grid container spacing={2}>
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="nameOfLicence" className="input-label">
+                NAME OF LICENSE/SHOP:
               </InputLabel>
-              <FormControl
-                variant="standard"
-                sx={{
-                  m: 1,
-                  width: "60%",
-                  padding: "4px",
-                  background: "white",
-                  borderRadius: "6px",
-                  borderBottom: "none",
-                }}
-              >
-                {/* <InputLabel htmlFor="nameOfLicence">NAME OF LICENSE/SHOP</InputLabel> */}
-                <Input
-                  required
-                  id="nameOfLicence"
-                  name="nameOfLicence"
-                  value={licenseData.nameOfLicence}
-                  onChange={handleInputChange1}
-                />
-              </FormControl>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              sx={{
-                display: "flex",
-                gap: "4px",
-                padding: "2px",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <InputLabel htmlFor="businessType">BUSINESS TYPE</InputLabel>
-              <FormControl
-                variant="standard"
-                sx={{
-                  m: 1,
-                  width: "60%",
-                  padding: "4px",
-                  background: "white",
-                  borderRadius: "6px",
-                  borderBottom: "none",
-                }}
-              >
-                <Input
-                  required
-                  id="businessType"
-                  fullWidth
-                  name="businessType"
-                  value={licenseData.businessType}
-                  onChange={handleInputChange1}
-                />
-              </FormControl>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              sx={{
-                display: "flex",
-                gap: "4px",
-                padding: "2px",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <InputLabel htmlFor="address">ADDRESS</InputLabel>
-              <FormControl
-                variant="standard"
-                sx={{
-                  m: 1,
-                  width: "60%",
-                  padding: "4px",
-                  background: "white",
-                  borderRadius: "6px",
-                  borderBottom: "none",
-                }}
-              >
-                <Input
-                  required
-                  id="address"
-                  fullWidth
-                  name="address"
-                  value={licenseData.address}
-                  onChange={handleInputChange1}
-                />
-              </FormControl>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              sx={{
-                display: "flex",
-                gap: "4px",
-                padding: "2px",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <InputLabel htmlFor="district">DISTRICT</InputLabel>
-              <FormControl
-                variant="standard"
-                sx={{
-                  m: 1,
-                  width: "60%",
-                  padding: "4px",
-                  background: "white",
-                  borderRadius: "6px",
-                  borderBottom: "none",
-                }}
-              >
-                <Input
-                  required
-                  id="district"
-                  fullWidth
-                  name="district"
-                  value={licenseData.district}
-                  onChange={handleInputChange1}
-                />
-              </FormControl>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              sx={{
-                display: "flex",
-                gap: "4px",
-                padding: "2px",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <InputLabel htmlFor="phoneNo">PHONE NO</InputLabel>
-              <FormControl
-                variant="standard"
-                sx={{
-                  m: 1,
-                  width: "60%",
-                  padding: "4px",
-                  background: "white",
-                  borderRadius: "6px",
-                  borderBottom: "none",
-                }}
-              >
-                <Input
-                  required
-                  type="number"
-                  id="phoneNo"
-                  fullWidth
-                  name="phoneNo"
-                  value={licenseData.phoneNo}
-                  onChange={handleInputChange1}
-                />
-              </FormControl>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              sx={{
-                display: "flex",
-                gap: "4px",
-                padding: "2px",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <InputLabel htmlFor="fiancialPeriodTo">
-                FINANCIAL PERIOD
+              <TextField
+                fullWidth
+                inputRef={nameOfLicenceRef}
+                size="small"
+                name="nameOfLicence"
+                value={licenseData.nameOfLicence}
+                onChange={(e) =>
+                  setLicenseData({
+                    ...licenseData,
+                    nameOfLicence: e.target.target,
+                  })
+                }
+                InputProps={{ readOnly: editEnable }}
+              />
+            </div>
+          </Grid>
+
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="businessType" className="input-label">
+                BUSINESS TYPE:
               </InputLabel>
-              <FormControl
-                variant="standard"
-                sx={{
-                  m: 1,
-                  width: "20%",
-                  padding: "4px",
-                  background: "white",
-                  borderRadius: "6px",
-                  borderBottom: "none",
-                }}
-              >
-                <Input
-                  required
-                  type="date"
-                  id="fiancialPeriodTo"
-                  fullWidth
-                  name="fiancialPeriodTo"
-                  value={licenseData.fiancialPeriodTo}
-                  onChange={handleInputChange1}
-                />
-              </FormControl>
-              TO
-              <FormControl
-                variant="standard"
-                sx={{
-                  m: 1,
-                  width: "20%",
-                  padding: "4px",
-                  background: "white",
-                  borderRadius: "6px",
-                  borderBottom: "none",
-                }}
-              >
-                <Input
-                  required
-                  type="date"
+              <TextField
+                fullWidth
+                size="small"
+                name="businessType"
+                value={licenseData.businessType}
+                onChange={(e) =>
+                  setLicenseData({
+                    ...licenseData,
+                    businessType: e.target.target,
+                  })
+                }
+                InputProps={{ readOnly: editEnable }}
+              />
+            </div>
+          </Grid>
+
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="address" className="input-label">
+                ADDRESS:
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                name="address"
+                value={licenseData.address}
+                onChange={(e) =>
+                  setLicenseData({ ...licenseData, address: e.target.target })
+                }
+                InputProps={{ readOnly: editEnable }}
+              />
+            </div>
+          </Grid>
+
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="district" className="input-label">
+                DISTRICT:
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                name="district"
+                value={licenseData.district}
+                onChange={(e) =>
+                  setLicenseData({ ...licenseData, district: e.target.target })
+                }
+                InputProps={{ readOnly: editEnable }}
+              />
+            </div>
+          </Grid>
+
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="phoneNo" className="input-label">
+                PHONE NO:
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                name="phoneNo"
+                value={licenseData.phoneNo}
+                onChange={(e) =>
+                  setLicenseData({ ...licenseData, phoneNo: e.target.target })
+                }
+                InputProps={{ readOnly: editEnable }}
+              />
+            </div>
+          </Grid>
+
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="fiancialPeriodfrom" className="input-label">
+                FINANCIAL PERIOD FROM:
+              </InputLabel>
+
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
                   id="fiancialPeriodfrom"
-                  fullWidth
-                  name="fiancialPeriodfrom"
-                  value={licenseData.fiancialPeriodfrom}
-                  onChange={handleInputChange1}
+                  format="DD/MM/YYYY"
+                  className="date-picker"
+                  value={dayjs(licenseData.fiancialPeriodfrom)}
+                  onChange={(newValue) =>
+                    handleDateChange("fiancialPeriodfrom", newValue)
+                  }
+                  sx={{ width: "100%" }}
+                  renderInput={(params) => <TextField {...params} />}
+                  readOnly={editEnable}
                 />
-              </FormControl>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              sx={{
-                display: "flex",
-                gap: "4px",
-                padding: "2px",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <InputLabel htmlFor="licenceId">LICENSE ID(12 DIGIT)</InputLabel>
-              <FormControl
-                variant="standard"
-                sx={{
-                  m: 1,
-                  width: "60%",
-                  padding: "4px",
-                  background: "white",
-                  borderRadius: "6px",
-                  borderBottom: "none",
-                }}
-              >
-                <Input
-                  required
-                  id="licenceId"
-                  fullWidth
-                  name="licenceId"
-                  value={licenseData.licenceId}
-                  onChange={handleInputChange1}
-                />
-              </FormControl>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              sx={{
-                display: "flex",
-                gap: "4px",
-                padding: "2px",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <InputLabel htmlFor="billCategory">BILL CATEGORY</InputLabel>
-              <FormControl
-                variant="standard"
-                sx={{
-                  m: 1,
-                  width: "10%",
-                  padding: "4px",
-                  background: "white",
-                  borderRadius: "6px",
-                  borderBottom: "none",
-                }}
-              >
-                <Input
-                  type="number"
-                  required
-                  id="billCategory"
-                  fullWidth
-                  name="billCategory"
-                  value={licenseData.billCategory}
-                  onChange={handleInputChange1}
-                />
-              </FormControl>
+              </LocalizationProvider>
+            </div>
+          </Grid>
 
-              <InputLabel htmlFor="noOfBillCopies">
-                NO OF BILL COPIES
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="fiancialPeriodTo" className="input-label">
+                FINANCIAL PERIOD TO:
               </InputLabel>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  id="fiancialPeriodTo"
+                  format="DD/MM/YYYY"
+                  className="date-picker"
+                  value={dayjs(licenseData.fiancialPeriodTo)}
+                  onChange={(newValue) =>
+                    handleDateChange("fiancialPeriodTo", newValue)
+                  }
+                  sx={{ width: "100%" }}
+                  renderInput={(params) => <TextField {...params} />}
+                  readOnly={editEnable}
+                />
+              </LocalizationProvider>
+            </div>
+          </Grid>
 
-              <FormControl
-                variant="standard"
-                sx={{
-                  m: 1,
-                  width: "19%",
-                  padding: "4px",
-                  background: "white",
-                  borderRadius: "6px",
-                  borderBottom: "none",
-                }}
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="licenceId" className="input-label">
+                LICENSE ID(12 DIGIT):
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                name="licenceId"
+                value={licenseData.licenceId}
+                onChange={(e) =>
+                  setLicenseData({ ...licenseData, licenceId: e.target.value })
+                }
+                InputProps={{ readOnly: editEnable }}
+              />
+            </div>
+          </Grid>
+
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="billCategory" className="input-label">
+                BILL CATEGORY:
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                name="billCategory"
+                value={licenseData.billCategory}
+                onChange={(e) =>
+                  setLicenseData({
+                    ...licenseData,
+                    billCategory: e.target.value,
+                  })
+                }
+                InputProps={{ readOnly: editEnable }}
+              />
+            </div>
+          </Grid>
+
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="noOfBillCopies" className="input-label">
+                NO. OF BILL COPIES:
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="noOfBillCopies"
+                value={licenseData.noOfBillCopies}
+                onChange={(e) =>
+                  setLicenseData({
+                    ...licenseData,
+                    noOfBillCopies: e.target.value,
+                  })
+                }
+                InputProps={{ readOnly: editEnable }}
               >
-                <InputLabel id="demo-simple-select-standard-label">
-                  No of Copies
-                </InputLabel>
-                <Select
-                  required
-                  type="number"
-                  labelId="demo-simple-select-standard-label"
-                  id="demo-simple-select-standard"
-                  value={licenseData.noOfBillCopies}
-                  name="noOfBillCopies"
-                  onChange={handleInputChange1}
-                  label="No of Copies"
-                >
-                  <MenuItem value="">
-                    <em>None</em>
-                  </MenuItem>
-                  <MenuItem value={1}>One</MenuItem>
-                  <MenuItem value={2}>Two</MenuItem>
-                  <MenuItem value={3}>Three</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid
-              xs={12}
-              sx={{
-                display: "flex",
-                gap: "4px",
-                padding: "12px",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <InputLabel htmlFor="autoBillPrint">AUTO BILL PRINT</InputLabel>
-              <FormControl
-                variant="standard"
-                sx={{
-                  m: 1,
-                  minWidth: 200,
-                  padding: "4px",
-                  background: "white",
-                  borderRadius: "6px",
-                  borderBottom: "none",
-                }}
+                <MenuItem value="">None</MenuItem>
+                <MenuItem value={1}>One</MenuItem>
+                <MenuItem value={2}>Two</MenuItem>
+                <MenuItem value={3}>Three</MenuItem>
+              </TextField>
+            </div>
+          </Grid>
+
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="autoBillPrint" className="input-label">
+                AUTO BILL PRINT:
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="autoBillPrint"
+                value={licenseData.autoBillPrint}
+                onChange={(e) =>
+                  setLicenseData({
+                    ...licenseData,
+                    autoBillPrint: e.target.value,
+                  })
+                }
+                InputProps={{ readOnly: editEnable }}
               >
-                <InputLabel id="demo-simple-select-standard-label">
-                  Auto Bill Print
-                </InputLabel>
-                <Select
-                  required
-                  labelId="demo-simple-select-standard-label"
-                  id="demo-simple-select-standard"
-                  value={licenseData.autoBillPrint}
-                  name="autoBillPrint"
-                  onChange={handleInputChange1}
-                  label="Auto Bill Print"
-                >
-                  <MenuItem value="">
-                    <em>None</em>
-                  </MenuItem>
-                  <MenuItem value={"YES"}>Yes</MenuItem>
-                  <MenuItem value={"NO"}>No</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              sx={{
-                display: "flex",
-                gap: "18px",
-                padding: "12px",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Button
-                variant="contained"
-                color="primary"
-                type="submit"
-                onClick={save}
-                disabled={isButtonDisabled}
-              >
-                SAVE
-              </Button>
-              <Button
-                variant="contained"
-                color="success"
-                type="submit"
-                onClick={edit}
-              >
-                EDIT
-              </Button>
-              <Button variant="contained" color="error" type="submit">
-                BACK
-              </Button>
-            </Grid>
+                <MenuItem value="">None</MenuItem>
+                <MenuItem value={"YES"}>Yes</MenuItem>
+                <MenuItem value={"NO"}>No</MenuItem>
+              </TextField>
+            </div>
           </Grid>
         </Grid>
-        <Grid
-          item
-          xs={5}
+
+        <Box
           sx={{
-            marginTop: "50px",
-            marginLeft: "25px",
-            textAlign: "left",
-            background: "#d3dce8",
-            padding: "12px",
-            borderRadius: "6px",
+            display: "flex",
+            justifyContent: "flex-end",
+            "& button": { marginTop: 2, marginBottom: 2 },
           }}
         >
-          <div
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              marginBottom: "10px",
-            }}
+          <Button
+            color="secondary"
+            size="small"
+            variant="contained"
+            onClick={handleCreate}
           >
-            <h3>Wine Application Developed By: TDR SOFTWARE PRIVATE LIMITED</h3>
-            <h3>COMPANY CIN NO: U72300WB2013PTC196614</h3>
-            <h3>GSTIN: 19AAECT848D1ZX</h3>
-            <h3>CONTACT NO: 9830657184/ 8670920038</h3>
-          </div>
-
-          <Grid container spacing={2} sx={{ marginTop: "10px" }}>
-            <Grid
-              item
-              xs={12}
-              sx={{
-                display: "flex",
-                gap: "4px",
-                padding: "2px",
-                alignItems: "center",
-                justifyContent: "space-between",
-                overflowX: "auto",
+            CREATE
+          </Button>
+          {editEnable ? (
+            <Button
+              color="primary"
+              size="small"
+              variant="contained"
+              onClick={(e) => {
+                e.preventDefault();
+                setEditEnable(false);
+                nameOfLicenceRef.current.focus();
               }}
+              sx={{ marginLeft: 2 }}
             >
-              <InputLabel htmlFor="eposUserId">
-                EPOS USER ID(15 DIGIT)
+              EDIT
+            </Button>
+          ) : (
+            <Button
+              color="success"
+              size="small"
+              variant="contained"
+              onClick={handleUpdate}
+              sx={{ marginLeft: 2 }}
+            >
+              SAVE
+            </Button>
+          )}
+
+          <Button
+            color="inherit"
+            size="small"
+            variant="contained"
+            onClick={clearForm}
+            sx={{ marginLeft: 2 }}
+          >
+            CLEAR
+          </Button>
+        </Box>
+
+        <Divider />
+
+        <Grid container spacing={2} sx={{ marginTop: 2, marginBottom: 3 }}>
+          <Grid item xs={6}>
+            <Typography variant="subtitle2" gutterBottom>
+              Wine Application Developed By: <b>TDR SOFTWARE PRIVATE LIMITED</b>
+            </Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <Typography variant="subtitle2" gutterBottom>
+              COMPANY CIN NO: <b>U72300WB2013PTC196614</b>
+            </Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <Typography variant="subtitle2" gutterBottom>
+              GSTIN: <b>19AAECT848D1ZX</b>
+            </Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <Typography variant="subtitle2" gutterBottom>
+              CONTACT NO: <b>9830657184/ 8670920038</b>
+            </Typography>
+          </Grid>
+        </Grid>
+
+        <Divider />
+
+        <Grid container spacing={2} sx={{ marginTop: 2 }}>
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="eposUserId" className="input-label">
+                EPOS USER ID(15 DIGIT):
               </InputLabel>
-              <FormControl
-                variant="standard"
-                sx={{
-                  m: 1,
-                  width: "30%",
-                  padding: "4px",
-                  background: "white",
-                  borderRadius: "6px",
-                  borderBottom: "none",
-                }}
-              >
-                <Input
-                  required
-                  id="eposUserId"
-                  fullWidth
-                  name="eposUserId"
-                  value={licenseData.eposUserId}
-                  onChange={handleInputChange1}
-                />
-              </FormControl>
+              <TextField
+                fullWidth
+                size="small"
+                name="eposUserId"
+                value={licenseData.eposUserId}
+                onChange={(e) =>
+                  setLicenseData({
+                    ...licenseData,
+                    eposUserId: e.target.value,
+                  })
+                }
+                InputProps={{ readOnly: editEnable }}
+              />
+            </div>
+          </Grid>
+
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel className="input-label"></InputLabel>
               <Button
+                color="success"
+                size="small"
                 variant="contained"
-                color="primary"
-                type="submit"
-                sx={{ width: "25%", height: "40px", fontSize: "12px" }}
+                // onClick={}
+                sx={{ width: "100%" }}
               >
                 EPOS CONFIGURE
               </Button>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              sx={{
-                display: "flex",
-                gap: "4px",
-                padding: "2px",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <InputLabel htmlFor="eposPassword">EPOS PASSWORD</InputLabel>
-              <FormControl
-                variant="standard"
-                sx={{
-                  m: 1,
-                  width: "50%",
-                  padding: "4px",
-                  background: "white",
-                  borderRadius: "6px",
-                  borderBottom: "none",
-                }}
-              >
-                <Input
-                  required
-                  id="eposPassword"
-                  fullWidth
-                  name="eposPassword"
-                  value={licenseData.eposPassword}
-                  onChange={handleInputChange1}
-                />
-              </FormControl>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              sx={{
-                display: "flex",
-                gap: "4px",
-                padding: "2px",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <InputLabel htmlFor="noOfItemPerBill">
-                NO OF ITEM PER BILL
+            </div>
+          </Grid>
+
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="eposPassword" className="input-label">
+                EPOS PASSWORD:
               </InputLabel>
-              <FormControl
-                variant="standard"
-                sx={{
-                  m: 1,
-                  width: "50%",
-                  padding: "4px",
-                  background: "white",
-                  borderRadius: "6px",
-                  borderBottom: "none",
-                }}
-              >
-                <Input
-                  type="number"
-                  required
-                  id="noOfItemPerBill"
-                  fullWidth
-                  name="noOfItemPerBill"
-                  value={licenseData.noOfItemPerBill}
-                  onChange={handleInputChange1}
-                />
-              </FormControl>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              sx={{
-                display: "flex",
-                gap: "4px",
-                padding: "2px",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <InputLabel htmlFor="perBillMaxWine">
-                Per Bill Max Wine(ML)
+              <TextField
+                fullWidth
+                size="small"
+                name="eposPassword"
+                value={licenseData.eposPassword}
+                onChange={(e) =>
+                  setLicenseData({
+                    ...licenseData,
+                    eposPassword: e.target.value,
+                  })
+                }
+                InputProps={{ readOnly: editEnable }}
+              />
+            </div>
+          </Grid>
+
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="noOfItemPerBill" className="input-label">
+                NO OF ITEM PER BILL:
               </InputLabel>
-              <FormControl
-                variant="standard"
-                sx={{
-                  m: 1,
-                  width: "50%",
-                  padding: "4px",
-                  background: "white",
-                  borderRadius: "6px",
-                  borderBottom: "none",
-                }}
-              >
-                <Input
-                  type="number"
-                  required
-                  id="perBillMaxWine"
-                  fullWidth
-                  name="perBillMaxWine"
-                  value={licenseData.perBillMaxWine}
-                  onChange={handleInputChange1}
-                />
-              </FormControl>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              sx={{
-                display: "flex",
-                gap: "4px",
-                padding: "2px",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <InputLabel htmlFor="perBillMaxCs">
-                Per Bill Max CS(ML)
+              <TextField
+                fullWidth
+                size="small"
+                name="noOfItemPerBill"
+                value={licenseData.noOfItemPerBill}
+                onChange={(e) =>
+                  setLicenseData({
+                    ...licenseData,
+                    noOfItemPerBill: e.target.value,
+                  })
+                }
+                InputProps={{ readOnly: editEnable }}
+              />
+            </div>
+          </Grid>
+
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="perBillMaxWine" className="input-label">
+                PER BILL MAX WINE(ML):
               </InputLabel>
-              <FormControl
-                variant="standard"
-                sx={{
-                  m: 1,
-                  width: "50%",
-                  padding: "4px",
-                  background: "white",
-                  borderRadius: "6px",
-                  borderBottom: "none",
-                }}
-              >
-                <Input
-                  type="number"
-                  required
-                  id="perBillMaxCs"
-                  fullWidth
-                  name="perBillMaxCs"
-                  value={licenseData.perBillMaxCs}
-                  onChange={handleInputChange1}
-                />
-              </FormControl>
-            </Grid>
-            
-            <Grid
-              item
-              xs={12}
-              sx={{
-                display: "flex",
-                gap: "4px",
-                padding: "2px",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <InputLabel htmlFor="billMessages">Bill Messages</InputLabel>
-              <FormControl
-                variant="standard"
-                sx={{
-                  m: 1,
-                  width: "50%",
-                  padding: "4px",
-                  background: "white",
-                  borderRadius: "6px",
-                  borderBottom: "none",
-                }}
-              >
-                <Input
-                  required
-                  id="billMessages"
-                  fullWidth
-                  name="billMessages"
-                  value={licenseData.billMessages}
-                  onChange={handleInputChange1}
-                />
-              </FormControl>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              sx={{
-                display: "flex",
-                gap: "4px",
-                padding: "2px",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <InputLabel htmlFor="messageMobile">Message Mobile</InputLabel>
-              <FormControl
-                variant="standard"
-                sx={{
-                  m: 1,
-                  width: "50%",
-                  padding: "4px",
-                  background: "white",
-                  borderRadius: "6px",
-                  borderBottom: "none",
-                }}
-              >
-                <Input
-                  type="number"
-                  required
-                  id="messageMobile"
-                  fullWidth
-                  name="messageMobile"
-                  value={licenseData.messageMobile}
-                  onChange={handleInputChange1}
-                />
-              </FormControl>
-            </Grid>
-            
+              <TextField
+                fullWidth
+                size="small"
+                name="perBillMaxWine"
+                value={licenseData.perBillMaxWine}
+                onChange={(e) =>
+                  setLicenseData({
+                    ...licenseData,
+                    perBillMaxWine: e.target.value,
+                  })
+                }
+                InputProps={{ readOnly: editEnable }}
+              />
+            </div>
+          </Grid>
+
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="perBillMaxCs" className="input-label">
+                PER BILL MAX CS(ML):
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                name="perBillMaxCs"
+                value={licenseData.perBillMaxCs}
+                onChange={(e) =>
+                  setLicenseData({
+                    ...licenseData,
+                    perBillMaxCs: e.target.value,
+                  })
+                }
+                InputProps={{ readOnly: editEnable }}
+              />
+            </div>
+          </Grid>
+
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="billMessages" className="input-label">
+                BILL MESSAGES:
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                name="billMessages"
+                value={licenseData.billMessages}
+                onChange={(e) =>
+                  setLicenseData({
+                    ...licenseData,
+                    billMessages: e.target.value,
+                  })
+                }
+                InputProps={{ readOnly: editEnable }}
+              />
+            </div>
+          </Grid>
+
+          <Grid item xs={4}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="messageMobile" className="input-label">
+                MESSAGE MOBILE:
+              </InputLabel>
+              <TextField
+                fullWidth
+                size="small"
+                name="messageMobile"
+                value={licenseData.messageMobile}
+                onChange={(e) =>
+                  setLicenseData({
+                    ...licenseData,
+                    messageMobile: e.target.value,
+                  })
+                }
+                InputProps={{ readOnly: editEnable }}
+              />
+            </div>
           </Grid>
         </Grid>
-      </Grid>
-    </Box>
+      </Box>
+    </ThemeProvider>
   );
 };
 
