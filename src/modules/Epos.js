@@ -4,6 +4,7 @@ import {
   CircularProgress,
   Grid,
   InputLabel,
+  Link,
   MenuItem,
   TextField,
   ThemeProvider,
@@ -20,6 +21,9 @@ import { getAllBrands } from "../services/brandService";
 import { getAllItems } from "../services/itemService";
 import { customTheme } from "../utils/customTheme";
 import { getAllItemCategory } from "../services/categoryService";
+import { getAllEpos, loginEpos, multipleEpos } from "../services/eposService";
+import { getLicenseInfo } from "../services/licenseService";
+import EposResponseModal from "./EposResponseModal";
 
 
 const Epos = () => {
@@ -37,9 +41,71 @@ const Epos = () => {
     pageSize: 10,
   });
   const [editedRows, setEditedRows] = useState({});
-//   console.log("allEposData --> ",allEposData)
+  const [successItems, setSuccessItems] = useState([]);
+  const [failedItems, setFailedItems] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  let todaysDate = new Date();
+  const [isLoading, setIsLoading] = useState(false);
+  const [licenseDetails, setLicenseDetails] = useState({});
+
+  const [openResponseModal, setOpenResponseModal] = useState(false);
+
+  const formatDateTimeStamp = (dateTimeString) => {
+    const date = new Date(dateTimeString);
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+  };
+
+  const fetchLicenseData = async () => {
+    try {
+      const response = await getLicenseInfo();
+
+      if (response.statusCode === 200) {
+        const licenseData = response?.data[0];
+
+        setLicenseDetails({
+          id: licenseData._id,
+          nameOfLicence: licenseData.nameOfLicence,
+          businessType: licenseData.businessType,
+          address: licenseData.address,
+          district: licenseData.district,
+          phoneNo: licenseData.phoneNo,
+
+          fiancialPeriodTo: licenseData.fiancialPeriodTo,
+          fiancialPeriodfrom: licenseData.fiancialPeriodfrom,
+          licenceId: licenseData.licenceId,
+          billCategory: licenseData.billCategory,
+          noOfBillCopies: licenseData.noOfBillCopies,
+
+          autoBillPrint: licenseData.autoBillPrint,
+          eposUserId: licenseData.eposUserId,
+          eposPassword: licenseData.eposPassword,
+          noOfItemPerBill: licenseData.noOfItemPerBill,
+          perBillMaxWine: licenseData.perBillMaxWine,
+          perBillMaxCs: licenseData.perBillMaxCs,
+
+          billMessages: licenseData.billMessages,
+          messageMobile: licenseData.messageMobile,
+        });
+      }
+
+      if (response?.response?.status === 400) {
+        setLicenseDetails([]);
+        NotificationManager.error("No License Data Found", "Error");
+      }
+    } catch (error) {
+      setLicenseDetails([]);
+      NotificationManager.error(
+        "Error fetching license. Please try again later.",
+        "Error"
+      );
+    }
+  };
 
   const formatDate = (date) => {
     if (!date) return null;
@@ -50,13 +116,56 @@ const Epos = () => {
 
   const columns = useMemo(
     () => [
-      { field: "sNo", headerName: "S. No.", flex: 1 },
-      { field: "itemCode", headerName: "Item Code", flex: 1 },
-      { field: "itemName", headerName: "Item Name", flex: 1 },
-      { field: "mrpValue", headerName: "MRP Value", flex: 1 },
-      { field: "volume", headerName: "Volume", flex: 1 },
-      { field: "sendQty", headerName: "Send Quantity", flex: 1, editable: true },
-      { field: "saleQty", headerName: "Sale Quantity", flex: 1 },
+      {
+        field: "sNo",
+        headerName: "S. No.",
+        flex: 1,
+        cellClassName: "custom-cell",
+        headerClassName: "custom-header",
+      },
+      {
+        field: "itemCode",
+        headerName: "Item Code",
+        flex: 1,
+        cellClassName: "custom-cell",
+        headerClassName: "custom-header",
+      },
+      {
+        field: "itemName",
+        headerName: "Item Name",
+        flex: 1,
+        cellClassName: "custom-cell",
+        headerClassName: "custom-header",
+      },
+      {
+        field: "mrp",
+        headerName: "MRP",
+        flex: 1,
+        cellClassName: "custom-cell",
+        headerClassName: "custom-header",
+      },
+      {
+        field: "volume",
+        headerName: "Volume",
+        flex: 1,
+        cellClassName: "custom-cell",
+        headerClassName: "custom-header",
+      },
+      {
+        field: "sendQty",
+        headerName: "Send Quantity",
+        flex: 1,
+        cellClassName: "custom-cell",
+        headerClassName: "custom-header",
+        editable: true,
+      },
+      {
+        field: "saleQty",
+        headerName: "Sale Quantity",
+        flex: 1,
+        cellClassName: "custom-cell",
+        headerClassName: "custom-header",
+      },
     ],
     []
   );
@@ -67,18 +176,17 @@ const Epos = () => {
         id: index,
         sNo: index + 1,
         itemCode: item.itemCode || "No Data",
-        itemName: item.itemName || "No Data",
-        volume: item.supplier?.name || 0,
-        mrpValue: item.mrp || 0,
-        sendQty: item.sendQty || 0,
-        saleQty: item.saleQty || 0,
+        itemName: item._id || "No Data",
+        volume: item.volume || 0,
+        mrp: item.mrp || 0,
+        sendQty: parseFloat(item.totalPcs) || 0,
+        saleQty: parseFloat(item.totalPcs) || 0,
       })),
     [allEposData]
   );
 
   const handleViewClick = (row) => {
     setSelectedRowData(row);
-    setIsModalOpen(true);
   };
 
   const fetchAllEposData = async () => {
@@ -98,10 +206,10 @@ const Epos = () => {
         itemName: itemName,
         brandName: brandName,
       };
-    //   const response = await getAllItemCategory(filterOptions);
-    //   console.log("sales fetched", response?.data?.data);
-    //   setAllEposData(response?.data?.data || []);
-    //   setTotalCount(response?.data?.data?.length || 0);
+      const response = await getAllEpos(filterOptions);
+      // console.log("sales fetched", response?.data?.data);
+      setAllEposData(response?.data?.data || []);
+      setTotalCount(response?.data?.data?.length || 0);
     } catch (error) {
       NotificationManager.error(
         "Error fetching sales. Please try again later.",
@@ -152,6 +260,7 @@ const Epos = () => {
     fetchAllBrands();
     fetchAllItems();
     fetchAllEposData();
+    fetchLicenseData();
   }, []);
 
   const debounce = (func, delay) => {
@@ -174,18 +283,92 @@ const Epos = () => {
       ...prevEditedRows,
       [newRow.id]: newRow,
     }));
-    console.log("newRow",newRow)
+    // console.log("newRow",newRow)
     return newRow;
   };
 
   const handleSendClick = async () => {
+    const allRowData = rows.map((row) => {
+      const editedRow = editedRows[row.id];
+      return editedRow ? { ...row, ...editedRow } : row;
+    });
+
+    // console.log("allRowData: ", allRowData);
+    const payload = allRowData.map((row) => ({
+      licenseeIdNo: licenseDetails.licenceId,
+      datetimeStamp: formatDateTimeStamp(todaysDate),
+      itemName: row.itemName,
+      packSize: row.volume,
+      gtin: row.itemCode,
+      mrp: row.mrp,
+      quantity: row.sendQty,
+    }));
+    // console.log("send payload: ", payload);
+
     try {
-      // Send the editedRows data to your server or process it as needed
-      console.log("Sending edited rows data:", (editedRows));
-      NotificationManager.success("Data sent successfully");
+      const response = await multipleEpos(payload);
+      // console.log(response);
+
+      const { successfulData, unsuccessfulData, message } =
+        response?.response?.data;
+
+      if (response?.response?.data) {
+        setSuccessItems(successfulData || []);
+        setFailedItems(
+          (unsuccessfulData || []).map((item) => ({
+            item,
+            errorMessage: message,
+          }))
+        );
+        NotificationManager.success("File processing completed.", "Success");
+        setOpenResponseModal(true);
+      } else {
+        setSuccessItems(successfulData || []);
+        setFailedItems(
+          unsuccessfulData.map((item) => ({
+            item,
+            errorMessage: message,
+          }))
+        );
+        NotificationManager.warning("Some items failed to process.", "Warning");
+      }
+      setOpenResponseModal(true);
     } catch (error) {
-      NotificationManager.error("Error sending data. Please try again.");
+      setSuccessItems([]);
+      setFailedItems(
+        payload.map((item) => ({ item, errorMessage: error.message }))
+      );
+      NotificationManager.error("Error processing file.", "Error");
     }
+  };
+
+
+  const handleResendClick = async () => {
+    const failedData = failedItems.map((failedItem) => failedItem.item);
+
+    try {
+      const response = await multipleEpos(failedData);
+      if (response.status === 200) {
+        setSuccessItems((prev) => [...prev, ...failedData]);
+        setFailedItems([]);
+        NotificationManager.success("Failed items resent successfully.","Success");
+      } else {
+        setFailedItems(
+          failedData.map((item) => ({ item, errorMessage: response.message }))
+        );
+        NotificationManager.error("Some items still failed to process.","Error");
+      }
+    } catch (error) {
+      setFailedItems(
+        failedData.map((item) => ({ item, errorMessage: error.message }))
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setOpenResponseModal(false);
   };
 
 
@@ -241,28 +424,13 @@ const Epos = () => {
                 Item Name:
               </InputLabel>
               <TextField
-                select
                 fullWidth
                 size="small"
                 name="itemName"
                 value={itemName}
                 onChange={(e) => setItemName(e.target.value)}
-                SelectProps={{
-                  MenuProps: {
-                    PaperProps: {
-                      style: {
-                        maxHeight: 200,
-                      },
-                    },
-                  },
-                }}
-              >
-                {allItems?.map((item) => (
-                  <MenuItem key={item._id} value={item.name}>
-                    {item.name}
-                  </MenuItem>
-                ))}
-              </TextField>
+              />
+              
             </div>
           </Grid>
 
@@ -272,28 +440,14 @@ const Epos = () => {
                 Brand:
               </InputLabel>
               <TextField
-                select
                 fullWidth
                 size="small"
                 name="brandName"
                 value={brandName}
                 onChange={(e) => setBrandName(e.target.value)}
-                SelectProps={{
-                  MenuProps: {
-                    PaperProps: {
-                      style: {
-                        maxHeight: 200,
-                      },
-                    },
-                  },
-                }}
-              >
-                {allBrands.map((brand) => (
-                  <MenuItem key={brand._id} value={brand.name}>
-                    {brand.name}
-                  </MenuItem>
-                ))}
-              </TextField>
+               
+              />
+              
             </div>
           </Grid>
         </Grid>
@@ -305,24 +459,23 @@ const Epos = () => {
             "& button": { marginTop: 1 },
           }}
         >
-          
           <div>
-          <Button
-            color="inherit"
-            size="small"
-            variant="contained"
-            onClick={() => {
-              setDateFrom(null);
-              setDateTo(null);
-              setItemName("");
-              setBrandName("");
-              setPaginationModel({ page: 0, pageSize: 10 });
-              fetchAllEposData();
-            }}
-            // sx={{ borderRadius: 8 }}
-          >
-            Clear Filters
-          </Button>
+            <Button
+              color="inherit"
+              size="small"
+              variant="contained"
+              onClick={() => {
+                setDateFrom(null);
+                setDateTo(null);
+                setItemName("");
+                setBrandName("");
+                setPaginationModel({ page: 0, pageSize: 10 });
+                fetchAllEposData();
+              }}
+              // sx={{ borderRadius: 8 }}
+            >
+              Clear Filters
+            </Button>
             <Button
               color="info"
               size="small"
@@ -349,10 +502,10 @@ const Epos = () => {
             columns={columns}
             rowCount={totalCount}
             pagination
-            // paginationMode="server"
-            pageSizeOptions={[10, 25, 50]}
+            paginationMode="server"
+            pageSizeOptions={[10, 25, 50, 100]}
             paginationModel={paginationModel}
-            // onPaginationModelChange={setPaginationModel}
+            onPaginationModelChange={setPaginationModel}
             sx={{ backgroundColor: "#fff" }}
             loading={loading}
             components={{
@@ -371,7 +524,6 @@ const Epos = () => {
             }}
             slots={{
               toolbar: GridToolbar,
-              // pagination: Pagination
             }}
             initialState={{
               density: "compact",
@@ -379,14 +531,26 @@ const Epos = () => {
             processRowUpdate={processRowUpdate}
           />
         </Box>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSendClick}
-          sx={{ mt: 2 }}
+
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            "& button": { marginTop: 1 },
+          }}
         >
-          Send
-        </Button>
+          
+          <Button
+            size="small"
+            variant="contained"
+            color="success"
+            onClick={handleSendClick}
+            sx={{ mt: 2 }}
+          >
+            Send
+          </Button>
+        </Box>
+        <EposResponseModal openResponseModal={openResponseModal} handleCloseModal={handleCloseModal} handleResendClick={handleResendClick}successItems={successItems} failedItems={failedItems} />
       </Box>
     </ThemeProvider>
   );
