@@ -29,6 +29,8 @@ const StockReport = () => {
   const [allStocks, setAllStocks] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // console.log("allStocks", allStocks)
+
   const [filterData, setFilterData] = useState({
     itemCode: "",
     itemName: "",
@@ -181,10 +183,7 @@ const StockReport = () => {
     setLoading(true);
     try {
       const filterOptions = {
-        page:
-          paginationModel.page === 0
-            ? paginationModel.page + 1
-            : paginationModel.page,
+        page: paginationModel.page,
         pageSize: paginationModel.pageSize,
         itemName: filterData.itemName,
         itemCode: filterData.itemCode,
@@ -198,9 +197,10 @@ const StockReport = () => {
       console.log("filterOptions: ", filterOptions);
       const allStocksResponse = await getAllStocks(filterOptions);
       console.log("allStocksResponse: ", allStocksResponse);
+      const allStocksData = allStocksResponse?.data?.data;
 
-      setAllStocks(allStocksResponse?.data?.data || []);
-      setTotalCount(allStocksResponse?.data?.data?.length || 0);
+      setAllStocks(allStocksData?.items || []);
+      setTotalCount(allStocksData?.totalItems || 0);
     } catch (error) {
       NotificationManager.error(
         "Error fetching stock. Please try again later.",
@@ -323,9 +323,9 @@ const StockReport = () => {
   }, [paginationModel, filterData]);
 
   useEffect(() => {
-    fetchAllItems();
+    // fetchAllItems();
     fetchAllStocks();
-    fetchAllBrands();
+    // fetchAllBrands();
     fetchAllCompanies();
     fetchAllCategory();
     fetchAllStores();
@@ -423,28 +423,28 @@ const StockReport = () => {
                 Item Name :
               </InputLabel>
               <TextField
-                select
+                // select
                 fullWidth
                 size="small"
                 name="itemName"
                 value={filterData.itemName}
                 onChange={handleFilterChange}
-                SelectProps={{
-                  MenuProps: {
-                    PaperProps: {
-                      style: {
-                        maxHeight: 200,
-                      },
-                    },
-                  },
-                }}
-              >
-                {allItems?.map((item) => (
+                // SelectProps={{
+                //   MenuProps: {
+                //     PaperProps: {
+                //       style: {
+                //         maxHeight: 200,
+                //       },
+                //     },
+                //   },
+                // }}
+              />
+              {/* {allItems?.map((item) => (
                   <MenuItem key={item._id} value={item.name}>
                     {item.name}
                   </MenuItem>
                 ))}
-              </TextField>
+              </TextField> */}
             </div>
           </Grid>
 
@@ -471,6 +471,7 @@ const StockReport = () => {
                   },
                 }}
               >
+                <MenuItem value="">None</MenuItem>
                 {allCategory?.map((item) => (
                   <MenuItem key={item._id} value={item.categoryName}>
                     {item.categoryName}
@@ -517,28 +518,28 @@ const StockReport = () => {
                 Brand :
               </InputLabel>
               <TextField
-                select
+                // select
                 fullWidth
                 size="small"
                 name="brandName"
                 value={filterData.brandName}
                 onChange={handleFilterChange}
-                SelectProps={{
-                  MenuProps: {
-                    PaperProps: {
-                      style: {
-                        maxHeight: 200,
-                      },
-                    },
-                  },
-                }}
-              >
-                {allBrands?.map((item) => (
+                // SelectProps={{
+                //   MenuProps: {
+                //     PaperProps: {
+                //       style: {
+                //         maxHeight: 200,
+                //       },
+                //     },
+                //   },
+                // }}
+              />
+              {/* {allBrands?.map((item) => (
                   <MenuItem key={item._id} value={item.name}>
                     {item.name}
                   </MenuItem>
                 ))}
-              </TextField>
+              </TextField> */}
             </div>
           </Grid>
 
@@ -564,6 +565,7 @@ const StockReport = () => {
                   },
                 }}
               >
+                <MenuItem value="">None</MenuItem>
                 {allStores?.map((store) => (
                   <MenuItem key={store._id} value={store.name}>
                     {store.name}
@@ -595,6 +597,7 @@ const StockReport = () => {
                   },
                 }}
               >
+                <MenuItem value="">None</MenuItem>
                 {allCompanies?.map((item) => (
                   <MenuItem key={item._id} value={item.name}>
                     {item.name}
@@ -647,34 +650,42 @@ const StockReport = () => {
           <DataGrid
             rows={(allStocks || [])?.map((stock, index) => ({
               id: index,
-              sNo: index + 1,
+              // sNo: paginationModel.page * paginationModel.pageSize + index + 1,
+              sNo: index + paginationModel.page,
               createdAt: new Date(stock.createdAt).toLocaleDateString("en-GB"),
               itemCode: stock.itemCode || "No Data",
               itemName: stock?.item?.name || "No Data",
-              currentStock: stock.currentStock || "No Data",
+              currentStock: stock.currentStock || 0,
               brandName: stock?.item?.brand?.name || "No Data",
               categoryName: stock?.item?.category?.categoryName || "No Data",
               companyName: stock?.item?.company?.name || "No Data",
               batchNo: stock.batchNo || "No Data",
-              volume: stock?.item?.volume || "No Data",
-              saleRate: stock.saleRate || "No Data",
-              purchaseRate: stock.purchaseRate || "No Data",
-              stockRate: stock.stockRate || "No Data",
+              volume: stock?.item?.volume || 0,
+              saleRate: stock.saleRate || 0,
+              purchaseRate: stock.purchaseRate || 0,
+              stockRate: stock.stockRate || 0,
               storeName: stock.store?.name || "No Data",
               storeType: stock.store?.type || "No Data",
-              openingStock: stock.openingStock || "No Data",
-              mrp: stock.mrp || "No Data",
+              openingStock: stock.openingStock || 0,
+              mrp: stock.mrp || 0,
             }))}
+            keepNonExistentRowsSelected 
             columns={columnsData}
             rowCount={totalCount}
-            pagination
             paginationMode="server"
+            pageSizeOptions={[10, 25, 50]}
+            // paginationModel={paginationModel}
+            onPaginationModelChange={setPaginationModel}
             initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: paginationModel.pageSize,
+                  page: paginationModel.page,
+                },
+                rowCount: totalCount
+              },
               density: "compact",
             }}
-            pageSizeOptions={[10, 25, 50, 100]}
-            onPaginationModelChange={setPaginationModel}
-            sx={{ backgroundColor: "#fff", fontSize: "12px" }}
             disableRowSelectionOnClick
             loading={loading}
             loadingOverlay={
@@ -693,6 +704,7 @@ const StockReport = () => {
               footer: CustomFooter,
               toolbar: GridToolbar,
             }}
+            sx={{ backgroundColor: "#fff", fontSize: "12px" }}
           />
         </Box>
       </Box>
