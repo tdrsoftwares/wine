@@ -25,7 +25,6 @@ import { getAllEpos, loginEpos, multipleEpos } from "../services/eposService";
 import { getLicenseInfo } from "../services/licenseService";
 import EposResponseModal from "./EposResponseModal";
 
-
 const Epos = () => {
   const [dateFrom, setDateFrom] = useState(null);
   const [dateTo, setDateTo] = useState(null);
@@ -34,8 +33,6 @@ const Epos = () => {
   const [itemName, setItemName] = useState("");
   const [allItems, setAllItems] = useState([]);
   const [allBrands, setAllBrands] = useState([]);
-  const [selectedRowData, setSelectedRowData] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: 10,
@@ -133,7 +130,14 @@ const Epos = () => {
       {
         field: "itemName",
         headerName: "Item Name",
-        flex: 1,
+        flex: 2,
+        cellClassName: "custom-cell",
+        headerClassName: "custom-header",
+      },
+      {
+        field: "brandName",
+        headerName: "Brand Name",
+        flex: 2,
         cellClassName: "custom-cell",
         headerClassName: "custom-header",
       },
@@ -177,6 +181,7 @@ const Epos = () => {
         sNo: index + 1,
         itemCode: item.itemCode || "No Data",
         itemName: item._id || "No Data",
+        brandName: item.brandName || "",
         volume: item.volume || 0,
         mrp: item.mrp || 0,
         sendQty: parseFloat(item.totalPcs) || 0,
@@ -184,10 +189,6 @@ const Epos = () => {
       })),
     [allEposData]
   );
-
-  const handleViewClick = (row) => {
-    setSelectedRowData(row);
-  };
 
   const fetchAllEposData = async () => {
     const fromDate = dateFrom ? formatDate(dateFrom) : null;
@@ -215,7 +216,7 @@ const Epos = () => {
         "Error fetching sales. Please try again later.",
         "Error"
       );
-      setAllEposData([])
+      setAllEposData([]);
     } finally {
       setLoading(false);
     }
@@ -287,7 +288,7 @@ const Epos = () => {
     return newRow;
   };
 
-  const handleSendClick = async () => {
+  const handleSend = async () => {
     const allRowData = rows.map((row) => {
       const editedRow = editedRows[row.id];
       return editedRow ? { ...row, ...editedRow } : row;
@@ -303,60 +304,86 @@ const Epos = () => {
       mrp: row.mrp,
       quantity: row.sendQty,
     }));
+
     // console.log("send payload: ", payload);
 
+    setIsLoading(true);
     try {
-      const response = await multipleEpos(payload);
-      // console.log(response);
+      const loginPayload = {
+        userName: licenseDetails?.eposUserId,
+        password: licenseDetails?.eposPassword,
+      };
 
-      const { successfulData, unsuccessfulData, message } =
-        response?.response?.data;
+      const loginResponse = await loginEpos(loginPayload);
 
-      if (response?.response?.data) {
-        setSuccessItems(successfulData || []);
-        setFailedItems(
-          (unsuccessfulData || []).map((item) => ({
-            item,
-            errorMessage: message,
-          }))
-        );
-        NotificationManager.success("File processing completed.", "Success");
+      if (loginResponse.status === 200) {
+        NotificationManager.success("Login successful!", "Success.", 1000);
+        NotificationManager.info("Sending EPOS data...");
+        const response = await multipleEpos(payload);
+        console.log("response ", response)
+
+        const responseData = response?.response;
+        const { successfulData, unsuccessfulData, message } = responseData?.data;
+        if (responseData.status === 200) {
+          setSuccessItems(successfulData || []);
+          setFailedItems(
+            (unsuccessfulData || []).map((item) => ({
+              item,
+              errorMessage: message,
+            }))
+          );
+          NotificationManager.success("Epos data sent.", "Success");
+          setOpenResponseModal(true);
+        } else {
+          setSuccessItems(successfulData || []);
+          setFailedItems(
+            unsuccessfulData.map((item) => ({
+              item,
+              errorMessage: message,
+            }))
+          );
+          NotificationManager.warning(
+            "Some items failed to process.",
+            "Warning"
+          );
+        }
         setOpenResponseModal(true);
       } else {
-        setSuccessItems(successfulData || []);
-        setFailedItems(
-          unsuccessfulData.map((item) => ({
-            item,
-            errorMessage: message,
-          }))
-        );
-        NotificationManager.warning("Some items failed to process.", "Warning");
+        NotificationManager.error("Problem in login! Please try again.","Error!");
+        setIsLoading(false);
       }
-      setOpenResponseModal(true);
     } catch (error) {
+      console.log(error)
       setSuccessItems([]);
       setFailedItems(
         payload.map((item) => ({ item, errorMessage: error.message }))
       );
-      NotificationManager.error("Error processing file.", "Error");
+      NotificationManager.error("Error processing data.", "Error");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-
-  const handleResendClick = async () => {
+  const handleResend = async () => {
     const failedData = failedItems.map((failedItem) => failedItem.item);
+
+    setIsLoading(true);
 
     try {
       const response = await multipleEpos(failedData);
+
       if (response.status === 200) {
         setSuccessItems((prev) => [...prev, ...failedData]);
         setFailedItems([]);
-        NotificationManager.success("Failed items resent successfully.","Success");
+        NotificationManager.success("EPOS data resent successfully", "Success");
       } else {
         setFailedItems(
           failedData.map((item) => ({ item, errorMessage: response.message }))
         );
-        NotificationManager.error("Some items still failed to process.","Error");
+        NotificationManager.error(
+          "Some items still failed to process.",
+          "Error"
+        );
       }
     } catch (error) {
       setFailedItems(
@@ -369,8 +396,10 @@ const Epos = () => {
 
   const handleCloseModal = () => {
     setOpenResponseModal(false);
+    setIsLoading(false);
+    setSuccessItems([]);
+    setFailedItems([]);
   };
-
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -430,7 +459,6 @@ const Epos = () => {
                 value={itemName}
                 onChange={(e) => setItemName(e.target.value)}
               />
-              
             </div>
           </Grid>
 
@@ -445,9 +473,7 @@ const Epos = () => {
                 name="brandName"
                 value={brandName}
                 onChange={(e) => setBrandName(e.target.value)}
-               
               />
-              
             </div>
           </Grid>
         </Grid>
@@ -535,22 +561,30 @@ const Epos = () => {
         <Box
           sx={{
             display: "flex",
-            justifyContent: "space-between",
+            justifyContent: "flex-end",
             "& button": { marginTop: 1 },
           }}
         >
-          
           <Button
             size="small"
             variant="contained"
             color="success"
-            onClick={handleSendClick}
+            onClick={handleSend}
             sx={{ mt: 2 }}
+            disabled={isLoading}
           >
-            Send
+            {isLoading ? <CircularProgress size={24} /> : "SEND"}
           </Button>
         </Box>
-        <EposResponseModal openResponseModal={openResponseModal} handleCloseModal={handleCloseModal} handleResendClick={handleResendClick}successItems={successItems} failedItems={failedItems} />
+        <EposResponseModal
+          openResponseModal={openResponseModal}
+          handleCloseModal={handleCloseModal}
+          handleResend={handleResend}
+          successItems={successItems}
+          failedItems={failedItems}
+          isLoading={isLoading}
+          setIsLoading={setIsLoading}
+        />
       </Box>
     </ThemeProvider>
   );
