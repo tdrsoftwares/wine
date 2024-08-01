@@ -302,7 +302,7 @@ const Epos = () => {
       packSize: row.volume,
       gtin: row.itemCode,
       mrp: row.mrp,
-      quantity: row.sendQty,
+      quantity: parseFloat(row.sendQty),
     }));
 
     // console.log("send payload: ", payload);
@@ -320,16 +320,16 @@ const Epos = () => {
         NotificationManager.success("Login successful!", "Success.", 2000);
         NotificationManager.info("Sending EPOS data...","", 4000);
         const response = await multipleEpos(payload);
-        // console.log("response ", response)
+        // console.log("response ", response);
 
-        const responseData = response?.response;
-        const { successfulData, unsuccessfulData, message } = responseData?.data;
-        if (responseData.status === 200) {
+        const { successfulData, unsuccessfulData } = response?.data || response?.response?.data;
+        
+        if (response.status === 200) {
           setSuccessItems(successfulData || []);
           setFailedItems(
             (unsuccessfulData || []).map((item) => ({
               item,
-              errorMessage: message,
+              errorMessage: item.error,
             }))
           );
           NotificationManager.success("Epos data sent.", "Success");
@@ -337,9 +337,9 @@ const Epos = () => {
         } else {
           setSuccessItems(successfulData || []);
           setFailedItems(
-            unsuccessfulData.map((item) => ({
+            (unsuccessfulData || []).map((item) => ({
               item,
-              errorMessage: message,
+              errorMessage: item.error,
             }))
           );
           NotificationManager.warning(
@@ -358,14 +358,18 @@ const Epos = () => {
       setFailedItems(
         payload.map((item) => ({ item, errorMessage: error.message }))
       );
-      NotificationManager.error("Error processing data.", "Error");
+      NotificationManager.error("Problem processing data.", "Error");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleResend = async () => {
-    const failedData = failedItems.map((failedItem) => failedItem.item);
+    const failedData = failedItems.map(({ item }) => {
+      const { error, ...rest } = item;
+      return rest;
+    });
+    // console.log(failedData)
 
     setIsLoading(true);
 

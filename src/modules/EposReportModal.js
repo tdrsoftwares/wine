@@ -136,7 +136,7 @@ const EposReportModal = ({
         <Button onClick={handleCloseModal} color="primary">
           Close
         </Button>
-        <Button onClick={handleResend} color="secondary" disabled={isLoading}>
+        <Button onClick={handleResend} color="secondary" disabled={isLoading || failedItems.length === 0}>
           {isLoading ? <CircularProgress size={24} /> : "Resend"}
         </Button>
       </DialogActions>
