@@ -15,7 +15,7 @@ import {
   GridFooterContainer,
   GridToolbar,
 } from "@mui/x-data-grid";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { getAllStocks } from "../../services/stockService";
 import { NotificationManager } from "react-notifications";
 import { getAllItems } from "../../services/itemService";
@@ -50,7 +50,7 @@ const StockReport = () => {
   const [allStores, setAllStores] = useState([]);
 
   const [paginationModel, setPaginationModel] = useState({
-    page: 1,
+    page: 0,
     pageSize: 10,
   });
   const [totalCount, setTotalCount] = useState(0);
@@ -58,8 +58,6 @@ const StockReport = () => {
   const [totalVolume, setTotalVolume] = useState(0);
   const [totalStock, setTotalStock] = useState(0);
   const [totalMRP, setTotalMRP] = useState(0);
-  // console.log("totalCount: " + totalCount);
-  // console.log("paginationModel: ", paginationModel);
 
   const columns = [
     {
@@ -183,7 +181,7 @@ const StockReport = () => {
     setLoading(true);
     try {
       const filterOptions = {
-        page: paginationModel.page,
+        page: paginationModel.page +1,
         pageSize: paginationModel.pageSize,
         itemName: filterData.itemName,
         itemCode: filterData.itemCode,
@@ -344,7 +342,7 @@ const StockReport = () => {
       storeName: "",
       company: "",
     });
-    setPaginationModel({ page: 1, pageSize: 10 });
+    setPaginationModel({ page: 0, pageSize: 10 });
   };
 
   useEffect(() => {
@@ -371,6 +369,7 @@ const StockReport = () => {
     setTotalStock(totalStock);
     setTotalMRP(totalMRP);
   }, [allStocks]);
+
 
   const CustomFooter = () => {
     return (
@@ -423,28 +422,13 @@ const StockReport = () => {
                 Item Name :
               </InputLabel>
               <TextField
-                // select
                 fullWidth
                 size="small"
                 name="itemName"
                 value={filterData.itemName}
                 onChange={handleFilterChange}
-                // SelectProps={{
-                //   MenuProps: {
-                //     PaperProps: {
-                //       style: {
-                //         maxHeight: 200,
-                //       },
-                //     },
-                //   },
-                // }}
               />
-              {/* {allItems?.map((item) => (
-                  <MenuItem key={item._id} value={item.name}>
-                    {item.name}
-                  </MenuItem>
-                ))}
-              </TextField> */}
+              
             </div>
           </Grid>
 
@@ -634,7 +618,6 @@ const StockReport = () => {
           >
             Display
           </Button>
-          {/* </div> */}
         </Box>
 
         <Box
@@ -650,8 +633,7 @@ const StockReport = () => {
           <DataGrid
             rows={(allStocks || [])?.map((stock, index) => ({
               id: index,
-              // sNo: paginationModel.page * paginationModel.pageSize + index + 1,
-              sNo: index + paginationModel.page,
+              sNo: index + paginationModel.page * paginationModel.pageSize + 1,
               createdAt: new Date(stock.createdAt).toLocaleDateString("en-GB"),
               itemCode: stock.itemCode || "No Data",
               itemName: stock?.item?.name || "No Data",
@@ -669,21 +651,16 @@ const StockReport = () => {
               openingStock: stock.openingStock || 0,
               mrp: stock.mrp || 0,
             }))}
-            keepNonExistentRowsSelected 
+            keepNonExistentRowsSelected
             columns={columnsData}
             rowCount={totalCount}
             paginationMode="server"
             pageSizeOptions={[10, 25, 50]}
-            // paginationModel={paginationModel}
-            onPaginationModelChange={setPaginationModel}
+            paginationModel={paginationModel}
+            onPaginationModelChange={(newPaginationModel) =>
+              setPaginationModel(newPaginationModel)
+            }
             initialState={{
-              pagination: {
-                paginationModel: {
-                  pageSize: paginationModel.pageSize,
-                  page: paginationModel.page,
-                },
-                rowCount: totalCount
-              },
               density: "compact",
             }}
             disableRowSelectionOnClick
