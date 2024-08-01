@@ -622,7 +622,7 @@ const StockReport = () => {
 
         <Box
           sx={{
-            height: 400,
+            height: 450,
             width: "100%",
             marginTop: 1,
             "& .custom-header": {
