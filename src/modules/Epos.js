@@ -23,7 +23,7 @@ import { customTheme } from "../utils/customTheme";
 import { getAllItemCategory } from "../services/categoryService";
 import { getAllEpos, loginEpos, multipleEpos } from "../services/eposService";
 import { getLicenseInfo } from "../services/licenseService";
-import EposResponseModal from "./EposResponseModal";
+import EposReportModal from "./EposReportModal";
 
 const Epos = () => {
   const [dateFrom, setDateFrom] = useState(null);
@@ -317,10 +317,10 @@ const Epos = () => {
       const loginResponse = await loginEpos(loginPayload);
 
       if (loginResponse.status === 200) {
-        NotificationManager.success("Login successful!", "Success.", 1000);
-        NotificationManager.info("Sending EPOS data...");
+        NotificationManager.success("Login successful!", "Success.", 2000);
+        NotificationManager.info("Sending EPOS data...","", 4000);
         const response = await multipleEpos(payload);
-        console.log("response ", response)
+        // console.log("response ", response)
 
         const responseData = response?.response;
         const { successfulData, unsuccessfulData, message } = responseData?.data;
@@ -576,7 +576,7 @@ const Epos = () => {
             {isLoading ? <CircularProgress size={24} /> : "SEND"}
           </Button>
         </Box>
-        <EposResponseModal
+        <EposReportModal
           openResponseModal={openResponseModal}
           handleCloseModal={handleCloseModal}
           handleResend={handleResend}
