@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import * as React from "react";
 
-const EposResponseModal = ({
+const EposReportModal = ({
   isLoading,
   setIsLoading,
   openResponseModal,
@@ -32,18 +32,19 @@ const EposResponseModal = ({
       fullWidth
       maxWidth="sm"
     >
-      <DialogTitle>File Processing Results</DialogTitle>
+      <DialogTitle>EPOS Processing Results</DialogTitle>
       <DialogContent>
         <Typography variant="h6" gutterBottom>
           Successful Items:
         </Typography>
         <Box
           maxHeight="300px"
-          overflowY="auto"
-          borderWidth="1px"
-          borderRadius="md"
+          overflow="auto"
           border={1}
+          borderRadius="4px"
           borderColor="grey.300"
+          mb={2}
+          p={1}
         >
           {successItems.length > 0 ? (
             <List>
@@ -78,16 +79,16 @@ const EposResponseModal = ({
             <Typography>No successful items.</Typography>
           )}
         </Box>
-        <Typography variant="h6" gutterBottom mt={4}>
+        <Typography variant="h6" gutterBottom>
           Failed Items:
         </Typography>
         <Box
           maxHeight="300px"
-          overflowY="auto"
-          borderWidth="1px"
-          borderRadius="md"
+          overflow="auto"
           border={1}
+          borderRadius="4px"
           borderColor="grey.300"
+          p={1}
         >
           {failedItems.length > 0 ? (
             <List>
@@ -116,7 +117,7 @@ const EposResponseModal = ({
                         <Typography
                           component="span"
                           variant="body2"
-                          color="red"
+                          color="error"
                         >
                           Error: {failedItem.errorMessage}
                         </Typography>
@@ -135,7 +136,7 @@ const EposResponseModal = ({
         <Button onClick={handleCloseModal} color="primary">
           Close
         </Button>
-        <Button onClick={handleResend} color="secondary">
+        <Button onClick={handleResend} color="secondary" disabled={isLoading || failedItems.length === 0}>
           {isLoading ? <CircularProgress size={24} /> : "Resend"}
         </Button>
       </DialogActions>
@@ -143,4 +144,4 @@ const EposResponseModal = ({
   );
 };
 
-export default EposResponseModal;
+export default EposReportModal;
