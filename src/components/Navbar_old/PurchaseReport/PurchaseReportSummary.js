@@ -17,6 +17,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   getAllPurchases,
   getItemPurchaseDetails,
+  removeAllPurchases,
 } from "../../../services/purchaseService";
 import { NotificationManager } from "react-notifications";
 import { getAllSuppliers } from "../../../services/supplierService";
@@ -27,6 +28,8 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { customTheme } from "../../../utils/customTheme";
 import { getAllStores } from "../../../services/storeService";
+import DeleteConfirmDialog from "../../../modules/DeleteConfirmDialog";
+
 
 const PurchaseReportSummary = () => {
   const [selectedSupplier, setSelectedSupplier] = useState("");
@@ -45,6 +48,8 @@ const PurchaseReportSummary = () => {
 
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [openDeleteConfirmModal, setOpenDeleteConfirmModal] = useState(false);
+  const [deleteConfirmed, setDeleteConfirmed] = useState(false);
 
   const formatDate = (date) => {
     if (!date) return null;
@@ -146,13 +151,6 @@ const PurchaseReportSummary = () => {
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
-    // {
-    //   field: "sTaxAmount",
-    //   headerName: "Service Tax Amt.",
-    //   width: 150,
-    //   cellClassName: "custom-cell",
-    //   headerClassName: "custom-header",
-    // },
     {
       field: "tcsAmount",
       headerName: "Tcs Amt.",
@@ -293,18 +291,58 @@ const PurchaseReportSummary = () => {
   }, [paginationModel, dateFrom, dateTo, selectedSupplier, stockIn]);
 
 
+  const handleOpenDeleteConfirmModal = () => {
+    setOpenDeleteConfirmModal(true);
+    return;
+  };
+  
+  const handleCloseDeleteConfirmModal = () => {
+    setOpenDeleteConfirmModal(false);
+    setDeleteConfirmed(false); 
+  };
+  
+
+  const handleDeleteAllPurchases = () => {
+    handleOpenDeleteConfirmModal();
+  };
+
+  const handleConfirmDeleteAll = async () => {
+    try {
+      const response = await removeAllPurchases(true);
+      if (response.status === 200) {
+        NotificationManager.success(
+          "All purchases deleted successfully.",
+          "Success"
+        );
+        setAllPurchases([]);
+      } else {
+        console.log("error: ", response);
+        NotificationManager.error(
+          "Error deleting purchases. Please try again later.",
+          "Error"
+        );
+      }
+    } catch (error) {
+      NotificationManager.error(
+        "Error deleting purchases. Please try again later.",
+        "Error"
+      );
+      console.log(error);
+    } finally {
+      setOpenDeleteConfirmModal(false);
+      setDeleteConfirmed(false); 
+    }
+  };
+
   return (
     <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, width: "900px" }}>
         <Typography variant="subtitle2" gutterBottom>
           Purchase Report Summary:
         </Typography>
-        <Typography sx={{ fontSize: "13px" }}>
-          Filter By:
-        </Typography>
+        <Typography sx={{ fontSize: "13px" }}>Filter By:</Typography>
 
         <Grid container spacing={2}>
-
           <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="dateFrom" className="input-label">
@@ -374,7 +412,7 @@ const PurchaseReportSummary = () => {
           </Grid>
 
           <Grid item xs={3}>
-          <div className="input-wrapper">
+            <div className="input-wrapper">
               <InputLabel htmlFor="stockIn" className="input-label">
                 Stock In :
               </InputLabel>
@@ -420,33 +458,22 @@ const PurchaseReportSummary = () => {
               setDateFrom(null);
               setDateTo(null);
               setSelectedSupplier("");
-              setStockIn("")
+              setStockIn("");
               setPaginationModel({ page: 0, pageSize: 10 });
               fetchAllPurchases();
             }}
-            // sx={{ borderRadius: 8 }}
           >
             Clear Filters
           </Button>
-          {/* <div>
-            <Button
-              color="inherit"
-              size="small"
-              variant="contained"
-              // sx={{ borderRadius: 8 }}
-            >
-              Print
-            </Button> */}
-            <Button
-              color="info"
-              size="small"
-              variant="contained"
-              onClick={fetchAllPurchases}
-              sx={{ marginLeft: 2 }}
-            >
-              Display
-            </Button>
-          {/* </div> */}
+          <Button
+            color="info"
+            size="small"
+            variant="contained"
+            onClick={fetchAllPurchases}
+            sx={{ marginLeft: 2 }}
+          >
+            Display
+          </Button>
         </Box>
 
         <Box
@@ -531,6 +558,25 @@ const PurchaseReportSummary = () => {
             rowData={selectedRowData}
           />
         </Box>
+        <Button
+          color="error"
+          size="small"
+          variant="contained"
+          onClick={handleDeleteAllPurchases}
+          sx={{
+            marginTop: 1,
+            padding: "4px 10px",
+            fontSize: "11px",
+          }}
+          disabled={allPurchases.length === 0}
+        >
+          DELETE ALL
+        </Button>
+        <DeleteConfirmDialog
+          openDeleteConfirmModal={openDeleteConfirmModal}
+          handleCloseDeleteConfirmModal={handleCloseDeleteConfirmModal}
+          handleConfirmDeleteAll={handleConfirmDeleteAll}
+        />
       </Box>
     </ThemeProvider>
   );

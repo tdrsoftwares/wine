@@ -19,9 +19,10 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { getAllItems } from "../../../services/itemService";
 import { getAllItemCategory } from "../../../services/categoryService";
 import { customTheme } from "../../../utils/customTheme";
-import { getItemTransferDetails } from "../../../services/transferService";
+import { getItemTransferDetails, removeAllTransfers } from "../../../services/transferService";
 import { getAllStores } from "../../../services/storeService";
 import { getAllBrands } from "../../../services/brandService";
+import DeleteConfirmDialog from "../../../modules/DeleteConfirmDialog";
 
 const ItemTransferReport = () => {
   const [transferFrom, setTransferFrom] = useState("");
@@ -46,6 +47,7 @@ const ItemTransferReport = () => {
     page: 1,
     pageSize: 10,
   });
+  const [openDeleteConfirmModal, setOpenDeleteConfirmModal] = useState(false);
 
   const formatDate = (date) => {
     if (!date) return null;
@@ -319,6 +321,47 @@ const ItemTransferReport = () => {
     categoryName,
     group,
   ]);
+
+  const handleOpenDeleteConfirmModal = () => {
+    setOpenDeleteConfirmModal(true);
+    return;
+  };
+  
+  const handleCloseDeleteConfirmModal = () => {
+    setOpenDeleteConfirmModal(false);
+  };
+  
+
+  const handleDeleteAllTransfers = () => {
+    handleOpenDeleteConfirmModal();
+  };
+
+  const handleConfirmDeleteAll = async () => {
+    try {
+      const response = await removeAllTransfers(true);
+      if (response.status === 200) {
+        NotificationManager.success(
+          "All transfers deleted successfully.",
+          "Success"
+        );
+        setAllTransfers([]);
+      } else {
+        console.log("error: ", response);
+        NotificationManager.error(
+          "Error deleting transfers. Please try again later.",
+          "Error"
+        );
+      }
+    } catch (error) {
+      NotificationManager.error(
+        "Error deleting transfers. Please try again later.",
+        "Error"
+      );
+      console.log(error);
+    } finally {
+      setOpenDeleteConfirmModal(false);
+    }
+  };
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -670,17 +713,29 @@ const ItemTransferReport = () => {
               toolbar: GridToolbar,
             }}
             initialState={{
-              pagination: {
-                paginationModel: {
-                  page: paginationModel.page,
-                  pageSize: paginationModel.pageSize,
-                },
-                rowCount: totalCount,
-              },
               density: "compact",
             }}
           />
         </Box>
+        <Button
+          color="error"
+          size="small"
+          variant="contained"
+          onClick={handleDeleteAllTransfers}
+          sx={{
+            marginTop: 1,
+            padding: "4px 10px",
+            fontSize: "11px",
+          }}
+          disabled={allTransfers.length === 0}
+        >
+          DELETE ALL
+        </Button>
+        <DeleteConfirmDialog
+          openDeleteConfirmModal={openDeleteConfirmModal}
+          handleCloseDeleteConfirmModal={handleCloseDeleteConfirmModal}
+          handleConfirmDeleteAll={handleConfirmDeleteAll}
+        />
       </Box>
     </ThemeProvider>
   );

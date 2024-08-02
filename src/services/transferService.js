@@ -115,3 +115,13 @@ export const getAllTransfers = async () => {
     return err;
   }
 }
+
+export const removeAllTransfers = async (transfer) => {
+  try {
+    const apiURL = `/utils/delete-records?transfer=${transfer}`;
+    const response = await axiosInstance.delete(apiURL);
+    return response;
+  } catch (error) {
+    return error;
+  }
+};

@@ -219,3 +219,13 @@ export const getAllSaleStores = async () => {
     return error;
   }
 }
+
+export const removeAllSales = async (allSales) => {
+  try {
+    const apiURL = `/utils/delete-records?sales=${allSales}`;
+    const response = await axiosInstance.delete(apiURL);
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
