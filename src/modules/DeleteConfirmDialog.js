@@ -4,7 +4,12 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogTitle from "@mui/material/DialogTitle";
 import { Button } from "@mui/material";
 
-const DeleteConfirmDialog = ({openDeleteConfirmModal, handleCloseDeleteConfirmModal, handleConfirmDeleteAll}) => {
+const DeleteConfirmDialog = ({
+  openDeleteConfirmModal,
+  handleCloseDeleteConfirmModal,
+  handleConfirmDeleteAll,
+}) => {
+  
   return (
     <React.Fragment>
       <Dialog
