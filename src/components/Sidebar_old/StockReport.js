@@ -15,15 +15,15 @@ import {
   GridFooterContainer,
   GridToolbar,
 } from "@mui/x-data-grid";
-import React, { useEffect, useMemo, useState } from "react";
-import { getAllStocks } from "../../services/stockService";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { getAllStocks, removeAllStocks } from "../../services/stockService";
 import { NotificationManager } from "react-notifications";
-import { getAllItems } from "../../services/itemService";
-import { getAllBrands } from "../../services/brandService";
 import { getAllCompanies } from "../../services/companyService";
 import { getAllItemCategory } from "../../services/categoryService";
 import { getAllStores } from "../../services/storeService";
 import { customTheme } from "../../utils/customTheme";
+import * as XLSX from 'xlsx';
+import DeleteConfirmDialog from "../../modules/DeleteConfirmDialog";
 
 const StockReport = () => {
   const [allStocks, setAllStocks] = useState([]);
@@ -44,7 +44,7 @@ const StockReport = () => {
   });
 
   const [allItems, setAllItems] = useState([]);
-  const [allBrands, setAllBrands] = useState([]);
+  const [hasExportClicked, setHasExportClicked] = useState(false);
   const [allCompanies, setAllCompanies] = useState([]);
   const [allCategory, setAllCategory] = useState([]);
   const [allStores, setAllStores] = useState([]);
@@ -58,6 +58,7 @@ const StockReport = () => {
   const [totalVolume, setTotalVolume] = useState(0);
   const [totalStock, setTotalStock] = useState(0);
   const [totalMRP, setTotalMRP] = useState(0);
+  const [openDeleteConfirmModal, setOpenDeleteConfirmModal] = useState(false);
 
   const columns = [
     {
@@ -192,13 +193,17 @@ const StockReport = () => {
         storeName: filterData.storeName,
         company: filterData.company,
       };
-      console.log("filterOptions: ", filterOptions);
+      // console.log(hasExportClicked)
+      
+      // console.log("filterOptions: ", filterOptions);
+      // console.log("paginationModel: ", paginationModel);
       const allStocksResponse = await getAllStocks(filterOptions);
-      console.log("allStocksResponse: ", allStocksResponse);
+      // console.log("allStocksResponse: ", allStocksResponse);
       const allStocksData = allStocksResponse?.data?.data;
-
+  
       setAllStocks(allStocksData?.items || []);
       setTotalCount(allStocksData?.totalItems || 0);
+
     } catch (error) {
       NotificationManager.error(
         "Error fetching stock. Please try again later.",
@@ -207,25 +212,6 @@ const StockReport = () => {
       console.error("Error fetching stock:", error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchAllItems = async () => {
-    try {
-      const allItemsResponse = await getAllItems();
-      if (allItemsResponse.status === 200) {
-        setAllItems(allItemsResponse?.data?.data);
-      }
-      else {
-        NotificationManager.error("No items found." , "Error");
-        setAllItems([]);
-
-      }
-    } catch (error) {
-      NotificationManager.error(
-        "Error fetching items. Please try again later.",
-        "Error"
-      );
     }
   };
 
@@ -246,25 +232,6 @@ const StockReport = () => {
         "Error"
       );
       console.error("Error fetching stores:", error);
-    }
-  };
-
-  const fetchAllBrands = async () => {
-    try {
-      const allBrandsResponse = await getAllBrands();
-      // console.log("allBrandsResponse ---> ", allBrandsResponse);
-      if (allBrandsResponse.status === 200) {
-        setAllBrands(allBrandsResponse?.data?.data);
-      } else {
-        setAllBrands([])
-        NotificationManager.error("No brands found." , "Error");
-      }
-    } catch (error) {
-      NotificationManager.error(
-        "Error fetching brands. Please try again later.",
-        "Error"
-      );
-      console.error("Error fetching brands:", error);
     }
   };
 
@@ -321,9 +288,7 @@ const StockReport = () => {
   }, [paginationModel, filterData]);
 
   useEffect(() => {
-    // fetchAllItems();
     fetchAllStocks();
-    // fetchAllBrands();
     fetchAllCompanies();
     fetchAllCategory();
     fetchAllStores();
@@ -369,6 +334,79 @@ const StockReport = () => {
     setTotalStock(totalStock);
     setTotalMRP(totalMRP);
   }, [allStocks]);
+
+
+  // const exportToExcel = async () => {
+  //   setHasExportClicked(true);
+  //   await fetchAllStocks();
+  //   const dataToExport = allStocks.map((stock, index) => ({
+  //     "S. No.": index + paginationModel.page * paginationModel.pageSize + 1,
+  //     "Created Date": new Date(stock.createdAt).toLocaleDateString("en-GB"),
+  //     "Item Code": stock.itemCode,
+  //     "Item": stock.item?.name,
+  //     "Current Stock": stock.currentStock,
+  //     "Brand": stock?.item?.brand?.name,
+  //     "Category": stock?.item?.category?.categoryName,
+  //     "Company": stock?.item?.company?.name,
+  //     "Batch No.": stock.batchNo,
+  //     "Sale Rate": stock.saleRate,
+  //     "Purchase Rate": stock.purchaseRate,
+  //     "Stock In": stock.store?.name,
+  //     "Store Type": stock.store?.type,
+  //     "Opening Stock": stock.openingStock,
+  //     "Volume": stock?.item?.volume,
+  //     "MRP": stock.mrp,
+  //   }));
+
+  //   const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+  //   const workbook = XLSX.utils.book_new();
+  //   XLSX.utils.book_append_sheet(workbook, worksheet, "Stocks");
+
+  //   XLSX.writeFile(workbook, "Stock_Report.xlsx");
+  // };
+
+  const handleOpenDeleteConfirmModal = () => {
+    setOpenDeleteConfirmModal(true);
+  };
+  
+  const handleCloseDeleteConfirmModal = () => {
+    setOpenDeleteConfirmModal(false);
+  };
+  
+
+  const handleDeleteAllStocks = () => {
+    handleOpenDeleteConfirmModal();
+  };
+
+  const handleConfirmDeleteAll = async () => {
+    setLoading(true);
+    try {
+      const response = await removeAllStocks(true);
+      if (response.status === 200) {
+        NotificationManager.success(
+          "All opening and current stock deleted successfully.",
+          "Success"
+        );
+        setAllStocks([]);
+        await fetchAllStocks();
+      } else {
+        // console.log("error: ", response);
+        NotificationManager.error(
+          "Error deleting stocks. Please try again later.",
+          "Error"
+        );
+      }
+    } catch (error) {
+      NotificationManager.error(
+        "Error deleting stocks. Please try again later.",
+        "Error"
+      );
+      console.log(error);
+    } finally {
+      setLoading(false);
+      setOpenDeleteConfirmModal(false);
+    }
+  };
 
 
   const CustomFooter = () => {
@@ -428,7 +466,6 @@ const StockReport = () => {
                 value={filterData.itemName}
                 onChange={handleFilterChange}
               />
-              
             </div>
           </Grid>
 
@@ -502,28 +539,12 @@ const StockReport = () => {
                 Brand :
               </InputLabel>
               <TextField
-                // select
                 fullWidth
                 size="small"
                 name="brandName"
                 value={filterData.brandName}
                 onChange={handleFilterChange}
-                // SelectProps={{
-                //   MenuProps: {
-                //     PaperProps: {
-                //       style: {
-                //         maxHeight: 200,
-                //       },
-                //     },
-                //   },
-                // }}
               />
-              {/* {allBrands?.map((item) => (
-                  <MenuItem key={item._id} value={item.name}>
-                    {item.name}
-                  </MenuItem>
-                ))}
-              </TextField> */}
             </div>
           </Grid>
 
@@ -599,25 +620,35 @@ const StockReport = () => {
             "& button": { marginTop: 1 },
           }}
         >
-          <Button
-            color="inherit"
+          {/* <Button
+            color="success"
             size="small"
             variant="contained"
-            onClick={handleClearFilters}
-            sx={{ padding: "4px 10px", fontSize: "11px" }}
+            onClick={exportToExcel}
           >
-            Clear Filters
+            Export to Excel
           </Button>
+          <div> */}
+            <Button
+              color="inherit"
+              size="small"
+              variant="contained"
+              onClick={handleClearFilters}
+              sx={{ padding: "4px 10px", fontSize: "11px" }}
+            >
+              Clear Filters
+            </Button>
 
-          <Button
-            color="info"
-            size="small"
-            variant="contained"
-            onClick={fetchAllStocks}
-            sx={{ marginLeft: 2, padding: "4px 10px", fontSize: "11px" }}
-          >
-            Display
-          </Button>
+            <Button
+              color="info"
+              size="small"
+              variant="contained"
+              onClick={fetchAllStocks}
+              sx={{ marginLeft: 2, padding: "4px 10px", fontSize: "11px" }}
+            >
+              Display
+            </Button>
+          {/* </div> */}
         </Box>
 
         <Box
@@ -655,7 +686,7 @@ const StockReport = () => {
             columns={columnsData}
             rowCount={totalCount}
             paginationMode="server"
-            pageSizeOptions={[10, 25, 50]}
+            pageSizeOptions={[10, 25, 50, 100]}
             paginationModel={paginationModel}
             onPaginationModelChange={(newPaginationModel) =>
               setPaginationModel(newPaginationModel)
@@ -684,6 +715,26 @@ const StockReport = () => {
             sx={{ backgroundColor: "#fff", fontSize: "12px" }}
           />
         </Box>
+
+        <Button
+          color="error"
+          size="small"
+          variant="contained"
+          onClick={handleDeleteAllStocks}
+          sx={{
+            marginTop: 1,
+            padding: "4px 10px",
+            fontSize: "11px",
+          }}
+          disabled={allStocks.length === 0}
+        >
+          DELETE STOCKS
+        </Button>
+        <DeleteConfirmDialog
+          openDeleteConfirmModal={openDeleteConfirmModal}
+          handleCloseDeleteConfirmModal={handleCloseDeleteConfirmModal}
+          handleConfirmDeleteAll={handleConfirmDeleteAll}
+        />
       </Box>
     </ThemeProvider>
   );

@@ -129,3 +129,14 @@ export const deletePurchase = async (id) => {
     return error;
   }
 };
+
+
+export const removeAllStocks = async (stocks) => {
+  try {
+    const apiURL = `/utils/delete-records?stock=${stocks}`;
+    const response = await axiosInstance.delete(apiURL);
+    return response;
+  } catch (error) {
+    return error;
+  }
+};

@@ -170,3 +170,13 @@ export const getAllEntryNo = async () => {
     return error
   }
 }
+
+export const removeAllPurchases = async (allPurchases) => {
+  try {
+    const apiURL = `/utils/delete-records?purchases=${allPurchases}`;
+    const response = await axiosInstance.delete(apiURL);
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
