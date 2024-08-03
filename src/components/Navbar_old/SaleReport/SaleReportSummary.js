@@ -1,21 +1,16 @@
 import {
   Box,
   Button,
-  Checkbox,
   CircularProgress,
-  FormControlLabel,
   Grid,
   InputLabel,
-  LinearProgress,
   MenuItem,
-  Radio,
-  RadioGroup,
   TextField,
   ThemeProvider,
   Typography,
 } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
-import { getAllSales } from "../../../services/saleBillService";
+import { getAllSales, removeAllSales } from "../../../services/saleBillService";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { NotificationManager } from "react-notifications";
 import SalesDetailsModal from "./SalesDetailsModal";
@@ -24,6 +19,12 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { getAllCustomer } from "../../../services/customerService";
 import dayjs from "dayjs";
 import { customTheme } from "../../../utils/customTheme";
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogTitle from '@mui/material/DialogTitle';
+import DeleteConfirmDialog from "../../../modules/DeleteConfirmDialog";
+
+
 
 const SaleReportSummary = () => {
   const [selectOptions, setselectOptions] = useState(null);
@@ -47,12 +48,57 @@ const SaleReportSummary = () => {
   });
   const [totalCount, setTotalCount] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [openDeleteConfirmModal, setOpenDeleteConfirmModal] = useState(false);
+  const [deleteConfirmed, setDeleteConfirmed] = useState(false);
 
   const formatDate = (date) => {
     if (!date) return null;
     return dayjs(date).format("DD/MM/YYYY");
   };
 
+  const handleOpenDeleteConfirmModal = () => {
+    setOpenDeleteConfirmModal(true);
+    return;
+  };
+  
+  const handleCloseDeleteConfirmModal = () => {
+    setOpenDeleteConfirmModal(false);
+    setDeleteConfirmed(false);
+  };
+  
+
+  const handleDeleteAllSales = () => {
+    handleOpenDeleteConfirmModal();
+  };
+
+  const handleConfirmDeleteAll = async () => {
+    try {
+      const response = await removeAllSales(true);
+      if (response.status === 200) {
+        NotificationManager.success(
+          "All sales deleted successfully.",
+          "Success"
+        );
+        setAllSalesData([]);
+      } else {
+        console.log("error: ", response);
+        NotificationManager.error(
+          "Error deleting Sales. Please try again later.",
+          "Error"
+        );
+      }
+    } catch (error) {
+      NotificationManager.error(
+        "Error deleting Sales. Please try again later.",
+        "Error"
+      );
+      console.log(error);
+    } finally {
+      setOpenDeleteConfirmModal(false);
+      setDeleteConfirmed(false);
+    }
+  };
+  
   const columns = [
     {
       field: "sNo",
@@ -133,14 +179,6 @@ const SaleReportSummary = () => {
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
-    // {
-    //   field: "discAmount",
-    //   headerName: "Discount Amt.",
-    //   width: 150,
-    //   cellClassName: "custom-cell",
-    //   headerClassName: "custom-header",
-    // },
-
     {
       field: "splDiscAmount",
       headerName: "S. Discount Amt.",
@@ -148,13 +186,6 @@ const SaleReportSummary = () => {
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
-    // {
-    //   field: "taxAmount",
-    //   headerName: "Tax Amt.",
-    //   width: 150,
-    //   cellClassName: "custom-cell",
-    //   headerClassName: "custom-header",
-    // },
     {
       field: "adjustment",
       headerName: "Adjustment",
@@ -210,7 +241,7 @@ const SaleReportSummary = () => {
     const toDate = filterData.dateTo ? formatDate(filterData.dateTo) : null;
 
     setLoading(true);
-    console.log("Fetching data...");
+    // console.log("Fetching data...");
     try {
       const filterOptions = {
         // page:
@@ -287,10 +318,11 @@ const SaleReportSummary = () => {
     debouncedFetch();
   }, [paginationModel, filterData]);
 
+
   return (
     <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, width: "900px" }}>
-        <Typography variant="h6" sx={{ marginBottom: 2 }}>
+        <Typography variant="h6" sx={{ marginBottom: 1 }}>
           Sale Report Summary:
         </Typography>
         <Typography variant="subtitle2" gutterBottom>
@@ -298,7 +330,7 @@ const SaleReportSummary = () => {
         </Typography>
 
         <Grid container spacing={2}>
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="dateFrom" className="input-label">
                 Bill date from:
@@ -318,7 +350,7 @@ const SaleReportSummary = () => {
             </div>
           </Grid>
 
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="dateTo" className="input-label">
                 Bill date to:
@@ -339,7 +371,7 @@ const SaleReportSummary = () => {
             </div>
           </Grid>
 
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="series" className="input-label">
                 Bill Series:
@@ -357,7 +389,7 @@ const SaleReportSummary = () => {
             </div>
           </Grid>
 
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="customerName" className="input-label">
                 Customer Name:
@@ -391,7 +423,7 @@ const SaleReportSummary = () => {
             </div>
           </Grid>
 
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="customerType" className="input-label">
                 Customer Type:
@@ -416,7 +448,7 @@ const SaleReportSummary = () => {
             </div>
           </Grid>
 
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="phone" className="input-label">
                 Phone No.:
@@ -433,65 +465,54 @@ const SaleReportSummary = () => {
               />
             </div>
           </Grid>
+          <Grid item xs={3}></Grid>
+          <Grid item xs={3}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                // "& button": { marginTop: 2 },
+              }}
+            >
+              <Button
+                color="inherit"
+                size="small"
+                variant="contained"
+                onClick={() => {
+                  setFilterData({
+                    dateFrom: null,
+                    dateTo: null,
+                    customerName: "",
+                    userName: "",
+                    series: "",
+                    customerType: "",
+                    phone: "",
+                    isChecked: false,
+                  });
+                  setPaginationModel({ page: 0, pageSize: 10 });
+                }}
+              >
+                Clear Filters
+              </Button>
+
+              <Button
+                color="info"
+                size="small"
+                variant="contained"
+                onClick={() => fetchAllSales()}
+                sx={{ marginLeft: 2 }}
+              >
+                Display
+              </Button>
+            </Box>
+          </Grid>
         </Grid>
 
         <Box
           sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            "& button": { marginTop: 2 },
-          }}
-        >
-          <Button
-            color="inherit"
-            size="small"
-            variant="contained"
-            onClick={() => {
-              setFilterData({
-                dateFrom: null,
-                dateTo: null,
-                customerName: "",
-                userName: "",
-                series: "",
-                customerType: "",
-                phone: "",
-                isChecked: false,
-              });
-              setselectOptions(null);
-              setPaginationModel({ page: 0, pageSize: 10 });
-              // fetchAllSales();
-            }}
-            // sx={{ borderRadius: 8 }}
-          >
-            Clear Filters
-          </Button>
-          {/* <div>
-            <Button
-              color="inherit"
-              size="small"
-              variant="contained"
-              onClick={() => {}}
-              // sx={{ borderRadius: 8 }}
-            >
-              Print
-            </Button> */}
-            <Button
-              color="info"
-              size="small"
-              variant="contained"
-              onClick={() => fetchAllSales()}
-              sx={{ marginLeft: 2 }}
-            >
-              Display
-            </Button>
-          {/* </div> */}
-        </Box>
-
-        <Box
-          sx={{
-            height: 500,
+            height: 450,
             width: "100%",
-            marginTop: 2,
+            marginTop: 1,
             "& .custom-header": {
               backgroundColor: "#dae4ed",
               paddingLeft: 4,
@@ -556,13 +577,6 @@ const SaleReportSummary = () => {
               toolbar: GridToolbar,
             }}
             initialState={{
-              pagination: {
-                paginationModel: {
-                  page: paginationModel.page,
-                  pageSize: paginationModel.pageSize,
-                },
-                rowCount: totalCount,
-              },
               density: "compact",
             }}
           />
@@ -572,6 +586,26 @@ const SaleReportSummary = () => {
             rowData={selectedRowData}
           />
         </Box>
+
+        <Button
+          color="error"
+          size="small"
+          variant="contained"
+          onClick={handleDeleteAllSales}
+          sx={{
+            marginTop: 1,
+            padding: "4px 10px",
+            fontSize: "11px",
+          }}
+          disabled={allSalesData.length === 0}
+        >
+          DELETE ALL
+        </Button>
+        <DeleteConfirmDialog
+          openDeleteConfirmModal={openDeleteConfirmModal}
+          handleCloseDeleteConfirmModal={handleCloseDeleteConfirmModal}
+          handleConfirmDeleteAll={handleConfirmDeleteAll}
+        />
       </Box>
     </ThemeProvider>
   );

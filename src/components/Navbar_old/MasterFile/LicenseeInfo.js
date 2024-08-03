@@ -62,6 +62,33 @@ const LicenseeInfo = ({ authenticatedUser }) => {
     messageMobile: 0,
   });
 
+  const clearForm = () => {
+    setLicenseData({
+      id: "",
+      nameOfLicence: "",
+      businessType: "",
+      address: "",
+      district: "",
+      phoneNo: 0,
+
+      fiancialPeriodTo: null,
+      fiancialPeriodfrom: null,
+      licenceId: "",
+      billCategory: 0,
+      noOfBillCopies: 0,
+
+      autoBillPrint: "no",
+      eposUserId: "",
+      eposPassword: "",
+      noOfItemPerBill: 0,
+      perBillMaxWine: 0,
+      perBillMaxCs: 0,
+
+      billMessages: "",
+      messageMobile: 0,
+    });
+  };
+
   const nameOfLicenceRef = useRef(null);
 
   const handleInputChange1 = (e) => {
@@ -133,27 +160,36 @@ const LicenseeInfo = ({ authenticatedUser }) => {
       fiancialPeriodfrom: licenseData.fiancialPeriodfrom,
       licenceId: licenseData.licenceId,
       billCategory: licenseData.billCategory,
-      noOfBillCopies: licenseData.noOfBillCopies,
+      noOfBillCopies: parseFloat(licenseData.noOfBillCopies),
 
       autoBillPrint: licenseData.autoBillPrint,
       eposUserId: licenseData.eposUserId,
       eposPassword: licenseData.eposPassword,
-      noOfItemPerBill: licenseData.noOfItemPerBill,
-      perBillMaxWine: licenseData.perBillMaxWine,
-      perBillMaxCs: licenseData.perBillMaxCs,
+      noOfItemPerBill: parseFloat(licenseData.noOfItemPerBill),
+      perBillMaxWine: parseFloat(licenseData.perBillMaxWine),
+      perBillMaxCs: parseFloat(licenseData.perBillMaxCs),
       billMessages: licenseData.billMessages,
       messageMobile: licenseData.messageMobile,
     };
-    e.preventDefault();
+
+    // console.log("payload: ", payload)
+    // e.preventDefault();
     try {
       const response = await createLicenseInfo(payload);
 
-      // console.log(response.data)
-      NotificationManager.success(
-        "License Created Successfully",
-        response.data.message
-      );
-      setIsButtonDisabled(true);
+      if(response.status === 200) {
+        // console.log("lic crt response", response)
+        NotificationManager.success(
+          "License Created Successfully",
+          "Success"
+        );
+        setIsButtonDisabled(true);
+      } 
+      else {
+        NotificationManager.error("Problem creating license","Error")
+      }
+
+      
     } catch (error) {
       console.log(error);
       // Extract the error message or relevant information
@@ -169,9 +205,9 @@ const LicenseeInfo = ({ authenticatedUser }) => {
       }
       NotificationManager.error(errorMessage);
     }
-    // console.log(licenseData);
     // console.log("payload"+payload);
   };
+  // console.log(licenseData);
 
   const handleUpdate = async (e) => {
     e.preventDefault();
@@ -181,7 +217,7 @@ const LicenseeInfo = ({ authenticatedUser }) => {
       const response = await updateLicenseInfo(payload, licenseData.id);
       NotificationManager.success(
         "License Updated Successfully",
-        response.data.message
+        "Success"
       );
       setEditEnable(true);
     } catch (error) {
@@ -211,43 +247,18 @@ const LicenseeInfo = ({ authenticatedUser }) => {
       fiancialPeriodfrom: licenseData.fiancialPeriodfrom,
       licenceId: licenseData.licenceId,
       billCategory: licenseData.billCategory,
-      noOfBillCopies: licenseData.noOfBillCopies,
+      noOfBillCopies: parseFloat(licenseData.noOfBillCopies),
 
       autoBillPrint: licenseData.autoBillPrint,
       eposUserId: licenseData.eposUserId,
       eposPassword: licenseData.eposPassword,
-      noOfItemPerBill: licenseData.noOfItemPerBill,
-      perBillMaxWine: licenseData.perBillMaxWine,
-      perBillMaxCs: licenseData.perBillMaxCs,
+      noOfItemPerBill: parseFloat(licenseData.noOfItemPerBill),
+      perBillMaxWine: parseFloat(licenseData.perBillMaxWine),
+      perBillMaxCs: parseFloat(licenseData.perBillMaxCs),
     });
   };
   // console.log("form Submitted"+[Object.entries(licenseData)]);
-  const clearForm = () => {
-    setLicenseData({
-      id: "",
-      nameOfLicence: "",
-      businessType: "",
-      address: "",
-      district: "",
-      phoneNo: 0,
-
-      fiancialPeriodTo: null,
-      fiancialPeriodfrom: null,
-      licenceId: "",
-      billCategory: 0,
-      noOfBillCopies: 0,
-
-      autoBillPrint: "no",
-      eposUserId: "",
-      eposPassword: "",
-      noOfItemPerBill: 0,
-      perBillMaxWine: 0,
-      perBillMaxCs: 0,
-
-      billMessages: "",
-      messageMobile: 0,
-    });
-  };
+  
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -269,10 +280,7 @@ const LicenseeInfo = ({ authenticatedUser }) => {
                 name="nameOfLicence"
                 value={licenseData.nameOfLicence}
                 onChange={(e) =>
-                  setLicenseData({
-                    ...licenseData,
-                    nameOfLicence: e.target.target,
-                  })
+                  setLicenseData({ ...licenseData, nameOfLicence: e.target.value })
                 }
                 InputProps={{ readOnly: editEnable }}
               />
@@ -292,7 +300,7 @@ const LicenseeInfo = ({ authenticatedUser }) => {
                 onChange={(e) =>
                   setLicenseData({
                     ...licenseData,
-                    businessType: e.target.target,
+                    businessType: e.target.value,
                   })
                 }
                 InputProps={{ readOnly: editEnable }}
@@ -311,7 +319,7 @@ const LicenseeInfo = ({ authenticatedUser }) => {
                 name="address"
                 value={licenseData.address}
                 onChange={(e) =>
-                  setLicenseData({ ...licenseData, address: e.target.target })
+                  setLicenseData({ ...licenseData, address: e.target.value })
                 }
                 InputProps={{ readOnly: editEnable }}
               />
@@ -329,7 +337,7 @@ const LicenseeInfo = ({ authenticatedUser }) => {
                 name="district"
                 value={licenseData.district}
                 onChange={(e) =>
-                  setLicenseData({ ...licenseData, district: e.target.target })
+                  setLicenseData({ ...licenseData, district: e.target.value })
                 }
                 InputProps={{ readOnly: editEnable }}
               />
@@ -345,9 +353,10 @@ const LicenseeInfo = ({ authenticatedUser }) => {
                 fullWidth
                 size="small"
                 name="phoneNo"
+                type="tel"
                 value={licenseData.phoneNo}
                 onChange={(e) =>
-                  setLicenseData({ ...licenseData, phoneNo: e.target.target })
+                  setLicenseData({ ...licenseData, phoneNo: e.target.value })
                 }
                 InputProps={{ readOnly: editEnable }}
               />
