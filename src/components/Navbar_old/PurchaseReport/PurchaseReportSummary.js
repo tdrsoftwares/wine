@@ -347,6 +347,7 @@ const PurchaseReportSummary = () => {
                   },
                 }}
               >
+                <MenuItem value="">None</MenuItem>
                 {allSuppliers.map((item) => (
                   <MenuItem key={item.id} value={item.name}>
                     {item.name}
@@ -378,6 +379,7 @@ const PurchaseReportSummary = () => {
                   },
                 }}
               >
+                <MenuItem value="">None</MenuItem>
                 {allStores?.map((store) => (
                   <MenuItem key={store._id} value={store.name}>
                     {store.name}

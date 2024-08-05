@@ -1955,6 +1955,7 @@ const SaleBill = () => {
                 onChange={handleCustomerNameChange}
                 onKeyDown={(e) => handleEnterKey(e, addressRef)}
               >
+                <MenuItem value="">None</MenuItem>
                 {allCustomerData.map((item) => (
                   <MenuItem key={item._id} value={item}>
                     {item.name}

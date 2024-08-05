@@ -442,6 +442,7 @@ const ItemWisePurchaseReport = () => {
                   },
                 }}
               >
+                <MenuItem value="">None</MenuItem>
                 {allSuppliers?.map((item) => (
                   <MenuItem key={item.id} value={item.name}>
                     {item.name}
@@ -550,6 +551,7 @@ const ItemWisePurchaseReport = () => {
                   },
                 }}
               >
+                <MenuItem value="">None</MenuItem>
                 {allCategory?.map((category) => (
                   <MenuItem key={category._id} value={category.categoryName}>
                     {category.categoryName}

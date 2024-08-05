@@ -231,25 +231,6 @@ const ItemTransferReport = () => {
     }
   };
 
-  const fetchAllItems = async () => {
-    try {
-      const allItemsResponse = await getAllItems();
-      if (allItemsResponse.status === 200) {
-        setAllItems(allItemsResponse?.data?.data);
-      }
-      else {
-        NotificationManager.error("No items found." , "Error");
-        setAllItems([]);
-
-      }
-    } catch (error) {
-      NotificationManager.error(
-        "Error fetching items. Please try again later.",
-        "Error"
-      );
-    }
-  };
-
   const fetchAllCategory = async () => {
     try {
       const getAllCategoryResponse = await getAllItemCategory();
@@ -267,30 +248,9 @@ const ItemTransferReport = () => {
     }
   };
 
-  const fetchAllBrands = async () => {
-    try {
-      const allBrandsResponse = await getAllBrands();
-      // console.log("allBrandsResponse ---> ", allBrandsResponse);
-      if (allBrandsResponse.status === 200) {
-        setAllBrands(allBrandsResponse?.data?.data);
-      } else {
-        setAllBrands([])
-        NotificationManager.error("No brands found." , "Error");
-      }
-    } catch (error) {
-      NotificationManager.error(
-        "Error fetching brands. Please try again later.",
-        "Error"
-      );
-      console.error("Error fetching brands:", error);
-    }
-  };
-
   useEffect(() => {
     fetchAllTransfer();
     fetchAllStores();
-    fetchAllBrands();
-    fetchAllItems();
     fetchAllCategory();
   }, []);
 
@@ -429,6 +389,7 @@ const ItemTransferReport = () => {
                   },
                 }}
               >
+                <MenuItem value="">None</MenuItem>
                 {allStores?.map((store) => (
                   <MenuItem key={store._id} value={store.name}>
                     {store.name}
@@ -444,28 +405,12 @@ const ItemTransferReport = () => {
                 Item Name:
               </InputLabel>
               <TextField
-                select
                 fullWidth
                 size="small"
                 name="itemName"
                 value={itemName}
                 onChange={(e) => setItemName(e.target.value)}
-                SelectProps={{
-                  MenuProps: {
-                    PaperProps: {
-                      style: {
-                        maxHeight: 200,
-                      },
-                    },
-                  },
-                }}
-              >
-                {allItems?.map((item) => (
-                  <MenuItem key={item._id} value={item.name}>
-                    {item.name}
-                  </MenuItem>
-                ))}
-              </TextField>
+              />
             </div>
           </Grid>
 
@@ -506,6 +451,7 @@ const ItemTransferReport = () => {
                   },
                 }}
               >
+                <MenuItem value="">None</MenuItem>
                 {allCategory?.map((category) => (
                   <MenuItem key={category._id} value={category.categoryName}>
                     {category.categoryName}
@@ -521,28 +467,12 @@ const ItemTransferReport = () => {
                 Brand:
               </InputLabel>
               <TextField
-                select
                 fullWidth
                 size="small"
                 name="brandName"
                 value={brandName}
                 onChange={(e) => setBrandName(e.target.value)}
-                SelectProps={{
-                  MenuProps: {
-                    PaperProps: {
-                      style: {
-                        maxHeight: 200,
-                      },
-                    },
-                  },
-                }}
-              >
-                {allBrands.map((brand) => (
-                  <MenuItem key={brand._id} value={brand.name}>
-                    {brand.name}
-                  </MenuItem>
-                ))}
-              </TextField>
+              />
             </div>
           </Grid>
 
@@ -559,6 +489,7 @@ const ItemTransferReport = () => {
                 onChange={(e) => setGroup(e.target.value)}
                 required
               >
+                <MenuItem value="">None</MenuItem>
                 {["FL", "BEER", "IML"]?.map((item, id) => (
                   <MenuItem key={id} value={item}>
                     {item}
@@ -646,8 +577,7 @@ const ItemTransferReport = () => {
               caseNo: item.stocktransferitems?.case || "No Data",
               pcs: item.stocktransferitems?.pcs || "No Data",
               volume: item.stocktransferitems?.item?.volume || "No Data",
-              totalVolumeLiters:
-                item.totalVolumeLiters || "No Data",
+              totalVolumeLiters: item.totalVolumeLiters || "No Data",
               group: item.stocktransferitems?.item?.group || "No Data",
               mrp: item.stocktransferitems?.mrp || "No Data",
             }))}

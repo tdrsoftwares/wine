@@ -366,6 +366,7 @@ const SaleReportSummary = () => {
                   },
                 }}
               >
+                <MenuItem value="">None</MenuItem>
                 {allCustomerData?.map((item) => (
                   <MenuItem key={item._id} value={item.name}>
                     {item.name}
@@ -391,6 +392,7 @@ const SaleReportSummary = () => {
                   setFilterData({ ...filterData, customerType: e.target.value })
                 }
               >
+                <MenuItem value="">None</MenuItem>
                 {["cash", "online"].map((item, id) => (
                   <MenuItem key={id} value={item}>
                     {item}
