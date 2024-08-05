@@ -16,14 +16,13 @@ import {
   GridToolbar,
 } from "@mui/x-data-grid";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { getAllStocks, removeAllStocks } from "../../services/stockService";
+import { getAllStocks } from "../../services/stockService";
 import { NotificationManager } from "react-notifications";
 import { getAllCompanies } from "../../services/companyService";
 import { getAllItemCategory } from "../../services/categoryService";
 import { getAllStores } from "../../services/storeService";
 import { customTheme } from "../../utils/customTheme";
 import * as XLSX from 'xlsx';
-import DeleteConfirmDialog from "../../modules/DeleteConfirmDialog";
 
 const StockReport = () => {
   const [allStocks, setAllStocks] = useState([]);
@@ -58,7 +57,6 @@ const StockReport = () => {
   const [totalVolume, setTotalVolume] = useState(0);
   const [totalStock, setTotalStock] = useState(0);
   const [totalMRP, setTotalMRP] = useState(0);
-  const [openDeleteConfirmModal, setOpenDeleteConfirmModal] = useState(false);
 
   const columns = [
     {
@@ -364,49 +362,6 @@ const StockReport = () => {
 
   //   XLSX.writeFile(workbook, "Stock_Report.xlsx");
   // };
-
-  const handleOpenDeleteConfirmModal = () => {
-    setOpenDeleteConfirmModal(true);
-  };
-  
-  const handleCloseDeleteConfirmModal = () => {
-    setOpenDeleteConfirmModal(false);
-  };
-  
-
-  const handleDeleteAllStocks = () => {
-    handleOpenDeleteConfirmModal();
-  };
-
-  const handleConfirmDeleteAll = async () => {
-    setLoading(true);
-    try {
-      const response = await removeAllStocks(true);
-      if (response.status === 200) {
-        NotificationManager.success(
-          "All opening and current stock deleted successfully.",
-          "Success"
-        );
-        setAllStocks([]);
-        await fetchAllStocks();
-      } else {
-        // console.log("error: ", response);
-        NotificationManager.error(
-          "Error deleting stocks. Please try again later.",
-          "Error"
-        );
-      }
-    } catch (error) {
-      NotificationManager.error(
-        "Error deleting stocks. Please try again later.",
-        "Error"
-      );
-      console.log(error);
-    } finally {
-      setLoading(false);
-      setOpenDeleteConfirmModal(false);
-    }
-  };
 
 
   const CustomFooter = () => {
@@ -716,25 +671,6 @@ const StockReport = () => {
           />
         </Box>
 
-        <Button
-          color="error"
-          size="small"
-          variant="contained"
-          onClick={handleDeleteAllStocks}
-          sx={{
-            marginTop: 1,
-            padding: "4px 10px",
-            fontSize: "11px",
-          }}
-          disabled={allStocks.length === 0}
-        >
-          DELETE STOCKS
-        </Button>
-        <DeleteConfirmDialog
-          openDeleteConfirmModal={openDeleteConfirmModal}
-          handleCloseDeleteConfirmModal={handleCloseDeleteConfirmModal}
-          handleConfirmDeleteAll={handleConfirmDeleteAll}
-        />
       </Box>
     </ThemeProvider>
   );

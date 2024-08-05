@@ -24,6 +24,8 @@ const NavbarOld = () => {
     useState(false);
   const [isAuditAccountsDropdownOpen, setIsAuditAccountsDropdownOpen] =
     useState(false);
+  const [isUtilitiesDropdownOpen, setIsUtilitiesDropdownOpen] =
+    useState(false);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const masterFileDropdownRef = useRef(null);
@@ -37,6 +39,7 @@ const NavbarOld = () => {
   const godownShowroomLedgerDropdownRef = useRef(null);
   const exciseReportDropdownRef = useRef(null);
   const auditAccountsDropdownRef = useRef(null);
+  const utilitiesDropdownRef = useRef(null);
 
   const toggleMasterFileDropdown = () => {
     setIsMasterFileDropdownOpen((prevState) => !prevState);
@@ -82,6 +85,10 @@ const NavbarOld = () => {
     setIsAuditAccountsDropdownOpen((prevState) => !prevState);
   };
 
+  const toggleUtilitiesDropdown = () => {
+    setIsUtilitiesDropdownOpen((prevState) => !prevState);
+  };
+
   const toggleSidebar = () => {
     setIsSidebarOpen((prevState) => !prevState);
   };
@@ -98,6 +105,7 @@ const NavbarOld = () => {
     setIsGodownShowroomDropdownOpen(false);
     setIsExciseReportDropdownOpen(false);
     setIsAuditAccountsDropdownOpen(false);
+    setIsUtilitiesDropdownOpen(false);
   };
 
   useEffect(() => {
@@ -167,6 +175,12 @@ const NavbarOld = () => {
         !auditAccountsDropdownRef.current.contains(event.target)
       ) {
         setIsAuditAccountsDropdownOpen(false);
+      }
+      if (
+        utilitiesDropdownRef.current &&
+        !utilitiesDropdownRef.current.contains(event.target)
+      ) {
+        setIsUtilitiesDropdownOpen(false);
       }
     };
 
@@ -683,14 +697,48 @@ const NavbarOld = () => {
               </Link>
             </div>
           </li>
-          <li className="nav-item">
-            <Link
-              to="/utilities"
-              className="nav-link"
-              onClick={closeAllDropdowns}
+          
+
+          <li className="nav-item dropdown" ref={utilitiesDropdownRef}>
+            <span
+              className="dropdown-toggle nav-link"
+              onClick={toggleUtilitiesDropdown}
             >
-              Utilities
-            </Link>
+              Utilities <i className="fas fa-caret-down"></i>
+            </span>
+            <div
+              className={`dropdown-content ${
+                isUtilitiesDropdownOpen ? "open" : ""
+              }`}
+            >
+              <Link to="/admin-panel" onClick={closeAllDropdowns}>
+                Admin Panel
+              </Link>
+              <Link to="/user-control" onClick={closeAllDropdowns}>
+                User Control
+              </Link>
+              <Link to="/stock-updation" onClick={closeAllDropdowns}>
+                Stock Updation
+              </Link>
+              <Link to="/3yrs-sale-report" onClick={closeAllDropdowns}>
+                3 Years Sale Report
+              </Link>
+              <Link to="/monthly-mrp-wise-sale" onClick={closeAllDropdowns}>
+                Monthly MRP Wise Sale
+              </Link>
+              <Link to="/stock-modify" onClick={closeAllDropdowns}>
+                Stock Modify
+              </Link>
+              <Link to="/dsr-modify" onClick={closeAllDropdowns}>
+                DSR Modify
+              </Link>
+              <Link to="/alternate-sale" onClick={closeAllDropdowns}>
+                Alternate Sale
+              </Link>
+              <Link to="/backup" onClick={closeAllDropdowns}>
+                Backup
+              </Link>
+            </div>
           </li>
         </ul>
       </div>

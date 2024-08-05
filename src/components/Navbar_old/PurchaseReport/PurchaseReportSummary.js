@@ -2,23 +2,15 @@ import {
   Box,
   Button,
   CircularProgress,
-  FormControlLabel,
   Grid,
   InputLabel,
   MenuItem,
-  Pagination,
-  Radio,
-  RadioGroup,
   TextField,
   ThemeProvider,
   Typography,
 } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  getAllPurchases,
-  getItemPurchaseDetails,
-  removeAllPurchases,
-} from "../../../services/purchaseService";
+import { getAllPurchases } from "../../../services/purchaseService";
 import { NotificationManager } from "react-notifications";
 import { getAllSuppliers } from "../../../services/supplierService";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
@@ -28,8 +20,6 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { customTheme } from "../../../utils/customTheme";
 import { getAllStores } from "../../../services/storeService";
-import DeleteConfirmDialog from "../../../modules/DeleteConfirmDialog";
-
 
 const PurchaseReportSummary = () => {
   const [selectedSupplier, setSelectedSupplier] = useState("");
@@ -101,7 +91,7 @@ const PurchaseReportSummary = () => {
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
-    
+
     {
       field: "supplierName",
       headerName: "Supplier Name",
@@ -180,7 +170,7 @@ const PurchaseReportSummary = () => {
           View
         </Button>
       ),
-      disableExport: true
+      disableExport: true,
     },
   ];
 
@@ -214,7 +204,7 @@ const PurchaseReportSummary = () => {
         fromDate: fromDate,
         toDate: toDate,
         supplierName: selectedSupplier,
-        storeName: stockIn
+        storeName: stockIn,
       };
       const response = await getAllPurchases(filterOptions);
       // console.log("Purchases fetched", response?.data?.data)
@@ -234,7 +224,7 @@ const PurchaseReportSummary = () => {
     try {
       const allStoresResponse = await getAllStores();
       // console.log("allStore response: ", allStoresResponse)
-      
+
       if (allStoresResponse.status === 200) {
         setAllStores(allStoresResponse?.data?.data);
       } else {
@@ -254,13 +244,12 @@ const PurchaseReportSummary = () => {
     try {
       const response = await getAllSuppliers();
       // console.log("response: ", response)
-      if(response.status === 200) {
+      if (response.status === 200) {
         setAllSuppliers(response?.data?.data);
       } else {
-        setAllSuppliers([])
-        NotificationManager.error("No suppliers found.", "Error")
+        setAllSuppliers([]);
+        NotificationManager.error("No suppliers found.", "Error");
       }
-      
     } catch (error) {
       NotificationManager.error(
         "Error fetching suppliers. Please try again later.",
@@ -289,50 +278,6 @@ const PurchaseReportSummary = () => {
     const debouncedFetch = debounce(fetchAllPurchases, 300);
     debouncedFetch();
   }, [paginationModel, dateFrom, dateTo, selectedSupplier, stockIn]);
-
-
-  const handleOpenDeleteConfirmModal = () => {
-    setOpenDeleteConfirmModal(true);
-    return;
-  };
-  
-  const handleCloseDeleteConfirmModal = () => {
-    setOpenDeleteConfirmModal(false);
-    setDeleteConfirmed(false); 
-  };
-  
-
-  const handleDeleteAllPurchases = () => {
-    handleOpenDeleteConfirmModal();
-  };
-
-  const handleConfirmDeleteAll = async () => {
-    try {
-      const response = await removeAllPurchases(true);
-      if (response.status === 200) {
-        NotificationManager.success(
-          "All purchases deleted successfully.",
-          "Success"
-        );
-        setAllPurchases([]);
-      } else {
-        console.log("error: ", response);
-        NotificationManager.error(
-          "Error deleting purchases. Please try again later.",
-          "Error"
-        );
-      }
-    } catch (error) {
-      NotificationManager.error(
-        "Error deleting purchases. Please try again later.",
-        "Error"
-      );
-      console.log(error);
-    } finally {
-      setOpenDeleteConfirmModal(false);
-      setDeleteConfirmed(false); 
-    }
-  };
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -558,25 +503,6 @@ const PurchaseReportSummary = () => {
             rowData={selectedRowData}
           />
         </Box>
-        <Button
-          color="error"
-          size="small"
-          variant="contained"
-          onClick={handleDeleteAllPurchases}
-          sx={{
-            marginTop: 1,
-            padding: "4px 10px",
-            fontSize: "11px",
-          }}
-          disabled={allPurchases.length === 0}
-        >
-          DELETE ALL
-        </Button>
-        <DeleteConfirmDialog
-          openDeleteConfirmModal={openDeleteConfirmModal}
-          handleCloseDeleteConfirmModal={handleCloseDeleteConfirmModal}
-          handleConfirmDeleteAll={handleConfirmDeleteAll}
-        />
       </Box>
     </ThemeProvider>
   );
