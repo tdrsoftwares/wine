@@ -1038,6 +1038,16 @@ const PurchaseEntry = () => {
     setTotalValues({ ...totalValues, totalSDiscount: sDiscount });
   };
 
+  const handleAdjustmentChange = (event) => {
+    const adjustmentValue = event.target.value;
+
+    setTotalValues((prevValues) => ({
+      ...prevValues,
+      adjustment: adjustmentValue,
+    }));
+  };
+
+
   const handleGovtRateChange = (event) => {
     const govtRate =
       event.target.value === "" ? "" : parseFloat(event.target.value);
@@ -1180,37 +1190,60 @@ const PurchaseEntry = () => {
     const tcsPercentage = parseFloat(totalValues.tcs) || 1;
     const tcsAmt = (grossAmt * tcsPercentage) / 100;
 
+    const discount = parseFloat(totalValues.discount) || 0;
+    const discountAmt = (grossAmt * discount) / 100;
+
     const govtRate = parseFloat(totalValues.govtRate) || 0;
     const spcPurpose = parseFloat(totalValues.spcPurpose) || 0;
-    let netAmt = grossAmt + govtRate + spcPurpose;
-    netAmt += tcsAmt;
-    setTotalValues((prevValues) => ({ ...prevValues, grossAmt, netAmt }));
+
+    const adjustment = parseFloat(totalValues.adjustment) || 0;
+    // console.log("adjustment: ", adjustment)
+    let netAmt = grossAmt + govtRate + spcPurpose + tcsAmt;
+    
+    netAmt -= discountAmt;
+    if (adjustment < 0) {
+      netAmt += adjustment;
+
+    } else {
+      netAmt += adjustment;
+    }  
+
+    setTotalValues((prevValues) => ({
+      ...prevValues,
+      grossAmt,
+      netAmt,
+      tcsAmt,
+      discountAmt,
+    }));
   }, [
     purchases,
     totalValues.grossAmt,
+    totalValues.discount,
     totalValues.totalSDiscount,
     totalValues.govtRate,
     totalValues.tcs,
     totalValues.spcPurpose,
+    totalValues.adjustment
   ]);
 
-  useEffect(() => {
-    const tcsPercentage = parseFloat(totalValues.tcs) || 1;
-    const grossAmt = parseFloat(totalValues.grossAmt) || 0;
-    const tcsAmt = (grossAmt * tcsPercentage) / 100;
+  // useEffect(() => {
+  //   const tcsPercentage = parseFloat(totalValues.tcs) || 1;
+  //   const grossAmt = parseFloat(totalValues.grossAmt) || 0;
+  //   const tcsAmt = (grossAmt * tcsPercentage) / 100;
 
-    const discount = parseFloat(totalValues.discount) || 0;
-    const discountAmt = (grossAmt * discount) / 100;
+  //   const discount = parseFloat(totalValues.discount) || 0;
+  //   const discountAmt = (grossAmt * discount) / 100;
 
-    const netAmt = grossAmt + tcsAmt - discountAmt;
+  //   let netAmt = grossAmt + govtRate + spcPurpose + tcsAmt;
+  //   netAmt -= discountAmt;
 
-    setTotalValues((prevValues) => ({
-      ...prevValues,
-      tcsAmt,
-      discountAmt,
-      netAmt,
-    }));
-  }, [totalValues.tcs, totalValues.grossAmt, totalValues.discount]);
+  //   setTotalValues((prevValues) => ({
+  //     ...prevValues,
+  //     tcsAmt,
+  //     discountAmt,
+  //     netAmt,
+  //   }));
+  // }, [totalValues.tcs, totalValues.grossAmt]);
 
   useEffect(() => {
     // Calculating total government round off
@@ -2191,6 +2224,7 @@ const PurchaseEntry = () => {
                 fullWidth
                 value={totalValues.discount}
                 onChange={handleDiscountChange}
+                InputProps={{ readOnly: true }}
                 onKeyDown={(e) => handleEnterKey(e, otherChargesRef)}
               />
             </Grid>
@@ -2216,8 +2250,8 @@ const PurchaseEntry = () => {
                 className="input-field"
                 fullWidth
                 value={totalValues.adjustment}
-                InputProps={{ readOnly: true }}
-                // onChange={handleAdjustmentChange}
+                // InputProps={{ readOnly: true }}
+                onChange={handleAdjustmentChange}
                 onKeyDown={(e) => handleEnterKey(e, netAmountRef)}
               />
             </Grid>
