@@ -376,112 +376,136 @@ const SaleBill = () => {
     }
   }, 500);
 
+
+
   const itemCodeSearch = async (itemCode, storeName) => {
     try {
       setIsLoading(true);
       const response = await searchAllSalesByItemCode(itemCode, storeName);
-      const searchedItem = response?.data?.data[0];
+      const items = response?.data?.data || [];
+
+      // Calculating the total pcs already used in salesData for each item
+      const pcsUsed = salesData.reduce((acc, item) => {
+        const key = `${item.itemCode}-${item.mrp}-${item.batch}`;
+        acc[key] = (acc[key] || 0) + item.pcs;
+        return acc;
+      }, {});
+
+      // Finding the first item with sufficient currentStock
+      const searchedItem = items.find((item) => {
+        const key = `${item.itemCode}-${item.mrp}-${item.batchNo}`;
+        const usedPcs = pcsUsed[key] || 0;
+        return item.currentStock > usedPcs;
+      });
+
+      // if a searchedItem doesnt have currentStock
+      if (!searchedItem) {
+        NotificationManager.warning("No items with stock available.");
+        setIsLoading(false);
+        return;
+      }
+
       const currentItemsStock = searchedItem.currentStock;
+      const key = `${searchedItem.itemCode}-${searchedItem.mrp}-${searchedItem.batchNo}`;
+      const usedPcs = pcsUsed[key] || 0;
+      const availableStock = currentItemsStock - usedPcs;
 
-      if (searchedItem) {
-        const existingItemIndex = salesData.findIndex(
-          (item) =>
-            item.itemCode === searchedItem.itemCode &&
-            item.mrp === searchedItem.mrp &&
-            item.batch === searchedItem.batchNo
-        );
-        const updatedSalesData = [...salesData];
+      const existingItemIndex = salesData.findIndex(
+        (item) =>
+          item.itemCode === searchedItem.itemCode &&
+          item.mrp === searchedItem.mrp &&
+          item.batch === searchedItem.batchNo
+      );
+      const updatedSalesData = [...salesData];
 
-        if (formData.billType === "CASHBILL") {
-          // for exisiting item
-          if (existingItemIndex !== -1) {
-            if (
-              updatedSalesData[existingItemIndex].pcs >= currentItemsStock ||
-              formData.pcs >= currentItemsStock
-            ) {
-              NotificationManager.warning(
-                `Out of Stock! Currently you have ${
-                  currentItemsStock || 0
-                }pcs in stock.`
-              );
-              pcsRef.current.focus();
-              return;
-            } else {
-              if (formData.pcs >= currentItemsStock) {
-                NotificationManager.warning(
-                  `Out of Stock! Currently you have ${
-                    currentItemsStock || 0
-                  }pcs in stock.`
-                );
-                pcsRef.current.focus();
-                return;
-              }
-              updatedSalesData[existingItemIndex].pcs += 1;
-              updatedSalesData[existingItemIndex].amount =
-                updatedSalesData[existingItemIndex].pcs *
-                updatedSalesData[existingItemIndex].rate;
-              setSalesData(updatedSalesData);
-              itemCodeRef.current.focus();
-            }
+      if (formData.billType === "CASHBILL") {
+        // for existing item
+        if (existingItemIndex !== -1) {
+          if (
+            updatedSalesData[existingItemIndex].pcs >= availableStock ||
+            formData.pcs >= availableStock
+          ) {
+            NotificationManager.warning(
+              `Out of Stock! Currently you have ${
+                availableStock || 0
+              } pcs in stock.`
+            );
+            pcsRef.current.focus();
+            setIsLoading(false);
+            return;
           } else {
-            // for new item
-            if (currentItemsStock <= 0) {
+            if (formData.pcs >= availableStock) {
               NotificationManager.warning(
                 `Out of Stock! Currently you have ${
-                  searchedItem.currentStock || 0
-                }pcs in stock.`
+                  availableStock || 0
+                } pcs in stock.`
               );
               pcsRef.current.focus();
+              setIsLoading(false);
               return;
             }
-            setSalesData([
-              ...salesData,
-              {
-                itemId: searchedItem?.itemId,
-                itemDetailsId: searchedItem?._id,
-                itemCode: searchedItem?.itemCode || 0,
-                itemName: searchedItem?.item?.name || 0,
-                mrp: searchedItem?.mrp || 0,
-                batch: searchedItem?.batchNo || 0,
-                pcs: 1,
-                rate: searchedItem?.mrp || 0,
-                currentStock: searchedItem?.currentStock || 0,
-                volume: searchedItem?.item?.volume || 0,
-                discount: formData.discount || 0,
-                brk: formData.brk || 0,
-                split: formData.split || 0,
-                amount: searchedItem?.mrp || 0,
-                // stockAt: searchedItem?.store?._id,
-                group: searchedItem?.item?.group,
-              },
-            ]);
+            updatedSalesData[existingItemIndex].pcs += 1;
+            updatedSalesData[existingItemIndex].amount =
+              updatedSalesData[existingItemIndex].pcs *
+              updatedSalesData[existingItemIndex].rate;
+            setSalesData(updatedSalesData);
+            itemCodeRef.current.focus();
           }
-          setFormData({ ...formData, itemCode: "" });
-          itemCodeRef.current.focus();
-        } else if (formData.billType === "CREDITBILL") {
-          setFormData({
-            ...formData,
-            itemId: searchedItem?.itemId,
-            itemDetailsId: searchedItem?._id,
-            itemCode: searchedItem?.itemCode || 0,
-            itemName: searchedItem?.item?.name || 0,
-            mrp: searchedItem?.mrp || 0,
-            batch: searchedItem?.batchNo || 0,
-            pcs: formData.pcs || null,
-            rate: searchedItem?.mrp || 0,
-            currentStock: searchedItem?.currentStock || 0,
-            volume: searchedItem?.item?.volume || 0,
-            discount: formData.discount || 0,
-            brk: formData.brk || 0,
-            split: formData.split || 0,
-            amount: searchedItem?.mrp || 0,
-            // stockAt: searchedItem?.store?._id,
-            group: searchedItem?.item?.group,
-          });
-          pcsRef.current.focus();
+        } else {
+          // for new item
+          if (availableStock <= 0) {
+            NotificationManager.warning(
+              `Out of Stock! Currently you have ${
+                availableStock || 0
+              } pcs in stock.`
+            );
+            pcsRef.current.focus();
+            setIsLoading(false);
+            return;
+          }
+          setSalesData([
+            ...salesData,
+            {
+              itemId: searchedItem?.itemId,
+              itemDetailsId: searchedItem?._id,
+              itemCode: searchedItem?.itemCode || 0,
+              itemName: searchedItem?.item?.name || 0,
+              mrp: searchedItem?.mrp || 0,
+              batch: searchedItem?.batchNo || 0,
+              pcs: 1,
+              rate: searchedItem?.mrp || 0,
+              currentStock: searchedItem?.currentStock || 0,
+              volume: searchedItem?.item?.volume || 0,
+              discount: formData.discount || 0,
+              brk: formData.brk || 0,
+              split: formData.split || 0,
+              amount: searchedItem?.mrp || 0,
+              group: searchedItem?.item?.group,
+            },
+          ]);
         }
-      } else {
-        setSearchResults([]);
+        setFormData({ ...formData, itemCode: "" });
+        itemCodeRef.current.focus();
+      } else if (formData.billType === "CREDITBILL") {
+        setFormData({
+          ...formData,
+          itemId: searchedItem?.itemId,
+          itemDetailsId: searchedItem?._id,
+          itemCode: searchedItem?.itemCode || 0,
+          itemName: searchedItem?.item?.name || 0,
+          mrp: searchedItem?.mrp || 0,
+          batch: searchedItem?.batchNo || 0,
+          pcs: formData.pcs || null,
+          rate: searchedItem?.mrp || 0,
+          currentStock: searchedItem?.currentStock || 0,
+          volume: searchedItem?.item?.volume || 0,
+          discount: formData.discount || 0,
+          brk: formData.brk || 0,
+          split: formData.split || 0,
+          amount: searchedItem?.mrp || 0,
+          group: searchedItem?.item?.group,
+        });
+        pcsRef.current.focus();
       }
       setIsLoading(false);
     } catch (error) {
@@ -491,6 +515,7 @@ const SaleBill = () => {
       setIsLoading(false);
     }
   };
+  
 
   useEffect(() => {
     const newPcs = parseInt(formData.pcs) * parseInt(formData.mrp);
