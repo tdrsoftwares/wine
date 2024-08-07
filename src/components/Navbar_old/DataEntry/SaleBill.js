@@ -425,14 +425,38 @@ const SaleBill = () => {
             updatedSalesData[existingItemIndex].pcs >= availableStock ||
             formData.pcs >= availableStock
           ) {
-            NotificationManager.warning(
-              `Out of Stock! Currently you have ${
-                availableStock || 0
-              } pcs in stock.`
-            );
-            pcsRef.current.focus();
+            // NotificationManager.warning(
+            //   `Out of Stock! Currently you have ${
+            //     availableStock || 0
+            //   } pcs in stock.`
+            // );
+            setSalesData([
+              ...salesData,
+              {
+                itemId: searchedItem?.itemId,
+                itemDetailsId: searchedItem?._id,
+                itemCode: searchedItem?.itemCode || 0,
+                itemName: searchedItem?.item?.name || 0,
+                mrp: searchedItem?.mrp || 0,
+                batch: searchedItem?.batchNo || 0,
+                pcs: 1,
+                rate: searchedItem?.mrp || 0,
+                currentStock: searchedItem?.currentStock || 0,
+                volume: searchedItem?.item?.volume || 0,
+                discount: formData.discount || 0,
+                brk: formData.brk || 0,
+                split: formData.split || 0,
+                amount: searchedItem?.mrp || 0,
+                group: searchedItem?.item?.group,
+              },
+            ]);
+          
+          setFormData({ ...formData, itemCode: "" });
+          itemCodeRef.current.focus();
+           
+            // pcsRef.current.focus();
             setIsLoading(false);
-            return;
+            // return;
           } else {
             if (formData.pcs >= availableStock) {
               NotificationManager.warning(
@@ -444,13 +468,19 @@ const SaleBill = () => {
               setIsLoading(false);
               return;
             }
-            updatedSalesData[existingItemIndex].pcs += 1;
-            updatedSalesData[existingItemIndex].amount =
-              updatedSalesData[existingItemIndex].pcs *
-              updatedSalesData[existingItemIndex].rate;
-            setSalesData(updatedSalesData);
-            itemCodeRef.current.focus();
+            // updatedSalesData[existingItemIndex].pcs += 1;
+            // updatedSalesData[existingItemIndex].amount =
+            //   updatedSalesData[existingItemIndex].pcs *
+            //   updatedSalesData[existingItemIndex].rate;
+            // setSalesData(updatedSalesData);
+            // itemCodeRef.current.focus();
           }
+          updatedSalesData[existingItemIndex].pcs += 1;
+          updatedSalesData[existingItemIndex].amount =
+            updatedSalesData[existingItemIndex].pcs *
+            updatedSalesData[existingItemIndex].rate;
+          setSalesData(updatedSalesData);
+          itemCodeRef.current.focus();
         } else {
           // for new item
           if (availableStock <= 0) {
