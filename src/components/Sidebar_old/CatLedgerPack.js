@@ -2,266 +2,387 @@ import {
   Box,
   Button,
   Checkbox,
-  FormControlLabel,
+  CircularProgress,
   Grid,
+  InputLabel,
   MenuItem,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   TextField,
+  ThemeProvider,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import dayjs from "dayjs";
+import React, { useEffect, useState } from "react";
+import { customTheme } from "../../utils/customTheme";
+import { getAllItemCategory } from "../../services/categoryService";
+import { NotificationManager } from "react-notifications";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { getCateLedgerPackDetails } from "../../services/cateLedgerPackService";
+
 
 const CatLedgerPack = () => {
   const [categoryName, setCategoryName] = useState("");
-  const [dateFrom, setDateFrom] = useState("mm/dd/yyyy");
-  const [dateTo, setDateTo] = useState("mm/dd/yyyy");
-  const [onlyValue, setOnlyValue] = useState(false);
-  const categoryOptions = [
-    "All",
-    "50 UP IML",
-    "60 UP IML",
-    "70 UP IML",
-    "Beer (India)",
-    "Brandy (IMFL)",
-    "Rum (IMFL)",
-    "Vodka (IMFL)",
-    "Vodka (OS)",
-    "Whisky (IMFL)",
-    "Whisky (OS)",
-    "Wine (IMFL)",
-    "Wine (OS)",
+  const [allCategory, setAllCategory] = useState([]);
+  const [dateFrom, setDateFrom] = useState(null);
+  const [dateTo, setDateTo] = useState(null);
+  const [blOnly, setBlOnly] = useState(false);
+  const [allRowData, setAllRowData] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 10,
+  });
+
+  const formatDate = (date) => {
+    if (!date) return null;
+    return dayjs(date).format("DD/MM/YYYY");
+  };
+
+  const fetchAllCategory = async () => {
+    try {
+      const getAllCategoryResponse = await getAllItemCategory();
+      if (getAllCategoryResponse.status === 200) {
+        setAllCategory(getAllCategoryResponse?.data?.data);
+      } else {
+        NotificationManager.error("No category found.", "Error");
+        setAllCategory([]);
+      }
+    } catch (err) {
+      NotificationManager.error(
+        "Something went Wrong, Please try again later.",
+        "Error"
+      );
+    }
+  };
+
+  const fetchAllCateLedger = async () => {
+    const fromDate = dateFrom ? formatDate(dateFrom) : null;
+    const toDate = dateTo ? formatDate(dateTo) : null;
+
+    setLoading(true);
+    try {
+      const filterOptions = {
+        fromDate,
+        toDate,
+        categoryName,
+        bl: blOnly,
+      };
+      const response = await getCateLedgerPackDetails(filterOptions);
+      // console.log("Response: ", response);
+
+      if (response.status === 200) {
+        const rowData = response.data.data.reduce((acc, category, index) => {
+          const { categoryName, volumes } = category;
+          let categoryTotal = {
+            openingBalance: 0,
+            purchases: 0,
+            sales: 0,
+            closingBalance: 0,
+          };
+
+          // category rows
+          volumes.forEach((volume, volIndex) => {
+            acc.push({
+              id: `${index}-${volIndex}`,
+              sNo: acc.length + 1,
+              categoryName,
+              volume: volume.volume,
+              openingBalance: volume.openingBalance,
+              purchases: volume.purchases,
+              sales: volume.sales,
+              closingBalance: volume.closingBalance,
+            });
+
+            // totals
+            categoryTotal.openingBalance += volume.openingBalance;
+            categoryTotal.purchases += volume.purchases;
+            categoryTotal.sales += volume.sales;
+            categoryTotal.closingBalance += volume.closingBalance;
+          });
+
+          // total row
+          acc.push({
+            id: `${index}-total`,
+            sNo: "",
+            categoryName: `${categoryName} Total`,
+            volume: "",
+            openingBalance: categoryTotal.openingBalance,
+            purchases: categoryTotal.purchases,
+            sales: categoryTotal.sales,
+            closingBalance: categoryTotal.closingBalance,
+            isTotalRow: true,
+          });
+
+          return acc;
+        }, []);
+
+        setAllRowData(rowData);
+        setTotalCount(rowData.length);
+      } else {
+        console.log("Error", response);
+        NotificationManager.error("No records found.", "Error");
+        setAllRowData([]);
+      }
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching records. Please try again later.",
+        "Error"
+      );
+      console.log("Error fetching records", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // custom row rendering
+  const renderRow = (params) => {
+    if (params.row.isTotalRow) {
+      return (
+        <Box sx={{ fontWeight: "bold", backgroundColor: "#f0f0f0" }}>
+          {params.row[params.field]}
+        </Box>
+      );
+    }
+    return params.row[params.field];
+  };
+
+  const columns = [
+    {
+      field: "sNo",
+      headerName: "S. No.",
+      flex: 0.5,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+      renderCell: renderRow,
+    },
+    {
+      field: "categoryName",
+      headerName: "Category Name",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+      renderCell: renderRow,
+    },
+    {
+      field: "volume",
+      headerName: "Volume",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+      renderCell: renderRow,
+    },
+    {
+      field: "openingBalance",
+      headerName: "Opening Balance",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+      renderCell: renderRow,
+    },
+    {
+      field: "purchases",
+      headerName: "Purchases",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+      renderCell: renderRow,
+    },
+    {
+      field: "sales",
+      headerName: "Sales",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+      renderCell: renderRow,
+    },
+    {
+      field: "closingBalance",
+      headerName: "Closing Balance",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+      renderCell: renderRow,
+    },
   ];
 
-  const [tableData, setTableData] = useState([
-    {
-      category: "",
-      pack: "",
-      open: "",
-      close: "",
-      purchase: "",
-      sales: "",
-      total: "",
-      ltr: "",
-    },
-  ]);
+  useEffect(() => {
+    fetchAllCategory();
+  }, []);
+
+  const debounce = (func, delay) => {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        func(...args);
+      }, delay);
+    };
+  };
+
+  useEffect(() => {
+    const debouncedFetch = debounce(fetchAllCateLedger, 300);
+    if (dateFrom) {
+      debouncedFetch();
+    }
+  }, [categoryName, dateFrom, dateTo, blOnly]);
 
   return (
-    <form>
+    <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, minWidth: "900px" }}>
-        <Typography variant="h5" component="div" gutterBottom>
+        <Typography variant="subtitle2" gutterBottom>
           Category Wise Stock
         </Typography>
-        <Typography variant="subtitle2" gutterBottom>
-          Category Stock
-        </Typography>
+        <Typography sx={{ fontSize: "13px" }}>Filter By:</Typography>
 
         <Grid container spacing={3}>
           <Grid item xs={3}>
-            <TextField
-              select
-              fullWidth
-              label="Name of Category"
-              name="categoryName"
-              value={categoryName}
-              onChange={(e) => setCategoryName(e.target.value)}
-            >
-              {categoryOptions.map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
-                </MenuItem>
-              ))}
-            </TextField>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="categoryName" className="input-label">
+                Category:
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="categoryName"
+                className="input-field"
+                value={categoryName}
+                onChange={(e) => setCategoryName(e.target.value)}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
+                    },
+                  },
+                }}
+              >
+                <MenuItem value="">None</MenuItem>
+                {allCategory?.map((category) => (
+                  <MenuItem key={category._id} value={category.categoryName}>
+                    {category.categoryName}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
           </Grid>
 
-          <Grid item xs={2}>
-            <TextField
-              fullWidth
-              type="date"
-              label="Date from"
-              name="dateFrom"
-              variant="outlined"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-            />
-          </Grid>
-
-          <Grid item xs={2}>
-            <TextField
-              fullWidth
-              type="date"
-              label="Date to"
-              name="dateTo"
-              variant="outlined"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-            />
-          </Grid>
-
-          <Grid item xs={3}></Grid>
-
-          <Grid item xs={2}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={onlyValue}
-                  inputProps={{ "aria-label": "controlled" }}
-                  onChange={(e) => setOnlyValue(e.target.checked)}
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="dateFrom" className="input-label">
+                Date from:
+              </InputLabel>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  id="dateFrom"
+                  format="DD/MM/YYYY"
+                  value={dateFrom}
+                  className="input-field date-picker"
+                  onChange={(newDate) => setDateFrom(newDate)}
+                  renderInput={(params) => <TextField {...params} />}
                 />
-              }
-              label="Only Value"
-            />
+              </LocalizationProvider>
+            </div>
+          </Grid>
+
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="dateTo" className="input-label">
+                Date to:
+              </InputLabel>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  id="dateTo"
+                  format="DD/MM/YYYY"
+                  value={dateTo}
+                  className="input-field date-picker"
+                  onChange={(newDate) => setDateTo(newDate)}
+                  renderInput={(params) => <TextField {...params} />}
+                />
+              </LocalizationProvider>
+            </div>
+          </Grid>
+
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="pcsOnly" className="input-label">
+                BL Only:
+              </InputLabel>
+              <Checkbox
+                name="pcsOnly"
+                checked={blOnly}
+                inputProps={{ "aria-label": "controlled" }}
+                onChange={(e) => setBlOnly(e.target.checked)}
+              />
+            </div>
           </Grid>
         </Grid>
-
-        <TableContainer
-          component={Paper}
-          sx={{ marginTop: 4, maxHeight: 300, overflowY: "auto" }}
-        >
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>S.No.</TableCell>
-                <TableCell>Category</TableCell>
-                <TableCell>Pack</TableCell>
-                <TableCell>Open</TableCell>
-                <TableCell>Close</TableCell>
-                <TableCell>Purchase</TableCell>
-                <TableCell>Sales</TableCell>
-                <TableCell>Total</TableCell>
-                <TableCell>Ltr.</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {tableData.map((row, index) => (
-                <TableRow key={index}>
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={index + 1}
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.category || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.pack || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.open || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.close || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.purchase || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.sales || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.total || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.ltr || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
 
         <Box
           sx={{
             display: "flex",
             justifyContent: "flex-end",
-            marginTop: 2,
+            "& button": { marginTop: 2 },
           }}
         >
           <Button
-            color="primary"
-            size="large"
-            variant="outlined"
-            onClick={() => {}}
-            sx={{ marginTop: 2, marginRight: 2 }}
+            color="inherit"
+            size="small"
+            variant="contained"
+            onClick={() => {
+              setCategoryName("");
+              setDateFrom(null);
+              setDateTo(null);
+              setPaginationModel({ page: 0, pageSize: 10 });
+            }}
+          >
+            Clear Filters
+          </Button>
+          <Button
+            color="info"
+            size="small"
+            variant="contained"
+            onClick={fetchAllCateLedger}
+            sx={{ marginLeft: 2 }}
           >
             Display
           </Button>
-          <Button
-            color="secondary"
-            size="large"
-            variant="outlined"
-            onClick={() => {}}
-            sx={{ marginTop: 2, marginRight: 2 }}
-          >
-            Print
-          </Button>
-          <Button
-            color="error"
-            size="large"
-            variant="outlined"
-            onClick={() => {}}
-            sx={{ marginTop: 2 }}
-          >
-            Clear
-          </Button>
+        </Box>
+
+        <Box
+          sx={{
+            height: 450,
+            width: "100%",
+            marginTop: 2,
+            "& .custom-header": { backgroundColor: "#dae4ed", paddingLeft: 4 },
+            "& .custom-cell": { paddingLeft: 4 },
+          }}
+        >
+          <DataGrid
+            rows={allRowData}
+            columns={columns}
+            rowCount={totalCount}
+            pagination
+            paginationModel={paginationModel}
+            pageSizeOptions={[10, 25, 50, 100]}
+            onPaginationModelChange={setPaginationModel}
+            sx={{ backgroundColor: "#fff" }}
+            disableRowSelectionOnClick
+            loading={loading}
+            loadingOverlay={<CircularProgress />}
+            slots={{
+              toolbar: GridToolbar,
+            }}
+            initialState={{
+              density: "compact",
+            }}
+          />
         </Box>
       </Box>
-    </form>
+    </ThemeProvider>
   );
 };
 

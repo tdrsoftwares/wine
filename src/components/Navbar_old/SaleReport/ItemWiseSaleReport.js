@@ -730,13 +730,6 @@ const ItemWiseSaleReport = () => {
               toolbar: GridToolbar,
             }}
             initialState={{
-              pagination: {
-                paginationModel: {
-                  page: paginationModel.page,
-                  pageSize: paginationModel.pageSize,
-                },
-                rowCount: totalCount,
-              },
               density: "compact",
             }}
           />
