@@ -262,12 +262,12 @@ const LicenseeInfo = ({ authenticatedUser }) => {
 
   return (
     <ThemeProvider theme={customTheme}>
-      <Box sx={{ p: 2, width: "900px" }}>
+      <Box sx={{ p: 2, minWidth: "900px" }}>
         <Typography variant="h6" sx={{ marginBottom: 2 }}>
           Information of License
         </Typography>
 
-        <Grid container spacing={2}>
+        <Grid container spacing={2} sx={{ marginBottom: 2 }}>
           <Grid item xs={4}>
             <div className="input-wrapper">
               <InputLabel htmlFor="nameOfLicence" className="input-label">
@@ -501,84 +501,8 @@ const LicenseeInfo = ({ authenticatedUser }) => {
           </Grid>
         </Grid>
 
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            "& button": { marginTop: 2, marginBottom: 2 },
-          }}
-        >
-          <Button
-            color="secondary"
-            size="small"
-            variant="contained"
-            onClick={handleCreate}
-          >
-            CREATE
-          </Button>
-          {editEnable ? (
-            <Button
-              color="primary"
-              size="small"
-              variant="contained"
-              onClick={(e) => {
-                e.preventDefault();
-                setEditEnable(false);
-                nameOfLicenceRef.current.focus();
-              }}
-              sx={{ marginLeft: 2 }}
-            >
-              EDIT
-            </Button>
-          ) : (
-            <Button
-              color="success"
-              size="small"
-              variant="contained"
-              onClick={handleUpdate}
-              sx={{ marginLeft: 2 }}
-            >
-              SAVE
-            </Button>
-          )}
-
-          <Button
-            color="inherit"
-            size="small"
-            variant="contained"
-            onClick={clearForm}
-            sx={{ marginLeft: 2 }}
-          >
-            CLEAR
-          </Button>
-        </Box>
-
         <Divider />
 
-        <Grid container spacing={2} sx={{ marginTop: 2, marginBottom: 3 }}>
-          <Grid item xs={6}>
-            <Typography variant="subtitle2" gutterBottom>
-              Wine Application Developed By: <b>TDR SOFTWARE PRIVATE LIMITED</b>
-            </Typography>
-          </Grid>
-          <Grid item xs={6}>
-            <Typography variant="subtitle2" gutterBottom>
-              COMPANY CIN NO: <b>U72300WB2013PTC196614</b>
-            </Typography>
-          </Grid>
-          <Grid item xs={6}>
-            <Typography variant="subtitle2" gutterBottom>
-              GSTIN: <b>19AAECT848D1ZX</b>
-            </Typography>
-          </Grid>
-          <Grid item xs={6}>
-            <Typography variant="subtitle2" gutterBottom>
-              CONTACT NO: <b>9830657184/ 8670920038</b>
-            </Typography>
-          </Grid>
-        </Grid>
-
-        <Divider />
 
         <Grid container spacing={2} sx={{ marginTop: 2 }}>
           <Grid item xs={4}>
@@ -743,6 +667,85 @@ const LicenseeInfo = ({ authenticatedUser }) => {
             </div>
           </Grid>
         </Grid>
+
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            "& button": { marginTop: 2, marginBottom: 2 },
+          }}
+        >
+          <Button
+            color="secondary"
+            size="small"
+            variant="contained"
+            onClick={handleCreate}
+          >
+            CREATE
+          </Button>
+          {editEnable ? (
+            <Button
+              color="primary"
+              size="small"
+              variant="contained"
+              onClick={(e) => {
+                e.preventDefault();
+                setEditEnable(false);
+                nameOfLicenceRef.current.focus();
+              }}
+              sx={{ marginLeft: 2 }}
+            >
+              EDIT
+            </Button>
+          ) : (
+            <Button
+              color="success"
+              size="small"
+              variant="contained"
+              onClick={handleUpdate}
+              sx={{ marginLeft: 2 }}
+            >
+              SAVE
+            </Button>
+          )}
+
+          <Button
+            color="inherit"
+            size="small"
+            variant="contained"
+            onClick={clearForm}
+            sx={{ marginLeft: 2 }}
+          >
+            CLEAR
+          </Button>
+        </Box>
+
+        <Divider />
+
+        <Grid container spacing={2} sx={{ marginTop: 2, marginBottom: 3 }}>
+          <Grid item xs={6}>
+            <Typography variant="subtitle2" gutterBottom>
+              Wine Application Developed By: <b>TDR SOFTWARE PRIVATE LIMITED</b>
+            </Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <Typography variant="subtitle2" gutterBottom>
+              COMPANY CIN NO: <b>U72300WB2013PTC196614</b>
+            </Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <Typography variant="subtitle2" gutterBottom>
+              GSTIN: <b>19AAECT848D1ZX</b>
+            </Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <Typography variant="subtitle2" gutterBottom>
+              CONTACT NO: <b>9830657184/ 8670920038</b>
+            </Typography>
+          </Grid>
+        </Grid>
+
+
       </Box>
     </ThemeProvider>
   );

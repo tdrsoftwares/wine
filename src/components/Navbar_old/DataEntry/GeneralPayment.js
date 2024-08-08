@@ -49,14 +49,14 @@ const GeneralPayment = () => {
 
   const handlePayeeNameChange = (selectedItem) => {
     setPayeeName(selectedItem);
-    console.log(selectedItem);
+    // console.log(selectedItem);
   };
 
   const handleItemCodeChange = () => {};
 
   return (
     <form>
-      <Box sx={{ p: 2, width: "900px" }}>
+      <Box sx={{ p: 2, minWidth: "900px" }}>
         <Typography variant="h5" component="div" gutterBottom>
           General Payment
         </Typography>

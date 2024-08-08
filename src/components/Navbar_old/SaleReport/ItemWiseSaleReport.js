@@ -346,11 +346,11 @@ const ItemWiseSaleReport = () => {
 
   return (
     <ThemeProvider theme={customTheme}>
-      <Box sx={{ p: 2, width: "900px" }}>
-        <Typography variant="h6" sx={{ marginBottom: 2 }}>
+      <Box sx={{ p: 2, minWidth: "900px" }}>
+        <Typography variant="subtitle2" gutterBottom>
           Item Wise Sale Report:
         </Typography>
-        <Typography variant="subtitle2" gutterBottom>
+        <Typography sx={{ fontSize: "13px" }}>
           Filter By:
         </Typography>
 
@@ -678,7 +678,7 @@ const ItemWiseSaleReport = () => {
 
         <Box
           sx={{
-            height: 500,
+            height: 450,
             width: "100%",
             marginTop: 2,
             "& .custom-header": { backgroundColor: "#dae4ed", paddingLeft: 4 },

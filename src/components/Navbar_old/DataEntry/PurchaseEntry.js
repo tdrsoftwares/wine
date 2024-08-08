@@ -16,6 +16,7 @@ import {
   Input,
   CircularProgress,
   ThemeProvider,
+  Typography,
 } from "@mui/material";
 import { NotificationManager } from "react-notifications";
 import { getAllSuppliers } from "../../../services/supplierService";
@@ -1350,7 +1351,10 @@ const PurchaseEntry = () => {
 
   return (
     <ThemeProvider theme={customTheme}>
-      <Box component="form" sx={{ p: 2, width: "900px" }}>
+      <Box component="form" sx={{ p: 2, minWidth: "900px" }}>
+        <Typography variant="subtitle2" gutterBottom>
+          Purchase Entry:
+        </Typography>
         <Grid container>
           <Grid item xs={3}>
             <div className="input-wrapper">

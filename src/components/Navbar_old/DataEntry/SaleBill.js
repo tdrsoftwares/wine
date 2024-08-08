@@ -19,6 +19,7 @@ import {
   TableRow,
   TextField,
   ThemeProvider,
+  Typography,
 } from "@mui/material";
 import { getAllCustomer } from "../../../services/customerService";
 import { NotificationManager } from "react-notifications";
@@ -1925,6 +1926,9 @@ const SaleBill = () => {
   return (
     <ThemeProvider theme={customTheme}>
       <Box component="form" sx={{ p: 2, width: "900px" }}>
+        <Typography variant="subtitle2" gutterBottom>
+          Sale Entry:
+        </Typography>
         <Grid container>
           <Grid item xs={3}>
             <div className="radio-buttons-wrapper">

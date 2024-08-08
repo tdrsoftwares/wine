@@ -17,7 +17,8 @@ body {
 
 .container {
   margin: 0 auto;
-  height: 100vh;
+  min-height: 100vh;
+  background-color: #d5d8df;
 }
 
 .row {
@@ -100,18 +101,6 @@ body {
   background-color: #daedf19e;
 }
 
-/* .css-md26zr-MuiInputBase-root-MuiOutlinedInput-root {
-  background-color: #fdfbc8 !important;
-} */
-
-/* .css-9ddj71-MuiInputBase-root-MuiOutlinedInput-root {
-  background-color: #fdfbc8 !important;
-} */
-
-/* .css-9npbnl-MuiFormLabel-root-MuiInputLabel-root {
-  color: #000 !important;
-} */
-
 .col-md-3 {
   flex: 0 0 15%;
   max-width: 15%;
@@ -123,15 +112,27 @@ body {
   background-color: #d5d8df;
 }
 
+
 .col-md-12 {
   flex: 0 0 100%;
   max-width: 100%;
 }
 
+
+.menu-button {
+  position: absolute !important;
+  top: 1px !important;
+  left: 20px !important;
+  z-index: 1000 !important;
+  color: #fff !important;
+}
+
+
 .sidebar {
   background-image: linear-gradient(#6a11cb 0%, #3b25fc 100%);
   width: 224px;
   font-size: 13px;
+  transition: transform 0.3s ease-in-out;
 }
 
 .sidebar-column {
@@ -157,6 +158,18 @@ body {
   transition: background-color 0.3s;
 
   font-size: 13px;
+}
+
+
+.sidebar-hidden {
+  transform: translateX(-100%);
+  display: none;
+}
+
+
+.sidebar.visible {
+  transform: translateX(0);
+  display: block;
 }
 
 .home-container {
@@ -324,28 +337,6 @@ body {
   height: 29px;
 }
 
-/* .MuiPaper-root.MuiList-root.MuiMenuItem-root,
-.MuiTable-root.MuiTableHead-root.MuiTableRow-root.MuiTableCell-root, 
-.MuiTableBody-root.MuiTableRow-root.MuiTableCell-root, 
-.MuiInputBase-root.MuiInput-input {
-  font-size: 11px !important;
-}
-
-.MuiTypography-root {
-  font-size: 14px !important;
-}
-
-.radio-buttons-wrapper.MuiInputLabel-root,
-.input-wrapper.MuiInputLabel-root {
-  font-size: 12px !important;
-}
-
-.input-field.css-1v4ccyo,
-.input-field.MuiOutlinedInput-root.MuiOutlinedInput-input,
-.input-field.MuiOutlinedInput-root.MuiSelect-select {
-  padding: 6px 8px !important;
-} */
-
 
 @media (max-width: 768px) {
   .form-container {
@@ -354,9 +345,19 @@ body {
   }
 
   .col-md-3,
-  .col-md-9 {
+  .col-md-9,
+  .col-md-12 {
     flex: 0 0 100%;
     max-width: 100%;
+  }
+
+  .sidebar {
+    width: 100%;
+  }
+
+  .menu-button {
+    top: 10px;
+    left: 10px;
   }
 }
 

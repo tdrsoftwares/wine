@@ -101,6 +101,7 @@ function LoginForm({ handleLogin }) {
       sx={{
         // padding: 4,
         maxWidth: "360px !important",
+        backgroundColor: "#f9f9f9",
         boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
       }}
     >
@@ -135,6 +136,7 @@ function LoginForm({ handleLogin }) {
           fullWidth
           required
           margin="dense"
+          variant="filled"
           size="small"
           id="email"
           label="Email"
@@ -161,6 +163,7 @@ function LoginForm({ handleLogin }) {
           fullWidth
           required
           margin="dense"
+          variant="filled"
           size="small"
           name="password"
           label="Password"

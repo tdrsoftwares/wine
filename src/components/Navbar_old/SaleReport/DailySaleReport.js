@@ -319,7 +319,7 @@ const DailySaleReport = () => {
 
   return (
     <ThemeProvider theme={customTheme}>
-      <Box sx={{ p: 2, width: "900px" }}>
+      <Box sx={{ p: 2, minWidth: "900px" }}>
         <Typography variant="h6" sx={{ marginBottom: 2 }}>
           Daily Sale Report
         </Typography>
@@ -597,7 +597,7 @@ const DailySaleReport = () => {
 
         <Box
           sx={{
-            height: 500,
+            height: 450,
             width: "100%",
             marginTop: 2,
             "& .custom-header": { backgroundColor: "#dae4ed", paddingLeft: 4 },

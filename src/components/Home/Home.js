@@ -22,14 +22,21 @@ import { useNavigate } from "react-router-dom";
 
 function Home() {
   const navigate = useNavigate();
+  const cardStyle = {
+    maxWidth: 250,
+    margin: "0 auto",
+    "&:hover": {
+      boxShadow: 6,
+      transform: "scale(1.05)",
+      transition: "transform 0.3s ease-in-out",
+    },
+  };
+
   return (
     <div className="home-container" style={{ padding: "20px" }}>
-      {/* <Typography variant="h3" align="center" gutterBottom>
-        Welcome to Home Page
-      </Typography> */}
       <Grid container spacing={4} justifyContent="center">
         <Grid item xs={3}>
-          <Card sx={{ maxWidth: 250, margin:'0 auto' }}>
+          <Card sx={cardStyle}>
             <CardActionArea onClick={() => navigate("/sale-bill")}>
               <CardMedia
                 component="img"
@@ -50,7 +57,7 @@ function Home() {
           </Card>
         </Grid>
         <Grid item xs={3}>
-          <Card sx={{ maxWidth: 250, margin:'0 auto'  }}>
+          <Card sx={cardStyle}>
             <CardActionArea onClick={() => navigate("/purchase-entry")}>
               <CardMedia
                 component="img"
@@ -71,7 +78,7 @@ function Home() {
           </Card>
         </Grid>
         <Grid item xs={3}>
-          <Card sx={{ maxWidth: 250, margin:'0 auto'  }}>
+          <Card sx={cardStyle}>
             <CardActionArea onClick={() => navigate("/stock-report")}>
               <CardMedia
                 component="img"
@@ -92,7 +99,7 @@ function Home() {
           </Card>
         </Grid>
         <Grid item xs={3}>
-          <Card sx={{ maxWidth: 250, margin:'0 auto'  }}>
+          <Card sx={cardStyle}>
             <CardActionArea onClick={() => navigate("/stock-transfer")}>
               <CardMedia
                 component="img"
@@ -113,7 +120,7 @@ function Home() {
           </Card>
         </Grid>
         <Grid item xs={3}>
-          <Card sx={{ maxWidth: 250, margin:'0 auto'  }}>
+          <Card sx={cardStyle}>
             <CardActionArea onClick={() => navigate("/sale-report-summary")}>
               <CardMedia
                 component="img"
@@ -134,8 +141,10 @@ function Home() {
           </Card>
         </Grid>
         <Grid item xs={3}>
-          <Card sx={{ maxWidth: 250, margin:'0 auto'  }}>
-            <CardActionArea onClick={() => navigate("/purchase-report-summary")}>
+          <Card sx={cardStyle}>
+            <CardActionArea
+              onClick={() => navigate("/purchase-report-summary")}
+            >
               <CardMedia
                 component="img"
                 height="100"
@@ -154,9 +163,8 @@ function Home() {
             </CardActionArea>
           </Card>
         </Grid>
-
         <Grid item xs={3}>
-          <Card sx={{ maxWidth: 250, margin:'0 auto'  }}>
+          <Card sx={cardStyle}>
             <CardActionArea onClick={() => navigate("/epos")}>
               <CardMedia
                 component="img"
@@ -176,9 +184,8 @@ function Home() {
             </CardActionArea>
           </Card>
         </Grid>
-
         <Grid item xs={3}>
-          <Card sx={{ maxWidth: 250, margin:'0 auto'  }}>
+          <Card sx={cardStyle}>
             <CardActionArea onClick={() => navigate("/item-wise-sale-report")}>
               <CardMedia
                 component="img"
@@ -198,30 +205,8 @@ function Home() {
             </CardActionArea>
           </Card>
         </Grid>
-        {/* <Grid item xs={3}>
-          <Card sx={{ maxWidth: 250, margin:'0 auto'  }}>
-            <CardActionArea onClick={() => navigate("/item-wise-purchase-report")}>
-              <CardMedia
-                component="img"
-                height="100"
-                image={wineImage7}
-                alt="wine glass"
-                sx={{ objectFit: "contain", padding: "10px" }}
-              />
-              <CardContent>
-                <Typography gutterBottom variant="subtitle1" component="div">
-                  Purchase Items Report
-                </Typography>
-                <Typography variant="body3" color="text.secondary">
-                  Click to see item wise purchase report
-                </Typography>
-              </CardContent>
-            </CardActionArea>
-          </Card>
-        </Grid> */}
-
         <Grid item xs={3}>
-          <Card sx={{ maxWidth: 250, margin:'0 auto'  }}>
+          <Card sx={cardStyle}>
             <CardActionArea onClick={() => navigate("/daily-sale-report")}>
               <CardMedia
                 component="img"
@@ -241,9 +226,8 @@ function Home() {
             </CardActionArea>
           </Card>
         </Grid>
-
         <Grid item xs={3}>
-          <Card sx={{ maxWidth: 250, margin:'0 auto'  }}>
+          <Card sx={cardStyle}>
             <CardActionArea onClick={() => navigate("/daily-item-status")}>
               <CardMedia
                 component="img"
@@ -254,7 +238,7 @@ function Home() {
               />
               <CardContent>
                 <Typography gutterBottom variant="subtitle1" component="div">
-                  Daily Items Status 
+                  Daily Items Status
                 </Typography>
                 <Typography variant="body3" color="text.secondary">
                   Click to see daily item details
@@ -263,9 +247,8 @@ function Home() {
             </CardActionArea>
           </Card>
         </Grid>
-
         <Grid item xs={3}>
-          <Card sx={{ maxWidth: 250, margin:'0 auto'  }}>
+          <Card sx={cardStyle}>
             <CardActionArea onClick={() => navigate("/item-ledger-status")}>
               <CardMedia
                 component="img"
@@ -285,9 +268,8 @@ function Home() {
             </CardActionArea>
           </Card>
         </Grid>
-
         <Grid item xs={3}>
-          <Card sx={{ maxWidth: 250, margin:'0 auto'  }}>
+          <Card sx={cardStyle}>
             <CardActionArea onClick={() => navigate("/monthly-statement")}>
               <CardMedia
                 component="img"
@@ -301,13 +283,12 @@ function Home() {
                   Monthly Statement
                 </Typography>
                 <Typography variant="body3" color="text.secondary">
-                  Click to see monthly report
+                  Click to see monthly statement
                 </Typography>
               </CardContent>
             </CardActionArea>
           </Card>
         </Grid>
-
       </Grid>
     </div>
   );

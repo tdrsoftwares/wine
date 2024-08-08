@@ -281,7 +281,7 @@ const ItemTransferReport = () => {
 
   return (
     <ThemeProvider theme={customTheme}>
-      <Box sx={{ p: 2, width: "900px" }}>
+      <Box sx={{ p: 2, minWidth: "900px" }}>
         <Typography variant="subtitle2" gutterBottom>
           Item Wise Transfer Report:
         </Typography>
@@ -550,7 +550,7 @@ const ItemTransferReport = () => {
 
         <Box
           sx={{
-            height: 500,
+            height: 450,
             width: "100%",
             marginTop: 1,
             "& .custom-header": { backgroundColor: "#dae4ed", paddingLeft: 4 },

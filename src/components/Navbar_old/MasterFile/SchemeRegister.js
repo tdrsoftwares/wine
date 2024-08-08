@@ -11,7 +11,7 @@ import dayjs from "dayjs";
 
 const SchemeRegister = () => {
   const today = dayjs();
-  console.log("---- ", today);
+  // console.log("---- ", today);
   const [schemeNo, setSchemeNo] = useState("");
   const [category, setCategory] = useState("");
   const [brandHead, setBrandHead] = useState("");
@@ -24,7 +24,7 @@ const SchemeRegister = () => {
 
   return (
     <form>
-      <Box sx={{ p: 2, width: "900px" }}>
+      <Box sx={{ p: 2, minWidth: "900px" }}>
         <Typography variant="h5" component="div" gutterBottom>
           Scheme Register
         </Typography>

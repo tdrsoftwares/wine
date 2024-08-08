@@ -273,7 +273,7 @@ const SaleReportSummary = () => {
 
   return (
     <ThemeProvider theme={customTheme}>
-      <Box sx={{ p: 2, width: "900px" }}>
+      <Box sx={{ p: 2, minWidth: "900px" }}>
         <Typography variant="h6" sx={{ marginBottom: 1 }}>
           Sale Report Summary:
         </Typography>

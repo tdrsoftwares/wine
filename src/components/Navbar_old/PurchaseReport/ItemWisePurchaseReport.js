@@ -376,7 +376,7 @@ const ItemWisePurchaseReport = () => {
 
   return (
     <ThemeProvider theme={customTheme}>
-      <Box sx={{ p: 2, width: "900px" }}>
+      <Box sx={{ p: 2, minWidth: "900px" }}>
         <Typography variant="subtitle2" gutterBottom>
           Item Wise Purchase Report:
         </Typography>
@@ -393,7 +393,7 @@ const ItemWisePurchaseReport = () => {
                   id="dateFrom"
                   format="DD/MM/YYYY"
                   value={dateFrom}
-                  className="date-picker"
+                  className="input-field date-picker"
                   onChange={(date) => setDateFrom(date)}
                   renderInput={(params) => <TextField {...params} />}
                 />
@@ -412,7 +412,7 @@ const ItemWisePurchaseReport = () => {
                   id="dateTo"
                   format="DD/MM/YYYY"
                   value={dateTo}
-                  className="date-picker"
+                  className="input-field date-picker"
                   onChange={(date) => setDateTo(date)}
                   renderInput={(params) => <TextField {...params} />}
                 />

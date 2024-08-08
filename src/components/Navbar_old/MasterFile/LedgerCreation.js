@@ -31,7 +31,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import { customTheme } from "../../../utils/customTheme";
 
-const LedgerCreation = () => {
+const LedgerCreation = ({ sidebarVisible }) => {
   const [ledgerName, setLedgerName] = useState("");
   const [groupName, setGroupName] = useState("");
   const [openingBal, setOpeningBal] = useState("");
@@ -199,7 +199,7 @@ const LedgerCreation = () => {
 
   return (
     <ThemeProvider theme={customTheme}>
-      <Box sx={{ p: 2, width: "900px" }}>
+      <Box sx={{ p: 2, minWidth: "900px" }}>
         <Typography variant="subtitle2" sx={{ marginBottom: 2 }}>
           Create Ledger:
         </Typography>

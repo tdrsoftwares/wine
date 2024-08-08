@@ -194,11 +194,7 @@ const NavbarOld = () => {
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <div className="hamburger-icon" onClick={toggleSidebar}>
-          <div className="bar"></div>
-          <div className="bar"></div>
-          <div className="bar"></div>
-        </div>
+        
         <ul className={`navbar-links ${isSidebarOpen ? "active" : ""}`}>
           <li className="nav-item nav-title">
             <Link to="/" className="nav-link">

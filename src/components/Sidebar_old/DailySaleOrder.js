@@ -53,7 +53,7 @@ const DailySaleOrder = () => {
 
   return (
     <form>
-      <Box sx={{ p: 2, width: "900px" }}>
+      <Box sx={{ p: 2, minWidth: "900px" }}>
         <Typography variant="h5" component="div" gutterBottom>
         Order on Daily Sales
         </Typography>

@@ -15,9 +15,13 @@ import "react-notifications/lib/notifications.css";
 import "./App.css";
 import { clearCookie, getCookie } from "./utils/cookie";
 import { getLicenseInfo } from "./services/licenseService";
+import { IconButton } from "@mui/material";
+import MenuIcon from '@mui/icons-material/Menu';
+import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 
 const AppContent = () => {
   const [authenticatedUser, setAuthenticatedUser] = useState(null);
+  const [sidebarVisible, setSidebarVisible] = useState(true);
   const { licenseDetails, setLicenseDetails } = useLicenseContext();
 
   const fetchLicenseData = async () => {
@@ -75,15 +79,36 @@ const AppContent = () => {
         {authenticatedUser && <NavbarOld />}
         <div className="row">
           {authenticatedUser && (
-            <div className="col-md-3">
-              <SidebarOld handleSignout={handleSignout} />
-            </div>
+            <>
+              <IconButton
+                edge="start"
+                color="inherit"
+                aria-label="menu"
+                onClick={() => setSidebarVisible(!sidebarVisible)}
+                className="menu-button"
+              >
+                {sidebarVisible ? <MenuOpenIcon /> : <MenuIcon />}
+              </IconButton>
+              {sidebarVisible && (
+                <div className="col-md-3">
+                  <SidebarOld
+                    handleSignout={handleSignout}
+                    sidebarVisible={sidebarVisible}
+                  />
+                </div>
+              )}
+            </>
           )}
-          <div className={authenticatedUser ? "col-md-9" : "col-md-12"}>
+          <div
+            className={
+              authenticatedUser && sidebarVisible ? "col-md-9" : "col-md-12"
+            }
+          >
             <AppRoutes
               authenticatedUser={authenticatedUser}
               handleLogin={handleLogin}
               handleSignUp={handleSignUp}
+              sidebarVisible={sidebarVisible}
             />
           </div>
         </div>

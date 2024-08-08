@@ -387,7 +387,7 @@ const StockReport = () => {
 
   return (
     <ThemeProvider theme={customTheme}>
-      <Box sx={{ p: 2, width: "900px" }}>
+      <Box sx={{ p: 2, minWidth: "900px" }}>
         <Typography variant="subtitle2" gutterBottom>
           Stock Report
         </Typography>

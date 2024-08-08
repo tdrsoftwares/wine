@@ -122,7 +122,7 @@ const PublicRoute = ({ element, authenticatedUser }) => {
   return authenticatedUser ? <Navigate to="/" /> : element;
 };
 
-const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp, handleSignout }) => {
+const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp, sidebarVisible, handleSignout }) => {
   return (
     <Routes>
       <Route
