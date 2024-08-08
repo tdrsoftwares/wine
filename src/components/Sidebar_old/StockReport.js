@@ -52,6 +52,7 @@ const StockReport = () => {
     page: 0,
     pageSize: 10,
   });
+
   const [totalCount, setTotalCount] = useState(0);
   const [totalPurRate, setTotalPurRate] = useState(0);
   const [totalVolume, setTotalVolume] = useState(0);
@@ -584,25 +585,25 @@ const StockReport = () => {
             Export to Excel
           </Button>
           <div> */}
-            <Button
-              color="inherit"
-              size="small"
-              variant="contained"
-              onClick={handleClearFilters}
-              sx={{ padding: "4px 10px", fontSize: "11px" }}
-            >
-              Clear Filters
-            </Button>
+          <Button
+            color="inherit"
+            size="small"
+            variant="contained"
+            onClick={handleClearFilters}
+            sx={{ padding: "4px 10px", fontSize: "11px" }}
+          >
+            Clear Filters
+          </Button>
 
-            <Button
-              color="info"
-              size="small"
-              variant="contained"
-              onClick={fetchAllStocks}
-              sx={{ marginLeft: 2, padding: "4px 10px", fontSize: "11px" }}
-            >
-              Display
-            </Button>
+          <Button
+            color="info"
+            size="small"
+            variant="contained"
+            onClick={fetchAllStocks}
+            sx={{ marginLeft: 2, padding: "4px 10px", fontSize: "11px" }}
+          >
+            Display
+          </Button>
           {/* </div> */}
         </Box>
 
@@ -648,7 +649,11 @@ const StockReport = () => {
             }
             initialState={{
               density: "compact",
+              sorting: {
+                sortModel: [{ field: 'currentStock', sort: 'desc' }],
+              }
             }}
+            
             disableRowSelectionOnClick
             loading={loading}
             loadingOverlay={
@@ -670,7 +675,6 @@ const StockReport = () => {
             sx={{ backgroundColor: "#fff", fontSize: "12px" }}
           />
         </Box>
-
       </Box>
     </ThemeProvider>
   );
