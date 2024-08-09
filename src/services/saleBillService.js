@@ -229,3 +229,24 @@ export const removeAllSales = async (allSales) => {
     return error;
   }
 };
+
+export const getAllBrandWiseItems = async (filterOptions) => {
+  try {
+    const { storeName, brandName } = filterOptions;
+
+    let apiURL = `/stock/brand-stock?`;
+
+    const filters = { storeName, brandName };
+
+    Object.keys(filters).forEach((key) => {
+      if (filters[key]) {
+        apiURL += `&${key}=${encodeURIComponent(filters[key])}`;
+      }
+    });
+
+    const response = await axiosInstance.get(apiURL);
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
