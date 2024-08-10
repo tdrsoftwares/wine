@@ -105,7 +105,7 @@ const SaleBill = () => {
     receiptMode2: "",
   });
 
-  const [brandPanelLoading, setBrandPanelLoading] = useState(false)
+  const [brandPanelLoading, setBrandPanelLoading] = useState(false);
   const [brandWiseItemData, setBrandWiseItemData] = useState([]);
   const [brandName, setBrandName] = useState("");
   // const { licenseDetails, setLicenseDetails } = useLicenseContext();
@@ -626,6 +626,11 @@ const SaleBill = () => {
     fetchAllCustomers();
     fetchAllLedger();
     fetchAllStores();
+
+    const savedSalesData = sessionStorage.getItem("salesData");
+    if (savedSalesData) {
+      setSalesData(JSON.parse(savedSalesData));
+    }
   }, []);
 
   useEffect(() => {
@@ -1002,6 +1007,7 @@ const SaleBill = () => {
         resetTotalValues();
         setSearchResults([]);
         setSalesData([]);
+        sessionStorage.setItem("salesData", JSON.stringify([]));
         setSearchMode(false);
         fetchAllBrandWiseItems();
         fetchAllBills();
@@ -1037,6 +1043,7 @@ const SaleBill = () => {
 
     updatedSales[index] = updatedRow;
     setSalesData(updatedSales);
+    sessionStorage.setItem("salesData", JSON.stringify(updatedSales));
 
     setEditedRow({});
     setEditableIndex(-1);
@@ -1106,6 +1113,7 @@ const SaleBill = () => {
     const updatedSales = [...salesData];
     updatedSales.splice(index, 1);
     setSalesData(updatedSales);
+    sessionStorage.setItem("salesData", JSON.stringify(updatedSales));
     resetTotalValues();
   };
 
@@ -1182,6 +1190,13 @@ const SaleBill = () => {
               currPcs * currRate
             );
             setSalesData(updatedSalesData);
+
+            // Save updated salesData to session storage
+            sessionStorage.setItem(
+              "salesData",
+              JSON.stringify(updatedSalesData)
+            );
+
             itemCodeRef.current.focus();
           }
         }
@@ -1208,7 +1223,11 @@ const SaleBill = () => {
           newItem.itemDetailsId = formData.itemDetailsId;
         }
 
-        setSalesData([...salesData, newItem]);
+        const updatedSalesData = [...salesData, newItem];
+        setSalesData(updatedSalesData);
+
+        // Save updated salesData to session storage
+        sessionStorage.setItem("salesData", JSON.stringify(updatedSalesData));
 
         itemCodeRef.current.focus();
       }
@@ -1380,6 +1399,7 @@ const SaleBill = () => {
         resetTotalValues();
         setSearchResults([]);
         setSalesData([]);
+        sessionStorage.setItem("salesData", JSON.stringify([]));
         fetchAllBills();
         fetchAllBrandWiseItems();
         setSearchMode(false);
@@ -1571,6 +1591,7 @@ const SaleBill = () => {
           setSeriesEditable(true);
           setBillNoEditable(true);
           setSalesData([]);
+          sessionStorage.setItem("salesData", JSON.stringify([]));
           setEditedRow({});
           fetchAllBills();
           setSelectedRowIndex(null);
@@ -1821,6 +1842,7 @@ const SaleBill = () => {
           resetMiddleFormData();
           resetTotalValues();
           setSalesData([]);
+          sessionStorage.setItem("salesData", JSON.stringify([]));
           NotificationManager.error("No sales details found!");
         }
       }
@@ -1829,6 +1851,7 @@ const SaleBill = () => {
       resetMiddleFormData();
       resetTotalValues();
       setSalesData([]);
+      sessionStorage.setItem("salesData", JSON.stringify([]));
       NotificationManager.error("Error fetching sales details!");
       console.error("Error fetching sales:", error);
     }
@@ -1986,7 +2009,6 @@ const SaleBill = () => {
               </div>
             </Grid>
 
-            
             <Grid item xs={3}>
               <div className="input-wrapper">
                 <InputLabel
@@ -2676,6 +2698,7 @@ const SaleBill = () => {
                 resetMiddleFormData();
                 resetTotalValues();
                 setSalesData([]);
+                sessionStorage.setItem("salesData", JSON.stringify([]));
                 handleEnterKey(e, itemCodeRef);
                 setBillNoEditable(false);
                 setSeriesEditable(false);
