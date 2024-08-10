@@ -1003,6 +1003,7 @@ const SaleBill = () => {
         setSearchResults([]);
         setSalesData([]);
         setSearchMode(false);
+        fetchAllBrandWiseItems();
         fetchAllBills();
       } else {
         NotificationManager.error(
@@ -2641,7 +2642,6 @@ const SaleBill = () => {
         sx={{
           display: "flex",
           justifyContent: "flex-end",
-          marginTop: 0.8,
           marginRight: 1,
           // minWidth: "900px"
         }}

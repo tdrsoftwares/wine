@@ -67,8 +67,11 @@ const SalebillSearchTable = (props) => {
                     cursor: "pointer",
                     backgroundColor:
                       index === selectedRowIndex
-                        ? "rgba(25, 118, 210, 0.08) !important"
+                        ? "rgba(25, 118, 210, 0.15) !important"
                         : "#fff !important",
+                    "&:hover": {
+                      backgroundColor: "rgba(25, 118, 210, 0.15) !important",
+                    },
                   }}
                 >
                   <TableCell

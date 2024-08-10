@@ -75,7 +75,7 @@ const SaleBrandPanel = ({
       setBrandPanelLoading(false);
     }, 300);
 
-    if (storeName && brandName) {
+    if (storeName) {
       setBrandWiseItemData([]);
       debouncedFetch();
     }

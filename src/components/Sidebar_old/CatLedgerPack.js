@@ -81,13 +81,13 @@ const CatLedgerPack = () => {
             sales: 0,
             closingBalance: 0,
           };
-
+          
           // category rows
           volumes.forEach((volume, volIndex) => {
             acc.push({
               id: `${index}-${volIndex}`,
               sNo: acc.length + 1,
-              categoryName,
+              categoryName: volIndex === 0 ? categoryName : "",
               volume: volume.volume,
               openingBalance: volume.openingBalance,
               purchases: volume.purchases,
@@ -232,7 +232,7 @@ const CatLedgerPack = () => {
     <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, minWidth: "900px" }}>
         <Typography variant="subtitle2" gutterBottom>
-          Category Wise Stock
+          Category Pack Wise Stock
         </Typography>
         <Typography sx={{ fontSize: "13px" }}>Filter By:</Typography>
 
