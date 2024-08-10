@@ -21,7 +21,7 @@ import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 
 const AppContent = () => {
   const [authenticatedUser, setAuthenticatedUser] = useState(null);
-  const [sidebarVisible, setSidebarVisible] = useState(true);
+  const [sidebarVisible, setSidebarVisible] = useState(false);
   const { licenseDetails, setLicenseDetails } = useLicenseContext();
 
   const fetchLicenseData = async () => {

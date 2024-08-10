@@ -16,20 +16,24 @@ import {
 import React, { useEffect, useState } from "react";
 import { getAllBrands } from "../../../services/brandService";
 import { NotificationManager } from "react-notifications";
-import { getAllBrandWiseItems } from "../../../services/saleBillService";
-import { hover } from "@testing-library/user-event/dist/hover";
 
-const SaleBrandPanel = ({ ...props }) => {
- const { storeName, formData, setFormData, pcsRef } = props;
-  console.log("storeName", storeName);
-  const [brandName, setBrandName] = useState("");
+const SaleBrandPanel = ({
+  storeName,
+  formData,
+  setFormData,
+  pcsRef,
+  brandName,
+  setBrandName,
+  brandPanelLoading,
+  setBrandPanelLoading,
+  brandWiseItemData,
+  setBrandWiseItemData,
+  fetchAllBrandWiseItems,
+}) => {
   const [allBrands, setAllBrands] = useState([]);
-  const [brandWiseItemData, setBrandWiseItemData] = useState([])
-  const [searchResults, setSearchResults] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedRowIndex, setSelectedRowIndex] = useState(null);
-  
+
   const fetchAllBrands = async () => {
+    setBrandPanelLoading(true);
     try {
       const allBrandsResponse = await getAllBrands();
       // console.log("allBrandsResponse ---> ", allBrandsResponse);
@@ -45,34 +49,8 @@ const SaleBrandPanel = ({ ...props }) => {
         "Error"
       );
       console.error("Error fetching brands:", error);
-    }
-  };
-
-  const fetchAllBrandWiseItems = async () => {
-    setIsLoading(true);
-    // console.log("Fetching data...");
-    try {
-      const filterOptions = {
-        storeName,
-        brandName,
-      };
-      const response = await getAllBrandWiseItems(filterOptions);
-      console.log("BrandWiseItemData response ---> ", response?.data?.data);
-      if (response.status === 200) {
-        setBrandWiseItemData(response?.data?.data);
-      } else {
-        NotificationManager.error("No items found.", "Error");
-        setBrandWiseItemData([]);
-      }
-    } catch (error) {
-      NotificationManager.error(
-        "Error fetching items. Please try again later.",
-        "Error"
-      );
-      console.error("Error fetching items:", error);
     } finally {
-      setIsLoading(false);
-      // console.log("Data fetching completed.");
+      setBrandPanelLoading(false);
     }
   };
 
@@ -91,34 +69,39 @@ const SaleBrandPanel = ({ ...props }) => {
   };
 
   useEffect(() => {
-    const debouncedFetch = debounce(fetchAllBrandWiseItems, 300);
-    if(storeName){
-        debouncedFetch();
+    const debouncedFetch = debounce(async () => {
+      setBrandPanelLoading(true);
+      await fetchAllBrandWiseItems();
+      setBrandPanelLoading(false);
+    }, 300);
+
+    if (storeName && brandName) {
+      setBrandWiseItemData([]);
+      debouncedFetch();
     }
   }, [storeName, brandName]);
 
-
   const handleBrandItemsRowClick = (index) => {
     const selectedRow = brandWiseItemData[index];
-    console.log("selectedRow: ", selectedRow)
+    // console.log("selectedRow: ", selectedRow);
 
     setFormData({
-        ...formData,
-        itemId: selectedRow.item?._id,
-        itemDetailsId: selectedRow._id,
-        itemCode: selectedRow.itemCode || 0,
-        itemName: selectedRow.item?.name || 0,
-        mrp: selectedRow.mrp || 0,
-        batch: selectedRow.batchNo || 0,
-        pcs: selectedRow.pcs || "",
-        rate: selectedRow.mrp || 0,
-        volume: selectedRow.item?.volume || 0,
-        currentStock: selectedRow.currentStock || 0,
-        group: selectedRow.item?.group,
+      ...formData,
+      itemId: selectedRow.item?._id,
+      itemDetailsId: selectedRow._id,
+      itemCode: selectedRow.itemCode || 0,
+      itemName: selectedRow.item?.name || 0,
+      mrp: selectedRow.mrp || 0,
+      batch: selectedRow.batchNo || 0,
+      pcs: selectedRow.pcs || "",
+      rate: selectedRow.mrp || 0,
+      volume: selectedRow.item?.volume || 0,
+      currentStock: selectedRow.currentStock || 0,
+      group: selectedRow.item?.group,
     });
 
     pcsRef.current.focus();
-  }
+  };
 
   return (
     <Box
@@ -127,7 +110,7 @@ const SaleBrandPanel = ({ ...props }) => {
         p: 1.5,
         boxShadow: 2,
         borderRadius: 1,
-        marginTop: 5,
+        marginTop: 2,
         marginRight: 1,
       }}
       className="table-header"
@@ -136,7 +119,6 @@ const SaleBrandPanel = ({ ...props }) => {
         <Grid item xs={12}>
           <InputLabel className="input-label-2">Select Brand:</InputLabel>
           <TextField
-            // inputRef={brandRef}
             select
             variant="outlined"
             type="text"
@@ -144,10 +126,8 @@ const SaleBrandPanel = ({ ...props }) => {
             fullWidth
             value={brandName}
             onChange={(e) => setBrandName(e.target.value)}
-            // onKeyDown={(e) => handleEnterKey(e, itemNameRef)}
           >
             <MenuItem value="">None</MenuItem>
-            {/* <MenuItem value="All Brands">All Brands</MenuItem> */}
             {allBrands?.map((brand) => (
               <MenuItem key={brand._id} value={brand.name}>
                 {`${brand.name}`}
@@ -158,7 +138,6 @@ const SaleBrandPanel = ({ ...props }) => {
       </Grid>
       <TableContainer
         component={Paper}
-        //   ref={tableRef}
         sx={{
           marginTop: 1,
           height: 385,
@@ -181,21 +160,31 @@ const SaleBrandPanel = ({ ...props }) => {
         <Table size="small">
           <TableHead className="table-head">
             <TableRow>
-              {/* <TableCell align="center">Item Code</TableCell> */}
               <TableCell align="center">Item Name</TableCell>
               <TableCell align="center">Stock</TableCell>
-              <TableCell align="center">Batch</TableCell>
               <TableCell align="center">MRP</TableCell>
+              <TableCell align="center">Batch</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {Array.isArray(brandWiseItemData) &&
-            brandWiseItemData.length > 0 ? (
+            {brandPanelLoading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={4}
+                  align="center"
+                  sx={{
+                    backgroundColor: "#fff !important",
+                  }}
+                >
+                  <CircularProgress />
+                </TableCell>
+              </TableRow>
+            ) : Array.isArray(brandWiseItemData) && brandWiseItemData.length > 0 ? (
               brandWiseItemData.map((row, index) => (
                 <TableRow
                   key={index}
                   onClick={() => {
-                      handleBrandItemsRowClick(index);
+                    handleBrandItemsRowClick(index);
                   }}
                   sx={{
                     cursor: "pointer",
@@ -204,13 +193,6 @@ const SaleBrandPanel = ({ ...props }) => {
                     },
                   }}
                 >
-                  {/* <TableCell
-                    align="center"
-                    sx={{ padding: "14px", paddingLeft: 2 }}
-                  >
-                    {index + 1}
-                  </TableCell> */}
-
                   <TableCell align="center" sx={{ padding: "14px" }}>
                     {row?.item?.name || "No Data"}
                   </TableCell>
@@ -225,22 +207,10 @@ const SaleBrandPanel = ({ ...props }) => {
                   </TableCell>
                 </TableRow>
               ))
-            ) : isLoading ? (
-              <TableRow>
-                <TableCell
-                  colSpan={6}
-                  align="center"
-                  sx={{
-                    backgroundColor: "#fff !important",
-                  }}
-                >
-                  <CircularProgress />
-                </TableCell>
-              </TableRow>
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={6}
+                  colSpan={4}
                   align="center"
                   sx={{
                     backgroundColor: "#fff !important",

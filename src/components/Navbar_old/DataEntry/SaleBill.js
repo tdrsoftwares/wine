@@ -18,6 +18,7 @@ import debounce from "lodash.debounce";
 import {
   createSale,
   getAllBillsBySeries,
+  getAllBrandWiseItems,
   getAllSaleStores,
   getSaleDetailsByEntryNo,
   removeSaleDetails,
@@ -104,6 +105,9 @@ const SaleBill = () => {
     receiptMode2: "",
   });
 
+  const [brandPanelLoading, setBrandPanelLoading] = useState(false)
+  const [brandWiseItemData, setBrandWiseItemData] = useState([]);
+  const [brandName, setBrandName] = useState("");
   // const { licenseDetails, setLicenseDetails } = useLicenseContext();
   const [licenseDetails, setLicenseDetails] = useState({});
   const [hasItems, setHasItems] = useState(false);
@@ -264,6 +268,34 @@ const SaleBill = () => {
       );
       setSeriesData([]);
       console.error("Error fetching bills:", error);
+    }
+  };
+
+  const fetchAllBrandWiseItems = async () => {
+    setBrandPanelLoading(true);
+    // console.log("Fetching data...");
+    try {
+      const filterOptions = {
+        storeName: formData.store.name,
+        brandName,
+      };
+      const response = await getAllBrandWiseItems(filterOptions);
+      console.log("BrandWiseItemData response ---> ", response?.data?.data);
+      if (response.status === 200) {
+        setBrandWiseItemData(response?.data?.data);
+      } else {
+        NotificationManager.error("No items found.", "Error");
+        setBrandWiseItemData([]);
+      }
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching items. Please try again later.",
+        "Error"
+      );
+      console.error("Error fetching items:", error);
+    } finally {
+      setBrandPanelLoading(false);
+      // console.log("Data fetching completed.");
     }
   };
 
@@ -1348,6 +1380,7 @@ const SaleBill = () => {
         setSearchResults([]);
         setSalesData([]);
         fetchAllBills();
+        fetchAllBrandWiseItems();
         setSearchMode(false);
         // }
       } else {
@@ -1915,15 +1948,15 @@ const SaleBill = () => {
     <ThemeProvider theme={customTheme}>
       <Box display="flex">
         <Box component="form" sx={{ p: 2, width: "900px" }}>
-          <Typography variant="subtitle2" gutterBottom>
+          {/* <Typography variant="subtitle2" gutterBottom>
             Sale Entry:
-          </Typography>
+          </Typography> */}
           <Grid container>
             <Grid item xs={3}>
               <div className="radio-buttons-wrapper">
-                <InputLabel htmlFor="billType" sx={{ marginRight: "8px" }}>
+                {/* <InputLabel htmlFor="billType" sx={{ marginRight: "8px" }}>
                   Bill Type:
-                </InputLabel>
+                </InputLabel> */}
                 <RadioGroup
                   row
                   aria-label="billType"
@@ -1952,38 +1985,7 @@ const SaleBill = () => {
               </div>
             </Grid>
 
-            <Grid item xs={3}>
-              <div className="input-wrapper">
-                <InputLabel htmlFor="stockIn" className="input-label" required>
-                  Store Name :
-                </InputLabel>
-                <TextField
-                  select
-                  fullWidth
-                  inputRef={storeNameRef}
-                  id="stockIn"
-                  size="small"
-                  value={formData.store._id}
-                  onChange={handleStoreChange}
-                  SelectProps={{
-                    MenuProps: {
-                      PaperProps: {
-                        style: {
-                          maxHeight: 200,
-                        },
-                      },
-                    },
-                  }}
-                  onKeyDown={(e) => handleEnterKey(e, customerNameRef)}
-                >
-                  {allStores?.map((store) => (
-                    <MenuItem key={store._id} value={store._id}>
-                      {store.name}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </div>
-            </Grid>
+            
             <Grid item xs={3}>
               <div className="input-wrapper">
                 <InputLabel
@@ -2051,6 +2053,39 @@ const SaleBill = () => {
                   }}
                   onKeyDown={(e) => handleEnterKey(e, billDateRef)}
                 />
+              </div>
+            </Grid>
+
+            <Grid item xs={3}>
+              <div className="input-wrapper">
+                <InputLabel htmlFor="stockIn" className="input-label" required>
+                  Store Name :
+                </InputLabel>
+                <TextField
+                  select
+                  fullWidth
+                  inputRef={storeNameRef}
+                  id="stockIn"
+                  size="small"
+                  value={formData.store._id}
+                  onChange={handleStoreChange}
+                  SelectProps={{
+                    MenuProps: {
+                      PaperProps: {
+                        style: {
+                          maxHeight: 200,
+                        },
+                      },
+                    },
+                  }}
+                  onKeyDown={(e) => handleEnterKey(e, customerNameRef)}
+                >
+                  {allStores?.map((store) => (
+                    <MenuItem key={store._id} value={store._id}>
+                      {store.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
               </div>
             </Grid>
 
@@ -2547,6 +2582,13 @@ const SaleBill = () => {
             formData={formData}
             setFormData={setFormData}
             pcsRef={pcsRef}
+            brandName={brandName}
+            setBrandName={setBrandName}
+            brandPanelLoading={brandPanelLoading}
+            setBrandPanelLoading={setBrandPanelLoading}
+            brandWiseItemData={brandWiseItemData}
+            setBrandWiseItemData={setBrandWiseItemData}
+            fetchAllBrandWiseItems={fetchAllBrandWiseItems}
           />
           <Box
             component="form"
