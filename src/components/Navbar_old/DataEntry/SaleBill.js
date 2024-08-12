@@ -300,7 +300,7 @@ const SaleBill = () => {
   };
 
   useEffect(() => {
-    fetchAllBills();
+    if (seriesEditable) fetchAllBills();
   }, [formData.series]);
 
   const isValidNumber = (value) => {
@@ -319,11 +319,13 @@ const SaleBill = () => {
   };
 
   const handleStoreChange = (event) => {
-    const selectedStore = allStores.find(
-      (store) => store._id === event.target.value
-    );
-    // console.log("selectedStore: ", selectedStore)
-    setFormData({ ...formData, store: selectedStore });
+    const selectedStoreId = event.target.value;
+    const selectedStore = allStores.find(store => store._id === selectedStoreId);
+  
+    if (selectedStore) {
+      setFormData({ ...formData, store: selectedStore });
+      sessionStorage.setItem("storeName", selectedStore._id);
+    }
   };
 
   const resetTopFormData = () => {
@@ -620,18 +622,33 @@ const SaleBill = () => {
     }
   }, [formData.customerName, allCustomerData]);
 
+
   useEffect(() => {
     itemCodeRef.current.focus();
+  
     fetchLicenseData();
     fetchAllCustomers();
     fetchAllLedger();
     fetchAllStores();
-
+  
     const savedSalesData = sessionStorage.getItem("salesData");
     if (savedSalesData) {
       setSalesData(JSON.parse(savedSalesData));
     }
+    
   }, []);
+
+  useEffect(() => {
+    const savedStoreId = sessionStorage.getItem("storeName");
+    if (savedStoreId) {
+      const store = allStores.find(store => store._id === savedStoreId);
+      if (store) {
+        setFormData({ ...formData, store });
+      }
+    }
+  },[allStores])
+  
+  
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -1651,7 +1668,21 @@ const SaleBill = () => {
   };
 
   const handleCustomerNameChange = (e) => {
-    setFormData({ ...formData, customerName: e.target.value });
+    const updatedFormData = { ...formData, customerName: e.target.value };
+    setFormData(updatedFormData);
+  };
+
+  const handleAddressChange = (e) => {
+    const updatedFormData = { ...formData, address: e.target.value };
+    setFormData(updatedFormData);
+  };
+
+  const handlePhoneNoChange = (e) => {
+    const value = e.target.value;
+    if (!isNaN(value)) {
+      const updatedFormData = { ...formData, phoneNo: value };
+      setFormData(updatedFormData);
+    }
   };
 
   const handlePcsChange = (e) => {
@@ -2050,9 +2081,7 @@ const SaleBill = () => {
                   size="small"
                   name="address"
                   value={formData.address}
-                  onChange={(e) =>
-                    setFormData({ ...formData, address: e.target.value })
-                  }
+                  onChange={handleAddressChange}
                   onKeyDown={(e) => handleEnterKey(e, phoneNoRef)}
                 />
               </div>
@@ -2069,11 +2098,7 @@ const SaleBill = () => {
                   size="small"
                   name="phoneNo"
                   value={formData.phoneNo}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (!isNaN(value))
-                      setFormData({ ...formData, phoneNo: value });
-                  }}
+                  onChange={handlePhoneNoChange}
                   onKeyDown={(e) => handleEnterKey(e, billDateRef)}
                 />
               </div>

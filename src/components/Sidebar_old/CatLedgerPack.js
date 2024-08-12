@@ -17,9 +17,13 @@ import { getAllItemCategory } from "../../services/categoryService";
 import { NotificationManager } from "react-notifications";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  GridFooter,
+  GridFooterContainer,
+  GridToolbar,
+} from "@mui/x-data-grid";
 import { getCateLedgerPackDetails } from "../../services/cateLedgerPackService";
-
 
 const CatLedgerPack = () => {
   const [categoryName, setCategoryName] = useState("");
@@ -34,6 +38,76 @@ const CatLedgerPack = () => {
     page: 0,
     pageSize: 10,
   });
+
+  const [totalPur, setTotalPur] = useState(0);
+  const [totalVolume, setTotalVolume] = useState(0);
+  const [totalSales, setTotalSales] = useState(0);
+  const [totalOpeningBal, setTotalOpeningBal] = useState(0);
+  const [totalClosingBal, setTotalClosingBal] = useState(0);
+
+  const CustomFooter = () => {
+    return (
+      <GridFooterContainer>
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            justifyContent: "space-around",
+            // margin: "0 20px",
+          }}
+        >
+          <span>Total Volume: {totalVolume.toFixed(0)}</span>
+          <span>Total Opening Bal: {totalOpeningBal.toFixed(0)}</span>
+          <span>Total Purchase: {totalPur.toFixed(0)}</span>
+          <span>Total Sales: {totalSales.toFixed(0)}</span>
+          <span>Total Closing Bal: {totalClosingBal.toFixed(0)}</span>
+        </div>
+        <GridFooter />
+      </GridFooterContainer>
+    );
+  };
+
+  // console.log(allRowData);
+
+  useEffect(() => {
+    const calculateSums = (data) => {
+      let totalPur = 0;
+      let totalVolume = 0;
+      let totalOpeningBal = 0;
+      let totalSales = 0;
+      let totalClosingBal = 0;
+
+      data.forEach((item) => {
+        totalPur += item.purchases || 0;
+        totalVolume += item.volume || 0;
+        totalOpeningBal += item.openingBalance || 0;
+        totalSales += item.sales || 0;
+        totalClosingBal += item.closingBalance || 0;
+      });
+
+      return {
+        totalPur,
+        totalVolume,
+        totalOpeningBal,
+        totalSales,
+        totalClosingBal,
+      };
+    };
+
+    const {
+      totalPur,
+      totalVolume,
+      totalOpeningBal,
+      totalSales,
+      totalClosingBal,
+    } = calculateSums(allRowData);
+
+    setTotalPur(totalPur);
+    setTotalVolume(totalVolume);
+    setTotalOpeningBal(totalOpeningBal);
+    setTotalSales(totalSales);
+    setTotalClosingBal(totalClosingBal);
+  }, [allRowData]);
 
   const formatDate = (date) => {
     if (!date) return null;
@@ -81,7 +155,7 @@ const CatLedgerPack = () => {
             sales: 0,
             closingBalance: 0,
           };
-          
+
           // category rows
           volumes.forEach((volume, volIndex) => {
             acc.push({
@@ -375,6 +449,7 @@ const CatLedgerPack = () => {
             loadingOverlay={<CircularProgress />}
             slots={{
               toolbar: GridToolbar,
+              footer: CustomFooter,
             }}
             initialState={{
               density: "compact",
