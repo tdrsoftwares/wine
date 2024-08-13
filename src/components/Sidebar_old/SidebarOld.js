@@ -109,6 +109,12 @@ const SidebarOld = ({handleSignout, sidebarVisible}) => {
         </div>
         <hr />
         <div className="sidebar-item">
+          <Link to="/daily-item-batch-report" className="nav-link">
+            Daily Item Batch Status
+          </Link>
+        </div>
+        <hr />
+        <div className="sidebar-item">
           <Link to="/gtin-stock" className="nav-link">
             Gtin Stock
           </Link>
