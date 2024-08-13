@@ -227,6 +227,7 @@ const PurchaseEntry = () => {
       adjustment: "",
       netAmt: "",
     });
+    sessionStorage.setItem("purchases", []);
     itemCodeRef.current.focus();
   };
 
@@ -638,6 +639,7 @@ const PurchaseEntry = () => {
     const updatedPurchases = [...purchases];
     updatedPurchases.splice(index, 1);
     setPurchases(updatedPurchases);
+    sessionStorage.setItem("purchases", updatedPurchases);
   };
 
   const handleFocusOnSave = () => {
@@ -683,8 +685,13 @@ const PurchaseEntry = () => {
       return;
     }
 
-    setPurchases([...purchases, { ...formData, btlRate: formData.mrp }]);
+    const updatedPurchases = [
+      ...purchases,
+      { ...formData, btlRate: formData.mrp },
+    ];
+    setPurchases(updatedPurchases);
     // setPurchases([...purchases, formData]);
+    sessionStorage.setItem("purchases", JSON.stringify(updatedPurchases));
     resetMiddleFormData();
     handleEnterKey(e, itemCodeRef);
     setSearchMode(false);
@@ -785,6 +792,7 @@ const PurchaseEntry = () => {
         setEntryNumber(response?.data?.data?.purchase?.entryNo);
         clearButtonRef.current.focus();
         setSearchMode(false);
+        sessionStorage.setItem("purchases", []);
       } else if (response.response.status === 400) {
 
         const errorMessage = response.response.data.message;
@@ -1289,6 +1297,10 @@ const PurchaseEntry = () => {
       billDateRef.current.addEventListener("keydown", (e) =>
         handleEnterKey(e, itemCodeRef)
       );
+    }
+    const savedPurchases = sessionStorage.getItem("purchases");
+    if(savedPurchases) {
+      setPurchases(JSON.parse(savedPurchases))
     }
   }, []);
 

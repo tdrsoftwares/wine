@@ -2643,7 +2643,6 @@ const SaleBill = () => {
             sx={{
               p: 1.2,
               marginTop: 1,
-              marginRight: 1,
               borderRadius: 1,
               boxShadow: 2,
               maxWidth: 340,
@@ -2690,143 +2689,132 @@ const SaleBill = () => {
           display: "flex",
           justifyContent: "flex-end",
           marginRight: 1,
+          marginTop: 0,
           // minWidth: "900px"
         }}
       >
-        <Grid container spacing={1}>
-          <Grid
-            item
-            xs={12}
-            sx={{
-              display: "flex",
-              alignItems: "flex-start",
-              justifyContent: "flex-end",
-            }}
-          >
-            <Button
-              color="inherit"
-              size="small"
-              variant="outlined"
-              onClick={(e) => {
-                setFormData({
-                  billType: "CASHBILL",
-                  customerName: "",
-                  store:
-                    allStores.length > 0 ? allStores[0] : { _id: "", name: "" },
-                  address: "",
-                  phoneNo: "",
-                  billDate: todaysDate,
-                  billno: "",
-                  storeId: "",
-                });
-                setBillNumber("");
-                resetMiddleFormData();
-                resetTotalValues();
-                setSalesData([]);
-                sessionStorage.setItem("salesData", JSON.stringify([]));
-                handleEnterKey(e, itemCodeRef);
-                setBillNoEditable(false);
-                setSeriesEditable(false);
-                setShowSaleBillPrintModal(false);
-                setSearchMode(false);
-              }}
-              sx={{
-                marginRight: 1,
-                padding: "4px 10px",
-                fontSize: "11px",
-              }}
-            >
-              CLEAR
-            </Button>
+        <Button
+          color="inherit"
+          size="small"
+          variant="outlined"
+          onClick={(e) => {
+            setFormData({
+              billType: "CASHBILL",
+              customerName: "",
+              store:
+                allStores.length > 0 ? allStores[0] : { _id: "", name: "" },
+              address: "",
+              phoneNo: "",
+              billDate: todaysDate,
+              billno: "",
+              storeId: "",
+            });
+            setBillNumber("");
+            resetMiddleFormData();
+            resetTotalValues();
+            setSalesData([]);
+            sessionStorage.setItem("salesData", JSON.stringify([]));
+            handleEnterKey(e, itemCodeRef);
+            setBillNoEditable(false);
+            setSeriesEditable(false);
+            setShowSaleBillPrintModal(false);
+            setSearchMode(false);
+          }}
+          sx={{
+            marginRight: 1,
+            padding: "4px 10px",
+            fontSize: "11px",
+          }}
+        >
+          CLEAR
+        </Button>
 
-            <Button
-              color="success"
-              size="small"
-              variant="outlined"
-              onClick={handlePrevClick}
-              sx={{
-                marginRight: 1,
-                padding: "4px 10px",
-                fontSize: "11px",
-              }}
-            >
-              PREV BILL
-            </Button>
-            <Button
-              color="secondary"
-              size="small"
-              variant="outlined"
-              onClick={handleNextClick}
-              sx={{
-                marginRight: 1,
-                padding: "4px 10px",
-                fontSize: "11px",
-              }}
-            >
-              NEXT BILL
-            </Button>
+        <Button
+          color="success"
+          size="small"
+          variant="outlined"
+          onClick={handlePrevClick}
+          sx={{
+            marginRight: 1,
+            padding: "4px 10px",
+            fontSize: "11px",
+          }}
+        >
+          PREV BILL
+        </Button>
+        <Button
+          color="secondary"
+          size="small"
+          variant="outlined"
+          onClick={handleNextClick}
+          sx={{
+            marginRight: 1,
+            padding: "4px 10px",
+            fontSize: "11px",
+          }}
+        >
+          NEXT BILL
+        </Button>
 
-            <Button
-              color="error"
-              size="small"
-              variant="contained"
-              onClick={handleDeleteSale}
-              sx={{
-                marginRight: 1,
-                padding: "4px 10px",
-                fontSize: "11px",
-              }}
-            >
-              DELETE
-            </Button>
-            <Button
-              color="warning"
-              size="small"
-              variant="contained"
-              onClick={() => {
-                billNoRef.current.focus();
-                setBillNoEditable(true);
-                setSeriesEditable(true);
-              }}
-              sx={{
-                marginRight: 1,
-                padding: "4px 10px",
-                fontSize: "11px",
-              }}
-            >
-              OPEN
-            </Button>
-            <Button
-              color="info"
-              size="small"
-              variant="contained"
-              onClick={handlePrint}
-              sx={{
-                marginRight: 1,
-                padding: "4px 10px",
-                fontSize: "11px",
-              }}
-            >
-              PRINT
-            </Button>
-            <Button
-              ref={saveButtonRef}
-              color="success"
-              size="small"
-              variant="contained"
-              onClick={() => {
-                if (!billNumber && !billNoEditable) handleCreateSale();
-                else if (billNumber && billNoEditable) handleUpdateSale();
-              }}
-              sx={{
-                padding: "4px 10px",
-                fontSize: "11px",
-              }}
-            >
-              SAVE
-            </Button>
-          </Grid>
-        </Grid>
+        <Button
+          color="error"
+          size="small"
+          variant="contained"
+          onClick={handleDeleteSale}
+          sx={{
+            marginRight: 1,
+            padding: "4px 10px",
+            fontSize: "11px",
+          }}
+        >
+          DELETE
+        </Button>
+        <Button
+          color="warning"
+          size="small"
+          variant="contained"
+          onClick={() => {
+            billNoRef.current.focus();
+            setBillNoEditable(true);
+            setSeriesEditable(true);
+          }}
+          sx={{
+            marginRight: 1,
+            padding: "4px 10px",
+            fontSize: "11px",
+          }}
+        >
+          OPEN
+        </Button>
+        <Button
+          color="info"
+          size="small"
+          variant="contained"
+          onClick={handlePrint}
+          sx={{
+            marginRight: 1,
+            padding: "4px 10px",
+            fontSize: "11px",
+          }}
+        >
+          PRINT
+        </Button>
+        <Button
+          ref={saveButtonRef}
+          color="success"
+          size="small"
+          variant="contained"
+          onClick={() => {
+            if (!billNumber && !billNoEditable) handleCreateSale();
+            else if (billNumber && billNoEditable) handleUpdateSale();
+          }}
+          sx={{
+            padding: "4px 10px",
+            fontSize: "11px",
+          }}
+        >
+          SAVE
+        </Button>
       </Box>
 
       <SaleBillPrintModal
