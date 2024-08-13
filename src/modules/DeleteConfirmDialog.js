@@ -7,7 +7,7 @@ import { Button } from "@mui/material";
 const DeleteConfirmDialog = ({
   openDeleteConfirmModal,
   handleCloseDeleteConfirmModal,
-  handleConfirmDeleteAll,
+  handleConfirmDelete,
 }) => {
   
   return (
@@ -34,9 +34,7 @@ const DeleteConfirmDialog = ({
             size="medium"
             variant="outlined"
             color="warning"
-            onClick={() => {
-              handleConfirmDeleteAll();
-            }}
+            onClick={handleConfirmDelete}
             autoFocus
           >
             YES

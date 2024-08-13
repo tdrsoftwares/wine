@@ -196,7 +196,7 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen, itemName, setItemName 
 
 
   const handleCreateCompany = async () => {
-    console.log("Creating company:", { companyName, companyType });
+    // console.log("Creating company:", { companyName, companyType });
     const payload = {
       name: companyName,
       type: companyType,
@@ -205,7 +205,7 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen, itemName, setItemName 
       const createCompanyResponse = await createCompany(payload);
       if (createCompanyResponse.status === 200) {
         NotificationManager.success("Company created successfully", "Success");
-        console.log("Company created successfully:", createCompanyResponse);
+        // console.log("Company created successfully:", createCompanyResponse);
         setCompanyName("");
         setCompanyType("");
         fetchAllCompanies();
@@ -229,12 +229,12 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen, itemName, setItemName 
 
   const handleCreateBrand = async () => {
     // Logic to create brand
-    console.log("Creating brand:", {
-      brandName,
-      companyName,
-      type,
-      indexNumber,
-    });
+    // console.log("Creating brand:", {
+    //   brandName,
+    //   companyName,
+    //   type,
+    //   indexNumber,
+    // });
     const payload = {
       name: brandName,
       companyId: companyName,

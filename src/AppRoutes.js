@@ -111,6 +111,7 @@ import TrialBalance from "./components/Navbar_old/AuditAndAccounts/TrialBalance"
 import AccountProfitAndLoss from "./components/Navbar_old/AuditAndAccounts/AccountProfitAndLoss";
 import BalanceSheet from "./components/Navbar_old/AuditAndAccounts/BalanceSheet";
 import Epos from "./modules/Epos";
+import AdminPanel from "./modules/AdminPanel";
 
 
 const PrivateRoute = ({ element, authenticatedUser }) => {
@@ -121,7 +122,7 @@ const PublicRoute = ({ element, authenticatedUser }) => {
   return authenticatedUser ? <Navigate to="/" /> : element;
 };
 
-const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp, handleSignout }) => {
+const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp, sidebarVisible, handleSignout }) => {
   return (
     <Routes>
       <Route
@@ -210,7 +211,13 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp, handleSignout
       />
       <Route
         path="/licensee-info"
-        element={authenticatedUser ? <LicenseeInfo authenticatedUser={authenticatedUser} /> : <UnAuthorized />}
+        element={
+          authenticatedUser ? (
+            <LicenseeInfo authenticatedUser={authenticatedUser} />
+          ) : (
+            <UnAuthorized />
+          )
+        }
       />
 
       {/* Data Entry Submenu items */}
@@ -652,6 +659,11 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp, handleSignout
       <Route
         path="/epos"
         element={authenticatedUser ? <Epos /> : <UnAuthorized />}
+      />
+
+      <Route
+        path="/admin-panel"
+        element={authenticatedUser ? <AdminPanel /> : <UnAuthorized />}
       />
     </Routes>
   );

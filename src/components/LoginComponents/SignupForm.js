@@ -61,7 +61,7 @@ function SignUpForm({ handleSignUp }) {
         password,
       });
       handleSignUp(email);
-      console.log("signup response: ", response);
+      // console.log("signup response: ", response);
       NotificationManager.success("Sign up successful.", "Success");
       navigate("/login");
     } catch (error) {

@@ -2,9 +2,9 @@ import { Button } from "@mui/material";
 import React from "react";
 import { Link } from "react-router-dom";
 
-const SidebarOld = ({handleSignout}) => {
+const SidebarOld = ({handleSignout, sidebarVisible}) => {
   return (
-    <div className="sidebar">
+    <div className={`sidebar ${sidebarVisible ? "visible" : "hidden"}`}>
       <div className="sidebar-column">
         <div className="sidebar-item">
           <Link to="/daily-status" className="nav-link">

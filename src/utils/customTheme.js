@@ -18,6 +18,9 @@ export const customTheme = createTheme({
             fontSize: "12px",
             padding: "6px 8px",
           },
+          "& .MuiRadio-root": {
+            fontSize: "12px",
+          }
         },
       },
     },

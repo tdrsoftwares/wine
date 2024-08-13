@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
-import { getAllSales, removeAllSales } from "../../../services/saleBillService";
+import { getAllSales } from "../../../services/saleBillService";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { NotificationManager } from "react-notifications";
 import SalesDetailsModal from "./SalesDetailsModal";
@@ -19,10 +19,6 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { getAllCustomer } from "../../../services/customerService";
 import dayjs from "dayjs";
 import { customTheme } from "../../../utils/customTheme";
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogTitle from '@mui/material/DialogTitle';
-import DeleteConfirmDialog from "../../../modules/DeleteConfirmDialog";
 
 
 
@@ -48,56 +44,12 @@ const SaleReportSummary = () => {
   });
   const [totalCount, setTotalCount] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [openDeleteConfirmModal, setOpenDeleteConfirmModal] = useState(false);
-  const [deleteConfirmed, setDeleteConfirmed] = useState(false);
 
   const formatDate = (date) => {
     if (!date) return null;
     return dayjs(date).format("DD/MM/YYYY");
   };
 
-  const handleOpenDeleteConfirmModal = () => {
-    setOpenDeleteConfirmModal(true);
-    return;
-  };
-  
-  const handleCloseDeleteConfirmModal = () => {
-    setOpenDeleteConfirmModal(false);
-    setDeleteConfirmed(false);
-  };
-  
-
-  const handleDeleteAllSales = () => {
-    handleOpenDeleteConfirmModal();
-  };
-
-  const handleConfirmDeleteAll = async () => {
-    try {
-      const response = await removeAllSales(true);
-      if (response.status === 200) {
-        NotificationManager.success(
-          "All sales deleted successfully.",
-          "Success"
-        );
-        setAllSalesData([]);
-      } else {
-        console.log("error: ", response);
-        NotificationManager.error(
-          "Error deleting Sales. Please try again later.",
-          "Error"
-        );
-      }
-    } catch (error) {
-      NotificationManager.error(
-        "Error deleting Sales. Please try again later.",
-        "Error"
-      );
-      console.log(error);
-    } finally {
-      setOpenDeleteConfirmModal(false);
-      setDeleteConfirmed(false);
-    }
-  };
   
   const columns = [
     {
@@ -263,7 +215,7 @@ const SaleReportSummary = () => {
         setAllSalesData(allSalesResponse?.data?.data);
         setTotalCount(allSalesResponse?.data.data?.length);
       } else {
-        NotificationManager.error("No items found.", "Error");
+        NotificationManager.error("No sales found.", "Error");
         setAllSalesData([]);
       }
     } catch (error) {
@@ -287,7 +239,7 @@ const SaleReportSummary = () => {
         setAllCustomerData(allCustomerResponse?.data?.data);
       } else {
         setAllCustomerData([]);
-        NotificationManager.error("No Customers Found", "Error");
+        NotificationManager.error("No customers found", "Error");
       }
     } catch (error) {
       NotificationManager.error(
@@ -321,7 +273,7 @@ const SaleReportSummary = () => {
 
   return (
     <ThemeProvider theme={customTheme}>
-      <Box sx={{ p: 2, width: "900px" }}>
+      <Box sx={{ p: 2, minWidth: "900px" }}>
         <Typography variant="h6" sx={{ marginBottom: 1 }}>
           Sale Report Summary:
         </Typography>
@@ -414,6 +366,7 @@ const SaleReportSummary = () => {
                   },
                 }}
               >
+                <MenuItem value="">None</MenuItem>
                 {allCustomerData?.map((item) => (
                   <MenuItem key={item._id} value={item.name}>
                     {item.name}
@@ -439,6 +392,7 @@ const SaleReportSummary = () => {
                   setFilterData({ ...filterData, customerType: e.target.value })
                 }
               >
+                <MenuItem value="">None</MenuItem>
                 {["cash", "online"].map((item, id) => (
                   <MenuItem key={id} value={item}>
                     {item}
@@ -587,25 +541,6 @@ const SaleReportSummary = () => {
           />
         </Box>
 
-        <Button
-          color="error"
-          size="small"
-          variant="contained"
-          onClick={handleDeleteAllSales}
-          sx={{
-            marginTop: 1,
-            padding: "4px 10px",
-            fontSize: "11px",
-          }}
-          disabled={allSalesData.length === 0}
-        >
-          DELETE ALL
-        </Button>
-        <DeleteConfirmDialog
-          openDeleteConfirmModal={openDeleteConfirmModal}
-          handleCloseDeleteConfirmModal={handleCloseDeleteConfirmModal}
-          handleConfirmDeleteAll={handleConfirmDeleteAll}
-        />
       </Box>
     </ThemeProvider>
   );

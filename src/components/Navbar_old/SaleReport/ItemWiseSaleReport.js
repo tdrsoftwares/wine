@@ -273,11 +273,9 @@ const ItemWiseSaleReport = () => {
       const allItemsResponse = await getAllItems();
       if (allItemsResponse.status === 200) {
         setAllItems(allItemsResponse?.data?.data);
-      }
-      else {
-        NotificationManager.error("No items found." , "Error");
+      } else {
+        NotificationManager.error("No items found.", "Error");
         setAllItems([]);
-
       }
     } catch (error) {
       NotificationManager.error(
@@ -294,8 +292,8 @@ const ItemWiseSaleReport = () => {
       if (allBrandsResponse.status === 200) {
         setAllBrands(allBrandsResponse?.data?.data);
       } else {
-        setAllBrands([])
-        NotificationManager.error("No brands found." , "Error");
+        setAllBrands([]);
+        NotificationManager.error("No brands found.", "Error");
       }
     } catch (error) {
       NotificationManager.error(
@@ -312,8 +310,8 @@ const ItemWiseSaleReport = () => {
       if (getAllCategoryResponse.status === 200) {
         setAllCategory(getAllCategoryResponse?.data?.data);
       } else {
-        NotificationManager.error("No category found." , "Error");
-        setAllCategory([])
+        NotificationManager.error("No category found.", "Error");
+        setAllCategory([]);
       }
     } catch (err) {
       NotificationManager.error(
@@ -348,11 +346,11 @@ const ItemWiseSaleReport = () => {
 
   return (
     <ThemeProvider theme={customTheme}>
-      <Box sx={{ p: 2, width: "900px" }}>
-        <Typography variant="h6" sx={{ marginBottom: 2 }}>
+      <Box sx={{ p: 2, minWidth: "900px" }}>
+        <Typography variant="subtitle2" gutterBottom>
           Item Wise Sale Report:
         </Typography>
-        <Typography variant="subtitle2" gutterBottom>
+        <Typography sx={{ fontSize: "13px" }}>
           Filter By:
         </Typography>
 
@@ -423,6 +421,7 @@ const ItemWiseSaleReport = () => {
                   },
                 }}
               >
+                <MenuItem value="">None</MenuItem>
                 {allCustomerData?.map((item) => (
                   <MenuItem key={item._id} value={item.name}>
                     {item.name}
@@ -438,7 +437,6 @@ const ItemWiseSaleReport = () => {
                 Brand:
               </InputLabel>
               <TextField
-                
                 fullWidth
                 size="small"
                 name="brandName"
@@ -448,7 +446,6 @@ const ItemWiseSaleReport = () => {
                   setFilterData({ ...filterData, brandName: e.target.value })
                 }
               />
-                
             </div>
           </Grid>
 
@@ -550,6 +547,7 @@ const ItemWiseSaleReport = () => {
                   setFilterData({ ...filterData, categoryName: e.target.value })
                 }
               >
+                <MenuItem value="">None</MenuItem>
                 {allCategory?.map((item) => (
                   <MenuItem key={item._id} value={item.categoryName}>
                     {item.categoryName}
@@ -575,6 +573,7 @@ const ItemWiseSaleReport = () => {
                   setFilterData({ ...filterData, group: e.target.value })
                 }
               >
+                <MenuItem value="">None</MenuItem>
                 {["FL", "BEER", "IML"].map((option, i) => (
                   <MenuItem key={i} value={option}>
                     {option}
@@ -665,21 +664,21 @@ const ItemWiseSaleReport = () => {
             >
               Print
             </Button> */}
-            <Button
-              color="info"
-              size="small"
-              variant="contained"
-              onClick={fetchAllSales}
-              sx={{ marginLeft: 2 }}
-            >
-              Display
-            </Button>
+          <Button
+            color="info"
+            size="small"
+            variant="contained"
+            onClick={fetchAllSales}
+            sx={{ marginLeft: 2 }}
+          >
+            Display
+          </Button>
           {/* </div> */}
         </Box>
 
         <Box
           sx={{
-            height: 500,
+            height: 450,
             width: "100%",
             marginTop: 2,
             "& .custom-header": { backgroundColor: "#dae4ed", paddingLeft: 4 },
@@ -731,13 +730,6 @@ const ItemWiseSaleReport = () => {
               toolbar: GridToolbar,
             }}
             initialState={{
-              pagination: {
-                paginationModel: {
-                  page: paginationModel.page,
-                  pageSize: paginationModel.pageSize,
-                },
-                rowCount: totalCount,
-              },
               density: "compact",
             }}
           />
