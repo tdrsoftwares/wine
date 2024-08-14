@@ -112,6 +112,7 @@ import AccountProfitAndLoss from "./components/Navbar_old/AuditAndAccounts/Accou
 import BalanceSheet from "./components/Navbar_old/AuditAndAccounts/BalanceSheet";
 import Epos from "./modules/Epos";
 import AdminPanel from "./modules/AdminPanel";
+import DailyItemBatchStatus from "./components/Sidebar_old/DailyItemBatchStatus";
 
 
 const PrivateRoute = ({ element, authenticatedUser }) => {
@@ -650,6 +651,10 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp, sidebarVisibl
       <Route
         path="/category-ledger-pack"
         element={authenticatedUser ? <CatLedgerPack /> : <UnAuthorized />}
+      />
+      <Route
+        path="/daily-item-batch-report"
+        element={authenticatedUser ? <DailyItemBatchStatus /> : <UnAuthorized />}
       />
       <Route
         path="/gtin-stock"
