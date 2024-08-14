@@ -160,7 +160,7 @@ const SaleBrandPanel = ({
         <Table size="small">
           <TableHead className="table-head">
             <TableRow>
-              <TableCell align="center">Item Name</TableCell>
+              <TableCell align="left">Item Name</TableCell>
               <TableCell align="center">Stock</TableCell>
               <TableCell align="center">MRP</TableCell>
               <TableCell align="center">Batch</TableCell>
@@ -179,7 +179,8 @@ const SaleBrandPanel = ({
                   <CircularProgress />
                 </TableCell>
               </TableRow>
-            ) : Array.isArray(brandWiseItemData) && brandWiseItemData.length > 0 ? (
+            ) : Array.isArray(brandWiseItemData) &&
+              brandWiseItemData.length > 0 ? (
               brandWiseItemData.map((row, index) => (
                 <TableRow
                   key={index}
@@ -193,18 +194,26 @@ const SaleBrandPanel = ({
                     },
                   }}
                 >
-                  <TableCell align="center" sx={{ padding: "14px" }}>
+                  <TableCell
+                    align="left"
+                    sx={{
+                      maxWidth: 150,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      "&:hover": {
+                        overflow: "visible",
+                        whiteSpace: "normal",
+                        backgroundColor: "rgba(25, 118, 210, 0.15)",
+                      },
+                    }}
+                    title={row?.item?.name || "No Data"}
+                  >
                     {row?.item?.name || "No Data"}
                   </TableCell>
-                  <TableCell align="center" sx={{ padding: "14px" }}>
-                    {row?.currentStock || 0}
-                  </TableCell>
-                  <TableCell align="center" sx={{ padding: "14px" }}>
-                    {row?.mrp || 0}
-                  </TableCell>
-                  <TableCell align="center" sx={{ padding: "14px" }}>
-                    {row?.batchNo || 0}
-                  </TableCell>
+                  <TableCell align="center">{row?.currentStock || 0}</TableCell>
+                  <TableCell align="center">{row?.mrp || 0}</TableCell>
+                  <TableCell align="center">{row?.batchNo || 0}</TableCell>
                 </TableRow>
               ))
             ) : (
