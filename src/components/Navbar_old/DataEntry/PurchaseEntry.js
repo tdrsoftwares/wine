@@ -44,6 +44,8 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import { customTheme } from "../../../utils/customTheme";
 import PurchaseBillPrintModal from "./PurchaseBillPrintModal";
 import { useLicenseContext } from "../../../utils/licenseContext";
+import * as XLSX from 'xlsx';
+
 
 const PurchaseEntry = () => {
   const [allSuppliers, setAllSuppliers] = useState([]);
@@ -1361,6 +1363,61 @@ const PurchaseEntry = () => {
     }
   };
 
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+  
+    reader.onload = (e) => {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheetName], { header: 1 });
+  
+      const headers = worksheet[0].map(header => header.toLowerCase());
+      const rows = worksheet.slice(1);
+  
+      rows.forEach((row) => {
+        const rowData = headers.reduce((acc, header, index) => {
+          acc[header] = row[index];
+          return acc;
+        }, {});
+  
+        const updatedFormData = {
+          ...formData,
+          supplierName: rowData.suppliername || "",
+          passNo: rowData.passno || "",
+          passDate: rowData.passdate || null,
+          address: rowData.address || "",
+          billNo: rowData.billno || "",
+          billDate: rowData.billdate || null,
+          stockIn: rowData.stockin || "",
+          itemId: rowData.itemid || "",
+          itemCode: rowData.itemcode || "",
+          itemName: rowData.itemname || "",
+          mrp: rowData.mrp || "",
+          batch: rowData.batch || "",
+          case: rowData.case || "",
+          caseValue: rowData.casevalue || "",
+          pcs: rowData.pcs || "",
+          brk: rowData.brk || "",
+          purchaseRate: rowData.purchaserate || "",
+          btlRate: rowData.mrp || "", 
+          gro: rowData.gro || "",
+          sp: rowData.sp || "",
+          amount: rowData.amount || "",
+        };
+  
+        setPurchases((prevPurchases) => [
+          ...prevPurchases,
+          updatedFormData,
+        ]);
+      });
+    };
+  
+    reader.readAsArrayBuffer(file);
+  };
+  
+
   return (
     <ThemeProvider theme={customTheme}>
       <Box component="form" sx={{ p: 2, minWidth: "900px" }}>
@@ -1551,20 +1608,46 @@ const PurchaseEntry = () => {
           </Grid>
 
           <Grid item xs={3}>
-            <Button
-              color="inherit"
-              size="medium"
-              variant="contained"
-              onClick={() => setIsModalOpen(true)}
+            <Box
               sx={{
-                float: "right",
-                borderRadius: 8,
-                padding: "4px 14px",
-                fontSize: "12px",
+                display: "flex",
+                justifyContent: "flex-end",
               }}
             >
-              CREATE ITEM
-            </Button>
+              <Button
+                component="label"
+                color="secondary"
+                size="small"
+                variant="contained"
+                sx={{
+                  marginTop: 1,
+                  marginRight: 1,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                  cursor: "pointer",
+                }}
+              >
+                Upload Purchase
+                <input type="file"
+        accept=".xls,.xlsx"
+        hidden
+        onChange={handleFileUpload} />
+              </Button>
+
+              <Button
+                color="inherit"
+                size="medium"
+                variant="contained"
+                onClick={() => setIsModalOpen(true)}
+                sx={{
+                  marginTop: 1,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+              >
+                CREATE ITEM
+              </Button>
+            </Box>
           </Grid>
         </Grid>
 
