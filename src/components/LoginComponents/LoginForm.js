@@ -29,14 +29,14 @@ function LoginForm({ handleLogin }) {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  // const customerIdRef = useRef(null);
+  const customerIdRef = useRef(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!email.trim() || !password.trim()) {
+    if (!email.trim() || !password.trim() || !customerId.trim()) {
       NotificationManager.warning(
-        "Please enter both email and password.",
+        "Please enter all fields.",
         "Warning",
         2000
       );
@@ -54,7 +54,8 @@ function LoginForm({ handleLogin }) {
     }
 
     try {
-      const response = await axios.post(url + `/user/login`, {
+      const response = await axios.post(url + `/user-master/login`, {
+        customerId,
         email,
         password,
       });
@@ -90,9 +91,9 @@ function LoginForm({ handleLogin }) {
     setShowPassword((prevShowPassword) => !prevShowPassword);
   };
 
-  // useEffect(() => {
-  //   customerIdRef.current.focus();
-  // }, []);
+  useEffect(() => {
+    customerIdRef.current.focus();
+  }, []);
 
   return (
     <Container
@@ -109,11 +110,12 @@ function LoginForm({ handleLogin }) {
         Sign In
       </Typography>
       <form onSubmit={handleSubmit} noValidate>
-        {/* <TextField
+        <TextField
           fullWidth
           required
           inputRef={customerIdRef}
           margin="dense"
+          variant="filled"
           size="small"
           id="customerId"
           label="Customer Id"
@@ -131,7 +133,7 @@ function LoginForm({ handleLogin }) {
               </InputAdornment>
             ),
           }}
-        /> */}
+        />
         <TextField
           fullWidth
           required
