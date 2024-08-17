@@ -2,30 +2,79 @@ import * as React from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
-import Divider from "@mui/material/Divider";
-import Drawer from "@mui/material/Drawer";
-import IconButton from "@mui/material/IconButton";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemText from "@mui/material/ListItemText";
-import MenuIcon from "@mui/icons-material/Menu";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import routes from "../../routes.js";
 
-const navItems = ["Home", "About", "Contact"];
+export default function Index() {
+  const [anchorEl, setAnchorEl] = React.useState(null);
 
-export default function index() {
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
       <AppBar component="nav">
-        <Box sx={{ display: { xs: "none", sm: "block" } }}>
-          {navItems.map((item) => (
-            <Button key={item} sx={{ color: "#fff" }}>
-              {item}
-            </Button>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            marginLeft: 5,
+            marginRight: 5,
+          }}
+        >
+          {routes.map((item) => (
+            <Box
+              key={item.name}
+              onMouseEnter={item.dropDown ? handleMenuOpen : null}
+              onMouseLeave={handleMenuClose}
+            >
+              {item.dropDown ? (
+                <React.Fragment>
+                  <Button
+                    sx={{
+                      color: "#fff",
+                      textTransform: "none",
+                    }}
+                    onClick={handleMenuOpen}
+                  >
+                    {item.name}
+                  </Button>
+                  <Menu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl) && anchorEl?.textContent === item.name}
+                    MenuListProps={{ onMouseLeave: handleMenuClose }}
+                  >
+                    {item.dropDown.map((subItem) => (
+                      <MenuItem
+                        key={subItem.name}
+                        onClick={handleMenuClose}
+                        sx={{ textTransform: "none" }}
+                      >
+                        {subItem.name}
+                      </MenuItem>
+                    ))}
+                  </Menu>
+                </React.Fragment>
+              ) : (
+                <Button
+                  sx={{
+                    color: "#fff",
+                    textTransform: "none",
+                  }}
+                >
+                  {item.name}
+                </Button>
+              )}
+            </Box>
           ))}
         </Box>
       </AppBar>
