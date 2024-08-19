@@ -22,7 +22,7 @@ export const updateSaleDetailsByBillNo = async (payload, billNo) => {
 
 export const searchAllSalesByItemName = async (itemName, storeName) => {
   try {
-    const apiURL = `/sales/get-items?name=${itemName}&storeName=${storeName}`;
+    const apiURL = `/stock/sales-items?name=${itemName}&storeName=${storeName}`;
     const allSalesData = await axiosInstance.get(apiURL);
     return allSalesData;
   } catch (error) {
@@ -32,7 +32,7 @@ export const searchAllSalesByItemName = async (itemName, storeName) => {
 
 export const searchAllSalesByItemCode = async (itemCode, storeName) => {
   try {
-    const apiURL = `/sales/get-items/${storeName}/${encodeURIComponent(itemCode)}`;
+    const apiURL = `/stock/sales-items-code/${storeName}/${encodeURIComponent(itemCode)}`;
     const allSalesData = await axiosInstance.get(apiURL);
     return allSalesData;
   } catch (error) {
@@ -212,7 +212,7 @@ export const getAllBillsBySeries = async (series) => {
 
 export const getAllSaleStores = async () => {
   try {
-    const apiURL = `/sales/stores`;
+    const apiURL = `/store/sell-counter`;
     const response = await axiosInstance.get(apiURL);
     return response;
   } catch (error) {

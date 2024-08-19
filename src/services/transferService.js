@@ -12,7 +12,7 @@ export const createTransfer = async (payload) => {
 
 export const getTransferDetailsByItemCode = async (itemCode) => {
   try {
-    const apiURL = `/stock-transfer/get-items/${encodeURIComponent(itemCode)}`;
+    const apiURL = `/stock/stock-transfer-item-code/${encodeURIComponent(itemCode)}`;
     const getDetails = await axiosInstance.get(apiURL);
     return getDetails;
   } catch (error) {
@@ -22,7 +22,7 @@ export const getTransferDetailsByItemCode = async (itemCode) => {
 
 export const getTransferDetailsByItemName = async (itemName) => {
   try {
-    const apiURL = `/stock-transfer/get-item?name=${encodeURIComponent(
+    const apiURL = `/stock/stock-transfer-item?name=${encodeURIComponent(
       itemName
     )}`;
     const getDetails = await axiosInstance.get(apiURL);
@@ -44,7 +44,7 @@ export const getItemTransferDetails = async (filterOptions) => {
       storeName,
       categoryName,
       brandName,
-      group
+      group,
     } = filterOptions;
 
     let apiURL = `/stock-transfer/reports?page=${page}&pageSize=${pageSize}`;
@@ -53,11 +53,11 @@ export const getItemTransferDetails = async (filterOptions) => {
       fromDate,
       toDate,
       itemCode,
-        itemName,
-        storeName,
-        categoryName,
-        brandName,
-        group
+      itemName,
+      storeName,
+      categoryName,
+      brandName,
+      group,
     };
 
     Object.keys(filters).forEach((key) => {
@@ -78,11 +78,10 @@ export const getTransferDetails = async (transferNo) => {
     const apiURL = `/stock-transfer/bill/${transferNo}`;
     const gettransferData = await axiosInstance.get(apiURL);
     return gettransferData;
-  } catch (error){
-    return error
+  } catch (error) {
+    return error;
   }
-}
-
+};
 
 export const removeTransferDetails = async (transferNo) => {
   try {
@@ -94,7 +93,6 @@ export const removeTransferDetails = async (transferNo) => {
   }
 };
 
-
 export const updateTransferDetails = async (payload, transferNo) => {
   try {
     const apiURL = `/stock-transfer/update/${transferNo}`;
@@ -105,16 +103,15 @@ export const updateTransferDetails = async (payload, transferNo) => {
   }
 };
 
-
 export const getAllTransfers = async () => {
-  try{
+  try {
     const apiURL = `stock-transfer/bill-no`;
     const allTransfers = await axiosInstance.get(apiURL);
     return allTransfers;
-  } catch(err) {
+  } catch (err) {
     return err;
   }
-}
+};
 
 export const removeAllTransfers = async (transfer) => {
   try {

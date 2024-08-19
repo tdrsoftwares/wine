@@ -1366,57 +1366,56 @@ const PurchaseEntry = () => {
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     const reader = new FileReader();
-  
+
     reader.onload = (e) => {
       const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type: 'array' });
+      const workbook = XLSX.read(data, { type: "array" });
       const firstSheetName = workbook.SheetNames[0];
-      const worksheet = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheetName], { header: 1 });
-  
-      const headers = worksheet[0].map(header => header.toLowerCase());
+      const worksheet = XLSX.utils.sheet_to_json(
+        workbook.Sheets[firstSheetName],
+        { header: 1 }
+      );
+
+      const headers = worksheet[0].map((header) => header.toLowerCase());
       const rows = worksheet.slice(1);
-  
+
       rows.forEach((row) => {
         const rowData = headers.reduce((acc, header, index) => {
           acc[header] = row[index];
           return acc;
         }, {});
-  
+        // console.log("row data: ", rowData);
+
+        setFormData({ ...formData,
+          passNo: rowData["indent id no"] || "",
+        })
+
         const updatedFormData = {
           ...formData,
-          supplierName: rowData.suppliername || "",
-          passNo: rowData.passno || "",
-          passDate: rowData.passdate || null,
-          address: rowData.address || "",
-          billNo: rowData.billno || "",
-          billDate: rowData.billdate || null,
-          stockIn: rowData.stockin || "",
           itemId: rowData.itemid || "",
-          itemCode: rowData.itemcode || "",
+          itemCode: (rowData["gtin number"] || "").replace("GTIN: ", ""),
           itemName: rowData.itemname || "",
           mrp: rowData.mrp || "",
           batch: rowData.batch || "",
           case: rowData.case || "",
           caseValue: rowData.casevalue || "",
-          pcs: rowData.pcs || "",
+          pcs: rowData["bottle(s)"] || "",
           brk: rowData.brk || "",
-          purchaseRate: rowData.purchaserate || "",
-          btlRate: rowData.mrp || "", 
+          purchaseRate: rowData.purchaseRate || "",
+          btlRate: rowData.mrp || "",
           gro: rowData.gro || "",
           sp: rowData.sp || "",
           amount: rowData.amount || "",
+          volume: rowData.measure || "",
         };
-  
-        setPurchases((prevPurchases) => [
-          ...prevPurchases,
-          updatedFormData,
-        ]);
+
+        setPurchases((prevPurchases) => [...prevPurchases, updatedFormData]);
       });
     };
-  
+
     reader.readAsArrayBuffer(file);
   };
-  
+
 
   return (
     <ThemeProvider theme={customTheme}>
