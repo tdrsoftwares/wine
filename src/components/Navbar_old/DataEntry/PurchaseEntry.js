@@ -24,6 +24,7 @@ import { getAllStores } from "../../../services/storeService";
 import {
   createPurchase,
   getAllEntryNo,
+  getItemDetailsByItemCode,
   getPurchaseDetailsByEntryNo,
   removePurchaseDetails,
   searchAllPurchasesByItemCode,
@@ -1363,11 +1364,11 @@ const PurchaseEntry = () => {
     }
   };
 
-  const handleFileUpload = (event) => {
+  const handleFileUpload = async (event) => {
     const file = event.target.files[0];
     const reader = new FileReader();
 
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       const data = new Uint8Array(e.target.result);
       const workbook = XLSX.read(data, { type: "array" });
       const firstSheetName = workbook.SheetNames[0];
@@ -1379,40 +1380,84 @@ const PurchaseEntry = () => {
       const headers = worksheet[0].map((header) => header.toLowerCase());
       const rows = worksheet.slice(1);
 
-      rows.forEach((row) => {
+      for (const row of rows) {
         const rowData = headers.reduce((acc, header, index) => {
           acc[header] = row[index];
           return acc;
         }, {});
-        // console.log("row data: ", rowData);
 
-        setFormData({ ...formData,
-          passNo: rowData["indent id no"] || "",
-        })
+        const itemCode = (rowData["gtin number"] || "").replace("GTIN: ", "");
 
-        const updatedFormData = {
-          ...formData,
-          itemId: rowData.itemid || "",
-          itemCode: (rowData["gtin number"] || "").replace("GTIN: ", ""),
-          itemName: rowData.itemname || "",
-          mrp: rowData.mrp || "",
-          batch: rowData.batch || "",
-          case: rowData.case || "",
-          caseValue: rowData.casevalue || "",
-          pcs: rowData["bottle(s)"] || "",
-          brk: rowData.brk || "",
-          purchaseRate: rowData.purchaseRate || "",
-          btlRate: rowData.mrp || "",
-          gro: rowData.gro || "",
-          sp: rowData.sp || "",
-          amount: rowData.amount || "",
-          volume: rowData.measure || "",
-        };
+        console.log("Processing :", itemCode);
 
-        setPurchases((prevPurchases) => [...prevPurchases, updatedFormData]);
-      });
+        try {
+          const response = await getItemDetailsByItemCode(itemCode);
+          const itemDetails = response?.data?.data;
+          // console.log("Response itemDetails", itemDetails);
+
+          if (itemDetails) {
+            const updatedFormData = {
+              ...formData,
+              itemId: itemDetails.itemId || rowData.itemid || "",
+              itemCode: itemCode,
+              itemName: itemDetails.itemId?.name || rowData.itemname || "",
+              mrp: itemDetails.mrp || rowData.mrp || "",
+              batch: itemDetails.batchNo || rowData.batch || "",
+              case: rowData.case || "",
+              caseValue: rowData.casevalue || "",
+              pcs: rowData["bottle(s)"] || "",
+              brk: rowData.brk || "",
+              purchaseRate:
+                itemDetails.purchaseRate || rowData.purchaseRate || "",
+              btlRate: itemDetails.mrp || rowData.mrp || "",
+              gro: rowData.gro || "",
+              sp: rowData.sp || "",
+              amount:
+                (
+                  rowData["bottle(s)"] *
+                  (itemDetails.purchaseRate || rowData.purchaseRate)
+                ).toFixed(2) || "",
+              volume: rowData.measure || itemDetails.volume || "",
+            };
+
+            setPurchases((prevPurchases) => [
+              ...prevPurchases,
+              updatedFormData,
+            ]);
+          } else {
+            const updatedFormData = {
+              ...formData,
+              itemId: rowData.itemid || "",
+              itemCode: itemCode,
+              itemName: rowData.itemname || "",
+              mrp: rowData.mrp || 0,
+              batch: rowData.batch || "",
+              case: rowData.case || 0,
+              caseValue: rowData.casevalue || 0,
+              pcs: rowData["bottle(s)"] || 0,
+              brk: rowData.brk || 0,
+              purchaseRate: rowData.purchaseRate || 0,
+              btlRate: rowData.mrp || "",
+              gro: rowData.gro || 0,
+              sp: rowData.sp || 0,
+              amount:
+                (rowData["bottle(s)"] * (rowData.purchaseRate || 0)).toFixed(2) || 0,
+              volume: rowData.measure || 0,
+            };
+
+            setPurchases((prevPurchases) => [
+              ...prevPurchases,
+              updatedFormData,
+            ]);
+          }
+        } catch (error) {
+          console.error(
+            `Failed to fetch details for itemCode ${itemCode}`,
+            error
+          );
+        }
+      }
     };
-
     reader.readAsArrayBuffer(file);
   };
 

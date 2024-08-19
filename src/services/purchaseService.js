@@ -180,3 +180,13 @@ export const removeAllPurchases = async (allPurchases) => {
     return error;
   }
 };
+
+export const getItemDetailsByItemCode = async (itemCode) => {
+  try {
+    const apiURL = `/stock/stock-info/${itemCode}`;
+    const getDetails = await axiosInstance.get(apiURL);
+    return getDetails;
+  } catch (error){
+    return error
+  }
+}
