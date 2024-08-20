@@ -430,6 +430,7 @@ const ItemWisePurchaseReport = () => {
                 fullWidth
                 size="small"
                 name="Supplier"
+                className="input-field"
                 value={selectedSupplier}
                 onChange={(e) => setSelectedSupplier(e.target.value)}
                 SelectProps={{
@@ -462,6 +463,7 @@ const ItemWisePurchaseReport = () => {
                 fullWidth
                 size="small"
                 name="itemName"
+                className="input-field"
                 value={itemName}
                 onChange={(e) => setItemName(e.target.value)}
                 // SelectProps={{
@@ -491,6 +493,7 @@ const ItemWisePurchaseReport = () => {
               <TextField
                 fullWidth
                 name="itemCode"
+                className="input-field"
                 size="small"
                 value={itemCode}
                 onChange={(e) => setItemCode(e.target.value)}
@@ -508,6 +511,7 @@ const ItemWisePurchaseReport = () => {
                 fullWidth
                 size="small"
                 name="brandName"
+                className="input-field"
                 value={brandName}
                 onChange={(e) => setBrandName(e.target.value)}
                 // SelectProps={{
@@ -539,6 +543,7 @@ const ItemWisePurchaseReport = () => {
                 fullWidth
                 size="small"
                 name="categoryName"
+                className="input-field"
                 value={categoryName}
                 onChange={(e) => setCategoryName(e.target.value)}
                 SelectProps={{
@@ -570,6 +575,7 @@ const ItemWisePurchaseReport = () => {
                 fullWidth
                 size="small"
                 name="volume"
+                className="input-field"
                 value={volume}
                 onChange={(e) => setVolume(e.target.value)}
               />

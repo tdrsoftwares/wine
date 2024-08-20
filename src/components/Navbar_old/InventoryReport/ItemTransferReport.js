@@ -298,7 +298,7 @@ const ItemTransferReport = () => {
                   id="dateFrom"
                   format="DD/MM/YYYY"
                   value={dateFrom}
-                  className="date-picker"
+                  className="input-field date-picker"
                   onChange={(date) => setDateFrom(date)}
                   renderInput={(params) => <TextField {...params} />}
                 />
@@ -317,55 +317,13 @@ const ItemTransferReport = () => {
                   id="dateTo"
                   format="DD/MM/YYYY"
                   value={dateTo}
-                  className="date-picker"
+                  className="input-field date-picker"
                   onChange={(date) => setDateTo(date)}
                   renderInput={(params) => <TextField {...params} />}
                 />
               </LocalizationProvider>
             </div>
           </Grid>
-
-          {/* <Grid item xs={3}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="transferFrom" className="input-label">
-                Transfer from :
-              </InputLabel>
-              <TextField
-                select
-                fullWidth
-                name="transferFrom"
-                value={transferFrom}
-                onChange={(e) => setTransferFrom(e.target.value)}
-              >
-                {allGodownStores?.map((store) => (
-                  <MenuItem key={store._id} value={store._id}>
-                    {store.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </div>
-          </Grid>
-
-          <Grid item xs={3}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="Transfer to" className="input-label">
-                Transfer To :
-              </InputLabel>
-              <TextField
-                select
-                fullWidth
-                name="Transfer to"
-                value={transferTo}
-                onChange={(e) => setTransferTo(e.target.value)}
-              >
-                {allNonGodownStores?.map((store) => (
-                  <MenuItem key={store._id} value={store._id}>
-                    {store.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </div>
-          </Grid> */}
 
           <Grid item xs={3}>
             <div className="input-wrapper">
@@ -376,6 +334,7 @@ const ItemTransferReport = () => {
                 select
                 fullWidth
                 size="small"
+                className="input-field"
                 name="storeName"
                 value={storeName}
                 onChange={(e) => setStoreName(e.target.value)}
@@ -408,6 +367,7 @@ const ItemTransferReport = () => {
                 fullWidth
                 size="small"
                 name="itemName"
+                className="input-field"
                 value={itemName}
                 onChange={(e) => setItemName(e.target.value)}
               />
@@ -422,6 +382,7 @@ const ItemTransferReport = () => {
               <TextField
                 fullWidth
                 name="itemCode"
+                className="input-field"
                 size="small"
                 value={itemCode}
                 onChange={(e) => setItemCode(e.target.value)}
@@ -439,6 +400,7 @@ const ItemTransferReport = () => {
                 fullWidth
                 size="small"
                 name="categoryName"
+                className="input-field"
                 value={categoryName}
                 onChange={(e) => setCategoryName(e.target.value)}
                 SelectProps={{
@@ -470,6 +432,7 @@ const ItemTransferReport = () => {
                 fullWidth
                 size="small"
                 name="brandName"
+                className="input-field"
                 value={brandName}
                 onChange={(e) => setBrandName(e.target.value)}
               />
@@ -485,6 +448,7 @@ const ItemTransferReport = () => {
                 select
                 fullWidth
                 size="small"
+                className="input-field"
                 value={group}
                 onChange={(e) => setGroup(e.target.value)}
                 required
