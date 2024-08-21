@@ -39,6 +39,7 @@ import { getLicenseInfo } from "../../../services/licenseService";
 import SaleBrandPanel from "./SaleBrandPanel";
 import SalebillSearchTable from "./SalebillSearchTable";
 import SalebillDataTable from "./SalebillDataTable";
+import socketService from "../../../utils/socket";
 
 const SaleBill = () => {
   const [allCustomerData, setAllCustomerData] = useState([]);
@@ -112,6 +113,10 @@ const SaleBill = () => {
   const [licenseDetails, setLicenseDetails] = useState({});
   const [hasItems, setHasItems] = useState(false);
   // console.log("lc",licenseDetails)
+  const [totalSales, setTotalSales] = useState(0);
+  const [totalCash, setTotalCash] = useState(0);
+  const [totalOnline, setTotalOnline] = useState(0);
+
   const tableRef = useRef(null);
   const customerNameRef = useRef(null);
   const addressRef = useRef(null);
@@ -280,7 +285,7 @@ const SaleBill = () => {
         brandName,
       };
       const response = await getAllBrandWiseItems(filterOptions);
-      console.log("BrandWiseItemData response ---> ", response?.data?.data);
+      // console.log("BrandWiseItemData response ---> ", response?.data?.data);
       if (response.status === 200) {
         setBrandWiseItemData(response?.data?.data);
       } else {
@@ -1999,6 +2004,28 @@ const SaleBill = () => {
   //   }
   // }, [formData.billno, licenseDetails?.autoBillPrint]);
 
+  useEffect(() => {
+    // console.log("Connecting to WebSocket...");
+    socketService.connect("https://api.dev.wine.tdrsoftware.in/total-sales");
+
+    socketService.onMessage((data) => {
+      // console.log("Received data from WebSocket:", data);
+
+      // if (data.event === "DAILY_SALES_COUNT") {
+      //   console.log("Processing DAILY_SALES_COUNT event...");
+        setTotalSales(data.totalAmount);
+        setTotalCash(data.cash);
+        setTotalOnline(data.online);
+      // }
+    });
+
+    return () => {
+      // console.log("Component unmounting, disconnecting WebSocket...");
+      socketService.disconnect();
+    };
+  }, []);
+
+
   return (
     <ThemeProvider theme={customTheme}>
       <Box display="flex">
@@ -2655,7 +2682,7 @@ const SaleBill = () => {
                   variant="outlined"
                   size="small"
                   fullWidth
-                  // value={}
+                  value={totalSales}
                   InputProps={{ readOnly: true }}
                 />
               </Grid>
@@ -2665,7 +2692,7 @@ const SaleBill = () => {
                   variant="outlined"
                   size="small"
                   fullWidth
-                  // value={totalValues.netAmt}
+                  value={totalCash}
                   InputProps={{ readOnly: true }}
                 />
               </Grid>
@@ -2675,7 +2702,7 @@ const SaleBill = () => {
                   variant="outlined"
                   size="small"
                   fullWidth
-                  // value={totalValues.netAmt}
+                  value={totalOnline}
                   InputProps={{ readOnly: true }}
                 />
               </Grid>
