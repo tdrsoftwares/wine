@@ -2006,7 +2006,7 @@ const SaleBill = () => {
 
   useEffect(() => {
     // console.log("Connecting to WebSocket...");
-    socketService.connect("https://api.dev.wine.tdrsoftware.in/total-sales");
+    socketService.connect(process.env.REACT_APP_API_URL + "/total-sales");
 
     socketService.onMessage((data) => {
       // console.log("Received data from WebSocket:", data);
