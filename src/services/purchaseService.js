@@ -99,7 +99,7 @@ export const getItemWisePurchaseDetails = async (filterOptions) => {
 
 export const searchAllPurchasesByItemName = async (itemName) => {
   try {
-    const apiURL = `/purchases/item-search?name=${encodeURIComponent(
+    const apiURL = `/stock/purchases-item?name=${encodeURIComponent(
       itemName
     )}`;
     const allPurchasesData = await axiosInstance.get(apiURL);
@@ -111,7 +111,7 @@ export const searchAllPurchasesByItemName = async (itemName) => {
 
 export const searchAllPurchasesByItemCode = async (itemCode) => {
   try {
-    const apiURL = `/purchases/item-code/${encodeURIComponent(itemCode)}`;
+    const apiURL = `/stock/purchases-item-code/${encodeURIComponent(itemCode)}`;
     const allPurchasesData = await axiosInstance.get(apiURL);
     return allPurchasesData;
   } catch (error) {
@@ -180,3 +180,13 @@ export const removeAllPurchases = async (allPurchases) => {
     return error;
   }
 };
+
+export const getItemDetailsByItemCode = async (itemCode) => {
+  try {
+    const apiURL = `/stock/stock-info/${itemCode}`;
+    const getDetails = await axiosInstance.get(apiURL);
+    return getDetails;
+  } catch (error){
+    return error
+  }
+}
