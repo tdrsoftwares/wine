@@ -48,7 +48,12 @@ class WebSocketService {
     }
 
     this.socket.on("DAILY_SALES_COUNT", (data) => {
-      console.log("WebSocket message received:", data);
+      console.log("WebSocket message received:");
+
+      sessionStorage.setItem('totalSales', data.totalAmount);
+      sessionStorage.setItem('totalCash', data.cash);
+      sessionStorage.setItem('totalOnline', data.online);
+
       callback(data);
     });
   }

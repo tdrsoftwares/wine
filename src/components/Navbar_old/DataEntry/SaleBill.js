@@ -2006,17 +2006,22 @@ const SaleBill = () => {
 
   useEffect(() => {
     // console.log("Connecting to WebSocket...");
+    const savedTotalSales = sessionStorage.getItem("totalSales");
+    const savedTotalCash = sessionStorage.getItem("totalCash");
+    const savedTotalOnline = sessionStorage.getItem("totalOnline");
+
+    if (savedTotalSales) setTotalSales(savedTotalSales);
+    if (savedTotalCash) setTotalCash(savedTotalCash);
+    if (savedTotalOnline) setTotalOnline(savedTotalOnline);
+
     socketService.connect(process.env.REACT_APP_API_URL + "/total-sales");
 
     socketService.onMessage((data) => {
       // console.log("Received data from WebSocket:", data);
 
-      // if (data.event === "DAILY_SALES_COUNT") {
-      //   console.log("Processing DAILY_SALES_COUNT event...");
-        setTotalSales(data.totalAmount);
-        setTotalCash(data.cash);
-        setTotalOnline(data.online);
-      // }
+      setTotalSales(data.totalAmount);
+      setTotalCash(data.cash);
+      setTotalOnline(data.online);
     });
 
     return () => {
