@@ -1428,7 +1428,7 @@ const PurchaseEntry = () => {
         // console.log("Processing :", itemCode);
 
         try {
-          const response = await getItemDetailsByItemCode("bd1");
+          const response = await getItemDetailsByItemCode(itemCode);
           const itemDetails = response?.data?.data;
           // console.log("Response itemDetails", itemDetails);
 
