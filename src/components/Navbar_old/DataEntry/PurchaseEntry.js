@@ -49,6 +49,7 @@ import * as XLSX from 'xlsx';
 
 
 const PurchaseEntry = () => {
+
   const [allSuppliers, setAllSuppliers] = useState([]);
   const [allStores, setAllStores] = useState([]);
   const [itemName, setItemName] = useState("");
@@ -70,6 +71,7 @@ const PurchaseEntry = () => {
     billNo: "",
     billDate: null,
     stockIn: "",
+    itemDetailsId: "",
     itemId: "",
     itemCode: "",
     itemName: "",
@@ -85,6 +87,8 @@ const PurchaseEntry = () => {
     sp: "",
     amount: "",
   });
+
+  // console.log("formData outside: ", formData)
 
   dayjs.extend(utc);
   dayjs.extend(customParseFormat);
@@ -164,6 +168,7 @@ const PurchaseEntry = () => {
   const resetMiddleFormData = () => {
     setFormData((prevFormData) => ({
       ...prevFormData,
+      itemDetailsId: "",
       itemId: "",
       itemCode: "",
       itemName: "",
@@ -492,6 +497,7 @@ const PurchaseEntry = () => {
       const response = await searchAllPurchasesByItemCode(itemCode);
       
       const searchedItem = response?.data?.data;
+      // console.log("sss ----> ",searchedItem)
       
 
       if (searchedItem) {
@@ -513,7 +519,14 @@ const PurchaseEntry = () => {
           gro: searchedItem.gro || 0,
           sp: searchedItem.sp || 0,
           amount: searchedItem.amount || 0,
+          itemDetailsId: searchedItem._id || null
         });
+
+        // if(searchedItem._id) {
+        //   formData.itemDetailsId = searchedItem._id
+        // }
+        // console.log("itemCodeSearch form data: ",formData)
+
         batchRef.current.focus();
       } else {
         setSearchResults([]);
@@ -628,7 +641,12 @@ const PurchaseEntry = () => {
       gro: selectedRow.gro || 0,
       sp: selectedRow.sp || 0,
       amount: selectedRow.amount || 0,
+      itemDetailsId: selectedRow._id || null
     });
+
+    // if(selectedRow._id) {
+    //   formData.itemDetailsId = selectedRow._id
+    // }
 
     if (!selectedRow.itemCode) {
       itemCodeRef.current.focus();
@@ -687,11 +705,13 @@ const PurchaseEntry = () => {
       handleEnterKey(e, amountRef);
       return;
     }
+    // console.log("updatedPurchases formData: ", formData)
 
     const updatedPurchases = [
       ...purchases,
       { ...formData, btlRate: formData.mrp },
     ];
+    // console.log("updatedPurchases: ", updatedPurchases)
     setPurchases(updatedPurchases);
     // setPurchases([...purchases, formData]);
     sessionStorage.setItem("purchases", JSON.stringify(updatedPurchases));
@@ -751,6 +771,8 @@ const PurchaseEntry = () => {
     const passDateObj = formatDate(formData.passDate);
     const billDateObj = formatDate(formData.billDate);
 
+    // console.log("purchases:  ", purchases)
+
     const payload = {
       supplierId: formData.supplierName,
       storeId: formData.stockIn,
@@ -770,21 +792,30 @@ const PurchaseEntry = () => {
       adjustment: parseFloat(totalValues.adjustment) || 0,
       netAmount: parseFloat(totalValues.netAmt) || 0,
       otherCharges: parseInt(totalValues.otherCharges) || 0,
-      purchaseItems: purchases.map((item) => ({
-        itemCode: item.itemCode.toString(),
-        itemId: item.itemId,
-        mrp: parseFloat(item.mrp) || 0,
-        batchNo: item.batch.toString(),
-        caseNo: parseFloat(item.case) || 0,
-        pcs: parseFloat(item.pcs) || 0,
-        brokenNo: parseFloat(item.brk) || 0,
-        purchaseRate: parseFloat(item.purchaseRate) || 0,
-        saleRate: parseFloat(item.btlRate) || 0,
-        gro: parseFloat(item.gro) || 0,
-        sp: parseFloat(item.sp) || 0,
-        itemAmount: parseFloat(item.amount) || 0,
-      })),
+      purchaseItems: purchases.map((item) => {
+        const purchaseItem = {
+          itemCode: item.itemCode.toString(),
+          itemId: item.itemId,
+          mrp: parseFloat(item.mrp) || 0,
+          batchNo: item.batch.toString(),
+          caseNo: parseFloat(item.case) || 0,
+          pcs: parseFloat(item.pcs) || 0,
+          brokenNo: parseFloat(item.brk) || 0,
+          purchaseRate: parseFloat(item.purchaseRate) || 0,
+          saleRate: parseFloat(item.btlRate) || 0,
+          gro: parseFloat(item.gro) || 0,
+          sp: parseFloat(item.sp) || 0,
+          itemAmount: parseFloat(item.amount) || 0,
+        };
+    
+        if (item.itemDetailsId) {
+          purchaseItem.itemDetailsId = item.itemDetailsId;
+        }
+    
+        return purchaseItem;
+      }),
     };
+    
 
     try {
       const response = await createPurchase(payload);
@@ -1157,7 +1188,13 @@ const PurchaseEntry = () => {
             gro: selectedRow.gro || 0,
             sp: selectedRow.sp || 0,
             amount: selectedRow.amount || 0,
+            itemDetailsId: selectedRow._id || null
           });
+
+          // if(selectedRow._id) {
+          //   formData.itemDetailsId = selectedRow._id
+          // }
+
           setSearchMode(false);
           setSelectedRowIndex(null);
           if (!selectedRow.itemCode) {
@@ -1388,17 +1425,17 @@ const PurchaseEntry = () => {
 
         const itemCode = (rowData["gtin number"] || "").replace("GTIN: ", "");
 
-        console.log("Processing :", itemCode);
+        // console.log("Processing :", itemCode);
 
         try {
-          const response = await getItemDetailsByItemCode(itemCode);
+          const response = await getItemDetailsByItemCode("bd1");
           const itemDetails = response?.data?.data;
           // console.log("Response itemDetails", itemDetails);
 
           if (itemDetails) {
             const updatedFormData = {
               ...formData,
-              itemId: itemDetails.itemId || rowData.itemid || "",
+              itemId: itemDetails.itemId?._id || rowData.itemid || "",
               itemCode: itemCode,
               itemName: itemDetails.itemId?.name || rowData.itemname || "",
               mrp: itemDetails.mrp || rowData.mrp || "",
@@ -1419,6 +1456,10 @@ const PurchaseEntry = () => {
                 ).toFixed(2) || "",
               volume: rowData.measure || itemDetails.volume || "",
             };
+
+            if (itemDetails.itemDetailsId) {
+              updatedFormData.itemDetailsId = itemDetails.itemDetailsId;
+            }
 
             setPurchases((prevPurchases) => [
               ...prevPurchases,
@@ -1672,10 +1713,12 @@ const PurchaseEntry = () => {
                 }}
               >
                 Upload Purchase
-                <input type="file"
-        accept=".xls,.xlsx"
-        hidden
-        onChange={handleFileUpload} />
+                <input
+                  type="file"
+                  accept=".pdf, .xls, .xlsx"
+                  hidden
+                  onChange={handleFileUpload}
+                />
               </Button>
 
               <Button
