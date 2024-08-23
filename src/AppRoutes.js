@@ -113,7 +113,7 @@ import BalanceSheet from "./components/Navbar_old/AuditAndAccounts/BalanceSheet"
 import Epos from "./modules/Epos";
 import AdminPanel from "./modules/AdminPanel";
 import DailyItemBatchStatus from "./components/Sidebar_old/DailyItemBatchStatus";
-
+import StockUpdation from "./modules/StockUpdation";
 
 const PrivateRoute = ({ element, authenticatedUser }) => {
   return authenticatedUser ? element : <Navigate to="/login" />;
@@ -123,7 +123,13 @@ const PublicRoute = ({ element, authenticatedUser }) => {
   return authenticatedUser ? <Navigate to="/" /> : element;
 };
 
-const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp, sidebarVisible, handleSignout }) => {
+const AppRoutes = ({
+  authenticatedUser,
+  handleLogin,
+  handleSignUp,
+  sidebarVisible,
+  handleSignout,
+}) => {
   return (
     <Routes>
       <Route
@@ -654,7 +660,9 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp, sidebarVisibl
       />
       <Route
         path="/daily-item-batch-report"
-        element={authenticatedUser ? <DailyItemBatchStatus /> : <UnAuthorized />}
+        element={
+          authenticatedUser ? <DailyItemBatchStatus /> : <UnAuthorized />
+        }
       />
       <Route
         path="/gtin-stock"
@@ -669,6 +677,11 @@ const AppRoutes = ({ authenticatedUser, handleLogin, handleSignUp, sidebarVisibl
       <Route
         path="/admin-panel"
         element={authenticatedUser ? <AdminPanel /> : <UnAuthorized />}
+      />
+
+      <Route
+        path="/stock-updation"
+        element={authenticatedUser ? <StockUpdation /> : <UnAuthorized />}
       />
     </Routes>
   );

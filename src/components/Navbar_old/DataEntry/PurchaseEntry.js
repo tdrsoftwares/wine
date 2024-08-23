@@ -553,7 +553,7 @@ const PurchaseEntry = () => {
 
         if (response?.data?.data) {
           const receivedData = response.data.data;
-          console.log("receivedData > ", receivedData);
+          // console.log("receivedData > ", receivedData);
 
           const passDateObject = convertToDayjsObject(receivedData.passDate);
           const billDateObject = convertToDayjsObject(receivedData.billDate);
@@ -808,9 +808,9 @@ const PurchaseEntry = () => {
           itemAmount: parseFloat(item.amount) || 0,
         };
     
-        if (item.itemDetailsId) {
-          purchaseItem.itemDetailsId = item.itemDetailsId;
-        }
+        // if (item.itemDetailsId) {
+        //   purchaseItem.itemDetailsId = item.itemDetailsId;
+        // }
     
         return purchaseItem;
       }),
@@ -1402,8 +1402,14 @@ const PurchaseEntry = () => {
     }
   };
 
+
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
+
+    if (!file) {
+      return;
+    }
+
     const reader = new FileReader();
 
     reader.onload = async (e) => {
@@ -1420,86 +1426,79 @@ const PurchaseEntry = () => {
 
       for (const row of rows) {
         const rowData = headers.reduce((acc, header, index) => {
-          acc[header] = row[index];
+          acc[header] = row[index] || "";
           return acc;
         }, {});
+        // console.log("rowData: ", rowData)
 
         const itemCode = (rowData["gtin number"] || "").replace("GTIN: ", "");
-
-        // console.log("Processing :", itemCode);
 
         try {
           const response = await getItemDetailsByItemCode(itemCode);
           const itemDetails = response?.data?.data;
-          // console.log("Response itemDetails", itemDetails);
+          // console.log("itemDetails: ", itemDetails)
 
-          if (itemDetails) {
-            const updatedFormData = {
-              ...formData,
-              itemId: itemDetails.itemId?._id || rowData.itemid || "",
-              itemCode: itemCode,
-              itemName: itemDetails.itemId?.name || rowData.itemname || "",
-              mrp: itemDetails.mrp || rowData.mrp || "",
-              batch: itemDetails.batchNo || rowData.batch || "",
-              case: rowData.case || "",
-              caseValue: rowData.casevalue || "",
-              pcs: rowData["bottle(s)"] || "",
-              brk: rowData.brk || "",
-              purchaseRate:
-                itemDetails.purchaseRate || rowData.purchaseRate || "",
-              btlRate: itemDetails.mrp || rowData.mrp || "",
-              gro: rowData.gro || "",
-              sp: rowData.sp || "",
-              amount:
-                (
-                  rowData["bottle(s)"] *
-                  (itemDetails.purchaseRate || rowData.purchaseRate)
-                ).toFixed(2) || "",
-              volume: rowData.measure || itemDetails.volume || "",
-            };
+          const updatedFormData = {
+            ...formData,
+            itemId: itemDetails?.itemId?._id || rowData.itemid || "",
+            itemCode: itemCode,
+            itemName: itemDetails?.itemId?.name || rowData.itemname || "",
+            mrp: itemDetails?.mrp || rowData.mrp || 0,
+            batch: itemDetails?.batchNo || rowData.batch || "",
+            case: rowData.case || 0,
+            caseValue: rowData.casevalue ||  itemDetails?.itemId?.caseValue || 0,
+            pcs: rowData["bottle(s)"] || 0,
+            brk: rowData.brk || 0,
+            purchaseRate:
+              itemDetails?.purchaseRate || rowData.purchaseRate || 0,
+            btlRate: itemDetails?.mrp || rowData.mrp || 0,
+            gro: rowData.gro || 0,
+            sp: rowData.sp || 0,
+            amount:
+              (
+                rowData["bottle(s)"] *
+                (itemDetails?.purchaseRate || rowData.purchaseRate || 0)
+              ).toFixed(2) || 0,
+            volume: rowData.measure || itemDetails?.itemId?.volume || "",
+          };
 
-            if (itemDetails.itemDetailsId) {
-              updatedFormData.itemDetailsId = itemDetails.itemDetailsId;
-            }
-
-            setPurchases((prevPurchases) => [
-              ...prevPurchases,
-              updatedFormData,
-            ]);
-          } else {
-            const updatedFormData = {
-              ...formData,
-              itemId: rowData.itemid || "",
-              itemCode: itemCode,
-              itemName: rowData.itemname || "",
-              mrp: rowData.mrp || 0,
-              batch: rowData.batch || "",
-              case: rowData.case || 0,
-              caseValue: rowData.casevalue || 0,
-              pcs: rowData["bottle(s)"] || 0,
-              brk: rowData.brk || 0,
-              purchaseRate: rowData.purchaseRate || 0,
-              btlRate: rowData.mrp || "",
-              gro: rowData.gro || 0,
-              sp: rowData.sp || 0,
-              amount:
-                (rowData["bottle(s)"] * (rowData.purchaseRate || 0)).toFixed(2) || 0,
-              volume: rowData.measure || 0,
-            };
-
-            setPurchases((prevPurchases) => [
-              ...prevPurchases,
-              updatedFormData,
-            ]);
-          }
+          // console.log("updatedFormData: ", updatedFormData)
+          setPurchases((prevPurchases) => [...prevPurchases, updatedFormData]);
         } catch (error) {
           console.error(
             `Failed to fetch details for itemCode ${itemCode}`,
             error
           );
+
+          const updatedFormData = {
+            ...formData,
+            itemId: rowData.itemid || "",
+            itemCode: itemCode,
+            itemName: rowData.itemname || "",
+            mrp: rowData.mrp || 0,
+            batch: rowData.batch || "",
+            case: rowData.case || 0,
+            caseValue: rowData.casevalue || 0,
+            pcs: rowData["bottle(s)"] || 0,
+            brk: rowData.brk || 0,
+            purchaseRate: rowData.purchaseRate || 0,
+            btlRate: rowData.mrp || "",
+            gro: rowData.gro || 0,
+            sp: rowData.sp || 0,
+            amount:
+              (rowData["bottle(s)"] * (rowData.purchaseRate || 0)).toFixed(2) ||
+              0,
+            volume: rowData.measure || 0,
+          };
+          console.log("updatedFormData else: ",updatedFormData)
+
+          setPurchases((prevPurchases) => [...prevPurchases, updatedFormData]);
         }
       }
+
+      event.target.value = null;
     };
+
     reader.readAsArrayBuffer(file);
   };
 

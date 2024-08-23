@@ -1838,12 +1838,12 @@ const SaleBill = () => {
           const salesItems = receivedData?.salesItems;
           salesItems.length > 0 ? setHasItems(true) : setHasItems(false);
           const newSalesItems = salesItems.map((sale) => ({
-            itemCode: sale?.itemCode,
+            itemCode: sale?.itemDetailsId?.itemCode,
             itemDetailsId: sale?._id,
             itemId: sale?.itemId?._id,
             itemName: sale?.itemId?.name,
-            mrp: sale?.mrp,
-            batch: sale?.batchNo,
+            mrp: sale?.itemDetailsId?.mrp,
+            batch: sale?.itemDetailsId?.batchNo,
             pcs: sale?.pcs,
             rate: sale?.rate,
             discount: sale?.discount,
