@@ -1,7 +1,6 @@
 import {
   Box,
   CircularProgress,
-  MenuItem,
   Paper,
   Table,
   TableBody,
@@ -10,7 +9,6 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  TableSortLabel,
   TextField,
   ThemeProvider,
   Typography,
@@ -86,6 +84,12 @@ const StockUpdation = () => {
     }
   };
 
+  const handleKeyDown = (event, item) => {
+    if (event.key === "Enter") {
+      handleSaveClick(item._id);
+    }
+  };
+
   const handleClickOutside = (event) => {
     if (tableRef.current && !tableRef.current.contains(event.target)) {
       setEditableIndex(null);
@@ -94,7 +98,7 @@ const StockUpdation = () => {
   };
 
   useEffect(() => {
-    fetchAllStocks()
+    fetchAllStocks();
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -162,20 +166,18 @@ const StockUpdation = () => {
             <Table size="small" padding="normal" stickyHeader={true}>
               <TableHead>
                 <TableRow className="table-head-2">
-                  <TableCell align="center" style={{ minWidth: "80px" }}>
+                  <TableCell align="center" style={{ flex: 1 }}>
                     S. No.
                   </TableCell>
-                  <TableCell style={{ minWidth: "180px" }}>
-                    Created At
-                  </TableCell>
-                  <TableCell style={{ minWidth: "180px" }}>Item Code</TableCell>
-                  <TableCell style={{ minWidth: "180px" }}>Item Name</TableCell>
+                  <TableCell style={{ flex: 1 }}>Created At</TableCell>
+                  <TableCell style={{ flex: 1 }}>Item Code</TableCell>
+                  <TableCell style={{ flex: 1 }}>Item Name</TableCell>
+                  {/* 
+                  <TableCell style={{ flex: 1 }}>Category</TableCell>
 
-                  <TableCell style={{ minWidth: "150px" }}>Category</TableCell>
-
-                  <TableCell style={{ minWidth: "150px" }}>Company</TableCell>
-                  <TableCell style={{ minWidth: "150px" }}>Brand</TableCell>
-                  <TableCell style={{ minWidth: "100px" }}>Action</TableCell>
+                  <TableCell style={{ flex: 1 }}>Company</TableCell>
+                  <TableCell style={{ flex: 1 }}>Brand</TableCell> */}
+                  <TableCell style={{ flex: 1 }}>Action</TableCell>
                 </TableRow>
               </TableHead>
 
@@ -193,42 +195,41 @@ const StockUpdation = () => {
                     </TableCell>
                   </TableRow>
                 ) : (allStocks || [])?.length > 0 ? (
-                  allStocks
-                    .map((item, index) => (
-                      <TableRow
-                        key={index}
-                        sx={{
-                          backgroundColor: "#fff",
-                        }}
-                      >
-                        <TableCell align="center">
-                          {page * rowsPerPage + index + 1}
-                        </TableCell>
-                        <TableCell>
-                          {new Date(item?.createdAt).toLocaleDateString(
-                            "en-GB"
-                          ) || "No Data"}
-                        </TableCell>
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <TextField
-                              fullWidth
-                              value={editedRow.itemCode || item.itemCode}
-                              onChange={(e) =>
-                                setEditedRow({
-                                  ...editedRow,
-                                  itemCode: e.target.value,
-                                })
-                              }
-                              // onKeyDown={(e) => handleKeyDown(e, item)}
-                            />
-                          ) : (
-                            item.itemCode || "No Data"
-                          )}
-                        </TableCell>
-                        <TableCell>{item?.item?.name || "No Data"}</TableCell>
+                  allStocks.map((item, index) => (
+                    <TableRow
+                      key={index}
+                      sx={{
+                        backgroundColor: "#fff",
+                      }}
+                    >
+                      <TableCell align="center">
+                        {page * rowsPerPage + index + 1}
+                      </TableCell>
+                      <TableCell>
+                        {new Date(item?.createdAt).toLocaleDateString(
+                          "en-GB"
+                        ) || "No Data"}
+                      </TableCell>
+                      <TableCell>
+                        {editableIndex === index ? (
+                          <TextField
+                            fullWidth
+                            value={editedRow.itemCode || ""}
+                            onChange={(e) =>
+                              setEditedRow({
+                                ...editedRow,
+                                itemCode: e.target.value,
+                              })
+                            }
+                            onKeyDown={(e) => handleKeyDown(e, item)}
+                          />
+                        ) : (
+                          item.itemCode || "No Data"
+                        )}
+                      </TableCell>
+                      <TableCell>{item?.item?.name || "No Data"}</TableCell>
 
-                        <TableCell>
+                      {/* <TableCell>
                           {item?.item?.category?.categoryName || "No Data"}
                         </TableCell>
 
@@ -238,23 +239,23 @@ const StockUpdation = () => {
 
                         <TableCell>
                           {item?.item?.brand?.name || "No Data"}
-                        </TableCell>
+                        </TableCell> */}
 
-                        <TableCell>
-                          {editableIndex !== index ? (
-                            <EditIcon
-                              sx={{ cursor: "pointer", color: "blue" }}
-                              onClick={() => handleEditClick(index, item._id)}
-                            />
-                          ) : (
-                            <SaveIcon
-                              sx={{ cursor: "pointer", color: "green" }}
-                              onClick={() => handleSaveClick(item._id)}
-                            />
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))
+                      <TableCell>
+                        {editableIndex !== index ? (
+                          <EditIcon
+                            sx={{ cursor: "pointer", color: "blue" }}
+                            onClick={() => handleEditClick(index, item._id)}
+                          />
+                        ) : (
+                          <SaveIcon
+                            sx={{ cursor: "pointer", color: "green" }}
+                            onClick={() => handleSaveClick(item._id)}
+                          />
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))
                 ) : (
                   <TableRow
                     sx={{
