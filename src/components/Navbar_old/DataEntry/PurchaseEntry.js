@@ -553,7 +553,7 @@ const PurchaseEntry = () => {
 
         if (response?.data?.data) {
           const receivedData = response.data.data;
-          // console.log("receivedData > ", receivedData);
+          console.log("receivedData > ", receivedData);
 
           const passDateObject = convertToDayjsObject(receivedData.passDate);
           const billDateObject = convertToDayjsObject(receivedData.billDate);
@@ -572,16 +572,16 @@ const PurchaseEntry = () => {
           const newPurchaseItems = purchaseItems.map((purchase) => ({
             _id: purchase?._id,
             itemId: purchase?.itemId?._id,
-            itemCode: purchase?.itemCode,
+            itemCode: purchase?.itemDetailsId?.itemCode,
             itemName: purchase?.itemId?.name,
-            mrp: purchase?.mrp,
-            batch: purchase?.batchNo,
+            mrp: purchase?.itemDetailsId?.mrp,
+            batch: purchase?.itemDetailsId?.batchNo,
             case: purchase?.caseNo,
             caseValue: purchase?.itemId?.caseValue,
             pcs: purchase?.pcs,
             brk: purchase?.brokenNo,
-            purchaseRate: purchase?.purchaseRate,
-            btlRate: purchase?.saleRate,
+            purchaseRate: purchase?.itemDetailsId?.purchaseRate,
+            btlRate: purchase?.itemDetailsId?.saleRate,
             gro: purchase?.gro,
             sp: purchase?.sp,
             amount: purchase?.itemAmount,
@@ -911,6 +911,7 @@ const PurchaseEntry = () => {
       otherCharges: parseInt(totalValues.otherCharges) || 0,
       purchaseItems: purchases.map((item) => ({
         _id: item._id,
+        // itemDetailsId: item._id,
         itemCode: item.itemCode.toString(),
         itemId: item.itemId,
         mrp: parseFloat(item.mrp) || 0,
@@ -947,17 +948,17 @@ const PurchaseEntry = () => {
           NotificationManager.error(errorMessage, "Error");
         } else {
           NotificationManager.error(
-            "Error creating Purchase. Please try again later.",
+            "Error updating Purchase. Please try again later.",
             "Error"
           );
         }
       }
     } catch (error) {
       NotificationManager.error(
-        "Error creating Purchase. Please try again later.",
+        "Error updating Purchase. Please try again later.",
         "Error"
       );
-      console.error("Error creating purchase:", error);
+      console.error("Error updating purchase:", error);
     }
   };
 
