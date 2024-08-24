@@ -438,7 +438,6 @@ const DailyItemStatus = () => {
                 Item:
               </InputLabel>
               <TextField
-                select
                 fullWidth
                 size="small"
                 name="itemName"
@@ -446,22 +445,7 @@ const DailyItemStatus = () => {
                 onChange={(e) =>
                   setFilterData({ ...filterData, itemName: e.target.value })
                 }
-                SelectProps={{
-                  MenuProps: {
-                    PaperProps: {
-                      style: {
-                        maxHeight: 200,
-                      },
-                    },
-                  },
-                }}
-              >
-                {allItems?.map((item) => (
-                  <MenuItem key={item._id} value={item.name}>
-                    {item.name}
-                  </MenuItem>
-                ))}
-              </TextField>
+              />
             </div>
           </Grid>
 
@@ -471,29 +455,12 @@ const DailyItemStatus = () => {
                 Brand:
               </InputLabel>
               <TextField
-                select
                 fullWidth
                 size="small"
                 name="brandName"
                 value={filterData.brandName || ""}
                 onChange={handleBrandChange}
-                SelectProps={{
-                  MenuProps: {
-                    PaperProps: {
-                      style: {
-                        maxHeight: 200,
-                      },
-                    },
-                  },
-                }}
-              >
-                <MenuItem value="All Brands">All Brands</MenuItem>
-                {allBrands?.map((brand) => (
-                  <MenuItem key={brand._id} value={brand.name}>
-                    {`${brand.name}`}
-                  </MenuItem>
-                ))}
-              </TextField>
+              />
             </div>
           </Grid>
 

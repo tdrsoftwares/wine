@@ -133,13 +133,13 @@ const SalesDetailsModal = ({ open, handleClose, rowData }) => {
             rows={(itemSalesDetails || [])?.map((item, index) => ({
               id: index,
               sNo: index + 1,
-              itemCode: item.itemDetailsId?.itemCode || "No Data",
-              batchNo: item.itemDetailsId?.batchNo || 0,
+              itemCode: item.itemCode || "No Data",
+              batchNo: item.batchNo || 0,
               break: item.break || 0,
               split: item.split || 0,
-              mrp: item.mrp?.toFixed(2) || item.itemDetailsId?.mrp?.toFixed(2) || 0,
+              mrp: item.mrp?.toFixed(2) || item.mrp?.toFixed(2) || 0,
               pcs: item.pcs || 0,
-              rate: item.rate?.toFixed(2) || item.itemDetailsId?.saleRate?.toFixed(2) || 0,
+              rate: item.rate?.toFixed(2) || item.saleRate?.toFixed(2) || 0,
               discount: item.discount?.toFixed(2) || 0,
               amount: item.amount?.toFixed(2) || 0,
             }))}

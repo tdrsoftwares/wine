@@ -529,7 +529,7 @@ const ItemTransferReport = () => {
               transferDate: item.transferDate || "No Data",
               transferFrom: item.transferFrom?.name || "No Data",
               transferTo: item.transferTo?.name || "No Data",
-              itemCode: item.stocktransferitems?.itemDetails?.itemCode || "No Data",
+              itemCode: item.stocktransferitems?.itemDetails?.itemCode || item.stocktransferitems?.itemCode || "No Data",
               itemName: item.stocktransferitems?.item?.name || "No Data",
               transferNo: item.transferNo || "No Data",
               brandName:
@@ -537,13 +537,13 @@ const ItemTransferReport = () => {
               categoryName:
                 item.stocktransferitems?.item?.category?.categoryName ||
                 "No Data",
-              batchNo: item.stocktransferitems?.itemDetails?.batchNo || "No Data",
-              caseNo: item.stocktransferitems?.itemDetails?.case || 0,
+              batchNo: item.stocktransferitems?.itemDetails?.batchNo || item.stocktransferitems?.batchNo || "No Data",
+              caseNo: item.stocktransferitems?.itemDetails?.case || item.stocktransferitems?.case || 0,
               pcs: item.stocktransferitems?.pcs || 0,
               volume: item.stocktransferitems?.item?.volume || 0,
               totalVolumeLiters: item.totalVolumeLiters || 0,
               group: item.stocktransferitems?.item?.group || "No Data",
-              mrp: item.stocktransferitems?.itemDetails?.mrp || 0,
+              mrp: item.stocktransferitems?.itemDetails?.mrp || item.stocktransferitems?.mrp || 0,
             }))}
             columns={columns}
             rowCount={totalCount}

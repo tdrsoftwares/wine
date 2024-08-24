@@ -528,12 +528,15 @@ const StockTransfer = () => {
 
           const stockTransferItems = receivedData?.stockTransferItems;
           const newTransferItems = stockTransferItems.map((transfer) => ({
-            itemCode: transfer.itemDetailsId?.itemCode || 0,
+            // itemCode: transfer.itemDetailsId?.itemCode || 0,
+            itemCode: transfer?.itemCode || 0,
             itemDetailsId: transfer?._id,
             itemId: transfer.itemId?._id,
             itemName: transfer.itemId?.name || "",
-            mrp: transfer.itemDetailsId?.mrp || 0,
-            batch: transfer.itemDetailsId?.batchNo || 0,
+            mrp: transfer?.mrp || 0,
+            // mrp: transfer.itemDetailsId?.mrp || 0,
+            batch: transfer?.batchNo || 0,
+            // batch: transfer.itemDetailsId?.batchNo || 0,
             pcs: transfer.pcs || 0,
             case: transfer.case || 0,
             volume: transfer.itemId?.volume || 0,

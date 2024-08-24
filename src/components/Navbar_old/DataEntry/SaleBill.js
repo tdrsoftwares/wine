@@ -1838,12 +1838,16 @@ const SaleBill = () => {
           const salesItems = receivedData?.salesItems;
           salesItems.length > 0 ? setHasItems(true) : setHasItems(false);
           const newSalesItems = salesItems.map((sale) => ({
-            itemCode: sale?.itemDetailsId?.itemCode,
+            // itemCode: sale?.itemDetailsId?.itemCode,
+            itemCode: sale?.itemCode,
+            // itemCode: sale?.itemDetailsId?.itemCode,
             itemDetailsId: sale?._id,
             itemId: sale?.itemId?._id,
             itemName: sale?.itemId?.name,
-            mrp: sale?.itemDetailsId?.mrp,
-            batch: sale?.itemDetailsId?.batchNo,
+            mrp: sale?.mrp,
+            // mrp: sale?.itemDetailsId?.mrp,
+            batch: sale?.batchNo,
+            // batch: sale?.itemDetailsId?.batchNo,
             pcs: sale?.pcs,
             rate: sale?.rate,
             discount: sale?.discount,
@@ -1853,7 +1857,8 @@ const SaleBill = () => {
             volume: sale?.itemId?.volume,
             group: sale?.itemId?.group,
             // stockAt: sale?.stockAt?._id,
-            currentStock: sale?.itemDetailsId?.currentStock,
+            currentStock: sale?.currentStock,
+            // currentStock: sale?.itemDetailsId?.currentStock,
           }));
 
           setSalesData([...newSalesItems]);
