@@ -5,17 +5,14 @@ import {
   Grid,
   InputLabel,
   MenuItem,
-  TablePagination,
   TextField,
   ThemeProvider,
   Typography,
 } from "@mui/material";
-import MuiPagination from "@mui/material/Pagination";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { NotificationManager } from "react-notifications";
-import { getAllBrands } from "../../../services/brandService";
 import { getAllItemCategory } from "../../../services/categoryService";
 import { getAllCustomer } from "../../../services/customerService";
 import {
@@ -23,42 +20,16 @@ import {
   GridFooterContainer,
   GridFooter,
   GridToolbar,
-  gridPageCountSelector,
-  useGridApiContext,
-  useGridSelector,
-  GridPagination,
   useGridApiRef,
 } from "@mui/x-data-grid";
 import { getDailySalesDetails } from "../../../services/saleBillService";
 import dayjs from "dayjs";
-import { getAllItems } from "../../../services/itemService";
 import { customTheme } from "../../../utils/customTheme";
-
-function Pagination({ page, onPageChange, className }) {
-  const apiRef = useGridApiContext();
-  const pageCount = useGridSelector(apiRef, gridPageCountSelector);
-
-  return (
-    <MuiPagination
-      color="primary"
-      className={className}
-      count={pageCount}
-      page={page + 1}
-      onChange={(event, newPage) => {
-        onPageChange(event, newPage - 1);
-      }}
-    />
-  );
-}
-
-function CustomPagination(props) {
-  return <GridPagination ActionsComponent={Pagination} {...props} />;
-}
+import DailySalePrintComponent from "./DailySalePrintComponent";
+import { useReactToPrint } from "react-to-print";
 
 const DailySaleReport = () => {
-  const [allBrands, setAllBrands] = useState([]);
   const [allCategory, setAllCategory] = useState([]);
-  const [allItems, setAllItems] = useState([]);
   const [allCustomerData, setAllCustomerData] = useState([]);
   const [allSalesData, setAllSalesData] = useState([]);
   const [filterData, setFilterData] = useState({
@@ -83,6 +54,11 @@ const DailySaleReport = () => {
   const [totalPcs, setTotalPcs] = useState(0);
 
   const apiRef = useGridApiRef();
+  const printRef = useRef();
+
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+  });
 
   const columns = [
     {
@@ -134,52 +110,14 @@ const DailySaleReport = () => {
     return dayjs(date).format("DD/MM/YYYY");
   };
 
-  const fetchAllBrands = async () => {
-    try {
-      const allBrandsResponse = await getAllBrands();
-      // console.log("allBrandsResponse ---> ", allBrandsResponse);
-      if (allBrandsResponse.status === 200) {
-        setAllBrands(allBrandsResponse?.data?.data);
-      } else {
-        setAllBrands([])
-        NotificationManager.error("No brands found." , "Error");
-      }
-    } catch (error) {
-      NotificationManager.error(
-        "Error fetching brands. Please try again later.",
-        "Error"
-      );
-      console.error("Error fetching brands:", error);
-    }
-  };
-
-  const fetchAllItems = async () => {
-    try {
-      const allItemsResponse = await getAllItems();
-      if (allItemsResponse.status === 200) {
-        setAllItems(allItemsResponse?.data?.data);
-      }
-      else {
-        NotificationManager.error("No items found." , "Error");
-        setAllItems([]);
-
-      }
-    } catch (error) {
-      NotificationManager.error(
-        "Error fetching items. Please try again later.",
-        "Error"
-      );
-    }
-  };
-
   const fetchAllCategory = async () => {
     try {
       const getAllCategoryResponse = await getAllItemCategory();
       if (getAllCategoryResponse.status === 200) {
         setAllCategory(getAllCategoryResponse?.data?.data);
       } else {
-        NotificationManager.error("No category found." , "Error");
-        setAllCategory([])
+        NotificationManager.error("No category found.", "Error");
+        setAllCategory([]);
       }
     } catch (err) {
       NotificationManager.error(
@@ -254,11 +192,9 @@ const DailySaleReport = () => {
   };
 
   useEffect(() => {
-    fetchAllBrands();
     fetchAllCategory();
     fetchAllCustomers();
     fetchAllSales();
-    fetchAllItems();
   }, []);
 
   const debounce = (func, delay) => {
@@ -394,7 +330,7 @@ const DailySaleReport = () => {
                 //   },
                 // }}
               />
-                {/* {allBrands?.map((brand) => (
+              {/* {allBrands?.map((brand) => (
                   <MenuItem key={brand._id} value={brand.name}>
                     {brand.name}
                   </MenuItem>
@@ -524,7 +460,7 @@ const DailySaleReport = () => {
                 //   },
                 // }}
               />
-                {/* {allItems?.map((item) => (
+              {/* {allItems?.map((item) => (
                   <MenuItem key={item._id} value={item.name}>
                     {item.name}
                   </MenuItem>
@@ -556,14 +492,12 @@ const DailySaleReport = () => {
           sx={{
             display: "flex",
             justifyContent: "flex-end",
+            gap: 1,
             "& button": { marginTop: 2 },
           }}
         >
           
-            {/* <Button color="inherit" size="small" variant="contained">
-              Print
-            </Button> */}
-            <Button
+          <Button
             color="inherit"
             size="small"
             variant="contained"
@@ -584,15 +518,24 @@ const DailySaleReport = () => {
           >
             Clear Filters
           </Button>
-            <Button
-              color="info"
-              size="small"
-              variant="contained"
-              onClick={fetchAllSales}
-              sx={{ marginLeft: 2 }}
-            >
-              Display
-            </Button>
+          <Button
+            color="warning"
+            size="small"
+            variant="contained"
+            onClick={handlePrint}
+            // sx={{ marginLeft: 2 }}
+          >
+            Print
+          </Button>
+          <Button
+            color="info"
+            size="small"
+            variant="contained"
+            onClick={fetchAllSales}
+            // sx={{ marginLeft: 2 }}
+          >
+            Display
+          </Button>
         </Box>
 
         <Box
@@ -633,7 +576,6 @@ const DailySaleReport = () => {
             slots={{
               footer: CustomFooter,
               toolbar: GridToolbar,
-              // pagination: CustomPagination,
             }}
             initialState={{
               pagination: {
@@ -647,6 +589,17 @@ const DailySaleReport = () => {
             }}
           />
         </Box>
+
+        <div style={{ display: "none" }}>
+          <DailySalePrintComponent
+            ref={printRef}
+            filterData={filterData}
+            allSalesData={allSalesData}
+            totalAmount={totalAmount}
+            totalPcs={totalPcs}
+            totalVolume={totalVolume}
+          />
+        </div>
       </Box>
     </ThemeProvider>
   );
