@@ -26,11 +26,11 @@ import { getAllStores } from "../../../services/storeService";
 import { getAllItemStatuses } from "../../../services/dailyitemStatusService";
 import CustomItemStatusFooter from "./CustomItemStatusFooter";
 import ReactToPrint, { useReactToPrint } from "react-to-print";
+import DailyItemStatusPrintComponent from "./DailyItemStatusPrintComponent";
 
 const DailyItemStatus = () => {
   const todaysDate = dayjs();
   const [allItemStatusData, setAllItemStatusData] = useState([]);
-  const [allBrands, setAllBrands] = useState([]);
   const [allCategory, setAllCategory] = useState([]);
   const [allStores, setAllStores] = useState([]);
   const [filterData, setFilterData] = useState({
@@ -53,6 +53,12 @@ const DailyItemStatus = () => {
     pageSize: 10,
   });
   const [totalCount, setTotalCount] = useState(0);
+  const [totalOpeningBalance, setTotalOpeningBalance] = useState("");
+  const [totalClosingBalance, setTotalClosingBalance] = useState("");
+  const [totalPurchased, setTotalPurchased] = useState("");
+  const [totalSold, setTotalSold] = useState("");
+  const [totalTransferredFrom, setTotalTransferredFrom] = useState("");
+  const [totalTransferredTo, setTotalTransferredTo] = useState("");
   const printRef = useRef();
 
   const columns = [
@@ -125,45 +131,6 @@ const DailyItemStatus = () => {
     if (!date) return null;
     return dayjs(date).format("DD/MM/YYYY");
   };
-
-  const fetchAllItems = async () => {
-    try {
-      const allItemsResponse = await getAllItems();
-      if (allItemsResponse.status === 200) {
-        setAllItems(allItemsResponse?.data?.data);
-      }
-      else {
-        NotificationManager.error("No items found." , "Error");
-        setAllItems([]);
-
-      }
-    } catch (error) {
-      NotificationManager.error(
-        "Error fetching items. Please try again later.",
-        "Error"
-      );
-    }
-  };
-
-  const fetchAllBrands = async () => {
-    try {
-      const allBrandsResponse = await getAllBrands();
-      // console.log("allBrandsResponse ---> ", allBrandsResponse);
-      if (allBrandsResponse.status === 200) {
-        setAllBrands(allBrandsResponse?.data?.data);
-      } else {
-        setAllBrands([])
-        NotificationManager.error("No brands found." , "Error");
-      }
-    } catch (error) {
-      NotificationManager.error(
-        "Error fetching brands. Please try again later.",
-        "Error"
-      );
-      console.error("Error fetching brands:", error);
-    }
-  };
-  // console.log(allBrands)
 
   const fetchAllCategory = async () => {
     try {
@@ -278,8 +245,6 @@ const DailyItemStatus = () => {
   };
 
   useEffect(() => {
-    fetchAllBrands();
-    fetchAllItems();
     fetchAllCompanies();
     fetchAllCategory();
     fetchAllStores();
@@ -309,6 +274,46 @@ const DailyItemStatus = () => {
     }
   }, [filterData]);
 
+
+  useEffect(() => {
+    const totalOpeningBal = allItemStatusData?.reduce(
+      (sum, row) => sum + row.openingBalance,
+      0
+    );
+    setTotalOpeningBalance(totalOpeningBal);
+
+    const totalPur = allItemStatusData?.reduce(
+      (sum, row) => sum + row.totalPurchased,
+      0
+    );
+    setTotalPurchased(totalPur);
+
+    const totalSolds = allItemStatusData?.reduce(
+      (sum, row) => sum + row.totalSold,
+      0
+    );
+    setTotalSold(totalSolds);
+
+    const totalTransferFrom = allItemStatusData?.reduce(
+      (sum, row) => sum + row.totalTransferredFrom,
+      0
+    );
+    setTotalTransferredFrom(totalTransferFrom);
+
+    const totalTransferTo = allItemStatusData?.reduce(
+      (sum, row) => sum + row.totalTransferredTo,
+      0
+    );
+    setTotalTransferredTo(totalTransferTo);
+
+    const totalClosingBal = allItemStatusData?.reduce(
+      (sum, row) => sum + row.closingBalance,
+      0
+    );
+    setTotalClosingBalance(totalClosingBal);
+  }, [fetchAllItemStatus]);
+
+  
   const handlePrint = useReactToPrint({
     content: () => printRef.current,
   });
@@ -422,7 +427,7 @@ const DailyItemStatus = () => {
                   id="dateTo"
                   format="DD/MM/YYYY"
                   value={filterData.dateTo}
-                  className="date-picker"
+                  className="input-field date-picker"
                   onChange={(newDate) =>
                     setFilterData({ ...filterData, dateTo: newDate })
                   }
@@ -441,6 +446,7 @@ const DailyItemStatus = () => {
                 fullWidth
                 size="small"
                 name="itemName"
+                className="input-field"
                 value={filterData.itemName}
                 onChange={(e) =>
                   setFilterData({ ...filterData, itemName: e.target.value })
@@ -458,6 +464,7 @@ const DailyItemStatus = () => {
                 fullWidth
                 size="small"
                 name="brandName"
+                className="input-field"
                 value={filterData.brandName || ""}
                 onChange={handleBrandChange}
               />
@@ -474,6 +481,7 @@ const DailyItemStatus = () => {
                 fullWidth
                 size="small"
                 name="company"
+                className="input-field"
                 value={filterData.company}
                 onChange={(e) =>
                   setFilterData({ ...filterData, company: e.target.value })
@@ -507,6 +515,7 @@ const DailyItemStatus = () => {
                 fullWidth
                 size="small"
                 name="categoryName"
+                className="input-field"
                 value={filterData.categoryName}
                 SelectProps={{
                   MenuProps: {
@@ -541,6 +550,7 @@ const DailyItemStatus = () => {
                 fullWidth
                 size="small"
                 name="storeName"
+                className="input-field"
                 value={filterData.storeName}
                 onChange={(e) =>
                   setFilterData({ ...filterData, storeName: e.target.value })
@@ -574,6 +584,7 @@ const DailyItemStatus = () => {
                 fullWidth
                 size="small"
                 name="group"
+                className="input-field"
                 value={filterData.group}
                 onChange={(e) =>
                   setFilterData({ ...filterData, group: e.target.value })
@@ -609,6 +620,7 @@ const DailyItemStatus = () => {
           sx={{
             display: "flex",
             justifyContent: "flex-end",
+            gap: 1,
             "& button": { marginTop: 2 },
           }}
         >
@@ -634,21 +646,21 @@ const DailyItemStatus = () => {
           >
             Clear Filters
           </Button>
-          {/* <Button
-              color="primary"
-              size="small"
-              variant="contained"
-              onClick={handleExportCSV}
-              sx={{ marginLeft: 2 }}
-            >
-              Export CSV
-            </Button> */}
+          <Button
+            color="warning"
+            size="small"
+            variant="contained"
+            onClick={handlePrint}
+            // sx={{ marginLeft: 2 }}
+          >
+            Print
+          </Button>
           <Button
             color="info"
             size="small"
             variant="contained"
             onClick={fetchAllItemStatus}
-            sx={{ marginLeft: 2 }}
+            // sx={{ marginLeft: 2 }}
           >
             Display
           </Button>
@@ -688,13 +700,16 @@ const DailyItemStatus = () => {
               toolbar: GridToolbar,
             }}
             slotProps={{
-              // toolbar: {
-              //   printOptions: {
-              //     hideFooter: false,
-              //     hideToolbar: true,
-              //   },
-              // },
-              footer: { allItemStatusData, filterData },
+              footer: {
+                allItemStatusData,
+                filterData,
+                totalOpeningBalance,
+                totalClosingBalance,
+                totalPurchased,
+                totalSold,
+                totalTransferredFrom,
+                totalTransferredTo,
+              },
             }}
             sx={{
               backgroundColor: "#fff",
@@ -702,6 +717,18 @@ const DailyItemStatus = () => {
             }}
           />
         </Box>
+
+        <div style={{ display: "none" }}>
+          <DailyItemStatusPrintComponent
+            ref={printRef}
+            filterData={filterData}
+            allItemStatusData={allItemStatusData}
+            totalOpeningBalance={totalOpeningBalance}
+            totalClosingBalance={totalClosingBalance}
+            totalPurchased={totalPurchased}
+            totalSold={totalSold}
+          />
+        </div>
       </Box>
     </ThemeProvider>
   );
