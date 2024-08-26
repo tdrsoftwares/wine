@@ -43,6 +43,7 @@ const DailySaleReport = () => {
     billNo: "",
     volume: "",
   });
+  console.log(filterData)
   const [loading, setLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     page: 1,
@@ -148,9 +149,7 @@ const DailySaleReport = () => {
   };
 
   const fetchAllSales = async () => {
-    const fromDate = filterData.dateFrom
-      ? formatDate(filterData.dateFrom)
-      : null;
+    const fromDate = filterData.dateFrom ? formatDate(filterData.dateFrom) : null;
     const toDate = filterData.dateTo ? formatDate(filterData.dateTo) : null;
 
     setLoading(true);
@@ -275,9 +274,7 @@ const DailySaleReport = () => {
                   format="DD/MM/YYYY"
                   value={filterData.dateFrom}
                   className="input-field date-picker"
-                  onChange={(newDate) =>
-                    setFilterData({ ...filterData, dateFrom: newDate })
-                  }
+                  onChange={(newDate) => setFilterData({ ...filterData, dateFrom: newDate ? newDate.format('YYYY-MM-DD') : null })}
                   renderInput={(params) => <TextField {...params} />}
                 />
               </LocalizationProvider>
@@ -296,9 +293,8 @@ const DailySaleReport = () => {
                   format="DD/MM/YYYY"
                   value={filterData.dateTo}
                   className="input-field date-picker"
-                  onChange={(newDate) =>
-                    setFilterData({ ...filterData, dateTo: newDate })
-                  }
+                  onChange={(newDate) => setFilterData({ ...filterData, dateTo: newDate ? newDate.format('YYYY-MM-DD') : null })}
+
                   renderInput={(params) => <TextField {...params} />}
                 />
               </LocalizationProvider>

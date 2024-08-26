@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 import { getLicenseInfo } from "../../../services/licenseService";
 import { NotificationManager } from "react-notifications";
 
-const PrintComponent = forwardRef(
+const DailySalePrintComponent = forwardRef(
   ({ filterData, allSalesData, totalAmount, totalPcs, totalVolume }, ref) => {
     const todaysDate = new Date().toLocaleDateString();
 
@@ -61,8 +61,9 @@ const PrintComponent = forwardRef(
     }, []);
 
     return (
+      <div ref={ref}>
       <Box
-        ref={ref}
+        // ref={ref}
         sx={{
           p: 1,
           width: "80mm",
@@ -185,8 +186,9 @@ const PrintComponent = forwardRef(
 
         <Divider sx={{ my: 1 }} />
       </Box>
+      </div>
     );
   }
 );
 
-export default PrintComponent;
+export default DailySalePrintComponent;
