@@ -1,520 +1,264 @@
 import {
   Box,
   Button,
-  Checkbox,
-  FormControlLabel,
+  CircularProgress,
   Grid,
-  MenuItem,
-  Paper,
-  Radio,
-  RadioGroup,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
+  InputLabel,
   TextField,
+  ThemeProvider,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { getDailyProfitDetails } from "../../../services/dailyProfitService";
+import { NotificationManager } from "react-notifications";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { customTheme } from "../../../utils/customTheme";
+import debounce from "lodash/debounce";
 
 const DailyProfitReport = () => {
-  const [selectOptions, setselectOptions] = useState(null);
-
+  const [allProfitData, setAllProfitData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
+  const [paginationModel, setPaginationModel] = useState({
+    page: 1,
+    pageSize: 10,
+  });
   const [filterData, setFilterData] = useState({
-    dateFrom: "mm/dd/yyyy",
-    dateTo: "mm/dd/yyyy",
-    batchNo: "",
-    brandName: "",
-    group: "",
-    customerName: "",
-    userName: "",
-    billNo: "",
-    series: "",
-    phone: "",
-    isDsrByRateChecked: false,
-    isDsrByMrpChecked: false,
+    dateFrom: null,
+    dateTo: null,
   });
 
-  const [tableData, setTableData] = useState([
+  const columns = [
     {
-      sNo: "",
-      items: "",
-      batch: "",
-      mrp: "",
-      btl: "",
-      saleAmt: "",
-      profitAmt: "",
+      field: "sNo",
+      headerName: "S. No.",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
     },
-  ]);
+    {
+      field: "itemName",
+      headerName: "Item Name",
+      flex: 2,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "TotalQuantity",
+      headerName: "Quantity",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "salesAmount",
+      headerName: "Sale Amt.",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "purchaseRate",
+      headerName: "Purchase Rate",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "profit",
+      headerName: "Profit Amt.",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+  ];
 
-  const brandNameOptions = [
-    "100 Pipers",
-    "100 Pipers 12Yr",
-    "8Pm Black",
-    "Absolut",
-    "Absolut Citron",
-    "Absolut Raspberry",
-    "Amrut",
-    "Antiquity Blue",
-    "B Pride",
-  ];
-  const categoryOptions = [
-    "All",
-    "Beer",
-    "Country Sprit",
-    "Foreign Liquor",
-    "India Made Liquor",
-  ];
-  const billFromOptions = [
-    "A0",
-    "A1",
-    "A2",
-    "A3",
-    "A4",
-    "A5",
-    "A6",
-    "A7",
-    "A8",
-  ];
-  const billToOptions = ["A0", "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8"];
-  const items = ["100 Pipers 375", "100 Pipers 12Yr 750", "100 Pipers W180"];
-  const seriesOptions = ["A", "B", "C", "D", "E", "ALL"];
-  const groupOptions = [
-    "All",
-    "Beer",
-    "Country Sprit",
-    "Foreign Liquor",
-    "India Made Liquor",
-  ];
+  const fetchAllProfits = async () => {
+    const filterOptions = {
+      fromDate: filterData.dateFrom,
+      toDate: filterData.dateTo,
+    };
+
+    setLoading(true);
+    try {
+      const response = await getDailyProfitDetails(filterOptions);
+
+      if (response.status === 200) {
+        setAllProfitData(response?.data?.data || []);
+        setTotalCount(response.data.data.length || 0);
+      } else {
+        console.log("Error", response);
+        NotificationManager.error("No records found.", "Error");
+        setAllProfitData([]);
+      }
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching records. Please try again later.",
+        "Error"
+      );
+      console.log("Error fetching records", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllProfits();
+  }, []);
+
+  useEffect(() => {
+    const debouncedFetch = debounce(() => {
+      fetchAllProfits();
+    }, 300);
+
+    debouncedFetch();
+
+    return () => {
+      debouncedFetch.cancel();
+    };
+  }, [filterData]);
 
   return (
-    <form>
+    <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, minWidth: "900px" }}>
-        <Typography variant="h5" component="div" gutterBottom>
+        <Typography variant="h6" sx={{ marginBottom: 2 }}>
           Daily Profit Report
         </Typography>
-        <Typography variant="subtitle2" gutterBottom>
-          Daily Profit Report (Item Total)
-        </Typography>
+        <Typography sx={{ fontSize: "13px" }}>Filter By:</Typography>
 
         <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <RadioGroup
-              row
-              name="selectOptions"
-              aria-labelledby="selectOptions"
-              value={selectOptions}
-              onChange={(e) => setselectOptions(e.target.value)}
-            >
-              <FormControlLabel value="date" control={<Radio />} label="Date" />
-              <FormControlLabel
-                value="brand"
-                control={<Radio />}
-                label="Brand"
-              />
-              <FormControlLabel
-                value="category"
-                control={<Radio />}
-                label="Category"
-              />
-
-              <FormControlLabel value="item" control={<Radio />} label="Item" />
-
-              <FormControlLabel value="type" control={<Radio />} label="Type" />
-
-              <FormControlLabel
-                value="all-brand"
-                control={<Radio />}
-                label="All Brand"
-              />
-
-              <FormControlLabel
-                value="all-category"
-                control={<Radio />}
-                label="All Category"
-              />
-
-              <FormControlLabel
-                value="range"
-                control={<Radio />}
-                label="Range"
-              />
-
-              <FormControlLabel value="user" control={<Radio />} label="User" />
-              <FormControlLabel
-                value="customer"
-                control={<Radio />}
-                label="Customer"
-              />
-
-              
-            </RadioGroup>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="dateFrom" className="input-label">
+                Date from:
+              </InputLabel>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  id="dateFrom"
+                  format="DD/MM/YYYY"
+                  value={filterData.dateFrom}
+                  className="input-field date-picker"
+                  onChange={(newDate) =>
+                    setFilterData({
+                      ...filterData,
+                      dateFrom: newDate ? newDate.format("YYYY/MM/DD") : null,
+                    })
+                  }
+                  renderInput={(params) => <TextField {...params} />}
+                />
+              </LocalizationProvider>
+            </div>
           </Grid>
 
-          <Grid item xs={2}>
-            <TextField
-              fullWidth
-              type="date"
-              label="Date from"
-              name="dateFrom"
-              value={filterData.dateFrom}
-              onChange={(e) =>
-                setFilterData({ ...filterData, dateFrom: e.target.value })
-              }
-            />
-          </Grid>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="dateTo" className="input-label">
+                Date to:
+              </InputLabel>
 
-          <Grid item xs={2}>
-            <TextField
-              fullWidth
-              type="date"
-              label="Date to"
-              name="dateTo"
-              value={filterData.dateTo}
-              onChange={(e) =>
-                setFilterData({ ...filterData, dateTo: e.target.value })
-              }
-            />
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  id="dateTo"
+                  format="DD/MM/YYYY"
+                  value={filterData.dateTo}
+                  className="input-field date-picker"
+                  onChange={(newDate) =>
+                    setFilterData({
+                      ...filterData,
+                      dateTo: newDate ? newDate.format("YYYY/MM/DD") : null,
+                    })
+                  }
+                  renderInput={(params) => <TextField {...params} />}
+                />
+              </LocalizationProvider>
+            </div>
           </Grid>
-
-          <Grid item xs={2}>
-            <TextField
-              select
-              fullWidth
-              name="brandName"
-              label="Brand"
-              variant="outlined"
-              value={filterData.brandName}
-              onChange={(e) =>
-                setFilterData({ ...filterData, brandName: e.target.value })
-              }
-            >
-              {brandNameOptions.map((option, i) => (
-                <MenuItem key={i} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-
-          <Grid item xs={2}>
-            <TextField
-              select
-              fullWidth
-              label="Name of Category"
-              name="categoryName"
-              value={filterData.categoryName}
-              onChange={(e) =>
-                setFilterData({ ...filterData, categoryName: e.target.value })
-              }
-            >
-              {categoryOptions.map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-
-          <Grid item xs={2}>
-            <TextField
-              select
-              fullWidth
-              name="group"
-              label="Select Group"
-              variant="outlined"
-              value={filterData.group}
-              onChange={(e) =>
-                setFilterData({ ...filterData, group: e.target.value })
-              }
-            >
-              {groupOptions?.map((option, i) => (
-                <MenuItem key={i} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-
-          <Grid item xs={2}>
-            <TextField
-              select
-              fullWidth
-              name="Item"
-              label="Item"
-              variant="outlined"
-              className="input-field"
-              value={filterData.item}
-              onChange={(e) =>
-                setFilterData({ ...filterData, item: e.target.value })
-              }
-            >
-              {items.map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-
-          <Grid item xs={2}>
-            <TextField
-              select
-              fullWidth
-              name="billFrom"
-              label="Bill from"
-              variant="outlined"
-              className="input-field"
-              value={filterData.billFrom}
-              onChange={(e) =>
-                setFilterData({ ...filterData, billFrom: e.target.value })
-              }
-            >
-              {billFromOptions.map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-
-          <Grid item xs={2}>
-            <TextField
-              select
-              fullWidth
-              name="billTo"
-              label="Bill to"
-              variant="outlined"
-              className="input-field"
-              value={filterData.billTo}
-              onChange={(e) =>
-                setFilterData({ ...filterData, billTo: e.target.value })
-              }
-            >
-              {billToOptions.map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-
-          <Grid item xs={2}>
-            <TextField
-              select
-              fullWidth
-              name="series"
-              label="Series"
-              variant="outlined"
-              className="input-field"
-              value={filterData.series}
-              onChange={(e) =>
-                setFilterData({ ...filterData, series: e.target.value })
-              }
-            >
-              {seriesOptions.map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-
-          <Grid item xs={2}>
-            <TextField
-              name="billType"
-              select
-              label="Bill Type"
-              variant="outlined"
-              fullWidth
-              className="input-field"
-              value={filterData.billType}
-              onChange={(e) =>
-                setFilterData({ ...filterData, billType: e.target.value })
-              }
-            >
-              {["Cash", "Dealer"].map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-
-          <Grid item xs={2}>
-            <TextField
-              select
-              fullWidth
-              name="customerName"
-              label="Customer Name"
-              variant="outlined"
-              value={filterData.customerName}
-              onChange={(e) =>
-                setFilterData({ ...filterData, customerName: e.target.value })
-              }
-            >
-              {["CASH BILL", "DEALER"].map((option, i) => (
-                <MenuItem key={i} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-
-          <Grid item xs={2}>
-            <TextField
-              select
-              fullWidth
-              name="userName"
-              label="User Name"
-              variant="outlined"
-              className="input-field"
-              value={filterData.userName}
-              onChange={(e) =>
-                setFilterData({ ...filterData, userName: e.target.value })
-              }
-            >
-              {["admin"].map((pack, id) => (
-                <MenuItem key={id} value={pack}>
-                  {pack}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-
         </Grid>
-
-        <TableContainer
-          component={Paper}
-          sx={{ marginTop: 4, maxHeight: 300, overflowY: "auto" }}
-        >
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>S. No.</TableCell>
-                <TableCell>Items</TableCell>
-                <TableCell>Batch</TableCell>
-                <TableCell>MRP</TableCell>
-                <TableCell>Btl.</TableCell>
-                <TableCell>Sale Amt.</TableCell>
-                <TableCell>Profit Amt.</TableCell>
-              </TableRow>
-            </TableHead>
-
-            <TableBody>
-              {tableData.map((row, index) => (
-                <TableRow key={index}>
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={index + 1}
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.items}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.batch}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.mrp || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.btl || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.saleAmt || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.profitAmt || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-
         <Box
           sx={{
             display: "flex",
             justifyContent: "flex-end",
-            marginTop: 2,
+            gap: 1,
+            "& button": { marginTop: 2 },
           }}
         >
           <Button
-            color="primary"
-            size="large"
-            variant="outlined"
-            onClick={() => {}}
-            sx={{ marginTop: 2, marginRight: 2 }}
+            color="inherit"
+            size="small"
+            variant="contained"
+            onClick={() => {
+              setFilterData({
+                dateFrom: null,
+                dateTo: null,
+              });
+              setPaginationModel({ page: 1, pageSize: 10 });
+            }}
           >
-            Display
+            Clear Filters
           </Button>
           <Button
-            color="secondary"
-            size="large"
-            variant="outlined"
+            color="warning"
+            size="small"
+            variant="contained"
             onClick={() => {}}
-            sx={{ marginTop: 2, marginRight: 2 }}
           >
             Print
           </Button>
           <Button
-            color="error"
-            size="large"
-            variant="outlined"
-            onClick={() => {}}
-            sx={{ marginTop: 2 }}
+            color="info"
+            size="small"
+            variant="contained"
+            onClick={fetchAllProfits}
           >
-            Clear
+            Display
           </Button>
         </Box>
+
+        <Box
+          sx={{
+            height: 450,
+            width: "100%",
+            marginTop: 2,
+            "& .custom-header": { backgroundColor: "#dae4ed", paddingLeft: 4 },
+            "& .custom-cell": { paddingLeft: 4 },
+          }}
+        >
+          <DataGrid
+            rows={(allProfitData || [])?.map((item, index) => ({
+              id: index,
+              sNo: index + 1,
+              itemName: item.itemName || "No Data",
+              TotalQuantity: item.TotalQuantity || 0,
+              salesAmount: item.salesAmount || 0,
+              purchaseRate: item.purchaseRate || 0,
+              profit: item.profit || 0,
+            }))}
+            columns={columns}
+            rowCount={totalCount}
+            pagination
+            paginationModel={paginationModel}
+            pageSizeOptions={[10, 25, 50, 100]}
+            onPaginationModelChange={setPaginationModel}
+            sx={{ backgroundColor: "#fff" }}
+            disableRowSelectionOnClick
+            loading={loading}
+            loadingOverlay={
+              <Box>
+                <CircularProgress />
+              </Box>
+            }
+            slots={{
+              toolbar: GridToolbar,
+            }}
+            initialState={{
+              density: "compact",
+            }}
+          />
+        </Box>
       </Box>
-      {/* <Box sx={{ p: 2, marginTop: 2 }}>
-        <Typography variant="subtitle2" gutterBottom>
-          Bill No. Details
-        </Typography>
-      </Box> */}
-    </form>
+    </ThemeProvider>
   );
 };
 

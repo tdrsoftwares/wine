@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import dayjs from "dayjs";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { customTheme } from "../../utils/customTheme";
 import { getAllItemCategory } from "../../services/categoryService";
 import { NotificationManager } from "react-notifications";
@@ -24,6 +24,8 @@ import {
   GridToolbar,
 } from "@mui/x-data-grid";
 import { getCateLedgerPackDetails } from "../../services/cateLedgerPackService";
+import { useReactToPrint } from "react-to-print";
+import CatLedgerPackPrintComponent from "./CatLedgerPackPrintComponent";
 
 const CatLedgerPack = () => {
   const [categoryName, setCategoryName] = useState("");
@@ -45,6 +47,12 @@ const CatLedgerPack = () => {
   const [totalOpeningBal, setTotalOpeningBal] = useState(0);
   const [totalClosingBal, setTotalClosingBal] = useState(0);
 
+  const printRef = useRef();
+
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+  });
+
   const CustomFooter = () => {
     return (
       <GridFooterContainer>
@@ -56,11 +64,11 @@ const CatLedgerPack = () => {
             // margin: "0 20px",
           }}
         >
-          <span>Total Volume: {totalVolume.toFixed(0)}</span>
-          <span>Total Opening Bal: {totalOpeningBal.toFixed(0)}</span>
-          <span>Total Purchase: {totalPur.toFixed(0)}</span>
-          <span>Total Sales: {totalSales.toFixed(0)}</span>
-          <span>Total Closing Bal: {totalClosingBal.toFixed(0)}</span>
+          <span>Total Volume: {totalVolume}</span>
+          <span>Total Opening Bal: {totalOpeningBal}</span>
+          <span>Total Purchase: {totalPur}</span>
+          <span>Total Sales: {totalSales}</span>
+          <span>Total Closing Bal: {totalClosingBal}</span>
         </div>
         <GridFooter />
       </GridFooterContainer>
@@ -78,19 +86,19 @@ const CatLedgerPack = () => {
       let totalClosingBal = 0;
 
       data.forEach((item) => {
-        totalPur += item.purchases || 0;
-        totalVolume += item.volume || 0;
-        totalOpeningBal += item.openingBalance || 0;
-        totalSales += item.sales || 0;
-        totalClosingBal += item.closingBalance || 0;
+        totalPur += parseFloat(item.purchases) || 0;
+        totalVolume += parseFloat(item.volume) || 0;
+        totalOpeningBal += parseFloat(item.openingBalance) || 0;
+        totalSales += parseFloat(item.sales) || 0;
+        totalClosingBal += parseFloat(item.closingBalance) || 0;
       });
 
       return {
-        totalPur,
-        totalVolume,
-        totalOpeningBal,
-        totalSales,
-        totalClosingBal,
+        totalPur: blOnly ? totalPur?.toFixed(3) : totalPur,
+        totalVolume: blOnly ? totalVolume?.toFixed(3) : totalVolume,
+        totalOpeningBal: blOnly ? totalOpeningBal?.toFixed(3) : totalOpeningBal,
+        totalSales: blOnly ? totalSales?.toFixed(3) : totalSales,
+        totalClosingBal: blOnly ? totalClosingBal?.toFixed(3) : totalClosingBal,
       };
     };
 
@@ -107,8 +115,9 @@ const CatLedgerPack = () => {
     setTotalOpeningBal(totalOpeningBal);
     setTotalSales(totalSales);
     setTotalClosingBal(totalClosingBal);
-  }, [allRowData]);
+  }, [allRowData, blOnly]);
 
+  console.log("allRowData: ", allRowData);
   const formatDate = (date) => {
     if (!date) return null;
     return dayjs(date).format("DD/MM/YYYY");
@@ -144,7 +153,6 @@ const CatLedgerPack = () => {
         bl: blOnly,
       };
       const response = await getCateLedgerPackDetails(filterOptions);
-      // console.log("Response: ", response);
 
       if (response.status === 200) {
         const rowData = response.data.data.reduce((acc, category, index) => {
@@ -158,15 +166,25 @@ const CatLedgerPack = () => {
 
           // category rows
           volumes.forEach((volume, volIndex) => {
+            const formattedVolume = {
+              openingBalance: blOnly
+                ? volume.openingBalance?.toFixed(3)
+                : volume.openingBalance,
+              purchases: blOnly
+                ? volume.purchases?.toFixed(3)
+                : volume.purchases,
+              sales: blOnly ? volume.sales?.toFixed(3) : volume.sales,
+              closingBalance: blOnly
+                ? volume.closingBalance?.toFixed(3)
+                : volume.closingBalance,
+            };
+
             acc.push({
               id: `${index}-${volIndex}`,
               sNo: acc.length + 1,
               categoryName: volIndex === 0 ? categoryName : "",
               volume: volume.volume,
-              openingBalance: volume.openingBalance,
-              purchases: volume.purchases,
-              sales: volume.sales,
-              closingBalance: volume.closingBalance,
+              ...formattedVolume,
             });
 
             // totals
@@ -182,10 +200,18 @@ const CatLedgerPack = () => {
             sNo: "",
             categoryName: `${categoryName} Total`,
             volume: "",
-            openingBalance: categoryTotal.openingBalance,
-            purchases: categoryTotal.purchases,
-            sales: categoryTotal.sales,
-            closingBalance: categoryTotal.closingBalance,
+            openingBalance: blOnly
+              ? categoryTotal.openingBalance?.toFixed(3)
+              : categoryTotal.openingBalance,
+            purchases: blOnly
+              ? categoryTotal.purchases?.toFixed(3)
+              : categoryTotal.purchases,
+            sales: blOnly
+              ? categoryTotal.sales?.toFixed(3)
+              : categoryTotal.sales,
+            closingBalance: blOnly
+              ? categoryTotal.closingBalance?.toFixed(3)
+              : categoryTotal.closingBalance,
             isTotalRow: true,
           });
 
@@ -355,7 +381,9 @@ const CatLedgerPack = () => {
                   format="DD/MM/YYYY"
                   value={dateFrom}
                   className="input-field date-picker"
-                  onChange={(newDate) => setDateFrom(newDate)}
+                  onChange={(newDate) =>
+                    setDateFrom(newDate ? newDate.format("YYYY-MM-DD") : null)
+                  }
                   renderInput={(params) => <TextField {...params} />}
                 />
               </LocalizationProvider>
@@ -399,6 +427,7 @@ const CatLedgerPack = () => {
           sx={{
             display: "flex",
             justifyContent: "flex-end",
+            gap: 1,
             "& button": { marginTop: 2 },
           }}
         >
@@ -416,11 +445,18 @@ const CatLedgerPack = () => {
             Clear Filters
           </Button>
           <Button
+            color="warning"
+            size="small"
+            variant="contained"
+            onClick={handlePrint}
+          >
+            Print
+          </Button>
+          <Button
             color="info"
             size="small"
             variant="contained"
             onClick={fetchAllCateLedger}
-            sx={{ marginLeft: 2 }}
           >
             Display
           </Button>
@@ -456,6 +492,19 @@ const CatLedgerPack = () => {
             }}
           />
         </Box>
+
+        <CatLedgerPackPrintComponent
+          ref={printRef}
+          dateFrom={dateFrom}
+          dateTo={dateTo}
+          blOnly={blOnly}
+          allRowData={allRowData}
+          totalPur={totalPur}
+          totalVolume={totalVolume}
+          totalOpeningBal={totalOpeningBal}
+          totalSales={totalSales}
+          totalClosingBal={totalClosingBal}
+        />
       </Box>
     </ThemeProvider>
   );
