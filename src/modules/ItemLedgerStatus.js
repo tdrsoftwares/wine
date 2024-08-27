@@ -25,7 +25,8 @@ import { getAllStores } from "../services/storeService";
 import { getAllItemLedgerStatuses } from "../services/itemLedgerStatusService";
 import CustomItemLedgerStatusFooter from "./CustomItemLedgerFooter";
 import { customTheme } from "../utils/customTheme";
-
+import debounce from "lodash.debounce";
+import ItemLedgerStatusPrintComponent from "./ItemLedgerStatusPrintComponent";
 
 const ItemLedgerStatus = () => {
   const todaysDate = dayjs();
@@ -53,6 +54,13 @@ const ItemLedgerStatus = () => {
     pageSize: 10,
   });
   const [totalCount, setTotalCount] = useState(0);
+  const [totalOpeningBalance, setTotalOpeningBalance] = useState(0);
+  const [totalClosingBalance, setTotalClosingBalance] = useState(0);
+  const [totalPurchased, setTotalPurchased] = useState(0);
+  const [totalSold, setTotalSold] = useState(0);
+  const [totalTransferredFrom, setTotalTransferredFrom] = useState(0);
+  const [totalTransferredTo, setTotalTransferredTo] = useState(0);
+
   const printRef = useRef();
 
   const columns = [
@@ -131,11 +139,9 @@ const ItemLedgerStatus = () => {
       const allItemsResponse = await getAllItems();
       if (allItemsResponse.status === 200) {
         setAllItems(allItemsResponse?.data?.data);
-      }
-      else {
-        NotificationManager.error("No items found." , "Error");
+      } else {
+        NotificationManager.error("No items found.", "Error");
         setAllItems([]);
-
       }
     } catch (error) {
       NotificationManager.error(
@@ -152,8 +158,8 @@ const ItemLedgerStatus = () => {
       if (allBrandsResponse.status === 200) {
         setAllBrands(allBrandsResponse?.data?.data);
       } else {
-        setAllBrands([])
-        NotificationManager.error("No brands found." , "Error");
+        setAllBrands([]);
+        NotificationManager.error("No brands found.", "Error");
       }
     } catch (error) {
       NotificationManager.error(
@@ -171,8 +177,8 @@ const ItemLedgerStatus = () => {
       if (getAllCategoryResponse.status === 200) {
         setAllCategory(getAllCategoryResponse?.data?.data);
       } else {
-        NotificationManager.error("No category found." , "Error");
-        setAllCategory([])
+        NotificationManager.error("No category found.", "Error");
+        setAllCategory([]);
       }
     } catch (err) {
       NotificationManager.error(
@@ -189,9 +195,8 @@ const ItemLedgerStatus = () => {
       if (allCompaniesResponse.status === 200) {
         setAllCompanies(allCompaniesResponse?.data?.data);
       } else {
-        NotificationManager.error("No companies found." , "Error");
+        NotificationManager.error("No companies found.", "Error");
         setAllCompanies([]);
-
       }
     } catch (error) {
       NotificationManager.error(
@@ -206,7 +211,7 @@ const ItemLedgerStatus = () => {
     try {
       const allStoresResponse = await getAllStores();
       // console.log("allStore response: ", allStoresResponse)
-      
+
       if (allStoresResponse.status === 200) {
         setAllStores(allStoresResponse?.data?.data);
       } else {
@@ -292,22 +297,16 @@ const ItemLedgerStatus = () => {
     setFilterData({ ...filterData, brandName: selectedBrand });
   };
 
-  const debounce = (func, delay) => {
-    let timeout;
-    return (...args) => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        func(...args);
-      }, delay);
-    };
-  };
-
   useEffect(() => {
     const debouncedFetch = debounce(fetchAllItemLedgerStatus, 300);
     // console.log("debounce effect runs...");
     if (filterData.storeName) {
       debouncedFetch();
     }
+
+    return () => {
+      debouncedFetch.cancel();
+    };
   }, [filterData]);
 
   const handlePrint = useReactToPrint({
@@ -401,6 +400,44 @@ const ItemLedgerStatus = () => {
 
   const rows = flattenItemStatusData(allItemStatusData);
 
+  useEffect(() => {
+    const totalOpeningBal = allItemStatusData?.reduce(
+      (sum, row) => sum + row.openingBalance,
+      0
+    );
+    setTotalOpeningBalance(totalOpeningBal);
+
+    const totalPur = allItemStatusData?.reduce(
+      (sum, row) => sum + row.totalPurchased,
+      0
+    );
+    setTotalPurchased(totalPur);
+
+    const totalSales = allItemStatusData?.reduce(
+      (sum, row) => sum + row.totalSold,
+      0
+    );
+    setTotalSold(totalSales);
+
+    const totalTransferFrom = allItemStatusData?.reduce(
+      (sum, row) => sum + row.totalTransferredFrom,
+      0
+    );
+    setTotalTransferredFrom(totalTransferFrom);
+
+    const totalTransferTo = allItemStatusData?.reduce(
+      (sum, row) => sum + row.totalTransferredTo,
+      0
+    );
+    setTotalTransferredTo(totalTransferTo);
+
+    const totalClosingBal = allItemStatusData?.reduce(
+      (sum, row) => sum + row.closingBalance,
+      0
+    );
+    setTotalClosingBalance(totalClosingBal);
+  }, [rows, filterData]);
+
   return (
     <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, minWidth: "900px" }}>
@@ -423,7 +460,7 @@ const ItemLedgerStatus = () => {
                   id="dateFrom"
                   format="DD/MM/YYYY"
                   value={filterData.dateFrom}
-                  className="date-picker"
+                  className="input-field date-picker"
                   onChange={(newDate) =>
                     setFilterData({ ...filterData, dateFrom: newDate })
                   }
@@ -444,7 +481,7 @@ const ItemLedgerStatus = () => {
                   id="dateTo"
                   format="DD/MM/YYYY"
                   value={filterData.dateTo}
-                  className="date-picker"
+                  className="input-field date-picker"
                   onChange={(newDate) =>
                     setFilterData({ ...filterData, dateTo: newDate })
                   }
@@ -464,6 +501,7 @@ const ItemLedgerStatus = () => {
                 fullWidth
                 size="small"
                 name="itemName"
+                className="input-field"
                 value={filterData.itemName}
                 onChange={(e) =>
                   setFilterData({ ...filterData, itemName: e.target.value })
@@ -497,6 +535,7 @@ const ItemLedgerStatus = () => {
                 fullWidth
                 size="small"
                 name="brandName"
+                className="input-field"
                 value={filterData.brandName || ""}
                 onChange={handleBrandChange}
                 SelectProps={{
@@ -529,6 +568,7 @@ const ItemLedgerStatus = () => {
                 fullWidth
                 size="small"
                 name="company"
+                className="input-field"
                 value={filterData.company}
                 onChange={(e) =>
                   setFilterData({ ...filterData, company: e.target.value })
@@ -562,6 +602,7 @@ const ItemLedgerStatus = () => {
                 fullWidth
                 size="small"
                 name="categoryName"
+                className="input-field"
                 value={filterData.categoryName}
                 SelectProps={{
                   MenuProps: {
@@ -599,6 +640,7 @@ const ItemLedgerStatus = () => {
                 fullWidth
                 size="small"
                 name="storeName"
+                className="input-field"
                 value={filterData.storeName}
                 onChange={(e) =>
                   setFilterData({ ...filterData, storeName: e.target.value })
@@ -632,6 +674,7 @@ const ItemLedgerStatus = () => {
                 fullWidth
                 size="small"
                 name="group"
+                className="input-field"
                 value={filterData.group}
                 onChange={(e) =>
                   setFilterData({ ...filterData, group: e.target.value })
@@ -670,7 +713,8 @@ const ItemLedgerStatus = () => {
                 display: "flex",
                 justifyContent: "flex-end",
                 alignItems: "center",
-                //   "& button": { marginTop: 2 },
+                gap: 1,
+                "& button": { marginTop: 2 },
               }}
             >
               <Button
@@ -696,21 +740,19 @@ const ItemLedgerStatus = () => {
                 Clear Filters
               </Button>
 
-              {/* <Button
-                color="primary"
+              <Button
+                color="warning"
                 size="small"
                 variant="contained"
-                onClick={handleExportCSV}
-                sx={{ marginLeft: 2 }}
+                onClick={handlePrint}
               >
-                Export CSV
-              </Button> */}
+                Print
+              </Button>
               <Button
                 color="info"
                 size="small"
                 variant="contained"
                 onClick={fetchAllItemLedgerStatus}
-                sx={{ marginLeft: 2 }}
               >
                 Display
               </Button>
@@ -754,17 +796,18 @@ const ItemLedgerStatus = () => {
               footer: CustomItemLedgerStatusFooter,
               toolbar: GridToolbar,
             }}
-            slotProps={
-              {
-                // toolbar: {
-                //   printOptions: {
-                //     hideFooter: false,
-                //     hideToolbar: true,
-                //   },
-                // },
-                footer: { allItemStatusData },
-              }
-            }
+            slotProps={{
+              footer: {
+                allItemStatusData,
+                filterData,
+                totalOpeningBalance,
+                totalClosingBalance,
+                totalPurchased,
+                totalSold,
+                totalTransferredFrom,
+                totalTransferredTo,
+              },
+            }}
             sx={{
               backgroundColor: "#fff",
               fontSize: "12px",
@@ -772,6 +815,18 @@ const ItemLedgerStatus = () => {
           />
         </Box>
       </Box>
+
+      <ItemLedgerStatusPrintComponent
+        ref={printRef}
+        filterData={filterData}
+        allRowData={rows}
+        totalOpeningBalance={totalOpeningBalance}
+        totalClosingBalance={totalClosingBalance}
+        totalPurchased={totalPurchased}
+        totalSold={totalSold}
+        totalTransferredFrom={totalTransferredFrom}
+        totalTransferredTo={totalTransferredTo}
+      />
     </ThemeProvider>
   );
 };
