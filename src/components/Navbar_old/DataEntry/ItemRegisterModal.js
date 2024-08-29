@@ -12,15 +12,27 @@ import {
 } from "@mui/material";
 import { NotificationManager } from "react-notifications";
 import { createItem, getAllItems } from "../../../services/itemService";
-import { createItemCategory, getAllItemCategory } from "../../../services/categoryService";
+import {
+  createItemCategory,
+  getAllItemCategory,
+} from "../../../services/categoryService";
 import { createBrand, getAllBrands } from "../../../services/brandService";
-import { createCompany, getAllCompanies } from "../../../services/companyService";
+import {
+  createCompany,
+  getAllCompanies,
+} from "../../../services/companyService";
 import CreateCompanyModal from "./CreateCompanyModal";
 import CreateBrandModal from "./CreateBrandModal";
 import CategoryModal from "./CategoryModal";
 
-const ItemRegisterModal = ({ isModalOpen, setIsModalOpen, itemName, setItemName }) => {
-  
+const ItemRegisterModal = ({
+  isModalOpen,
+  setIsModalOpen,
+  itemName,
+  setItemName,
+  formData,
+  setFormData,
+}) => {
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [allCategory, setAllCategory] = useState([]);
@@ -33,6 +45,7 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen, itemName, setItemName 
   const [group, setGroup] = useState("");
   const [caseValue, setCaseValue] = useState("");
   const [allItems, setAllItems] = useState([]);
+  // const [itemName, setItemName] = useState("");
 
   const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
   const [isBrandModalOpen, setIsBrandModalOpen] = useState(false);
@@ -104,7 +117,9 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen, itemName, setItemName 
         NotificationManager.success("Item created successfully", "Success");
         clearForm();
         fetchAllItems();
-        setIsModalOpen(false)
+        setFormData({ ...formData, itemName: "" });
+        setItemName("");
+        setIsModalOpen(false);
       } else {
         NotificationManager.error(
           "Error creating item. Please try again later.",
@@ -124,11 +139,9 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen, itemName, setItemName 
       const allItemsResponse = await getAllItems();
       if (allItemsResponse.status === 200) {
         setAllItems(allItemsResponse?.data?.data);
-      }
-      else {
-        NotificationManager.error("No items found." , "Error");
+      } else {
+        NotificationManager.error("No items found.", "Error");
         setAllItems([]);
-
       }
     } catch (error) {
       NotificationManager.error(
@@ -144,8 +157,8 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen, itemName, setItemName 
       if (getAllCategoryResponse.status === 200) {
         setAllCategory(getAllCategoryResponse?.data?.data);
       } else {
-        NotificationManager.error("No category found." , "Error");
-        setAllCategory([])
+        NotificationManager.error("No category found.", "Error");
+        setAllCategory([]);
       }
     } catch (err) {
       NotificationManager.error(
@@ -162,8 +175,8 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen, itemName, setItemName 
       if (allBrandsResponse.status === 200) {
         setAllBrands(allBrandsResponse?.data?.data);
       } else {
-        setAllBrands([])
-        NotificationManager.error("No brands found." , "Error");
+        setAllBrands([]);
+        NotificationManager.error("No brands found.", "Error");
       }
     } catch (error) {
       NotificationManager.error(
@@ -181,9 +194,8 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen, itemName, setItemName 
       if (allCompaniesResponse.status === 200) {
         setAllCompanies(allCompaniesResponse?.data?.data);
       } else {
-        NotificationManager.error("No companies found." , "Error");
+        NotificationManager.error("No companies found.", "Error");
         setAllCompanies([]);
-
       }
     } catch (error) {
       NotificationManager.error(
@@ -193,7 +205,6 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen, itemName, setItemName 
       console.error("Error fetching companies:", error);
     }
   };
-
 
   const handleCreateCompany = async () => {
     // console.log("Creating company:", { companyName, companyType });
@@ -209,7 +220,7 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen, itemName, setItemName 
         setCompanyName("");
         setCompanyType("");
         fetchAllCompanies();
-        setIsCompanyModalOpen(false)
+        setIsCompanyModalOpen(false);
       } else {
         NotificationManager.error(
           "Error creating company. Please try again later.",
@@ -225,7 +236,6 @@ const ItemRegisterModal = ({ isModalOpen, setIsModalOpen, itemName, setItemName 
       console.error("Error creating company:", error);
     }
   };
-  
 
   const handleCreateBrand = async () => {
     // Logic to create brand

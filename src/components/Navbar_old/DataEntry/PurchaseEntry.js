@@ -479,8 +479,8 @@ const PurchaseEntry = () => {
       } else {
         
         setSearchResults([]);
-        setIsModalOpen(true);
         setItemName(item);
+        setIsModalOpen(true);
       }
       setIsLoading(false);
     } catch (error) {
@@ -2475,6 +2475,8 @@ const PurchaseEntry = () => {
             setIsModalOpen={setIsModalOpen}
             itemName={itemName}
             setItemName={setItemName}
+            formData={formData}
+            setFormData={setFormData}
           />
           <Button
             ref={clearButtonRef}
