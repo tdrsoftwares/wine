@@ -75,10 +75,10 @@ const LedgerCreation = ({ sidebarVisible }) => {
       setAllLedgers(allLedgerResponse?.data?.data);
       setLoading(false);
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching companies. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching companies. Please try again later.",
+      //   "Error"
+      // );
       console.error("Error fetching companies:", error);
       setLoading(false);
     }

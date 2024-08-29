@@ -138,14 +138,14 @@ const DailyItemStatus = () => {
       if (getAllCategoryResponse.status === 200) {
         setAllCategory(getAllCategoryResponse?.data?.data);
       } else {
-        NotificationManager.error("No category found." , "Error");
+        // NotificationManager.error("No category found." , "Error");
         setAllCategory([])
       }
     } catch (err) {
-      NotificationManager.error(
-        "Something went Wrong, Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Something went Wrong, Please try again later.",
+      //   "Error"
+      // );
     }
   };
 
@@ -156,15 +156,15 @@ const DailyItemStatus = () => {
       if (allCompaniesResponse.status === 200) {
         setAllCompanies(allCompaniesResponse?.data?.data);
       } else {
-        NotificationManager.error("No companies found." , "Error");
+        // NotificationManager.error("No companies found." , "Error");
         setAllCompanies([]);
 
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching companies. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching companies. Please try again later.",
+      //   "Error"
+      // );
       console.error("Error fetching companies:", error);
     }
   };
@@ -177,14 +177,14 @@ const DailyItemStatus = () => {
       if (allStoresResponse.status === 200) {
         setAllStores(allStoresResponse?.data?.data);
       } else {
-        NotificationManager.error("No stores found", "Error");
+        // NotificationManager.error("No stores found", "Error");
         setAllStores([]);
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching stores. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching stores. Please try again later.",
+      //   "Error"
+      // );
       console.error("Error fetching stores:", error);
     }
   };
@@ -230,14 +230,14 @@ const DailyItemStatus = () => {
         setTotalCount(itemStatusData?.length || 0);
       } else {
         // console.log("Error", response);
-        NotificationManager.error("No items found.", "Error");
+        // NotificationManager.error("No items found.", "Error");
         setAllItemStatusData([]);
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching items. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching items. Please try again later.",
+      //   "Error"
+      // );
       console.log("Error fetching items", error);
     } finally {
       setLoading(false);

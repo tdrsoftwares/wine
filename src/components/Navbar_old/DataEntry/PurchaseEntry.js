@@ -419,14 +419,16 @@ const PurchaseEntry = () => {
         setAllSuppliers(response?.data?.data);
       } else {
         setAllSuppliers([])
-        NotificationManager.error("No suppliers found.", "Error")
+        // NotificationManager.error("No suppliers found.", "Error")
+        console.log("No suppliers found.", "Error")
       }
       
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching suppliers. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching suppliers. Please try again later.",
+      //   "Error"
+      // );
+      console.error("No suppliers found.", "Error")
     }
   };
 
@@ -437,14 +439,16 @@ const PurchaseEntry = () => {
       if (response.status === 200) {
         setAllEntries(response?.data?.data);
       } else {
-        NotificationManager.error("No entry no. found", "Error");
+        // NotificationManager.error("No entry no. found", "Error");
+        console.log("No entry no. found.", "Error")
         setAllEntries([]);
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching transfers. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching transfers. Please try again later.",
+      //   "Error"
+      // );
+      console.error("No entry no. found.", "Error");
     }
   };
 
@@ -456,14 +460,15 @@ const PurchaseEntry = () => {
       if (allStoresResponse.status === 200) {
         setAllStores(allStoresResponse?.data?.data);
       } else {
-        NotificationManager.error("No stores found", "Error");
+        // NotificationManager.error("No stores found", "Error");
+        console.log("No suppliers found.", "Error")
         setAllStores([]);
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching stores. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching stores. Please try again later.",
+      //   "Error"
+      // );
       console.error("Error fetching stores:", error);
     }
   };
@@ -2477,7 +2482,7 @@ const PurchaseEntry = () => {
             setItemName={setItemName}
             formData={formData}
             setFormData={setFormData}
-          />
+          /> 
           <Button
             ref={clearButtonRef}
             color="inherit"

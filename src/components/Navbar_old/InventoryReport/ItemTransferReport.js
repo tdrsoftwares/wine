@@ -197,14 +197,14 @@ const ItemTransferReport = () => {
         setTotalCount(itemsData?.length || 0);
       } else {
         console.log("Error", response);
-        NotificationManager.error("No transfers found.", "Error");
+        // NotificationManager.error("No transfers found.", "Error");
         setAllTransfers([]);
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching purchases. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching purchases. Please try again later.",
+      //   "Error"
+      // );
       console.log("Error fetching purchases", error);
     } finally {
       setLoading(false);
@@ -219,14 +219,14 @@ const ItemTransferReport = () => {
       if (allStoresResponse.status === 200) {
         setAllStores(allStoresResponse?.data?.data);
       } else {
-        NotificationManager.error("No stores found", "Error");
+        // NotificationManager.error("No stores found", "Error");
         setAllStores([]);
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching stores. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching stores. Please try again later.",
+      //   "Error"
+      // );
       console.error("Error fetching stores:", error);
     }
   };
@@ -237,14 +237,16 @@ const ItemTransferReport = () => {
       if (getAllCategoryResponse.status === 200) {
         setAllCategory(getAllCategoryResponse?.data?.data);
       } else {
-        NotificationManager.error("No category found." , "Error");
+        // NotificationManager.error("No category found." , "Error");
         setAllCategory([])
       }
     } catch (err) {
-      NotificationManager.error(
-        "Something went Wrong, Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Something went Wrong, Please try again later.",
+      //   "Error"
+      // );
+      console.error(err);
+
     }
   };
 

@@ -250,14 +250,14 @@ const ItemWisePurchaseReport = () => {
         setTotalCount(response.data.data.length || 0);
       } else {
         console.log("Error", response);
-        NotificationManager.error("No items found.", "Error");
+        // NotificationManager.error("No items found.", "Error");
         setAllPurchases([]);
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching purchases. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //  "Error fetching purchases. Please try again later.",
+      //   "Error"
+      // ); 
       console.log("Error fetching purchases", error);
     } finally {
       setLoading(false);
@@ -272,14 +272,16 @@ const ItemWisePurchaseReport = () => {
         setAllSuppliers(response?.data?.data);
       } else {
         setAllSuppliers([])
-        NotificationManager.error("No suppliers found.", "Error")
+        // NotificationManager.error("No suppliers found.", "Error")
       }
       
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching suppliers. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching suppliers. Please try again later.",
+      //   "Error"
+      // );
+      console.error("Error fetching suppliers:", error);
+
     }
   };
 
@@ -290,15 +292,17 @@ const ItemWisePurchaseReport = () => {
         setAllItems(allItemsResponse?.data?.data);
       }
       else {
-        NotificationManager.error("No items found." , "Error");
+        // NotificationManager.error("No items found." , "Error");
         setAllItems([]);
 
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching items. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching items. Please try again later.",
+      //   "Error"
+      // );
+      console.error(error);
+      
     }
   };
 
@@ -308,14 +312,16 @@ const ItemWisePurchaseReport = () => {
       if (getAllCategoryResponse.status === 200) {
         setAllCategory(getAllCategoryResponse?.data?.data);
       } else {
-        NotificationManager.error("No category found." , "Error");
+        // NotificationManager.error("No category found." , "Error");
         setAllCategory([])
       }
     } catch (err) {
-      NotificationManager.error(
-        "Something went Wrong, Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Something went Wrong, Please try again later.",
+      //   "Error"
+      // );
+      console.error(err);
+
     }
   };
 
@@ -327,13 +333,13 @@ const ItemWisePurchaseReport = () => {
         setAllBrands(allBrandsResponse?.data?.data);
       } else {
         setAllBrands([])
-        NotificationManager.error("No brands found." , "Error");
+        // NotificationManager.error("No brands found." , "Error");
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching brands. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching brands. Please try again later.",
+      //   "Error"
+      // );
       console.error("Error fetching brands:", error);
     }
   };

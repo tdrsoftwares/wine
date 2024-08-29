@@ -140,14 +140,14 @@ const ItemRegisterModal = ({
       if (allItemsResponse.status === 200) {
         setAllItems(allItemsResponse?.data?.data);
       } else {
-        NotificationManager.error("No items found.", "Error");
+        // NotificationManager.error("No items found.", "Error");
         setAllItems([]);
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching items. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching items. Please try again later.",
+      //   "Error"
+      // );
     }
   };
 
@@ -157,14 +157,15 @@ const ItemRegisterModal = ({
       if (getAllCategoryResponse.status === 200) {
         setAllCategory(getAllCategoryResponse?.data?.data);
       } else {
-        NotificationManager.error("No category found.", "Error");
+        // NotificationManager.error("No category found.", "Error");
         setAllCategory([]);
       }
     } catch (err) {
-      NotificationManager.error(
-        "Something went Wrong, Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Something went Wrong, Please try again later.",
+      //   "Error"
+      // );
+      console.error(err);
     }
   };
 
@@ -176,13 +177,13 @@ const ItemRegisterModal = ({
         setAllBrands(allBrandsResponse?.data?.data);
       } else {
         setAllBrands([]);
-        NotificationManager.error("No brands found.", "Error");
+        // NotificationManager.error("No brands found.", "Error");
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching brands. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching brands. Please try again later.",
+      //   "Error"
+      // );
       console.error("Error fetching brands:", error);
     }
   };
@@ -194,14 +195,14 @@ const ItemRegisterModal = ({
       if (allCompaniesResponse.status === 200) {
         setAllCompanies(allCompaniesResponse?.data?.data);
       } else {
-        NotificationManager.error("No companies found.", "Error");
+        // NotificationManager.error("No companies found.", "Error");
         setAllCompanies([]);
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching companies. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching companies. Please try again later.",
+      //   "Error"
+      // );
       console.error("Error fetching companies:", error);
     }
   };

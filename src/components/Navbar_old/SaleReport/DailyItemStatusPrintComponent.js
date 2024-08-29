@@ -56,13 +56,13 @@ const DailyItemStatusPrintComponent = forwardRef(
 
         if (response?.response?.status === 400) {
           setLicenseDetails([]);
-          NotificationManager.error("No License Data Found", "Error");
+          // NotificationManager.error("No License Data Found", "Error");
         }
       } catch (error) {
-        NotificationManager.error(
-          "Error fetching license. Please try again later.",
-          "Error"
-        );
+        // NotificationManager.error(
+        //   "Error fetching license. Please try again later.",
+        //   "Error"
+        // );
       }
     };
 

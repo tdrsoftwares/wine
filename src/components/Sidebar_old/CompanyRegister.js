@@ -135,15 +135,15 @@ const CompanyRegister = () => {
       if (allCompaniesResponse.status === 200) {
         setAllCompanies(allCompaniesResponse?.data?.data);
       } else {
-        NotificationManager.error("No companies found." , "Error");
+        // NotificationManager.error("No companies found." , "Error");
         setAllCompanies([]);
 
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching companies. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching companies. Please try again later.",
+      //   "Error"
+      // );
       console.error("Error fetching companies:", error);
     }
   };

@@ -201,14 +201,14 @@ const SuppliersRegister = () => {
         setAllSuppliers(response?.data?.data);
       } else {
         setAllSuppliers([])
-        NotificationManager.error("No suppliers found.", "Error")
+        // NotificationManager.error("No suppliers found.", "Error")
       }
       
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching suppliers. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching suppliers. Please try again later.",
+      //   "Error"
+      // );
     }
   };
 

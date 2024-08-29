@@ -166,13 +166,13 @@ const BrandRegister = () => {
         setAllBrands(allBrandsResponse?.data?.data);
       } else {
         setAllBrands([])
-        NotificationManager.error("No brands found." , "Error");
+        // NotificationManager.error("No brands found." , "Error");
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching brands. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching brands. Please try again later.",
+      //   "Error"
+      // );
       console.error("Error fetching brands:", error);
     }
   };
@@ -184,15 +184,15 @@ const BrandRegister = () => {
       if (allCompaniesResponse.status === 200) {
         setAllCompanies(allCompaniesResponse?.data?.data);
       } else {
-        NotificationManager.error("No companies found." , "Error");
+        // NotificationManager.error("No companies found." , "Error");
         setAllCompanies([]);
 
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching companies. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching companies. Please try again later.",
+      //   "Error"
+      // );
       console.error("Error fetching companies:", error);
     }
   };

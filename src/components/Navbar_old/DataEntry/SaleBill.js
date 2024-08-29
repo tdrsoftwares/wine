@@ -1,3 +1,5 @@
+// saleBill
+
 import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
@@ -105,7 +107,7 @@ const SaleBill = () => {
     receiptMode1: "",
     receiptMode2: "",
   });
-
+  const [isSplitPrinted, setIsSplitPrinted] = useState(false);
   const [brandPanelLoading, setBrandPanelLoading] = useState(false);
   const [brandWiseItemData, setBrandWiseItemData] = useState([]);
   const [brandName, setBrandName] = useState("");
@@ -161,7 +163,7 @@ const SaleBill = () => {
       if (response.statusCode === 200) {
         const licenseData = response?.data[0];
         setLicenseDetails({
-          id: licenseData._id,
+          // id: licenseData._id,
           nameOfLicence: licenseData.nameOfLicence,
           businessType: licenseData.businessType,
           address: licenseData.address,
@@ -178,8 +180,8 @@ const SaleBill = () => {
           eposUserId: licenseData.eposUserId,
           eposPassword: licenseData.eposPassword,
           noOfItemPerBill: licenseData.noOfItemPerBill,
-          perBillMaxWine: licenseData.perBillMaxWine,
-          perBillMaxCs: licenseData.perBillMaxCs,
+          // perBillMaxWine: licenseData.perBillMaxWine,
+          // perBillMaxCs: licenseData.perBillMaxCs,
 
           billMessages: licenseData.billMessages,
           messageMobile: licenseData.messageMobile,
@@ -188,13 +190,15 @@ const SaleBill = () => {
 
       if (response?.response?.status === 400) {
         setLicenseDetails([]);
-        NotificationManager.error("No License Data Found", "Error");
+        // NotificationManager.error("No License Data Found", "Error");
+        console.log("No License Found", "Error");
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching license. Please try again later.",
-        "Error"
-      );
+      console.log(error);
+      // NotificationManager.error(
+      //   "Error fetching license. Please try again later.",
+      //   "Error"
+      // );
     }
   };
 
@@ -210,10 +214,11 @@ const SaleBill = () => {
         }
       } else {
         setAllStores([]);
-        NotificationManager.error("No Stores Found", "Error");
+        // NotificationManager.error("No Stores Found", "Error");
+        console.log("No Stores Found", "Error");
       }
     } catch (err) {
-      NotificationManager.error("Failed to fetch all stores", "Error");
+      // NotificationManager.error("Failed to fetch all stores", "Error");
       console.log(err);
     }
   };
@@ -226,13 +231,14 @@ const SaleBill = () => {
         setAllCustomerData(allCustomerResponse?.data?.data);
       } else {
         setAllCustomerData([]);
-        NotificationManager.error("No Customers Found", "Error");
+        // NotificationManager.error("No Customers Found", "Error");
+        console.log("No Customers Found", "Error");
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching customers. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching customers. Please try again later.",
+      //   "Error"
+      // );
       console.error("Error fetching customers:", error);
     }
   };
@@ -246,13 +252,14 @@ const SaleBill = () => {
       }
       if (allLedgerResponse?.response?.status === 400) {
         setAllLedgers([]);
-        NotificationManager.error("No Ledgers Found", "Error");
+        // NotificationManager.error("No Ledgers Found", "Error");
+        console.log("No Ledgers Found", "Error");
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching ledgers. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching ledgers. Please try again later.",
+      //   "Error"
+      // );
       console.error("Error fetching ledgers:", error);
     }
   };
@@ -263,14 +270,14 @@ const SaleBill = () => {
       if (allBills.status === 200) {
         setSeriesData(allBills?.data?.data);
       } else if (allBills.status === 404) {
-        NotificationManager.error("No bills found", "Error");
+        // NotificationManager.error("No bills found", "Error");
         // setSeriesData([]);
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching bills. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching bills. Please try again later.",
+      //   "Error"
+      // );
       setSeriesData([]);
       console.error("Error fetching bills:", error);
     }
@@ -289,14 +296,14 @@ const SaleBill = () => {
       if (response.status === 200) {
         setBrandWiseItemData(response?.data?.data);
       } else {
-        NotificationManager.error("No items found.", "Error");
+        // NotificationManager.error("No items found.", "Error");
         setBrandWiseItemData([]);
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching items. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching items. Please try again later.",
+      //   "Error"
+      // );
       console.error("Error fetching items:", error);
     } finally {
       setBrandPanelLoading(false);
@@ -325,8 +332,10 @@ const SaleBill = () => {
 
   const handleStoreChange = (event) => {
     const selectedStoreId = event.target.value;
-    const selectedStore = allStores.find(store => store._id === selectedStoreId);
-  
+    const selectedStore = allStores.find(
+      (store) => store._id === selectedStoreId
+    );
+
     if (selectedStore) {
       setFormData({ ...formData, store: selectedStore });
       sessionStorage.setItem("storeName", selectedStore._id);
@@ -627,33 +636,29 @@ const SaleBill = () => {
     }
   }, [formData.customerName, allCustomerData]);
 
-
   useEffect(() => {
     itemCodeRef.current.focus();
-  
+
     fetchLicenseData();
     fetchAllCustomers();
     fetchAllLedger();
     fetchAllStores();
-  
+
     const savedSalesData = sessionStorage.getItem("salesData");
     if (savedSalesData) {
       setSalesData(JSON.parse(savedSalesData));
     }
-    
   }, []);
 
   useEffect(() => {
     const savedStoreId = sessionStorage.getItem("storeName");
     if (savedStoreId) {
-      const store = allStores.find(store => store._id === savedStoreId);
+      const store = allStores.find((store) => store._id === savedStoreId);
       if (store) {
         setFormData({ ...formData, store });
       }
     }
-  },[allStores])
-  
-  
+  }, [allStores]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -1257,14 +1262,14 @@ const SaleBill = () => {
       resetMiddleFormData();
     } catch (error) {
       console.error("Error submitting item:", error);
-      NotificationManager.error(
-        "Error submitting item. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error submitting item. Please try again later.",
+      //   "Error"
+      // );
     }
   };
 
-  const handleCreateSale = async () => {
+  const handleCreateSale = async (itemsToSale = null) => {
     const billDateObj = formatDate(formData.billDate);
     const todaysDateObj = formatDate(new Date());
 
@@ -1349,7 +1354,6 @@ const SaleBill = () => {
           splDiscAmount: parseFloat(totalValues.splDiscAmount),
           grossAmount: parseFloat(totalValues.grossAmt),
           discAmount: parseFloat(totalValues.discountAmt),
-          // taxAmount,
           adjustment: parseFloat(totalValues.adjustment),
           netAmount: parseFloat(totalValues.netAmt),
           receiptMode1: parseFloat(totalValues.receiptMode1),
@@ -1366,7 +1370,6 @@ const SaleBill = () => {
             amount: parseFloat(item.pcs) * parseFloat(item.rate),
             split: parseFloat(item.split),
             break: parseFloat(item.brk),
-            // stockAt: item.stockAt,
           })),
         };
 
@@ -2035,11 +2038,14 @@ const SaleBill = () => {
     };
   }, []);
 
+  const handlePrintClick = (index) => {
+    
+  };
 
   return (
     <ThemeProvider theme={customTheme}>
       <Box display="flex">
-        <Box component="form" sx={{ p: 2, width: "900px" }}>
+        <Box component="form" sx={{ p: 2, minWidth: "900px" }}>
           {/* <Typography variant="subtitle2" gutterBottom>
             Sale Entry:
           </Typography> */}
@@ -2066,7 +2072,6 @@ const SaleBill = () => {
                     value="CASHBILL"
                     control={<Radio />}
                     label="Cash Bill"
-                    // style={{ marginRight: "20px" }}
                   />
                   <FormControlLabel
                     value="CREDITBILL"
@@ -2177,7 +2182,7 @@ const SaleBill = () => {
             <Grid item xs={1.5}>
               <div className="input-wrapper">
                 <InputLabel htmlFor="series" className="input-label">
-                  Series :
+                  Series:
                 </InputLabel>
                 <TextField
                   select
@@ -2458,6 +2463,10 @@ const SaleBill = () => {
                 handleEditClick={handleEditClick}
                 handleSaveClick={handleSaveClick}
                 handleRemoveClick={handleRemoveClick}
+                handleCreateSale={handleCreateSale}
+                handlePrint={handlePrint}
+                setSalesData={setSalesData}
+                handlePrintClick={handlePrintClick}
               />
             )}
           </Box>
@@ -2721,6 +2730,7 @@ const SaleBill = () => {
         </Box>
       </Box>
 
+      {/* Buttons */}
       <Box
         sx={{
           display: "flex",

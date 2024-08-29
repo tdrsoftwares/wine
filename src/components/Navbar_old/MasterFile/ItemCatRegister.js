@@ -181,14 +181,14 @@ const ItemCatRegister = () => {
       if (getAllCategoryResponse.status === 200) {
         setAllCategory(getAllCategoryResponse?.data?.data);
       } else {
-        NotificationManager.error("No category found." , "Error");
+        // NotificationManager.error("No category found." , "Error");
         setAllCategory([])
       }
     } catch (err) {
-      NotificationManager.error(
-        "Something went Wrong, Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Something went Wrong, Please try again later.",
+      //   "Error"
+      // );
     }
   };
 

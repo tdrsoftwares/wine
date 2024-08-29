@@ -90,14 +90,14 @@ const DailyProfitReport = () => {
         setTotalCount(response.data.data.length || 0);
       } else {
         console.log("Error", response);
-        NotificationManager.error("No records found.", "Error");
+        // NotificationManager.error("No records found.", "Error");
         setAllProfitData([]);
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching records. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching records. Please try again later.",
+      //   "Error"
+      // );
       console.log("Error fetching records", error);
     } finally {
       setLoading(false);

@@ -185,14 +185,14 @@ const StoreRegister = () => {
       if (allStoresResponse.status === 200) {
         setAllStores(allStoresResponse?.data?.data);
       } else {
-        NotificationManager.error("No stores found", "Error");
+        // NotificationManager.error("No stores found", "Error");
         setAllStores([]);
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching stores. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching stores. Please try again later.",
+      //   "Error"
+      // );
       console.error("Error fetching stores:", error);
     }
   };

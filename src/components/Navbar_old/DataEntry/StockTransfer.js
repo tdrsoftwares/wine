@@ -125,7 +125,8 @@ const StockTransfer = () => {
       const allStoresData = allStoresResponse?.data?.data;
 
       if (!allStoresData) {
-        NotificationManager.error("No store data found", "Error");
+        // NotificationManager.error("No store data found", "Error");
+        console.log("No store data found", "Error");
       }
 
       const allGodowns = [];
@@ -143,10 +144,10 @@ const StockTransfer = () => {
       setAllNonGodownStores(allNonGodowns);
 
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching stores. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching stores. Please try again later.",
+      //   "Error"
+      // );
       console.error("Error fetching stores:", error);
     }
   };
@@ -269,10 +270,11 @@ const StockTransfer = () => {
       // console.log("response: ", response);
       setAllTransfers(response?.data?.data);
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching transfers. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching transfers. Please try again later.",
+      //   "Error"
+      // );
+      console.error(error)
     }
   };
 

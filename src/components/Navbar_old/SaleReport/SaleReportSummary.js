@@ -215,14 +215,14 @@ const SaleReportSummary = () => {
         setAllSalesData(allSalesResponse?.data?.data);
         setTotalCount(allSalesResponse?.data.data?.length);
       } else {
-        NotificationManager.error("No sales found.", "Error");
+        // NotificationManager.error("No sales found.", "Error");
         setAllSalesData([]);
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching sales. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching sales. Please try again later.",
+      //   "Error"
+      // );
       console.error("Error fetching sales:", error);
     } finally {
       setLoading(false);
@@ -239,13 +239,13 @@ const SaleReportSummary = () => {
         setAllCustomerData(allCustomerResponse?.data?.data);
       } else {
         setAllCustomerData([]);
-        NotificationManager.error("No customers found", "Error");
+        // NotificationManager.error("No customers found", "Error");
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching brands. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching brands. Please try again later.",
+      //   "Error"
+      // );
       console.error("Error fetching brands:", error);
     }
   };

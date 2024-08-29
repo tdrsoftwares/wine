@@ -138,13 +138,13 @@ const CustomerRegister = () => {
         setLoading(false);
       } else {
         setAllCustomerData([]);
-        NotificationManager.error("No Customers Found", "Error");
+        // NotificationManager.error("No Customers Found", "Error");
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching brands. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching brands. Please try again later.",
+      //   "Error"
+      // );
       console.error("Error fetching brands:", error);
       setLoading(false);
     }

@@ -41,13 +41,15 @@ const SaleBrandPanel = ({
         setAllBrands(allBrandsResponse?.data?.data);
       } else {
         setAllBrands([]);
-        NotificationManager.error("No brands found.", "Error");
+        // NotificationManager.error("No brands found.", "Error");
+        console.log("No brands Found", "Error");
+
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching brands. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching brands. Please try again later.",
+      //   "Error"
+      // );
       console.error("Error fetching brands:", error);
     } finally {
       setBrandPanelLoading(false);

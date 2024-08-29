@@ -132,13 +132,13 @@ const MonthlyStatement = () => {
 
       if (response?.response?.status === 400) {
         setLicenseDetails([]);
-        NotificationManager.error("No License Data Found", "Error");
+        // NotificationManager.error("No License Data Found", "Error");
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching license. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching license. Please try again later.",
+      //   "Error"
+      // );
     }
   };
 
@@ -171,10 +171,10 @@ const MonthlyStatement = () => {
       setAllStatements(statementsWithTotals);
       setTotalCount(statementsWithTotals.length);
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching statements. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching statements. Please try again later.",
+      //   "Error"
+      // );
     } finally {
       setLoading(false);
     }

@@ -93,14 +93,14 @@ const Epos = () => {
 
       if (response?.response?.status === 400) {
         setLicenseDetails([]);
-        NotificationManager.error("No License Data Found", "Error");
+        // NotificationManager.error("No License Data Found", "Error");
       }
     } catch (error) {
       setLicenseDetails([]);
-      NotificationManager.error(
-        "Error fetching license. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching license. Please try again later.",
+      //   "Error"
+      // );
     }
   };
 
@@ -212,10 +212,10 @@ const Epos = () => {
       setAllEposData(response?.data?.data || []);
       setTotalCount(response?.data?.data?.length || 0);
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching sales. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching sales. Please try again later.",
+      //   "Error"
+      // );
       setAllEposData([]);
     } finally {
       setLoading(false);
@@ -229,13 +229,13 @@ const Epos = () => {
         setAllItems(allItemsResponse?.data?.data);
       } else {
         setAllItems([]);
-        NotificationManager.error("No items found");
+        // NotificationManager.error("No items found");
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching items. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching items. Please try again later.",
+      //   "Error"
+      // );
     }
   };
 
@@ -246,13 +246,13 @@ const Epos = () => {
         setAllBrands(allBrandResponse?.data?.data);
       } else {
         setAllBrands([]);
-        NotificationManager.error("No brands found");
+        // NotificationManager.error("No brands found");
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching brands. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching brands. Please try again later.",
+      //   "Error"
+      // );
       setAllBrands([]);
     }
   };

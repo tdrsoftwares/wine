@@ -211,10 +211,10 @@ const PurchaseReportSummary = () => {
       setAllPurchases(response?.data?.data || []);
       setTotalCount(response?.data?.data?.length || 0);
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching purchases. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching purchases. Please try again later.",
+      //   "Error"
+      // );
     } finally {
       setLoading(false);
     }
@@ -228,14 +228,14 @@ const PurchaseReportSummary = () => {
       if (allStoresResponse.status === 200) {
         setAllStores(allStoresResponse?.data?.data);
       } else {
-        NotificationManager.error("No stores found", "Error");
+        // NotificationManager.error("No stores found", "Error");
         setAllStores([]);
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching stores. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching stores. Please try again later.",
+      //   "Error"
+      // );
       console.error("Error fetching stores:", error);
     }
   };
@@ -248,13 +248,15 @@ const PurchaseReportSummary = () => {
         setAllSuppliers(response?.data?.data);
       } else {
         setAllSuppliers([]);
-        NotificationManager.error("No suppliers found.", "Error");
+        // NotificationManager.error("No suppliers found.", "Error");
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching suppliers. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching suppliers. Please try again later.",
+      //   "Error"
+      // );
+      console.error("Error fetching suppliers:", error);
+
     }
   };
 

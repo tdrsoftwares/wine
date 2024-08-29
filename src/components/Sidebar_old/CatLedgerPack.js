@@ -117,7 +117,7 @@ const CatLedgerPack = () => {
     setTotalClosingBal(totalClosingBal);
   }, [allRowData, blOnly]);
 
-  console.log("allRowData: ", allRowData);
+  // console.log("allRowData: ", allRowData);
   const formatDate = (date) => {
     if (!date) return null;
     return dayjs(date).format("DD/MM/YYYY");
@@ -129,14 +129,16 @@ const CatLedgerPack = () => {
       if (getAllCategoryResponse.status === 200) {
         setAllCategory(getAllCategoryResponse?.data?.data);
       } else {
-        NotificationManager.error("No category found.", "Error");
+        // NotificationManager.error("No category found.", "Error");
         setAllCategory([]);
       }
     } catch (err) {
-      NotificationManager.error(
-        "Something went Wrong, Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Something went Wrong, Please try again later.",
+      //   "Error"
+      // );
+      console.error(err);
+
     }
   };
 
@@ -222,14 +224,14 @@ const CatLedgerPack = () => {
         setTotalCount(rowData.length);
       } else {
         console.log("Error", response);
-        NotificationManager.error("No records found.", "Error");
+        // NotificationManager.error("No records found.", "Error");
         setAllRowData([]);
       }
     } catch (error) {
-      NotificationManager.error(
-        "Error fetching records. Please try again later.",
-        "Error"
-      );
+      // NotificationManager.error(
+      //   "Error fetching records. Please try again later.",
+      //   "Error"
+      // );
       console.log("Error fetching records", error);
     } finally {
       setLoading(false);
