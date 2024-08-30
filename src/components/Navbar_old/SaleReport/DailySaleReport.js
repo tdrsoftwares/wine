@@ -44,7 +44,7 @@ const DailySaleReport = () => {
     volume: "",
     mode: "",
   });
-  console.log(filterData)
+  // console.log(filterData)
   const [loading, setLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     page: 1,
@@ -489,7 +489,7 @@ const DailySaleReport = () => {
           <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="mode" className="input-label">
-                Group:
+                Mode:
               </InputLabel>
               <TextField
                 select
@@ -537,6 +537,7 @@ const DailySaleReport = () => {
                 itemName: "",
                 billNo: "",
                 volume: "",
+                mode: ""
               });
               setPaginationModel({ page: 1, pageSize: 10 });
             }}
