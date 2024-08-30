@@ -42,6 +42,7 @@ const DailySaleReport = () => {
     itemName: "",
     billNo: "",
     volume: "",
+    mode: "",
   });
   console.log(filterData)
   const [loading, setLoading] = useState(false);
@@ -169,6 +170,7 @@ const DailySaleReport = () => {
         group: filterData.group,
         itemName: filterData.itemName,
         volume: filterData.volume,
+        mode: filterData.mode
       };
       const response = await getDailySalesDetails(filterOptions);
       // console.log("Response salesData: ", response);
@@ -482,6 +484,31 @@ const DailySaleReport = () => {
                   setFilterData({ ...filterData, volume: e.target.value })
                 }
               />
+            </div>
+          </Grid>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="mode" className="input-label">
+                Group:
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="mode"
+                className="input-field"
+                value={filterData.mode}
+                onChange={(e) =>
+                  setFilterData({ ...filterData, mode: e.target.value })
+                }
+              >
+                <MenuItem value="">None</MenuItem>
+                {["cash", "online"].map((option, i) => (
+                  <MenuItem key={i} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </TextField>
             </div>
           </Grid>
         </Grid>

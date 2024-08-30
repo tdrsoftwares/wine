@@ -151,6 +151,7 @@ export const getDailySalesDetails = async (filterOptions) => {
       group,
       itemName,
       volume,
+      mode
     } = filterOptions;
 
     let apiURL = `/reports/daily-sales-reports?page=${page}&pageSize=${pageSize}`;
@@ -164,6 +165,7 @@ export const getDailySalesDetails = async (filterOptions) => {
       group,
       itemName,
       volume,
+      mode
     };
 
     Object.keys(filters).forEach((key) => {
