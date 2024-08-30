@@ -119,6 +119,9 @@ const SaleBill = () => {
   const [totalCash, setTotalCash] = useState(0);
   const [totalOnline, setTotalOnline] = useState(0);
 
+  const [printData, setPrintData] = useState([]);
+  const [printTotalValues, setPrintTotalValues] = useState([])
+
   const tableRef = useRef(null);
   const customerNameRef = useRef(null);
   const addressRef = useRef(null);
@@ -163,7 +166,7 @@ const SaleBill = () => {
       if (response.statusCode === 200) {
         const licenseData = response?.data[0];
         setLicenseDetails({
-          // id: licenseData._id,
+          id: licenseData._id,
           nameOfLicence: licenseData.nameOfLicence,
           businessType: licenseData.businessType,
           address: licenseData.address,
@@ -180,8 +183,8 @@ const SaleBill = () => {
           eposUserId: licenseData.eposUserId,
           eposPassword: licenseData.eposPassword,
           noOfItemPerBill: licenseData.noOfItemPerBill,
-          // perBillMaxWine: licenseData.perBillMaxWine,
-          // perBillMaxCs: licenseData.perBillMaxCs,
+          perBillMaxWine: licenseData.perBillMaxWine,
+          perBillMaxCs: licenseData.perBillMaxCs,
 
           billMessages: licenseData.billMessages,
           messageMobile: licenseData.messageMobile,
@@ -1270,6 +1273,7 @@ const SaleBill = () => {
   };
 
   const handleCreateSale = async (itemsToSale = null) => {
+    const items = isSplitPrinted ? itemsToSale : salesData;
     const billDateObj = formatDate(formData.billDate);
     const todaysDateObj = formatDate(new Date());
 
@@ -1293,18 +1297,19 @@ const SaleBill = () => {
       );
       return;
     }
+    // console.log("itemsToSale", itemsToSale);
 
-    if (salesData.length === 0) {
+    if (items.length === 0) {
       NotificationManager.warning("Enter some item in table.", "Warning");
       itemCodeRef.current.focus();
       return;
     }
 
     const groupedItems = {
-      FL_BEER: salesData.filter(
+      FL_BEER: items.filter(
         (item) => item.group === "FL" || item.group === "BEER"
       ),
-      IML: salesData.filter((item) => item.group === "IML"),
+      IML: items.filter((item) => item.group === "IML"),
     };
 
     const splitBill = (items, volumeLimit) => {
@@ -1394,7 +1399,6 @@ const SaleBill = () => {
         splitBill(groupedItems.IML, licenseDetails?.perBillMaxCs)
       );
     }
-
     if (groupedItems.FL_BEER.length > 0) {
       payload = payload.concat(
         splitBill(groupedItems.FL_BEER, licenseDetails?.perBillMaxWine)
@@ -1409,26 +1413,26 @@ const SaleBill = () => {
 
       if (response?.data?.data) {
         NotificationManager.success("Sale created successfully", "Success");
-        setFormData((prevData) => ({
-          ...prevData,
-          billno: billNo,
-        }));
+        setFormData({ ...formData, billno: billNo });
 
         if (licenseDetails?.autoBillPrint === "YES") {
           handlePrint();
         }
 
-        // if(licenseDetails?.autoBillPrint === "NO"){
-        resetTopFormData();
-        resetMiddleFormData();
-        resetTotalValues();
-        setSearchResults([]);
-        setSalesData([]);
-        sessionStorage.setItem("salesData", JSON.stringify([]));
-        fetchAllBills();
-        fetchAllBrandWiseItems();
-        setSearchMode(false);
-        // }
+        // console.log("isSplitPrinted: ", isSplitPrinted)
+        if (!isSplitPrinted) {
+          resetTopFormData();
+          resetMiddleFormData();
+          resetTotalValues();
+          setSearchResults([]);
+          setSalesData([]);
+          sessionStorage.setItem("salesData", JSON.stringify([]));
+          fetchAllBills();
+          fetchAllBrandWiseItems();
+          setSearchMode(false);
+        } else {
+          setIsSplitPrinted(false);
+        }
       } else {
         NotificationManager.error(
           "Error creating Sale. Please try again later.",
@@ -1979,6 +1983,44 @@ const SaleBill = () => {
     totalValues.adjustment,
   ]);
 
+  const calculatePrintDataTotalValues = (printData) => {
+    const calculatedTotalVolume = printData.reduce((total, item) => {
+      return total + parseFloat(item.volume || 0) * parseInt(item.pcs || 1);
+    }, 0);
+  
+    const calculatedTotalPcs = printData.reduce((total, item) => {
+      return total + parseInt(item.pcs || 0);
+    }, 0);
+  
+    const calculatedGrossAmt = printData.reduce((total, item) => {
+      return total + parseFloat(item.amount || 0) * parseInt(item.pcs || 1);
+    }, 0);
+  
+    const totalDiscount = printData.reduce((total, item) => {
+      return total + parseFloat(item.discount * item.pcs || 0);
+    }, 0);
+  
+    const splDiscAmount = (calculatedGrossAmt * parseFloat(totalValues.splDiscount || 0)) / 100;
+  
+    const netAmt = parseFloat(calculatedGrossAmt || 0) - parseFloat(splDiscAmount || 0);
+  
+    return {
+      totalVolume: calculatedTotalVolume.toFixed(2),
+      totalPcs: calculatedTotalPcs,
+      grossAmt: calculatedGrossAmt.toFixed(2),
+      discountAmt: totalDiscount.toFixed(2),
+      splDiscAmount: (splDiscAmount + totalDiscount).toFixed(0),
+      netAmt: netAmt.toFixed(2),
+    };
+  };
+
+  useEffect(() => {
+    // console.log("SaleBillPrintModal re-rendered with billNumber:", billNumber);
+
+  }, [isSplitPrinted]);
+  
+  
+
   useEffect(() => {
     if (billDateRef.current) {
       billDateRef.current.addEventListener("keydown", (e) =>
@@ -2038,9 +2080,44 @@ const SaleBill = () => {
     };
   }, []);
 
-  const handlePrintClick = (index) => {
-    
+
+  const handlePrintClick = () => {
+    const updatedSalesData = [...salesData];
+    let splitItems = [];
+
+    updatedSalesData.forEach((item, idx) => {
+      if (item.split > 0 && item.pcs >= item.split) {
+        const splitItem = { ...item, pcs: item.split };
+        updatedSalesData[idx].pcs = item.pcs - item.split;
+        updatedSalesData[idx].split = 0;
+        splitItems.push(splitItem);
+      }
+    });
+
+    const filteredSalesData = updatedSalesData.filter((item) => item.pcs > 0);
+
+    if (splitItems.length > 0) {
+      setSalesData(filteredSalesData);
+      sessionStorage.setItem("salesData", JSON.stringify(filteredSalesData));
+
+      setPrintData(splitItems);
+
+      const printTotalVal = calculatePrintDataTotalValues(splitItems);
+      // console.log("Print Total Values:", printTotalVal);
+      setPrintTotalValues(printTotalVal);
+
+      setIsSplitPrinted(true);
+    }
   };
+  
+
+  useEffect(() => {
+    if (isSplitPrinted) {
+      handleCreateSale(printData);
+      handlePrint();
+    }
+  }, [isSplitPrinted]);
+
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -2873,6 +2950,9 @@ const SaleBill = () => {
         totalValues={totalValues}
         licenseDetails={licenseDetails}
         billNumber={billNumber}
+        printData={printData}
+        isSplitPrinted={isSplitPrinted}
+        printTotalValues={printTotalValues}
       />
     </ThemeProvider>
   );

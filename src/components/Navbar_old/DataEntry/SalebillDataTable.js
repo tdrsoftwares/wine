@@ -1,3 +1,4 @@
+// saleBill data table:
 import React from "react";
 import {
   Input,
@@ -12,6 +13,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
+import PrintIcon from '@mui/icons-material/Print';
 
 const SalebillDataTable = (props) => {
   const {
@@ -23,7 +25,10 @@ const SalebillDataTable = (props) => {
     handleEditClick,
     handleSaveClick,
     handleRemoveClick,
+    handlePrintClick
   } = props;
+  // console.log("salesData: ", salesData)
+
   return (
     <>
       <TableContainer
@@ -87,7 +92,15 @@ const SalebillDataTable = (props) => {
                     row.itemCode
                   )}
                 </TableCell>
-                <TableCell>
+                <TableCell
+                  style={{
+                    maxWidth: "150px",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                  title={row.itemName}
+                >
                   {editableIndex === index ? (
                     <Input
                       type="text"
@@ -96,11 +109,18 @@ const SalebillDataTable = (props) => {
                       onChange={(e) =>
                         handleEdit(index, "itemName", e.target.value)
                       }
+                      style={{
+                        maxWidth: "150px",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
                     />
                   ) : (
                     row.itemName
                   )}
                 </TableCell>
+
                 <TableCell>
                   {editableIndex === index ? (
                     <Input
@@ -215,6 +235,10 @@ const SalebillDataTable = (props) => {
                   <CloseIcon
                     sx={{ cursor: "pointer", color: "red" }}
                     onClick={() => handleRemoveClick(index)}
+                  />
+                  <PrintIcon
+                    sx={{ cursor: "pointer", color: "Highlight" }}
+                    onClick={() => handlePrintClick(index)}
                   />
                 </TableCell>
               </TableRow>
