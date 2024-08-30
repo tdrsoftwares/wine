@@ -32,7 +32,7 @@ const ItemWisePurchaseReport = () => {
   const [itemCode, setItemCode] = useState("");
   const [dateFrom, setDateFrom] = useState(null);
   const [dateTo, setDateTo] = useState(null);
-  const [filter1, setFilter1] = useState("");
+  const [mode, setMode] = useState("");
   const [allPurchases, setAllPurchases] = useState([]);
   const [allSuppliers, setAllSuppliers] = useState([]);
   const [allItems, setAllItems] = useState([]);
@@ -154,7 +154,13 @@ const ItemWisePurchaseReport = () => {
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
-
+    {
+      field: "bl",
+      headerName: "BL",
+      width: 120,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
     {
       field: "mrp",
       headerName: "MRP",
@@ -240,7 +246,7 @@ const ItemWisePurchaseReport = () => {
         categoryName,
         volume,
         itemCode,
-        // batchNo: batch
+        mode
       };
       const response = await getItemWisePurchaseDetails(filterOptions);
       // console.log("Response: ", response);
@@ -377,7 +383,7 @@ const ItemWisePurchaseReport = () => {
     categoryName,
     volume,
     itemCode,
-    // batch
+    mode
   ]);
 
   return (
@@ -482,7 +488,7 @@ const ItemWisePurchaseReport = () => {
                 //   },
                 // }}
               />
-                {/* {allItems?.map((item) => (
+              {/* {allItems?.map((item) => (
                   <MenuItem key={item._id} value={item.name}>
                     {item.name}
                   </MenuItem>
@@ -530,7 +536,7 @@ const ItemWisePurchaseReport = () => {
                 //   },
                 // }}
               />
-                {/* {allBrands.map((brand) => (
+              {/* {allBrands.map((brand) => (
                   <MenuItem key={brand._id} value={brand.name}>
                     {brand.name}
                   </MenuItem>
@@ -587,6 +593,29 @@ const ItemWisePurchaseReport = () => {
               />
             </div>
           </Grid>
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="mode" className="input-label">
+                Mode:
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="mode"
+                className="input-field"
+                value={mode}
+                onChange={(e) => setMode(e.target.value)}
+              >
+                <MenuItem value="">None</MenuItem>
+                {["cash", "online"].map((option, i) => (
+                  <MenuItem key={i} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </Grid>
         </Grid>
 
         <Box
@@ -627,15 +656,15 @@ const ItemWisePurchaseReport = () => {
             >
               Print
             </Button> */}
-            <Button
-              color="info"
-              size="small"
-              variant="contained"
-              onClick={() => fetchAllPurchases()}
-              sx={{ marginLeft: 2 }}
-            >
-              Display
-            </Button>
+          <Button
+            color="info"
+            size="small"
+            variant="contained"
+            onClick={() => fetchAllPurchases()}
+            sx={{ marginLeft: 2 }}
+          >
+            Display
+          </Button>
           {/* </div> */}
         </Box>
 
@@ -669,6 +698,7 @@ const ItemWisePurchaseReport = () => {
               mrp: item.purchaseItems?.mrp || 0,
               gro: item.purchaseItems?.gro || 0,
               sp: item.purchaseItems?.sp || 0,
+              bl: item.bl || 0,
               supplierName: item.supplier?.name || "No Data",
               storeName: item.store?.name || "No Data",
               purchaseRate: item.purchaseItems?.purchaseRate || 0,

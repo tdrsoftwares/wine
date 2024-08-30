@@ -43,6 +43,7 @@ const ItemWiseSaleReport = () => {
     billNo: "",
     pack: "",
     phone: "",
+    mode: "",
   });
   const [allItems, setAllItems] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -225,6 +226,7 @@ const ItemWiseSaleReport = () => {
         groupName: filterData.group,
         billNo: filterData.billNo,
         volume: filterData.pack,
+        mode: filterData.mode,
       };
       const response = await getItemWiseSaleDetails(filterOptions);
       // console.log("Response salesData: ", response);
@@ -618,6 +620,32 @@ const ItemWiseSaleReport = () => {
               />
             </div>
           </Grid>
+
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="mode" className="input-label">
+                Mode:
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="mode"
+                className="input-field"
+                value={filterData.mode}
+                onChange={(e) =>
+                  setFilterData({ ...filterData, mode: e.target.value })
+                }
+              >
+                <MenuItem value="">None</MenuItem>
+                {["cash", "online"].map((option, i) => (
+                  <MenuItem key={i} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </Grid>
         </Grid>
 
         <Box
@@ -647,6 +675,7 @@ const ItemWiseSaleReport = () => {
                 billNo: "",
                 pack: "",
                 phone: "",
+                mode: ""
               });
               setPaginationModel({ page: 0, pageSize: 10 });
               // fetchAllSales();
@@ -707,6 +736,7 @@ const ItemWiseSaleReport = () => {
               group: item.salesItems?.item?.group || "No Data",
               // updatedAt: new Date(item.updatedAt).toLocaleDateString("en-GB"),
               mrp: item.salesItems?.itemDetails?.mrp || item.salesItems?.mrp || 0,
+              // bl: item.salesItems?.itemDetails?.bl || item.salesItems?.bl || 0,
               rate: item.salesItems?.itemDetails?.saleRate || item.salesItems?.rate || 0,
               broken: item.salesItems?.break || 0,
               // split: item.salesItems?.split || 0,

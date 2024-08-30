@@ -68,7 +68,7 @@ export const getItemWisePurchaseDetails = async (filterOptions) => {
       categoryName,
       volume,
       itemCode,
-      // batchNo
+      mode
     } = filterOptions;
 
     let apiURL = `/purchases/all-item-reports?page=${page}&pageSize=${pageSize}`;
@@ -82,7 +82,7 @@ export const getItemWisePurchaseDetails = async (filterOptions) => {
       categoryName,
       volume,
       itemCode,
-      // batchNo
+      mode
     };
 
     Object.keys(filters).forEach((key) => {

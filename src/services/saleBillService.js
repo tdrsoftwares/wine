@@ -105,6 +105,7 @@ export const getItemWiseSaleDetails = async (filterOptions) => {
       groupName,
       billNo,
       volume,
+      mode,
     } = filterOptions;
 
     let apiURL = `/sales/all-item-reports?page=${page}&pageSize=${pageSize}`;
@@ -123,6 +124,7 @@ export const getItemWiseSaleDetails = async (filterOptions) => {
       groupName,
       billNo,
       volume,
+      mode,
     };
 
     Object.keys(filters).forEach((key) => {
