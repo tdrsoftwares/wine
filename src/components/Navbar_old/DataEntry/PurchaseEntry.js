@@ -88,6 +88,7 @@ const PurchaseEntry = () => {
     amount: "",
   });
 
+  const [isManualGovtRateChange, setIsManualGovtRateChange] = useState(false);
   // console.log("formData outside: ", formData)
 
   dayjs.extend(utc);
@@ -405,6 +406,7 @@ const PurchaseEntry = () => {
 
     
     updatedPurchases[index] = updatedRow;
+    sessionStorage.setItem('purchases', JSON.stringify(updatedPurchases));
     setPurchases(updatedPurchases);
 
     setEditedRow({});
@@ -1103,14 +1105,13 @@ const PurchaseEntry = () => {
 
 
   const handleGovtRateChange = (event) => {
-    const govtRate =
-      event.target.value === "" ? "" : parseFloat(event.target.value);
-      
-
-    if (!isNaN(govtRate) || event.target.value === "") {
+    const govtRate = event.target.value === "" ? "" : event.target.value;
+  
+    if (!isNaN(parseFloat(govtRate)) || event.target.value === "") {
+      setIsManualGovtRateChange(true);
       setTotalValues((prevValues) => ({
         ...prevValues,
-        govtRate: event.target.value,
+        govtRate,
       }));
     }
   };
@@ -1224,9 +1225,11 @@ const PurchaseEntry = () => {
     };
   }, [searchMode, formData.itemName, searchResults, selectedRowIndex]);
 
+
   useEffect(() => {
     handlePurRatePcsChange();
   }, [formData.purchaseRate, formData.pcs]);
+
 
   useEffect(() => {
     const totalMrpValue = purchases.reduce((total, purchase) => {
@@ -1239,35 +1242,50 @@ const PurchaseEntry = () => {
     
   }, [formData.amount, purchases]);
 
+
   useEffect(() => {
     const grossAmount = purchases.reduce(
       (total, purchase) => total + parseFloat(purchase.amount),
       0
     );
+  
     const sDiscount = parseFloat(totalValues.totalSDiscount) || 0;
     const grossAmt = grossAmount - sDiscount;
-
+  
     const tcsPercentage = parseFloat(totalValues.tcs) || 1;
     const tcsAmt = (grossAmt * tcsPercentage) / 100;
-
+  
     const discount = parseFloat(totalValues.discount) || 0;
     const discountAmt = (grossAmt * discount) / 100;
-
+  
     const govtRate = parseFloat(totalValues.govtRate) || 0;
     const spcPurpose = parseFloat(totalValues.spcPurpose) || 0;
-
+  
+    const updatedPurchases = purchases.map((purchase) => {
+      const itemTotal =
+        parseFloat(purchase.purchaseRate) * parseFloat(purchase.pcs);
+  
+      const pcs = parseFloat(purchase.pcs);
+      const perPcsPercentage = (itemTotal / grossAmount) * 100;
+  
+      const itemsTotalGovtRate = (govtRate * (perPcsPercentage / 100)) / pcs;
+      const itemsTotalSP = (spcPurpose * (perPcsPercentage / 100)) / pcs;
+  
+      return {
+        ...purchase,
+        gro: itemsTotalGovtRate?.toFixed(2),
+        sp: itemsTotalSP?.toFixed(2),
+      };
+    });
+  
+    setPurchases(updatedPurchases);
+  
     const adjustment = parseFloat(totalValues.adjustment) || 0;
-    // console.log("adjustment: ", adjustment)
     let netAmt = grossAmt + govtRate + spcPurpose + tcsAmt;
-    
+  
     netAmt -= discountAmt;
-    if (adjustment < 0) {
-      netAmt += adjustment;
-
-    } else {
-      netAmt += adjustment;
-    }  
-
+    netAmt += adjustment;
+  
     setTotalValues((prevValues) => ({
       ...prevValues,
       grossAmt,
@@ -1283,43 +1301,27 @@ const PurchaseEntry = () => {
     totalValues.govtRate,
     totalValues.tcs,
     totalValues.spcPurpose,
-    totalValues.adjustment
+    totalValues.adjustment,
   ]);
 
-  // useEffect(() => {
-  //   const tcsPercentage = parseFloat(totalValues.tcs) || 1;
-  //   const grossAmt = parseFloat(totalValues.grossAmt) || 0;
-  //   const tcsAmt = (grossAmt * tcsPercentage) / 100;
-
-  //   const discount = parseFloat(totalValues.discount) || 0;
-  //   const discountAmt = (grossAmt * discount) / 100;
-
-  //   let netAmt = grossAmt + govtRate + spcPurpose + tcsAmt;
-  //   netAmt -= discountAmt;
-
-  //   setTotalValues((prevValues) => ({
-  //     ...prevValues,
-  //     tcsAmt,
-  //     discountAmt,
-  //     netAmt,
-  //   }));
-  // }, [totalValues.tcs, totalValues.grossAmt]);
 
   useEffect(() => {
-    // Calculating total government round off
+    if (isManualGovtRateChange) {
+      return; 
+    }
+  
     const totalGro = purchases.reduce((total, item) => {
       const gro = parseFloat(item.gro) || 0;
       const pcs = parseFloat(item.pcs) || 0;
       return total + gro * pcs;
     }, 0);
-
-    // Calculating total special purpose
+  
     const totalSP = purchases.reduce((total, item) => {
       const sp = parseFloat(item.sp) || 0;
       const pcs = parseFloat(item.pcs) || 0;
       return total + sp * pcs;
     }, 0);
-
+  
     // Updating total special purpose and gro in totalValues
     if (!entryNumber || isRowUpdated) {
       
@@ -1336,7 +1338,12 @@ const PurchaseEntry = () => {
         }));
       }
     }
-  }, [purchases]);
+  }, [formData.gro, formData.sp, isRowUpdated, entryNumber]);
+  
+
+  useEffect(() => {
+    setIsManualGovtRateChange(false);
+  }, [totalValues.govtRate, totalValues.spcPurpose]);
 
   useEffect(() => {
     if (passDateRef.current) {
@@ -2241,6 +2248,7 @@ const PurchaseEntry = () => {
                         {editableIndex === index ? (
                           <Input
                             value={editedRow.gro || row.gro}
+                            readOnly
                             onChange={(e) =>
                               handleEdit(index, "gro", e.target.value)
                             }
@@ -2254,6 +2262,7 @@ const PurchaseEntry = () => {
                         {editableIndex === index ? (
                           <Input
                             value={editedRow.sp || row.sp}
+                            readOnly
                             onChange={(e) =>
                               handleEdit(index, "sp", e.target.value)
                             }
@@ -2317,7 +2326,6 @@ const PurchaseEntry = () => {
               <InputLabel className="input-label-2">MRP Value</InputLabel>
               <TextField
                 inputRef={totalMrpRef}
-                type="text"
                 size="small"
                 className="input-field"
                 fullWidth
@@ -2331,7 +2339,6 @@ const PurchaseEntry = () => {
               <InputLabel className="input-label-2">S. Discount</InputLabel>
               <TextField
                 inputRef={sDiscountRef}
-                type="text"
                 size="small"
                 className="input-field"
                 fullWidth
@@ -2344,7 +2351,6 @@ const PurchaseEntry = () => {
               <InputLabel className="input-label-2">Govt. Rate Off</InputLabel>
               <TextField
                 inputRef={totalGroRef}
-                type="text"
                 size="small"
                 className="input-field"
                 fullWidth
@@ -2360,7 +2366,6 @@ const PurchaseEntry = () => {
               </InputLabel>
               <TextField
                 inputRef={totalSPRef}
-                type="text"
                 size="small"
                 className="input-field"
                 fullWidth
@@ -2374,7 +2379,6 @@ const PurchaseEntry = () => {
               <InputLabel className="input-label-2">Tcs(%)</InputLabel>
               <TextField
                 inputRef={tcsPercentRef}
-                type="text"
                 size="small"
                 className="input-field"
                 fullWidth
@@ -2388,7 +2392,6 @@ const PurchaseEntry = () => {
               <InputLabel className="input-label-2">Tcs Amt.</InputLabel>
               <TextField
                 inputRef={tcsAmtRef}
-                type="text"
                 size="small"
                 className="input-field"
                 fullWidth
@@ -2414,7 +2417,6 @@ const PurchaseEntry = () => {
               <InputLabel className="input-label-2">Discount(%)</InputLabel>
               <TextField
                 inputRef={totalDiscountRef}
-                type="text"
                 size="small"
                 className="input-field"
                 fullWidth
@@ -2428,7 +2430,6 @@ const PurchaseEntry = () => {
               <InputLabel className="input-label-2">Other Charges</InputLabel>
               <TextField
                 inputRef={otherChargesRef}
-                type="text"
                 size="small"
                 className="input-field"
                 fullWidth
@@ -2441,13 +2442,12 @@ const PurchaseEntry = () => {
               <InputLabel className="input-label-2">Adjustment</InputLabel>
               <TextField
                 inputRef={adjustmentRef}
-                type="text"
                 size="small"
                 className="input-field"
                 fullWidth
                 value={totalValues.adjustment}
-                // InputProps={{ readOnly: true }}
                 onChange={handleAdjustmentChange}
+                inputProps={{ pattern: "^\\d*\\.?\\d*$" }}
                 onKeyDown={(e) => handleEnterKey(e, netAmountRef)}
               />
             </Grid>
