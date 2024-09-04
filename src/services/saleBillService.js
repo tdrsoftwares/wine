@@ -254,3 +254,23 @@ export const getAllBrandWiseItems = async (filterOptions) => {
     return error;
   }
 };
+
+export const searchByItemName = async (itemName) => {
+  try {
+    const apiURL = `/item/search?name=${itemName}`;
+    const response = await axiosInstance.get(apiURL);
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const searchByBrandName = async (brandName) => {
+  try {
+    const apiURL = `/brand/search?name=${brandName}`;
+    const response = await axiosInstance.get(apiURL);
+    return response;
+  } catch (error) {
+    return error;
+  }
+};

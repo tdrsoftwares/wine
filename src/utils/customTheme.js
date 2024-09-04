@@ -24,7 +24,34 @@ export const customTheme = createTheme({
         },
       },
     },
+    MuiAutocomplete: {
+      styleOverrides: {
+        root: {
+          fontSize: "12px",
+          "& .MuiInputBase-input" : {
+            fontSize: "12px",
+          }
+        },
+        inputRoot: {
+          fontSize: "12px", 
+          padding: "6px 8px",
+        },
+        input: {
+          fontSize: "12px", 
+        },
+        endAdornment: {
+          fontSize: "12px",
+        },
+      },
+    },
     MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          fontSize: "12px",
+        },
+      },
+    },
+    MuiInputBase: {
       styleOverrides: {
         root: {
           fontSize: "12px",

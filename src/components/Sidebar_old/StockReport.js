@@ -23,6 +23,7 @@ import { getAllItemCategory } from "../../services/categoryService";
 import { getAllStores } from "../../services/storeService";
 import { customTheme } from "../../utils/customTheme";
 import * as XLSX from 'xlsx';
+import debounce from "lodash.debounce";
 
 const StockReport = () => {
   const [allStocks, setAllStocks] = useState([]);
@@ -273,23 +274,14 @@ const StockReport = () => {
     }
   };
 
-  const debounce = (func, delay) => {
-    let timeout;
-    return (...args) => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        func(...args);
-      }, delay);
-    };
-  };
-
   useEffect(() => {
     const debouncedFetch = debounce(fetchAllStocks, 300);
-    debouncedFetch();
+    if(filterData.storeName) {
+      debouncedFetch();
+    }
   }, [paginationModel, filterData]);
 
   useEffect(() => {
-    fetchAllStocks();
     fetchAllCompanies();
     fetchAllCategory();
     fetchAllStores();
@@ -308,6 +300,7 @@ const StockReport = () => {
       storeName: "",
       company: "",
     });
+    setAllStocks([])
     setPaginationModel({ page: 0, pageSize: 10 });
   };
 

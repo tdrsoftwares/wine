@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Box,
   Button,
   CircularProgress,
@@ -18,9 +19,10 @@ import { getAllItems } from "../../../services/itemService";
 import { getAllBrands } from "../../../services/brandService";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import dayjs from "dayjs";
-import { getItemWiseSaleDetails } from "../../../services/saleBillService";
+import { getItemWiseSaleDetails, searchByBrandName, searchByItemName } from "../../../services/saleBillService";
 import { getAllItemCategory } from "../../../services/categoryService";
 import { customTheme } from "../../../utils/customTheme";
+import debounce from "lodash.debounce";
 
 const ItemWiseSaleReport = () => {
   const [allSalesData, setAllSalesData] = useState([]);
@@ -45,7 +47,11 @@ const ItemWiseSaleReport = () => {
     phone: "",
     mode: "",
   });
-  const [allItems, setAllItems] = useState([]);
+
+  const [itemName, setItemName] = useState("");
+  const [brandName, setBrandName] = useState("");
+  const [itemNameOptions, setItemNameOptions] = useState([]);
+  const [brandNameOptions, setBrandNameOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
@@ -270,41 +276,6 @@ const ItemWiseSaleReport = () => {
     }
   };
 
-  const fetchAllItems = async () => {
-    try {
-      const allItemsResponse = await getAllItems();
-      if (allItemsResponse.status === 200) {
-        setAllItems(allItemsResponse?.data?.data);
-      } else {
-        // NotificationManager.error("No items found.", "Error");
-        setAllItems([]);
-      }
-    } catch (error) {
-      // NotificationManager.error(
-      //   "Error fetching items. Please try again later.",
-      //   "Error"
-      // );
-    }
-  };
-
-  const fetchAllBrands = async () => {
-    try {
-      const allBrandsResponse = await getAllBrands();
-      // console.log("allBrandsResponse ---> ", allBrandsResponse);
-      if (allBrandsResponse.status === 200) {
-        setAllBrands(allBrandsResponse?.data?.data);
-      } else {
-        setAllBrands([]);
-        // NotificationManager.error("No brands found.", "Error");
-      }
-    } catch (error) {
-      // NotificationManager.error(
-      //   "Error fetching brands. Please try again later.",
-      //   "Error"
-      // );
-      console.error("Error fetching brands:", error);
-    }
-  };
 
   const fetchAllCategory = async () => {
     try {
@@ -323,23 +294,49 @@ const ItemWiseSaleReport = () => {
     }
   };
 
+  const itemNameSearch = debounce(async (searchText) => {
+    try {
+      const response = await searchByItemName(searchText);
+      if (response?.data?.data && response.data.data.length > 0) {
+        setItemNameOptions(response.data.data);
+      } else {
+        setItemNameOptions([]);
+      }
+    } catch (error) {
+      console.error("Error searching items:", error);
+      setItemNameOptions([]);
+    }
+  }, 500);
+
+  const brandNameSearch = debounce(async (searchText) => {
+    try {
+      const response = await searchByBrandName(searchText);
+      if (response?.data?.data && response.data.data.length > 0) {
+        setBrandNameOptions(response.data.data);
+      } else {
+        setBrandNameOptions([]);
+      }
+    } catch (error) {
+      console.error("Error searching brand:", error);
+      setBrandNameOptions([]);
+    }
+  }, 500);
+
+  const handleItemNameChange = (event, newValue) => {
+    setItemName(newValue);
+    setFilterData((prevData) => ({ ...prevData, itemName: newValue }));
+  };
+
+  const handleBrandNameChange = (event, newValue) => {
+    setBrandName(newValue);
+    setFilterData((prevData) => ({ ...prevData, brandName: newValue }));
+  };
+
   useEffect(() => {
-    fetchAllBrands();
-    fetchAllItems();
     fetchAllCustomers();
     fetchAllSales();
     fetchAllCategory();
   }, []);
-
-  const debounce = (func, delay) => {
-    let timeout;
-    return (...args) => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        func(...args);
-      }, delay);
-    };
-  };
 
   useEffect(() => {
     const debouncedFetch = debounce(fetchAllSales, 300);
@@ -438,15 +435,17 @@ const ItemWiseSaleReport = () => {
               <InputLabel htmlFor="brandName" className="input-label">
                 Brand:
               </InputLabel>
-              <TextField
-                fullWidth
-                size="small"
-                name="brandName"
+              <Autocomplete
+                options={brandNameOptions.map((option) => option.name)}
+                value={brandName}
+                onChange={handleBrandNameChange}
+                onInputChange={(event, newInputValue) => {
+                  brandNameSearch(newInputValue);
+                }}
                 className="input-field"
-                value={filterData.brandName}
-                onChange={(e) =>
-                  setFilterData({ ...filterData, brandName: e.target.value })
-                }
+                renderInput={(params) => (
+                  <TextField {...params} fullWidth size="small" name="brandName" />
+                )}
               />
             </div>
           </Grid>
@@ -456,15 +455,17 @@ const ItemWiseSaleReport = () => {
               <InputLabel htmlFor="itemName" className="input-label">
                 Item:
               </InputLabel>
-              <TextField
-                fullWidth
-                size="small"
-                name="itemName"
+              <Autocomplete
+                options={itemNameOptions.map((option) => option.name)}
+                value={itemName}
+                onChange={handleItemNameChange}
+                onInputChange={(event, newInputValue) => {
+                  itemNameSearch(newInputValue);
+                }}
                 className="input-field"
-                value={filterData.itemName}
-                onChange={(e) =>
-                  setFilterData({ ...filterData, itemName: e.target.value })
-                }
+                renderInput={(params) => (
+                  <TextField {...params} fullWidth size="small" name="itemName" />
+                )}
               />
             </div>
           </Grid>
@@ -677,6 +678,10 @@ const ItemWiseSaleReport = () => {
                 phone: "",
                 mode: ""
               });
+              setItemName("")
+              setBrandName("")
+              setItemNameOptions([])
+              setBrandNameOptions([])
               setPaginationModel({ page: 0, pageSize: 10 });
               // fetchAllSales();
             }}
