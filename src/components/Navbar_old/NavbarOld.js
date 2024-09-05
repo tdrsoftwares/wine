@@ -549,10 +549,10 @@ const NavbarOld = () => {
                 On Date Report
               </Link>
               <Link
-                to="/brand-pack-ledger-by-mrp-range"
+                to="/brand-mrp-stock-report"
                 onClick={closeAllDropdowns}
               >
-                Brand/pack Ledger By Mrp Range
+                Brand Mrp Stock Report
               </Link>
               <Link to="/item-rate-chart" onClick={closeAllDropdowns}>
                 Item Rate Chart

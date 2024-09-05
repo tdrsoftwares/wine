@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Box,
   Button,
   CircularProgress,
@@ -22,11 +23,12 @@ import {
   GridToolbar,
   useGridApiRef,
 } from "@mui/x-data-grid";
-import { getDailySalesDetails } from "../../../services/saleBillService";
+import { getDailySalesDetails, searchByBrandName, searchByItemName } from "../../../services/saleBillService";
 import dayjs from "dayjs";
 import { customTheme } from "../../../utils/customTheme";
 import DailySalePrintComponent from "./DailySalePrintComponent";
 import { useReactToPrint } from "react-to-print";
+import debounce from "lodash.debounce";
 
 const DailySaleReport = () => {
   const [allCategory, setAllCategory] = useState([]);
@@ -54,6 +56,11 @@ const DailySaleReport = () => {
   const [totalVolume, setTotalVolume] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
   const [totalPcs, setTotalPcs] = useState(0);
+
+  const [itemName, setItemName] = useState("");
+  const [brandName, setBrandName] = useState("");
+  const [itemNameOptions, setItemNameOptions] = useState([]);
+  const [brandNameOptions, setBrandNameOptions] = useState([]);
 
   const apiRef = useGridApiRef();
   const printRef = useRef();
@@ -194,20 +201,42 @@ const DailySaleReport = () => {
     }
   };
 
-  useEffect(() => {
-    fetchAllCategory();
-    fetchAllCustomers();
-    fetchAllSales();
-  }, []);
+  const itemNameSearch = debounce(async (searchText) => {
+    try {
+      const response = await searchByItemName(searchText);
+      if (response?.data?.data && response.data.data.length > 0) {
+        setItemNameOptions(response.data.data);
+      } else {
+        setItemNameOptions([]);
+      }
+    } catch (error) {
+      console.error("Error searching items:", error);
+      setItemNameOptions([]);
+    }
+  }, 500);
 
-  const debounce = (func, delay) => {
-    let timeout;
-    return (...args) => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        func(...args);
-      }, delay);
-    };
+  const brandNameSearch = debounce(async (searchText) => {
+    try {
+      const response = await searchByBrandName(searchText);
+      if (response?.data?.data && response.data.data.length > 0) {
+        setBrandNameOptions(response.data.data);
+      } else {
+        setBrandNameOptions([]);
+      }
+    } catch (error) {
+      console.error("Error searching brand:", error);
+      setBrandNameOptions([]);
+    }
+  }, 500);
+
+  const handleItemNameChange = (event, newValue) => {
+    setItemName(newValue);
+    setFilterData((prevData) => ({ ...prevData, itemName: newValue }));
+  };
+
+  const handleBrandNameChange = (event, newValue) => {
+    setBrandName(newValue);
+    setFilterData((prevData) => ({ ...prevData, brandName: newValue }));
   };
 
   useEffect(() => {
@@ -235,6 +264,12 @@ const DailySaleReport = () => {
     setTotalAmount(totalAmount);
     setTotalPcs(totalPcs);
   }, [allSalesData]);
+
+  useEffect(() => {
+    fetchAllCategory();
+    fetchAllCustomers();
+    fetchAllSales();
+  }, []);
 
   const CustomFooter = () => {
     return (
@@ -302,40 +337,6 @@ const DailySaleReport = () => {
                   renderInput={(params) => <TextField {...params} />}
                 />
               </LocalizationProvider>
-            </div>
-          </Grid>
-
-          <Grid item xs={3}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="brandName" className="input-label">
-                Brand:
-              </InputLabel>
-              <TextField
-                // select
-                fullWidth
-                size="small"
-                name="brandName"
-                className="input-field"
-                value={filterData.brandName}
-                onChange={(e) =>
-                  setFilterData({ ...filterData, brandName: e.target.value })
-                }
-                // SelectProps={{
-                //   MenuProps: {
-                //     PaperProps: {
-                //       style: {
-                //         maxHeight: 200,
-                //       },
-                //     },
-                //   },
-                // }}
-              />
-              {/* {allBrands?.map((brand) => (
-                  <MenuItem key={brand._id} value={brand.name}>
-                    {brand.name}
-                  </MenuItem>
-                ))}
-              </TextField> */}
             </div>
           </Grid>
 
@@ -437,35 +438,41 @@ const DailySaleReport = () => {
 
           <Grid item xs={3}>
             <div className="input-wrapper">
+              <InputLabel htmlFor="brandName" className="input-label">
+                Brand:
+              </InputLabel>
+              <Autocomplete
+                options={brandNameOptions.map((option) => option.name)}
+                value={brandName}
+                onChange={handleBrandNameChange}
+                onInputChange={(event, newInputValue) => {
+                  brandNameSearch(newInputValue);
+                }}
+                className="input-field"
+                renderInput={(params) => (
+                  <TextField {...params} fullWidth size="small" name="brandName" />
+                )}
+              />
+            </div>
+          </Grid>
+
+          <Grid item xs={3}>
+            <div className="input-wrapper">
               <InputLabel htmlFor="itemName" className="input-label">
                 Item:
               </InputLabel>
-              <TextField
-                // select
-                fullWidth
-                size="small"
-                name="itemName"
+              <Autocomplete
+                options={itemNameOptions.map((option) => option.name)}
+                value={itemName}
+                onChange={handleItemNameChange}
+                onInputChange={(event, newInputValue) => {
+                  itemNameSearch(newInputValue);
+                }}
                 className="input-field"
-                value={filterData.itemName}
-                onChange={(e) =>
-                  setFilterData({ ...filterData, itemName: e.target.value })
-                }
-                // SelectProps={{
-                //   MenuProps: {
-                //     PaperProps: {
-                //       style: {
-                //         maxHeight: 200,
-                //       },
-                //     },
-                //   },
-                // }}
+                renderInput={(params) => (
+                  <TextField {...params} fullWidth size="small" name="itemName" />
+                )}
               />
-              {/* {allItems?.map((item) => (
-                  <MenuItem key={item._id} value={item.name}>
-                    {item.name}
-                  </MenuItem>
-                ))} */}
-              {/* </TextField> */}
             </div>
           </Grid>
 
@@ -539,6 +546,10 @@ const DailySaleReport = () => {
                 volume: "",
                 mode: ""
               });
+              setItemName("")
+              setBrandName("")
+              setItemNameOptions([])
+              setBrandNameOptions([])
               setPaginationModel({ page: 1, pageSize: 10 });
             }}
           >

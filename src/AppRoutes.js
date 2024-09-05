@@ -77,7 +77,7 @@ import ShowroomLedger from "./components/Navbar_old/InventoryReport/ShowroomLedg
 import FLBeerCsLedger from "./components/Navbar_old/InventoryReport/FLBeerCsLedger";
 import StockStatement from "./components/Navbar_old/InventoryReport/StockStatement";
 import OnDateReport from "./components/Navbar_old/InventoryReport/OnDateReport";
-import BrandPackLedgerByMrpRange from "./components/Navbar_old/InventoryReport/BrandPackLedgerByMrpRange";
+import BrandStockMrp from "./components/Navbar_old/InventoryReport/BrandStockMrp";
 import ItemRateChart from "./components/Navbar_old/InventoryReport/ItemRateChart";
 import BarCodeList from "./components/Navbar_old/InventoryReport/BarCodeList";
 import ItemTransferReport from "./components/Navbar_old/InventoryReport/ItemTransferReport";
@@ -431,9 +431,9 @@ const AppRoutes = ({
         element={authenticatedUser ? <OnDateReport /> : <UnAuthorized />}
       />
       <Route
-        path="/brand-pack-ledger-by-mrp-range"
+        path="/brand-mrp-stock-report"
         element={
-          authenticatedUser ? <BrandPackLedgerByMrpRange /> : <UnAuthorized />
+          authenticatedUser ? <BrandStockMrp /> : <UnAuthorized />
         }
       />
       <Route

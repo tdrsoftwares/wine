@@ -263,7 +263,6 @@ const PurchaseReportSummary = () => {
   useEffect(() => {
     fetchAllStores();
     fetchAllSuppliers();
-    fetchAllPurchases();
   }, []);
 
   const debounce = (func, delay) => {
@@ -278,7 +277,9 @@ const PurchaseReportSummary = () => {
 
   useEffect(() => {
     const debouncedFetch = debounce(fetchAllPurchases, 300);
-    debouncedFetch();
+    if(stockIn) {
+      debouncedFetch();
+    }
   }, [paginationModel, dateFrom, dateTo, selectedSupplier, stockIn]);
 
   return (
@@ -409,7 +410,7 @@ const PurchaseReportSummary = () => {
               setSelectedSupplier("");
               setStockIn("");
               setPaginationModel({ page: 0, pageSize: 10 });
-              fetchAllPurchases();
+              setAllPurchases([])
             }}
           >
             Clear Filters
@@ -490,13 +491,6 @@ const PurchaseReportSummary = () => {
               // pagination: Pagination
             }}
             initialState={{
-              pagination: {
-                paginationModel: {
-                  page: paginationModel.page,
-                  pageSize: paginationModel.pageSize,
-                },
-                rowCount: totalCount,
-              },
               density: "compact",
             }}
           />

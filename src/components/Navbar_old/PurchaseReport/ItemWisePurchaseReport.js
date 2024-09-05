@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Box,
   Button,
   Checkbox,
@@ -26,8 +27,28 @@ import { getAllItems } from "../../../services/itemService";
 import { getAllItemCategory } from "../../../services/categoryService";
 import { getAllBrands } from "../../../services/brandService";
 import { customTheme } from "../../../utils/customTheme";
+import debounce from "lodash.debounce";
+import { searchByBrandName, searchByItemName } from "../../../services/saleBillService";
 
 const ItemWisePurchaseReport = () => {
+  const [filterData, setFilterData] = useState({
+    dateFrom: null,
+    dateTo: null,
+    batchNo: "",
+    customerName: "",
+    categoryName: "",
+    brandName: "",
+    itemName: "",
+    itemCode: "",
+    supplierName: "",
+    series: "",
+    group: "",
+    userName: "",
+    billNo: "",
+    pack: "",
+    phone: "",
+    mode: "",
+  });
   const [selectedSupplier, setSelectedSupplier] = useState("");
   const [itemCode, setItemCode] = useState("");
   const [dateFrom, setDateFrom] = useState(null);
@@ -35,18 +56,13 @@ const ItemWisePurchaseReport = () => {
   const [mode, setMode] = useState("");
   const [allPurchases, setAllPurchases] = useState([]);
   const [allSuppliers, setAllSuppliers] = useState([]);
-  const [allItems, setAllItems] = useState([]);
   const [allCategory, setAllCategory] = useState([]);
-  const [checkController, setCheckController] = useState({
-    fl: false,
-    beer: false,
-    cs_iml: false,
-  });
-  const [allBrands, setAllBrands] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
-  const [brandName, setBrandName] = useState("");
-  const [categoryName, setCategoryName] = useState("");
   const [itemName, setItemName] = useState("");
+  const [brandName, setBrandName] = useState("");
+  const [itemNameOptions, setItemNameOptions] = useState([]);
+  const [brandNameOptions, setBrandNameOptions] = useState([]);
+  const [categoryName, setCategoryName] = useState("");
   const [volume, setVolume] = useState("");
   const [loading, setLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
@@ -227,8 +243,10 @@ const ItemWisePurchaseReport = () => {
   ];
 
   const fetchAllPurchases = async () => {
-    const fromDate = dateFrom ? formatDate(dateFrom) : null;
-    const toDate = dateTo ? formatDate(dateTo) : null;
+    const fromDate = filterData.dateFrom
+      ? formatDate(filterData.dateFrom)
+      : null;
+    const toDate = filterData.dateTo ? formatDate(filterData.dateTo) : null;
 
     setLoading(true);
     try {
@@ -240,13 +258,13 @@ const ItemWisePurchaseReport = () => {
         pageSize: paginationModel.pageSize,
         fromDate: fromDate,
         toDate: toDate,
-        itemName: itemName,
+        itemName: filterData.itemName,
         supplierName: selectedSupplier,
-        brandName,
-        categoryName,
-        volume,
-        itemCode,
-        mode
+        brandName: filterData.brandName,
+        categoryName: filterData.categoryName,
+        volume: filterData.pack,
+        itemCode: filterData.itemCode,
+        mode: filterData.mode
       };
       const response = await getItemWisePurchaseDetails(filterOptions);
       // console.log("Response: ", response);
@@ -291,27 +309,6 @@ const ItemWisePurchaseReport = () => {
     }
   };
 
-  const fetchAllItems = async () => {
-    try {
-      const allItemsResponse = await getAllItems();
-      if (allItemsResponse.status === 200) {
-        setAllItems(allItemsResponse?.data?.data);
-      }
-      else {
-        // NotificationManager.error("No items found." , "Error");
-        setAllItems([]);
-
-      }
-    } catch (error) {
-      // NotificationManager.error(
-      //   "Error fetching items. Please try again later.",
-      //   "Error"
-      // );
-      console.error(error);
-      
-    }
-  };
-
   const fetchAllCategory = async () => {
     try {
       const getAllCategoryResponse = await getAllItemCategory();
@@ -331,59 +328,57 @@ const ItemWisePurchaseReport = () => {
     }
   };
 
-  const fetchAllBrands = async () => {
+  const itemNameSearch = debounce(async (searchText) => {
     try {
-      const allBrandsResponse = await getAllBrands();
-      // console.log("allBrandsResponse ---> ", allBrandsResponse);
-      if (allBrandsResponse.status === 200) {
-        setAllBrands(allBrandsResponse?.data?.data);
+      const response = await searchByItemName(searchText);
+      if (response?.data?.data && response.data.data.length > 0) {
+        setItemNameOptions(response.data.data);
       } else {
-        setAllBrands([])
-        // NotificationManager.error("No brands found." , "Error");
+        setItemNameOptions([]);
       }
     } catch (error) {
-      // NotificationManager.error(
-      //   "Error fetching brands. Please try again later.",
-      //   "Error"
-      // );
-      console.error("Error fetching brands:", error);
+      console.error("Error searching items:", error);
+      setItemNameOptions([]);
     }
+  }, 500);
+
+  const brandNameSearch = debounce(async (searchText) => {
+    try {
+      const response = await searchByBrandName(searchText);
+      if (response?.data?.data && response.data.data.length > 0) {
+        setBrandNameOptions(response.data.data);
+      } else {
+        setBrandNameOptions([]);
+      }
+    } catch (error) {
+      console.error("Error searching brand:", error);
+      setBrandNameOptions([]);
+    }
+  }, 500);
+
+  const handleItemNameChange = (event, newValue) => {
+    setItemName(newValue);
+    setFilterData((prevData) => ({ ...prevData, itemName: newValue }));
+  };
+
+  const handleBrandNameChange = (event, newValue) => {
+    setBrandName(newValue);
+    setFilterData((prevData) => ({ ...prevData, brandName: newValue }));
   };
 
   useEffect(() => {
     fetchAllPurchases();
     fetchAllSuppliers();
-    fetchAllItems();
     fetchAllCategory();
-    fetchAllBrands();
   }, []);
-
-  const debounce = (func, delay) => {
-    let timeout;
-    return (...args) => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        func(...args);
-      }, delay);
-    };
-  };
 
   useEffect(() => {
     const debouncedFetch = debounce(fetchAllPurchases, 300);
     debouncedFetch();
   }, [
     paginationModel,
-    dateFrom,
-    dateTo,
     selectedSupplier,
-    dateFrom,
-    dateTo,
-    itemName,
-    brandName,
-    categoryName,
-    volume,
-    itemCode,
-    mode
+    filterData
   ]);
 
   return (
@@ -404,9 +399,11 @@ const ItemWisePurchaseReport = () => {
                 <DatePicker
                   id="dateFrom"
                   format="DD/MM/YYYY"
-                  value={dateFrom}
+                  value={filterData.dateFrom}
                   className="input-field date-picker"
-                  onChange={(date) => setDateFrom(date)}
+                  onChange={(newDate) =>
+                    setFilterData({ ...filterData, dateFrom: newDate })
+                  }
                   renderInput={(params) => <TextField {...params} />}
                 />
               </LocalizationProvider>
@@ -423,9 +420,11 @@ const ItemWisePurchaseReport = () => {
                 <DatePicker
                   id="dateTo"
                   format="DD/MM/YYYY"
-                  value={dateTo}
+                  value={filterData.dateTo}
                   className="input-field date-picker"
-                  onChange={(date) => setDateTo(date)}
+                  onChange={(newDate) =>
+                    setFilterData({ ...filterData, dateTo: newDate })
+                  }
                   renderInput={(params) => <TextField {...params} />}
                 />
               </LocalizationProvider>
@@ -470,30 +469,18 @@ const ItemWisePurchaseReport = () => {
               <InputLabel htmlFor="itemName" className="input-label">
                 Item:
               </InputLabel>
-              <TextField
-                // select
-                fullWidth
-                size="small"
-                name="itemName"
-                className="input-field"
+              <Autocomplete
+                options={itemNameOptions.map((option) => option.name)}
                 value={itemName}
-                onChange={(e) => setItemName(e.target.value)}
-                // SelectProps={{
-                //   MenuProps: {
-                //     PaperProps: {
-                //       style: {
-                //         maxHeight: 200,
-                //       },
-                //     },
-                //   },
-                // }}
+                onChange={handleItemNameChange}
+                onInputChange={(event, newInputValue) => {
+                  itemNameSearch(newInputValue);
+                }}
+                className="input-field"
+                renderInput={(params) => (
+                  <TextField {...params} fullWidth size="small" name="itemName" />
+                )}
               />
-              {/* {allItems?.map((item) => (
-                  <MenuItem key={item._id} value={item.name}>
-                    {item.name}
-                  </MenuItem>
-                ))}
-              </TextField> */}
             </div>
           </Grid>
 
@@ -507,8 +494,10 @@ const ItemWisePurchaseReport = () => {
                 name="itemCode"
                 className="input-field"
                 size="small"
-                value={itemCode}
-                onChange={(e) => setItemCode(e.target.value)}
+                value={filterData.itemCode}
+                onChange={(e) =>
+                  setFilterData({ ...filterData, itemCode: e.target.value })
+                }
               />
             </div>
           </Grid>
@@ -518,30 +507,18 @@ const ItemWisePurchaseReport = () => {
               <InputLabel htmlFor="brandName" className="input-label">
                 Brand:
               </InputLabel>
-              <TextField
-                // select
-                fullWidth
-                size="small"
-                name="brandName"
-                className="input-field"
+              <Autocomplete
+                options={brandNameOptions.map((option) => option.name)}
                 value={brandName}
-                onChange={(e) => setBrandName(e.target.value)}
-                // SelectProps={{
-                //   MenuProps: {
-                //     PaperProps: {
-                //       style: {
-                //         maxHeight: 200,
-                //       },
-                //     },
-                //   },
-                // }}
+                onChange={handleBrandNameChange}
+                onInputChange={(event, newInputValue) => {
+                  brandNameSearch(newInputValue);
+                }}
+                className="input-field"
+                renderInput={(params) => (
+                  <TextField {...params} fullWidth size="small" name="brandName" />
+                )}
               />
-              {/* {allBrands.map((brand) => (
-                  <MenuItem key={brand._id} value={brand.name}>
-                    {brand.name}
-                  </MenuItem>
-                ))}
-              </TextField> */}
             </div>
           </Grid>
 
@@ -556,8 +533,8 @@ const ItemWisePurchaseReport = () => {
                 size="small"
                 name="categoryName"
                 className="input-field"
-                value={categoryName}
-                onChange={(e) => setCategoryName(e.target.value)}
+                value={filterData.categoryName}
+                onChange={(e) => setFilterData({...filterData, categoryName: e.target.value})}
                 SelectProps={{
                   MenuProps: {
                     PaperProps: {
@@ -588,8 +565,8 @@ const ItemWisePurchaseReport = () => {
                 size="small"
                 name="volume"
                 className="input-field"
-                value={volume}
-                onChange={(e) => setVolume(e.target.value)}
+                value={filterData.pack}
+                onChange={(e) => setFilterData({...filterData, pack: e.target.value})}
               />
             </div>
           </Grid>
@@ -604,8 +581,8 @@ const ItemWisePurchaseReport = () => {
                 size="small"
                 name="mode"
                 className="input-field"
-                value={mode}
-                onChange={(e) => setMode(e.target.value)}
+                value={filterData.mode}
+                onChange={(e) => setFilterData({...filterData, mode: e.target.value})}
               >
                 <MenuItem value="">None</MenuItem>
                 {["cash", "online"].map((option, i) => (
@@ -630,18 +607,29 @@ const ItemWisePurchaseReport = () => {
             size="small"
             variant="contained"
             onClick={() => {
-              setDateFrom(null);
-              setDateTo(null);
-              setSelectedSupplier("");
-              setItemName("");
-              setBrandName("");
-              setCategoryName("");
-              setVolume("");
-              setItemCode("");
-              // setFilter1("");
-              setBatch("");
+              setFilterData({
+                dateFrom: null,
+                dateTo: null,
+                batchNo: "",
+                customerName: "",
+                brandName: "",
+                itemName: "",
+                itemCode: "",
+                supplierName: "",
+                series: "",
+                group: "",
+                userName: "",
+                billNo: "",
+                pack: "",
+                phone: "",
+                mode: ""
+              });
+              setSelectedSupplier("")
+              setItemName("")
+              setBrandName("")
+              setItemNameOptions([])
+              setBrandNameOptions([])
               setPaginationModel({ page: 1, pageSize: 10 });
-              // fetchAllPurchases();
             }}
             // sx={{ borderRadius: 8 }}
           >
