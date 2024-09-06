@@ -5,7 +5,6 @@ import {
   CircularProgress,
   Grid,
   InputLabel,
-  MenuItem,
   TextField,
   ThemeProvider,
   Typography,
@@ -101,15 +100,15 @@ const BrandStockMrp = () => {
       headerClassName: "custom-header",
     },
     {
-      field: "itemName",
-      headerName: "Item Name",
+      field: "brandName",
+      headerName: "Brand Name",
       flex: 1.5,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
-      field: "brandName",
-      headerName: "Brand Name",
+      field: "itemName",
+      headerName: "Item Name",
       flex: 1.5,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
@@ -185,52 +184,47 @@ const BrandStockMrp = () => {
   };
 
   const fetchAllBrandStockMrp = async () => {
-    const fromDate = filterData.dateFrom
-      ? formatDate(filterData.dateFrom)
-      : null;
+    const fromDate = filterData.dateFrom ? formatDate(filterData.dateFrom) : null;
     const toDate = filterData.dateTo ? formatDate(filterData.dateTo) : null;
-
+  
     setLoading(true);
     try {
       const filterOptions = {
-        fromDate: fromDate,
-        toDate: toDate,
-        brandName: filterData.brandName,
-        bl: filterData.isBLTrue,
+        fromDate,
+        toDate,
+        brandName: filterData.brandName === "All Brands" ? "" : filterData.brandName,
+        AllBrand: filterData.brandName === "All Brands"
       };
-      // console.log("filterData:", filterData)
-
-      if (filterData.brandName === "All Brands") {
-        filterOptions.AllBrand = true;
-      } else {
-        filterOptions.brandName = filterData.brandName;
-      }
-
+  
       const response = await getAllBrandStockMrp(filterOptions);
       const responseData = response?.data?.data;
-      // console.log("Response responseData: ", responseData);
-      const itemsData = response?.data?.data[0]?.items;
-
+      // console.log("responseData: ", responseData);
+  
+      const itemsData = responseData?.reduce((acc, brandData) => {
+        const brandItems = brandData.items.map(item => ({
+          ...item,
+          brandName: brandData.brand,
+        }));
+        return [...acc, ...brandItems];
+      }, []);
+      
+      // console.log("item data: ", itemsData);
+  
       if (responseData) {
         setAllBrandStockMrp(itemsData || []);
-        setTotalCount(responseData?.length || 0);
-        const totalValues = calculateTotals(responseData);
+        setTotalCount(itemsData?.length || 0);
+        const totalValues = calculateTotals(itemsData);
         setTotals(totalValues);
       } else {
-        // console.log("Error", response);
-        // NotificationManager.error("No items found.", "Error");
         setAllBrandStockMrp([]);
       }
     } catch (error) {
-      // NotificationManager.error(
-      //   "Error fetching items. Please try again later.",
-      //   "Error"
-      // );
-      console.log("Error fetching items", error);
+      console.error("Error fetching items", error);
     } finally {
       setLoading(false);
     }
   };
+  
 
   const brandNameSearch = debounce(async (searchText) => {
     try {
@@ -279,11 +273,12 @@ const BrandStockMrp = () => {
     setTotalPcs(totalPcs);
   }, [allBrandStockMrp]);
 
+  console.log("allBrandStockMrp: ", allBrandStockMrp)
   const rows = (allBrandStockMrp || []).map((item, index) => ({
     id: index,
     sNo: index + 1,
-    itemName: item.item || "No Data",
     brandName: item.brand || "No Data",
+    itemName: item.item || "No Data",
     mrp: item.mrp || 0,
     openingBalance: item.openingBalance || 0,
     openingMrp: item.openingMrpValue || 0,
@@ -296,11 +291,11 @@ const BrandStockMrp = () => {
   }));
 
   
-  rows.push({
+  rows.length > 0 && rows.push({
     id: "totals", 
     sNo: "Total",
-    itemName: "",
     brandName: "",
+    itemName: "",
     mrp: "",
     openingBalance: totals.openingBalance,
     openingMrp: totals.openingMrpValue,
@@ -311,26 +306,6 @@ const BrandStockMrp = () => {
     closingBalance: totals.closingBalance,
     closingMrpValue: totals.closingMrpValue,
   });
-
-  // const CustomFooter = () => {
-  //   return (
-  //     <GridFooterContainer>
-  //       <div
-  //         style={{
-  //           flex: 1,
-  //           display: "flex",
-  //           justifyContent: "space-around",
-  //           // margin: "0 20px",
-  //         }}
-  //       >
-  //         <span>Total Volume: {totalVolume?.toFixed(2) + "ltr"}</span>
-  //         <span>Total Amount: {totalAmount?.toFixed(2)}</span>
-  //         <span>Total Pcs: {totalPcs?.toFixed(0)}</span>
-  //       </div>
-  //       <GridFooter />
-  //     </GridFooterContainer>
-  //   );
-  // };
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -390,7 +365,10 @@ const BrandStockMrp = () => {
                 Brand:
               </InputLabel>
               <Autocomplete
-                options={brandNameOptions.map((option) => option.name)}
+                options={[
+                  "All Brands",
+                  ...brandNameOptions.map((option) => option.name),
+                ]}
                 value={brandName}
                 onChange={handleBrandNameChange}
                 onInputChange={(event, newInputValue) => {
@@ -398,7 +376,12 @@ const BrandStockMrp = () => {
                 }}
                 className="input-field"
                 renderInput={(params) => (
-                  <TextField {...params} fullWidth size="small" name="brandName" />
+                  <TextField
+                    {...params}
+                    fullWidth
+                    size="small"
+                    name="brandName"
+                  />
                 )}
               />
             </div>
@@ -413,7 +396,6 @@ const BrandStockMrp = () => {
             "& button": { marginTop: 2 },
           }}
         >
-          
           <Button
             color="inherit"
             size="small"
@@ -423,24 +405,23 @@ const BrandStockMrp = () => {
                 dateFrom: null,
                 dateTo: null,
                 brandName: "",
-                
               });
-              setBrandName("")
-              setBrandNameOptions([])
-              setAllBrandStockMrp([])
+              setBrandName("");
+              setBrandNameOptions([]);
+              setAllBrandStockMrp([]);
               setPaginationModel({ page: 1, pageSize: 10 });
             }}
           >
             Clear Filters
           </Button>
-          <Button
+          {/* <Button
             color="warning"
             size="small"
             variant="contained"
             onClick={handlePrint}
           >
             Print
-          </Button>
+          </Button> */}
           <Button
             color="info"
             size="small"
