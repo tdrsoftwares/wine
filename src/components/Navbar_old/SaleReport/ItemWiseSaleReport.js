@@ -653,7 +653,7 @@ const ItemWiseSaleReport = () => {
           sx={{
             display: "flex",
             justifyContent: "flex-end",
-            "& button": { marginTop: 2 },
+            "& button": { marginTop: 1 },
           }}
         >
           <Button

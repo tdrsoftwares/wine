@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Box,
   Button,
   Checkbox,
@@ -27,6 +28,9 @@ import { getAllItemStatuses } from "../../../services/dailyitemStatusService";
 import CustomItemStatusFooter from "./CustomItemStatusFooter";
 import ReactToPrint, { useReactToPrint } from "react-to-print";
 import DailyItemStatusPrintComponent from "./DailyItemStatusPrintComponent";
+import { searchByBrandName, searchByItemName } from "../../../services/saleBillService";
+
+import debounce from "lodash.debounce";
 
 const DailyItemStatus = () => {
   const todaysDate = dayjs();
@@ -59,6 +63,11 @@ const DailyItemStatus = () => {
   const [totalSold, setTotalSold] = useState("");
   const [totalTransferredFrom, setTotalTransferredFrom] = useState("");
   const [totalTransferredTo, setTotalTransferredTo] = useState("");
+  const [itemName, setItemName] = useState("");
+  const [brandName, setBrandName] = useState("");
+  const [itemNameOptions, setItemNameOptions] = useState([]);
+  const [brandNameOptions, setBrandNameOptions] = useState([]);
+
   const printRef = useRef();
 
   const columns = [
@@ -244,26 +253,61 @@ const DailyItemStatus = () => {
     }
   };
 
+  const itemNameSearch = debounce(async (searchText) => {
+    try {
+      const response = await searchByItemName(searchText);
+      if (response?.data?.data && response.data.data.length > 0) {
+        setItemNameOptions(response.data.data);
+      } else {
+        setItemNameOptions([]);
+      }
+    } catch (error) {
+      console.error("Error searching items:", error);
+      setItemNameOptions([]);
+    }
+  }, 500);
+
+  const brandNameSearch = debounce(async (searchText) => {
+    try {
+      const response = await searchByBrandName(searchText);
+      const brandsData = response?.data?.data || [];
+  
+      const allBrandsOption = { name: "All Brands" };
+      const updatedBrandsData = [allBrandsOption, ...brandsData];
+  
+      setBrandNameOptions(updatedBrandsData);
+    } catch (error) {
+      console.error("Error searching brand:", error);
+      setBrandNameOptions([{ name: "All Brands" }]);
+    }
+  }, 500);
+  
+
+  const handleItemNameChange = (event, newValue) => {
+    setItemName(newValue);
+    setFilterData((prevData) => ({ ...prevData, itemName: newValue }));
+  };
+
+  const handleBrandNameChange = (event, newValue) => {
+    setBrandName(newValue);
+    
+    if (newValue === "All Brands") {
+      setFilterData((prevData) => ({ ...prevData, brandName: "All Brands" }));
+    } else {
+      setFilterData((prevData) => ({ ...prevData, brandName: newValue }));
+    }
+  };
+  
+
   useEffect(() => {
     fetchAllCompanies();
     fetchAllCategory();
     fetchAllStores();
-    // fetchAllItemStatus();
   }, []);
 
   const handleBrandChange = (e) => {
     const selectedBrand = e.target.value;
     setFilterData({ ...filterData, brandName: selectedBrand });
-  };
-
-  const debounce = (func, delay) => {
-    let timeout;
-    return (...args) => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        func(...args);
-      }, delay);
-    };
   };
 
   useEffect(() => {
@@ -442,15 +486,22 @@ const DailyItemStatus = () => {
               <InputLabel htmlFor="itemName" className="input-label">
                 Item:
               </InputLabel>
-              <TextField
-                fullWidth
-                size="small"
-                name="itemName"
+              <Autocomplete
+                options={itemNameOptions.map((option) => option.name)}
+                value={itemName}
+                onChange={handleItemNameChange}
+                onInputChange={(event, newInputValue) => {
+                  itemNameSearch(newInputValue);
+                }}
                 className="input-field"
-                value={filterData.itemName}
-                onChange={(e) =>
-                  setFilterData({ ...filterData, itemName: e.target.value })
-                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    fullWidth
+                    size="small"
+                    name="itemName"
+                  />
+                )}
               />
             </div>
           </Grid>
@@ -460,13 +511,22 @@ const DailyItemStatus = () => {
               <InputLabel htmlFor="brandName" className="input-label">
                 Brand:
               </InputLabel>
-              <TextField
-                fullWidth
-                size="small"
-                name="brandName"
+              <Autocomplete
+                options={brandNameOptions.map((option) => option.name)} 
+                value={brandName}
+                onChange={handleBrandNameChange}
+                onInputChange={(event, newInputValue) => {
+                  brandNameSearch(newInputValue);
+                }}
                 className="input-field"
-                value={filterData.brandName || ""}
-                onChange={handleBrandChange}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    fullWidth
+                    size="small"
+                    name="brandName"
+                  />
+                )}
               />
             </div>
           </Grid>
@@ -640,6 +700,10 @@ const DailyItemStatus = () => {
                 storeName: "",
                 isBLTrue: false,
               });
+              setItemName("");
+              setBrandName("");
+              setItemNameOptions([]);
+              setBrandNameOptions([]);
               setPaginationModel({ page: 0, pageSize: 10 });
               setAllItemStatusData([]);
             }}

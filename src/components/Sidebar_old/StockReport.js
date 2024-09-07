@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Box,
   Button,
   CircularProgress,
@@ -24,6 +25,7 @@ import { getAllStores } from "../../services/storeService";
 import { customTheme } from "../../utils/customTheme";
 import * as XLSX from 'xlsx';
 import debounce from "lodash.debounce";
+import { searchByBrandName, searchByItemName } from "../../services/saleBillService";
 
 const StockReport = () => {
   const [allStocks, setAllStocks] = useState([]);
@@ -53,6 +55,11 @@ const StockReport = () => {
     page: 0,
     pageSize: 10,
   });
+
+  const [itemName, setItemName] = useState("");
+  const [brandName, setBrandName] = useState("");
+  const [itemNameOptions, setItemNameOptions] = useState([]);
+  const [brandNameOptions, setBrandNameOptions] = useState([]);
 
   const [totalCount, setTotalCount] = useState(0);
   const [totalPurRate, setTotalPurRate] = useState(0);
@@ -274,6 +281,44 @@ const StockReport = () => {
     }
   };
 
+  const itemNameSearch = debounce(async (searchText) => {
+    try {
+      const response = await searchByItemName(searchText);
+      if (response?.data?.data && response.data.data.length > 0) {
+        setItemNameOptions(response.data.data);
+      } else {
+        setItemNameOptions([]);
+      }
+    } catch (error) {
+      console.error("Error searching items:", error);
+      setItemNameOptions([]);
+    }
+  }, 500);
+
+  const brandNameSearch = debounce(async (searchText) => {
+    try {
+      const response = await searchByBrandName(searchText);
+      if (response?.data?.data && response.data.data.length > 0) {
+        setBrandNameOptions(response.data.data);
+      } else {
+        setBrandNameOptions([]);
+      }
+    } catch (error) {
+      console.error("Error searching brand:", error);
+      setBrandNameOptions([]);
+    }
+  }, 500);
+
+  const handleItemNameChange = (event, newValue) => {
+    setItemName(newValue);
+    setFilterData((prevData) => ({ ...prevData, itemName: newValue }));
+  };
+
+  const handleBrandNameChange = (event, newValue) => {
+    setBrandName(newValue);
+    setFilterData((prevData) => ({ ...prevData, brandName: newValue }));
+  };
+
   useEffect(() => {
     const debouncedFetch = debounce(fetchAllStocks, 300);
     if(filterData.storeName) {
@@ -300,6 +345,10 @@ const StockReport = () => {
       storeName: "",
       company: "",
     });
+    setItemName("");
+    setBrandName("");
+    setItemNameOptions([]);
+    setBrandNameOptions([]);
     setAllStocks([])
     setPaginationModel({ page: 0, pageSize: 10 });
   };
@@ -410,12 +459,17 @@ const StockReport = () => {
               <InputLabel htmlFor="itemName" className="input-label">
                 Item Name :
               </InputLabel>
-              <TextField
-                fullWidth
-                size="small"
-                name="itemName"
-                value={filterData.itemName}
-                onChange={handleFilterChange}
+              <Autocomplete
+                options={itemNameOptions.map((option) => option.name)}
+                value={itemName}
+                onChange={handleItemNameChange}
+                onInputChange={(event, newInputValue) => {
+                  itemNameSearch(newInputValue);
+                }}
+                className="input-field"
+                renderInput={(params) => (
+                  <TextField {...params} fullWidth size="small" name="itemName" />
+                )}
               />
             </div>
           </Grid>
@@ -489,12 +543,17 @@ const StockReport = () => {
               <InputLabel htmlFor="brandName" className="input-label">
                 Brand :
               </InputLabel>
-              <TextField
-                fullWidth
-                size="small"
-                name="brandName"
-                value={filterData.brandName}
-                onChange={handleFilterChange}
+              <Autocomplete
+                options={brandNameOptions.map((option) => option.name)}
+                value={brandName}
+                onChange={handleBrandNameChange}
+                onInputChange={(event, newInputValue) => {
+                  brandNameSearch(newInputValue);
+                }}
+                className="input-field"
+                renderInput={(params) => (
+                  <TextField {...params} fullWidth size="small" name="brandName" />
+                )}
               />
             </div>
           </Grid>
