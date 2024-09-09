@@ -70,7 +70,7 @@ function LoginForm({ handleLogin }) {
       const response = await axios.post(url + `/user-master/login`, {
         customerId,
         email,
-        password: encryptedPassword,
+        password: password,
       });
 
       const { accessToken, refreshToken } = response.data.data;
@@ -160,7 +160,7 @@ function LoginForm({ handleLogin }) {
     try {
       const response = await axios.put(`${url}/user-master/reset-password`, {
         otp: otp,
-        newPassword: encryptedPassword, // Send the encrypted password
+        newPassword: newPassword,
       });
   
       if (response.status === 200) {
