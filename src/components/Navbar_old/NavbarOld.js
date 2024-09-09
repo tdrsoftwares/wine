@@ -600,8 +600,8 @@ const NavbarOld = () => {
               <Link to="/category-register-counter" onClick={closeAllDropdowns}>
                 Category Register counter
               </Link>
-              <Link to="/brand-register-all" onClick={closeAllDropdowns}>
-                Brand Register All
+              <Link to="/brand-register-report" onClick={closeAllDropdowns}>
+                Brand Register Report
               </Link>
               <Link to="/brand-register-godown" onClick={closeAllDropdowns}>
                 Brand Register Godown

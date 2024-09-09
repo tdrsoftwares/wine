@@ -88,7 +88,6 @@ import StockStatementForm1Excise from "./components/Navbar_old/ExciseReport/Stoc
 import CategoryRegisterAll from "./components/Navbar_old/ExciseReport/CategoryRegisterAll";
 import CategoryRegisterGodown from "./components/Navbar_old/ExciseReport/CategoryRegisterGodown";
 import CategoryRegisterCounter from "./components/Navbar_old/ExciseReport/CategoryRegisterCounter";
-import BrandRegisterAll from "./components/Navbar_old/ExciseReport/BrandRegisterAll";
 import BrandRegisterGodown from "./components/Navbar_old/ExciseReport/BrandRegisterGodown";
 import BrandRegisterCounter from "./components/Navbar_old/ExciseReport/BrandRegisterCounter";
 import OndateStockRegister from "./components/Navbar_old/ExciseReport/OndateStockRegister";
@@ -114,6 +113,7 @@ import Epos from "./modules/Epos";
 import AdminPanel from "./modules/AdminPanel";
 import DailyItemBatchStatus from "./components/Sidebar_old/DailyItemBatchStatus";
 import StockUpdation from "./modules/StockUpdation";
+import BrandRegisterReport from "./components/Navbar_old/ExciseReport/BrandRegisterReport";
 
 const PrivateRoute = ({ element, authenticatedUser }) => {
   return authenticatedUser ? element : <Navigate to="/login" />;
@@ -158,6 +158,10 @@ const AppRoutes = ({
             authenticatedUser={authenticatedUser}
           />
         }
+      />
+      <Route
+        path="/forgotten-password"
+        element={authenticatedUser ? <ItemLedgerStatus /> : <UnAuthorized />}
       />
       <Route path="*" element={<NotFound />} />
 
@@ -479,8 +483,8 @@ const AppRoutes = ({
         }
       />
       <Route
-        path="/brand-register-all"
-        element={authenticatedUser ? <BrandRegisterAll /> : <UnAuthorized />}
+        path="/brand-register-report"
+        element={authenticatedUser ? <BrandRegisterReport /> : <UnAuthorized />}
       />
       <Route
         path="/brand-register-godown"

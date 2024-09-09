@@ -2,15 +2,10 @@ import {
   Autocomplete,
   Box,
   Button,
-  Checkbox,
   CircularProgress,
-  FormControlLabel,
-  FormGroup,
   Grid,
   InputLabel,
   MenuItem,
-  Radio,
-  RadioGroup,
   TextField,
   ThemeProvider,
   Typography,
@@ -18,14 +13,11 @@ import {
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import { getItemWisePurchaseDetails } from "../../../services/purchaseService";
-import { NotificationManager } from "react-notifications";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { getAllSuppliers } from "../../../services/supplierService";
-import { getAllItems } from "../../../services/itemService";
 import { getAllItemCategory } from "../../../services/categoryService";
-import { getAllBrands } from "../../../services/brandService";
 import { customTheme } from "../../../utils/customTheme";
 import debounce from "lodash.debounce";
 import { searchByBrandName, searchByItemName } from "../../../services/saleBillService";
@@ -50,10 +42,6 @@ const ItemWisePurchaseReport = () => {
     mode: "",
   });
   const [selectedSupplier, setSelectedSupplier] = useState("");
-  const [itemCode, setItemCode] = useState("");
-  const [dateFrom, setDateFrom] = useState(null);
-  const [dateTo, setDateTo] = useState(null);
-  const [mode, setMode] = useState("");
   const [allPurchases, setAllPurchases] = useState([]);
   const [allSuppliers, setAllSuppliers] = useState([]);
   const [allCategory, setAllCategory] = useState([]);
@@ -62,15 +50,12 @@ const ItemWisePurchaseReport = () => {
   const [brandName, setBrandName] = useState("");
   const [itemNameOptions, setItemNameOptions] = useState([]);
   const [brandNameOptions, setBrandNameOptions] = useState([]);
-  const [categoryName, setCategoryName] = useState("");
-  const [volume, setVolume] = useState("");
+  
   const [loading, setLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     page: 1,
     pageSize: 10,
   });
-
-  const [batch, setBatch] = useState("");
 
   const formatDate = (date) => {
     if (!date) return null;

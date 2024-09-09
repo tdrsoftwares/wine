@@ -39,3 +39,13 @@ export const deleteBrand = async (id) => {
     return error;
   }
 };
+
+export const getAllBrandsReport = async () => {
+  try {
+    const apiUrl = `reports/brand-register-reports`;
+    const response = await axiosInstance.get(apiUrl);
+    return response;
+  } catch (err) {
+    return err;
+  }
+}

@@ -293,14 +293,15 @@ const ItemTransferReport = () => {
   };
 
   useEffect(() => {
-    fetchAllTransfer();
     fetchAllStores();
     fetchAllCategory();
   }, []);
 
   useEffect(() => {
     const debouncedFetch = debounce(fetchAllTransfer, 300);
-    debouncedFetch();
+    if(filterData.storeName){
+      debouncedFetch();
+    }
   }, [paginationModel, filterData]);
 
   return (
