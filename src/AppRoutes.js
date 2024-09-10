@@ -114,6 +114,7 @@ import AdminPanel from "./modules/AdminPanel";
 import DailyItemBatchStatus from "./components/Sidebar_old/DailyItemBatchStatus";
 import StockUpdation from "./modules/StockUpdation";
 import BrandRegisterReport from "./components/Navbar_old/ExciseReport/BrandRegisterReport";
+import UserControl from "./modules/UserControl";
 
 const PrivateRoute = ({ element, authenticatedUser }) => {
   return authenticatedUser ? element : <Navigate to="/login" />;
@@ -129,6 +130,7 @@ const AppRoutes = ({
   handleSignUp,
   sidebarVisible,
   handleSignout,
+  setRolesAndPermissionDialog
 }) => {
   return (
     <Routes>
@@ -436,9 +438,7 @@ const AppRoutes = ({
       />
       <Route
         path="/brand-mrp-stock-report"
-        element={
-          authenticatedUser ? <BrandStockMrp /> : <UnAuthorized />
-        }
+        element={authenticatedUser ? <BrandStockMrp /> : <UnAuthorized />}
       />
       <Route
         path="/item-rate-chart"
@@ -676,6 +676,11 @@ const AppRoutes = ({
       <Route
         path="/epos"
         element={authenticatedUser ? <Epos /> : <UnAuthorized />}
+      />
+
+      <Route
+        path="/user-control"
+        element={authenticatedUser ? <UserControl /> : <UnAuthorized />}
       />
 
       <Route

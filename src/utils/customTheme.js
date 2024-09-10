@@ -20,7 +20,7 @@ export const customTheme = createTheme({
           },
           "& .MuiRadio-root": {
             fontSize: "12px",
-          }
+          },
         },
       },
     },
@@ -28,16 +28,16 @@ export const customTheme = createTheme({
       styleOverrides: {
         root: {
           fontSize: "12px",
-          "& .MuiInputBase-input" : {
+          "& .MuiInputBase-input": {
             fontSize: "12px",
-          }
+          },
         },
         inputRoot: {
-          fontSize: "12px", 
+          fontSize: "12px",
           padding: "6px 8px",
         },
         input: {
-          fontSize: "12px", 
+          fontSize: "12px",
         },
         endAdornment: {
           fontSize: "12px",
@@ -161,6 +161,15 @@ export const customTheme = createTheme({
             {
               fontSize: "12px",
             },
+        },
+      },
+    },
+    MuiCheckbox: {
+      styleOverrides: {
+        root: {
+          fontSize: "12px",
+          padding: "0px",
+          marginRight: "2px"
         },
       },
     },
