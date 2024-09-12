@@ -63,11 +63,11 @@ function LoginForm({ handleLogin }) {
       return;
     }
 
-    // Encrypt the password
+    // Encrypting password
     const encryptedPassword = CryptoJS.SHA256(password).toString();
 
     try {
-      const response = await axios.post(url + `/user-master/login`, {
+      const response = await axios.post(url + `/admin/user-master/login`, {
         customerId,
         email,
         password: password,
@@ -133,7 +133,7 @@ function LoginForm({ handleLogin }) {
           "OTP has been sent to your email.",
           "Success"
         );
-        setResetPasswordInputsEnabled(true); // Enable OTP and password fields
+        setResetPasswordInputsEnabled(true); 
       } else {
         NotificationManager.error(
           "Failed to send OTP. Please try again.",
