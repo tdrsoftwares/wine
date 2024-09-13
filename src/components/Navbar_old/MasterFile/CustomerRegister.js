@@ -31,7 +31,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import { customTheme } from "../../../utils/customTheme";
 
-const CustomerRegister = () => {
+
+const Customers = () => {
   const tableRef = useRef(null);
   const [allCustomerData, setAllCustomerData] = useState([]);
   const [editableIndex, setEditableIndex] = useState(null);
@@ -881,4 +882,4 @@ const CustomerRegister = () => {
   );
 };
 
-export default CustomerRegister;
+export default Customers;

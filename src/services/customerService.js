@@ -40,3 +40,13 @@ export const deleteCustomer = async (id) => {
     return error;
   }
 };
+
+export const updateCustomerDetails = async (itemCode, mrp, payload) => {
+  try {
+    const apiURL = `/stock/update-closing-stock?itemCode=${itemCode}&mrp=${mrp}`;
+    const updateItemData = await axiosInstance.put(apiURL, payload);
+    return updateItemData;
+  } catch (error) {
+    return error;
+  }
+};

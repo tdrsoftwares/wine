@@ -115,6 +115,7 @@ import DailyItemBatchStatus from "./components/Sidebar_old/DailyItemBatchStatus"
 import StockUpdation from "./modules/StockUpdation";
 import BrandRegisterReport from "./components/Navbar_old/ExciseReport/BrandRegisterReport";
 import UserControl from "./modules/UserControl";
+import StockModify from "./modules/StockModify";
 
 const PrivateRoute = ({ element, authenticatedUser }) => {
   return authenticatedUser ? element : <Navigate to="/login" />;
@@ -681,6 +682,11 @@ const AppRoutes = ({
       <Route
         path="/user-control"
         element={authenticatedUser ? <UserControl /> : <UnAuthorized />}
+      />
+
+      <Route
+        path="/stock-modify"
+        element={authenticatedUser ? <StockModify /> : <UnAuthorized />}
       />
 
       <Route
