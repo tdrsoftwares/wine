@@ -556,11 +556,12 @@ const PurchaseEntry = () => {
     try {
       if (entryNumber > 0) {
         const response = await getPurchaseDetailsByEntryNo(entryNumber);
+        console.log(response)
         
 
-        if (response?.data?.data) {
-          const receivedData = response.data.data;
-          // console.log("receivedData > ", receivedData);
+        if (response.status === 200) {
+          const receivedData = response?.data?.data;
+          console.log("entryno Data > ", receivedData);
 
           const passDateObject = convertToDayjsObject(receivedData.passDate);
           const billDateObject = convertToDayjsObject(receivedData.billDate);
