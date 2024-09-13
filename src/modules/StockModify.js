@@ -70,7 +70,12 @@ const StockModify = () => {
                 name="mrp"
                 className="input-field"
                 value={mrp}
-                onChange={(e) => setMrp(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (!isNaN(value)) {
+                    setMrp(e.target.value);
+                  }
+                }}
               />
             </div>
           </Grid>
@@ -86,7 +91,12 @@ const StockModify = () => {
                 name="closingStock"
                 className="input-field"
                 value={closingStock}
-                onChange={(e) => setClosingStock(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (!isNaN(value)) {
+                    setClosingStock(e.target.value);
+                  }
+                }}
               />
             </div>
           </Grid>
@@ -105,8 +115,6 @@ const StockModify = () => {
             </Button>
           </Grid>
         </Grid>
-
-        
       </Paper>
     </ThemeProvider>
   );
