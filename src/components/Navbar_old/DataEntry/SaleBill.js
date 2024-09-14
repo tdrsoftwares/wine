@@ -1617,8 +1617,8 @@ const SaleBill = () => {
           resetTopFormData();
           resetMiddleFormData();
           resetTotalValues();
-          setSeriesEditable(true);
-          setBillNoEditable(true);
+          setSeriesEditable(false);
+          setBillNoEditable(false);
           setSalesData([]);
           sessionStorage.setItem("salesData", JSON.stringify([]));
           setEditedRow({});
@@ -1869,6 +1869,7 @@ const SaleBill = () => {
           }));
 
           setSalesData([...newSalesItems]);
+          console.log(salesData)
 
           setTotalValues({
             totalVolume: receivedData.volume,

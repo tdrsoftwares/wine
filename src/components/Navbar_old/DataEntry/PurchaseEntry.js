@@ -60,7 +60,7 @@ const PurchaseEntry = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [entryNumber, setEntryNumber] = useState("");
-  const [entryNoEditable, setEntryNoEditable] = useState(true);
+  const [entryNoEditable, setEntryNoEditable] = useState(false);
   const [showPurchaseBillPrintModal, setShowPurchaseBillPrintModal] = useState(false);
   const [formData, setFormData] = useState({
     _id: "",
@@ -215,7 +215,7 @@ const PurchaseEntry = () => {
       stockIn: "",
     });
     setEntryNumber("");
-    setEntryNoEditable(true);
+    setEntryNoEditable(false);
     resetMiddleFormData();
     setPurchases([]);
     setEditedRow({});
@@ -551,31 +551,38 @@ const PurchaseEntry = () => {
     return dayjs(dateStr, "DD/MM/YYYY");
   };
 
+  // useEffect(() => {
+  //   console.log("purchases after state update: ", purchases);
+  // }, [purchases]);
+  
+
   const entryNumberSearch = debounce(async (entryNumber) => {
     
     try {
-      if (entryNumber > 0) {
+      if (entryNumber && entryNoEditable) {
         const response = await getPurchaseDetailsByEntryNo(entryNumber);
         console.log(response)
         
 
-        if (response.status === 200) {
-          const receivedData = response?.data?.data;
+        if (response?.data?.data) {
+          const receivedData = response.data.data;
           console.log("entryno Data > ", receivedData);
 
           const passDateObject = convertToDayjsObject(receivedData.passDate);
           const billDateObject = convertToDayjsObject(receivedData.billDate);
 
-          setFormData({
+          setFormData((prevData) => ({
+            ...prevData,
             supplierName: receivedData.supplierId?._id,
             passNo: receivedData.passNo,
             passDate: passDateObject,
             stockIn: receivedData.storeId?._id,
             billNo: receivedData.billNo,
             billDate: billDateObject,
-          });
+          }));
 
           const purchaseItems = receivedData?.purchaseItems;
+          console.log("purchaseItems: ",purchaseItems)
 
           const newPurchaseItems = purchaseItems.map((purchase) => ({
             _id: purchase?._id,
@@ -599,8 +606,12 @@ const PurchaseEntry = () => {
             sp: purchase?.sp,
             amount: purchase?.itemAmount,
           }));
+          console.log("newPurchaseItems: ", newPurchaseItems)
 
           setPurchases([...newPurchaseItems]);
+          
+          // console.log("purchases: ", purchases);
+
 
           setTotalValues({
             totalMrp: receivedData.mrpValue,
@@ -633,6 +644,9 @@ const PurchaseEntry = () => {
       console.error("Error fetching items:", error);
     }
   }, 700);
+
+  // console.log("purchases: ", purchases)
+
 
   const handleRowClick = (index) => {
     const selectedRow = searchResults[index];
@@ -941,7 +955,7 @@ const PurchaseEntry = () => {
     };
 
     try {
-      if (entryNumber && !entryNoEditable) {
+      if (entryNumber && entryNoEditable) {
 
         const response = await updatePurchaseDetailsByEntryNo(
           payload,
@@ -978,7 +992,7 @@ const PurchaseEntry = () => {
   // Purchase delete
   const handleDeletePurchase = async () => {
     try {
-      if (!entryNoEditable && entryNumber) {
+      if (entryNoEditable && entryNumber) {
         const response = await removePurchaseDetails(entryNumber);
 
         NotificationManager.success(
@@ -989,7 +1003,7 @@ const PurchaseEntry = () => {
         resetMiddleFormData();
         resetTotalValuesData();
         setEntryNumber("");
-        setEntryNoEditable(true);
+        setEntryNoEditable(false);
         resetMiddleFormData();
         setPurchases([]);
         setEditedRow({});
@@ -1132,7 +1146,7 @@ const PurchaseEntry = () => {
 
   const handlePurchaseOpen = () => {
     entryNoRef.current.focus();
-    setEntryNoEditable(false);
+    setEntryNoEditable(true);
   };
 
   const formatDate = (dateString) => {
@@ -1392,17 +1406,17 @@ const PurchaseEntry = () => {
 
   const handlePreviousEntryChange = () => {
     
-    if (entryNumber && !entryNoEditable)
+    if (entryNumber && entryNoEditable)
       setEntryNumber(parseInt(entryNumber) - 1);
   };
 
   const handleNextEntryChange = () => {
-    if (entryNumber && !entryNoEditable)
+    if (entryNumber && entryNoEditable)
       setEntryNumber(parseInt(entryNumber) + 1);
   };
 
   useEffect(() => {
-    if (entryNumber > 0 && !entryNoEditable) {
+    if (entryNumber > 0 && entryNoEditable) {
       entryNumberSearch(entryNumber);
     }
   }, [entryNumber]);
@@ -1651,7 +1665,7 @@ const PurchaseEntry = () => {
                 size="small"
                 className="input-field"
                 value={entryNumber}
-                disabled={entryNoEditable}
+                disabled={!entryNoEditable}
                 onChange={handleEntryNumberChange}
                 SelectProps={{
                   MenuProps: {
