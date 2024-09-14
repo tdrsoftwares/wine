@@ -561,7 +561,7 @@ const PurchaseEntry = () => {
     try {
       if (entryNumber && entryNoEditable) {
         const response = await getPurchaseDetailsByEntryNo(entryNumber);
-        console.log(response)
+        // console.log(response)
         
 
         if (response?.data?.data) {
