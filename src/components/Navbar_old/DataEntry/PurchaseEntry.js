@@ -236,7 +236,7 @@ const PurchaseEntry = () => {
       adjustment: "",
       netAmt: "",
     });
-    sessionStorage.setItem("purchases", []);
+    // sessionStorage.setItem("purchases", []);
     itemCodeRef.current.focus();
   };
 
@@ -406,7 +406,7 @@ const PurchaseEntry = () => {
 
     
     updatedPurchases[index] = updatedRow;
-    sessionStorage.setItem('purchases', JSON.stringify(updatedPurchases));
+    // sessionStorage.setItem('purchases', JSON.stringify(updatedPurchases));
     setPurchases(updatedPurchases);
 
     setEditedRow({});
@@ -673,7 +673,7 @@ const PurchaseEntry = () => {
     const updatedPurchases = [...purchases];
     updatedPurchases.splice(index, 1);
     setPurchases(updatedPurchases);
-    sessionStorage.setItem("purchases", updatedPurchases);
+    // sessionStorage.setItem("purchases", updatedPurchases);
   };
 
   const handleFocusOnSave = () => {
@@ -727,7 +727,7 @@ const PurchaseEntry = () => {
     // console.log("updatedPurchases: ", updatedPurchases)
     setPurchases(updatedPurchases);
     // setPurchases([...purchases, formData]);
-    sessionStorage.setItem("purchases", JSON.stringify(updatedPurchases));
+    // sessionStorage.setItem("purchases", JSON.stringify(updatedPurchases));
     resetMiddleFormData();
     handleEnterKey(e, itemCodeRef);
     setSearchMode(false);
@@ -839,7 +839,7 @@ const PurchaseEntry = () => {
         setEntryNumber(response?.data?.data?.purchase?.entryNo);
         clearButtonRef.current.focus();
         setSearchMode(false);
-        sessionStorage.setItem("purchases", []);
+        // sessionStorage.setItem("purchases", []);
       } else if (response.response.status === 400) {
 
         const errorMessage = response.response.data.message;
@@ -1357,10 +1357,10 @@ const PurchaseEntry = () => {
         handleEnterKey(e, itemCodeRef)
       );
     }
-    const savedPurchases = sessionStorage.getItem("purchases");
-    if(savedPurchases) {
-      setPurchases(JSON.parse(savedPurchases))
-    }
+    // const savedPurchases = sessionStorage.getItem("purchases");
+    // if(savedPurchases) {
+    //   setPurchases(JSON.parse(savedPurchases))
+    // }
   }, []);
 
   const handleItemCodeChange = (e) => {
