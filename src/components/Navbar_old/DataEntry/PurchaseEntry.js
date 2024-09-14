@@ -561,7 +561,6 @@ const PurchaseEntry = () => {
     try {
       if (entryNumber && entryNoEditable) {
         const response = await getPurchaseDetailsByEntryNo(entryNumber);
-        console.log(response)
         
 
         if (response?.data?.data) {
@@ -582,36 +581,26 @@ const PurchaseEntry = () => {
           }));
 
           const purchaseItems = receivedData?.purchaseItems;
-          console.log("purchaseItems: ",purchaseItems)
 
           const newPurchaseItems = purchaseItems.map((purchase) => ({
             _id: purchase?._id,
             itemId: purchase?.itemId?._id,
             itemCode: purchase?.itemCode,
-            // itemCode: purchase?.itemDetailsId?.itemCode,
             itemName: purchase?.itemId?.name,
             mrp: purchase?.mrp,
-            // mrp: purchase?.itemDetailsId?.mrp,
             batch: purchase?.batchNo,
-            // batch: purchase?.itemDetailsId?.batchNo,
             case: purchase?.caseNo,
             caseValue: purchase?.itemId?.caseValue,
             pcs: purchase?.pcs,
             brk: purchase?.brokenNo,
             purchaseRate: purchase?.purchaseRate,
-            // purchaseRate: purchase?.itemDetailsId?.purchaseRate,
             btlRate: purchase?.saleRate,
-            // btlRate: purchase?.itemDetailsId?.saleRate,
             gro: purchase?.gro,
             sp: purchase?.sp,
             amount: purchase?.itemAmount,
           }));
-          console.log("newPurchaseItems: ", newPurchaseItems)
 
           setPurchases([...newPurchaseItems]);
-          
-          // console.log("purchases: ", purchases);
-
 
           setTotalValues({
             totalMrp: receivedData.mrpValue,
