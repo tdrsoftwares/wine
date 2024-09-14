@@ -70,7 +70,6 @@ const PurchaseEntry = () => {
     billNo: "",
     billDate: null,
     stockIn: "",
-    itemDetailsId: "",
     itemId: "",
     itemCode: "",
     itemName: "",
@@ -86,9 +85,6 @@ const PurchaseEntry = () => {
     sp: "",
     amount: "",
   });
-
-  const [isManualGovtRateChange, setIsManualGovtRateChange] = useState(false);
-  // console.log("formData outside: ", formData)
 
   dayjs.extend(utc);
   dayjs.extend(customParseFormat);
@@ -168,7 +164,6 @@ const PurchaseEntry = () => {
   const resetMiddleFormData = () => {
     setFormData((prevFormData) => ({
       ...prevFormData,
-      itemDetailsId: "",
       itemId: "",
       itemCode: "",
       itemName: "",
@@ -405,7 +400,6 @@ const PurchaseEntry = () => {
 
     
     updatedPurchases[index] = updatedRow;
-    // sessionStorage.setItem('purchases', JSON.stringify(updatedPurchases));
     setPurchases(updatedPurchases);
 
     setEditedRow({});
@@ -420,16 +414,14 @@ const PurchaseEntry = () => {
         setAllSuppliers(response?.data?.data);
       } else {
         setAllSuppliers([])
-        // NotificationManager.error("No suppliers found.", "Error")
-        console.log("No suppliers found.", "Error")
+        NotificationManager.error("No suppliers found.", "Error")
       }
       
     } catch (error) {
-      // NotificationManager.error(
-      //   "Error fetching suppliers. Please try again later.",
-      //   "Error"
-      // );
-      console.error("No suppliers found.", "Error")
+      NotificationManager.error(
+        "Error fetching suppliers. Please try again later.",
+        "Error"
+      );
     }
   };
 
@@ -440,16 +432,14 @@ const PurchaseEntry = () => {
       if (response.status === 200) {
         setAllEntries(response?.data?.data);
       } else {
-        // NotificationManager.error("No entry no. found", "Error");
-        console.log("No entry no. found.", "Error")
+        NotificationManager.error("No entry no. found", "Error");
         setAllEntries([]);
       }
     } catch (error) {
-      // NotificationManager.error(
-      //   "Error fetching transfers. Please try again later.",
-      //   "Error"
-      // );
-      console.error("No entry no. found.", "Error");
+      NotificationManager.error(
+        "Error fetching transfers. Please try again later.",
+        "Error"
+      );
     }
   };
 
@@ -461,15 +451,14 @@ const PurchaseEntry = () => {
       if (allStoresResponse.status === 200) {
         setAllStores(allStoresResponse?.data?.data);
       } else {
-        // NotificationManager.error("No stores found", "Error");
-        console.log("No suppliers found.", "Error")
+        NotificationManager.error("No stores found", "Error");
         setAllStores([]);
       }
     } catch (error) {
-      // NotificationManager.error(
-      //   "Error fetching stores. Please try again later.",
-      //   "Error"
-      // );
+      NotificationManager.error(
+        "Error fetching stores. Please try again later.",
+        "Error"
+      );
       console.error("Error fetching stores:", error);
     }
   };
@@ -485,8 +474,8 @@ const PurchaseEntry = () => {
       } else {
         
         setSearchResults([]);
-        setItemName(item);
         setIsModalOpen(true);
+        setItemName(item);
       }
       setIsLoading(false);
     } catch (error) {
@@ -524,14 +513,7 @@ const PurchaseEntry = () => {
           gro: searchedItem.gro || 0,
           sp: searchedItem.sp || 0,
           amount: searchedItem.amount || 0,
-          itemDetailsId: searchedItem._id || null
         });
-
-        // if(searchedItem._id) {
-        //   formData.itemDetailsId = searchedItem._id
-        // }
-        // console.log("itemCodeSearch form data: ",formData)
-
         batchRef.current.focus();
       } else {
         setSearchResults([]);
@@ -646,7 +628,6 @@ const PurchaseEntry = () => {
       gro: selectedRow.gro || 0,
       sp: selectedRow.sp || 0,
       amount: selectedRow.amount || 0,
-      itemDetailsId: selectedRow._id || null
     });
 
     if (!selectedRow.itemCode) {
@@ -790,10 +771,10 @@ const PurchaseEntry = () => {
       netAmount: parseFloat(totalValues.netAmt) || 0,
       otherCharges: parseInt(totalValues.otherCharges) || 0,
       purchaseItems: purchases.map((item) => ({
-        itemCode: item.itemCode?.toString(),
+        itemCode: item.itemCode.toString(),
         itemId: item.itemId,
         mrp: parseFloat(item.mrp) || 0,
-        batchNo: item.batch?.toString(),
+        batchNo: item.batch.toString(),
         caseNo: parseFloat(item.case) || 0,
         pcs: parseFloat(item.pcs) || 0,
         brokenNo: parseFloat(item.brk) || 0,
@@ -899,11 +880,10 @@ const PurchaseEntry = () => {
       otherCharges: parseInt(totalValues.otherCharges) || 0,
       purchaseItems: purchases.map((item) => ({
         _id: item._id,
-        // itemDetailsId: item._id,
-        itemCode: item.itemCode?.toString(),
+        itemCode: item.itemCode.toString(),
         itemId: item.itemId,
         mrp: parseFloat(item.mrp) || 0,
-        batchNo: item.batch?.toString(),
+        batchNo: item.batch.toString(),
         caseNo: parseFloat(item.case) || 0,
         pcs: parseFloat(item.pcs) || 0,
         brokenNo: parseFloat(item.brk) || 0,
@@ -936,17 +916,17 @@ const PurchaseEntry = () => {
           NotificationManager.error(errorMessage, "Error");
         } else {
           NotificationManager.error(
-            "Error updating Purchase. Please try again later.",
+            "Error creating Purchase. Please try again later.",
             "Error"
           );
         }
       }
     } catch (error) {
       NotificationManager.error(
-        "Error updating Purchase. Please try again later.",
+        "Error creating Purchase. Please try again later.",
         "Error"
       );
-      console.error("Error updating purchase:", error);
+      console.error("Error creating purchase:", error);
     }
   };
 
@@ -1081,13 +1061,14 @@ const PurchaseEntry = () => {
 
 
   const handleGovtRateChange = (event) => {
-    const govtRate = event.target.value === "" ? "" : event.target.value;
-  
-    if (!isNaN(parseFloat(govtRate)) || event.target.value === "") {
-      setIsManualGovtRateChange(true);
+    const govtRate =
+      event.target.value === "" ? "" : parseFloat(event.target.value);
+      
+
+    if (!isNaN(govtRate) || event.target.value === "") {
       setTotalValues((prevValues) => ({
         ...prevValues,
-        govtRate,
+        govtRate: event.target.value,
       }));
     }
   };
@@ -1176,7 +1157,6 @@ const PurchaseEntry = () => {
             gro: selectedRow.gro || 0,
             sp: selectedRow.sp || 0,
             amount: selectedRow.amount || 0,
-            itemDetailsId: selectedRow._id || null
           });
           setSearchMode(false);
           setSelectedRowIndex(null);
@@ -1227,33 +1207,19 @@ const PurchaseEntry = () => {
 
     const govtRate = parseFloat(totalValues.govtRate) || 0;
     const spcPurpose = parseFloat(totalValues.spcPurpose) || 0;
-  
-    const updatedPurchases = purchases.map((purchase) => {
-      const itemTotal =
-        parseFloat(purchase.purchaseRate) * parseFloat(purchase.pcs);
-  
-      const pcs = parseFloat(purchase.pcs);
-      const perPcsPercentage = (itemTotal / grossAmount) * 100;
-  
-      const itemsTotalGovtRate = (govtRate * (perPcsPercentage / 100)) / pcs;
-      const itemsTotalSP = (spcPurpose * (perPcsPercentage / 100)) / pcs;
-  
-      return {
-        ...purchase,
-        gro: itemsTotalGovtRate?.toFixed(2),
-        sp: itemsTotalSP?.toFixed(2),
-      };
-    });
-  
-    setPurchases(updatedPurchases);
-  
+
     const adjustment = parseFloat(totalValues.adjustment) || 0;
     // console.log("adjustment: ", adjustment)
     let netAmt = grossAmt + govtRate + spcPurpose + tcsAmt;
     
     netAmt -= discountAmt;
-    netAmt += adjustment;
-  
+    if (adjustment < 0) {
+      netAmt += adjustment;
+
+    } else {
+      netAmt += adjustment;
+    }  
+
     setTotalValues((prevValues) => ({
       ...prevValues,
       grossAmt,
@@ -1269,15 +1235,30 @@ const PurchaseEntry = () => {
     totalValues.govtRate,
     totalValues.tcs,
     totalValues.spcPurpose,
-    totalValues.adjustment,
+    totalValues.adjustment
   ]);
 
+  // useEffect(() => {
+  //   const tcsPercentage = parseFloat(totalValues.tcs) || 1;
+  //   const grossAmt = parseFloat(totalValues.grossAmt) || 0;
+  //   const tcsAmt = (grossAmt * tcsPercentage) / 100;
+
+  //   const discount = parseFloat(totalValues.discount) || 0;
+  //   const discountAmt = (grossAmt * discount) / 100;
+
+  //   let netAmt = grossAmt + govtRate + spcPurpose + tcsAmt;
+  //   netAmt -= discountAmt;
+
+  //   setTotalValues((prevValues) => ({
+  //     ...prevValues,
+  //     tcsAmt,
+  //     discountAmt,
+  //     netAmt,
+  //   }));
+  // }, [totalValues.tcs, totalValues.grossAmt]);
 
   useEffect(() => {
-    if (isManualGovtRateChange) {
-      return; 
-    }
-  
+    // Calculating total government round off
     const totalGro = purchases.reduce((total, item) => {
       const gro = parseFloat(item.gro) || 0;
       const pcs = parseFloat(item.pcs) || 0;
@@ -1307,12 +1288,7 @@ const PurchaseEntry = () => {
         }));
       }
     }
-  }, [formData.gro, formData.sp, isRowUpdated, entryNumber]);
-  
-
-  useEffect(() => {
-    setIsManualGovtRateChange(false);
-  }, [totalValues.govtRate, totalValues.spcPurpose]);
+  }, [purchases]);
 
   useEffect(() => {
     if (passDateRef.current) {
@@ -1390,11 +1366,6 @@ const PurchaseEntry = () => {
 
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
-
-    if (!file) {
-      return;
-    }
-
     const reader = new FileReader();
 
     reader.onload = async (e) => {
@@ -1411,79 +1382,81 @@ const PurchaseEntry = () => {
 
       for (const row of rows) {
         const rowData = headers.reduce((acc, header, index) => {
-          acc[header] = row[index] || "";
+          acc[header] = row[index];
           return acc;
         }, {});
-        // console.log("rowData: ", rowData)
 
         const itemCode = (rowData["gtin number"] || "").replace("GTIN: ", "");
 
-        // console.log("Processing :", itemCode);
+        console.log("Processing :", itemCode);
 
         try {
           const response = await getItemDetailsByItemCode(itemCode);
           const itemDetails = response?.data?.data;
-          // console.log("itemDetails: ", itemDetails)
+          // console.log("Response itemDetails", itemDetails);
 
-          const updatedFormData = {
-            ...formData,
-            itemId: itemDetails?.itemId?._id || rowData.itemid || "",
-            itemCode: itemCode,
-            itemName: itemDetails?.itemId?.name || rowData.itemname || "",
-            mrp: itemDetails?.mrp || rowData.mrp || 0,
-            batch: itemDetails?.batchNo || rowData.batch || "",
-            case: rowData.case || 0,
-            caseValue: rowData.casevalue ||  itemDetails?.itemId?.caseValue || 0,
-            pcs: rowData["bottle(s)"] || 0,
-            brk: rowData.brk || 0,
-            purchaseRate:
-              itemDetails?.purchaseRate || rowData.purchaseRate || 0,
-            btlRate: itemDetails?.mrp || rowData.mrp || 0,
-            gro: rowData.gro || 0,
-            sp: rowData.sp || 0,
-            amount:
-              (
-                rowData["bottle(s)"] *
-                (itemDetails?.purchaseRate || rowData.purchaseRate || 0)
-              ).toFixed(2) || 0,
-            volume: rowData.measure || itemDetails?.itemId?.volume || "",
-          };
+          if (itemDetails) {
+            const updatedFormData = {
+              ...formData,
+              itemId: itemDetails.itemId || rowData.itemid || "",
+              itemCode: itemCode,
+              itemName: itemDetails.itemId?.name || rowData.itemname || "",
+              mrp: itemDetails.mrp || rowData.mrp || "",
+              batch: itemDetails.batchNo || rowData.batch || "",
+              case: rowData.case || "",
+              caseValue: rowData.casevalue || "",
+              pcs: rowData["bottle(s)"] || "",
+              brk: rowData.brk || "",
+              purchaseRate:
+                itemDetails.purchaseRate || rowData.purchaseRate || "",
+              btlRate: itemDetails.mrp || rowData.mrp || "",
+              gro: rowData.gro || "",
+              sp: rowData.sp || "",
+              amount:
+                (
+                  rowData["bottle(s)"] *
+                  (itemDetails.purchaseRate || rowData.purchaseRate)
+                ).toFixed(2) || "",
+              volume: rowData.measure || itemDetails.volume || "",
+            };
 
-          // console.log("updatedFormData: ", updatedFormData)
-          setPurchases((prevPurchases) => [...prevPurchases, updatedFormData]);
+            setPurchases((prevPurchases) => [
+              ...prevPurchases,
+              updatedFormData,
+            ]);
+          } else {
+            const updatedFormData = {
+              ...formData,
+              itemId: rowData.itemid || "",
+              itemCode: itemCode,
+              itemName: rowData.itemname || "",
+              mrp: rowData.mrp || 0,
+              batch: rowData.batch || "",
+              case: rowData.case || 0,
+              caseValue: rowData.casevalue || 0,
+              pcs: rowData["bottle(s)"] || 0,
+              brk: rowData.brk || 0,
+              purchaseRate: rowData.purchaseRate || 0,
+              btlRate: rowData.mrp || "",
+              gro: rowData.gro || 0,
+              sp: rowData.sp || 0,
+              amount:
+                (rowData["bottle(s)"] * (rowData.purchaseRate || 0)).toFixed(2) || 0,
+              volume: rowData.measure || 0,
+            };
+
+            setPurchases((prevPurchases) => [
+              ...prevPurchases,
+              updatedFormData,
+            ]);
+          }
         } catch (error) {
           console.error(
             `Failed to fetch details for itemCode ${itemCode}`,
             error
           );
-
-          const updatedFormData = {
-            ...formData,
-            itemId: rowData.itemid || "",
-            itemCode: itemCode,
-            itemName: rowData.itemname || "",
-            mrp: rowData.mrp || 0,
-            batch: rowData.batch || "",
-            case: rowData.case || 0,
-            caseValue: rowData.casevalue || 0,
-            pcs: rowData["bottle(s)"] || 0,
-            brk: rowData.brk || 0,
-            purchaseRate: rowData.purchaseRate || 0,
-            btlRate: rowData.mrp || "",
-            gro: rowData.gro || 0,
-            sp: rowData.sp || 0,
-            amount:
-              (rowData["bottle(s)"] * (rowData.purchaseRate || 0)).toFixed(2) ||
-              0,
-            volume: rowData.measure || 0,
-          };
-          console.log("updatedFormData else: ",updatedFormData)
-
-          setPurchases((prevPurchases) => [...prevPurchases, updatedFormData]);
         }
       }
-
-      event.target.value = null;
     };
     reader.readAsArrayBuffer(file);
   };
@@ -1699,12 +1672,10 @@ const PurchaseEntry = () => {
                 }}
               >
                 Upload Purchase
-                <input
-                  type="file"
-                  accept=".pdf, .xls, .xlsx"
-                  hidden
-                  onChange={handleFileUpload}
-                />
+                <input type="file"
+        accept=".xls,.xlsx"
+        hidden
+        onChange={handleFileUpload} />
               </Button>
 
               <Button
@@ -2217,7 +2188,6 @@ const PurchaseEntry = () => {
                         {editableIndex === index ? (
                           <Input
                             value={editedRow.gro || row.gro}
-                            readOnly
                             onChange={(e) =>
                               handleEdit(index, "gro", e.target.value)
                             }
@@ -2231,7 +2201,6 @@ const PurchaseEntry = () => {
                         {editableIndex === index ? (
                           <Input
                             value={editedRow.sp || row.sp}
-                            readOnly
                             onChange={(e) =>
                               handleEdit(index, "sp", e.target.value)
                             }
@@ -2426,7 +2395,6 @@ const PurchaseEntry = () => {
                 value={totalValues.adjustment}
                 // InputProps={{ readOnly: true }}
                 onChange={handleAdjustmentChange}
-                inputProps={{ pattern: "^\\d*\\.?\\d*$" }}
                 onKeyDown={(e) => handleEnterKey(e, netAmountRef)}
               />
             </Grid>
@@ -2459,9 +2427,7 @@ const PurchaseEntry = () => {
             setIsModalOpen={setIsModalOpen}
             itemName={itemName}
             setItemName={setItemName}
-            formData={formData}
-            setFormData={setFormData}
-          /> 
+          />
           <Button
             ref={clearButtonRef}
             color="inherit"
