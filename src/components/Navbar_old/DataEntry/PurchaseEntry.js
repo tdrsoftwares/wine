@@ -49,7 +49,6 @@ import * as XLSX from 'xlsx';
 
 
 const PurchaseEntry = () => {
-
   const [allSuppliers, setAllSuppliers] = useState([]);
   const [allStores, setAllStores] = useState([]);
   const [itemName, setItemName] = useState("");
@@ -60,7 +59,7 @@ const PurchaseEntry = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [entryNumber, setEntryNumber] = useState("");
-  const [entryNoEditable, setEntryNoEditable] = useState(false);
+  const [entryNoEditable, setEntryNoEditable] = useState(true);
   const [showPurchaseBillPrintModal, setShowPurchaseBillPrintModal] = useState(false);
   const [formData, setFormData] = useState({
     _id: "",
@@ -215,7 +214,7 @@ const PurchaseEntry = () => {
       stockIn: "",
     });
     setEntryNumber("");
-    setEntryNoEditable(false);
+    setEntryNoEditable(true);
     resetMiddleFormData();
     setPurchases([]);
     setEditedRow({});
@@ -236,7 +235,7 @@ const PurchaseEntry = () => {
       adjustment: "",
       netAmt: "",
     });
-    // sessionStorage.setItem("purchases", []);
+    sessionStorage.setItem("purchases", []);
     itemCodeRef.current.focus();
   };
 
@@ -504,7 +503,6 @@ const PurchaseEntry = () => {
       const response = await searchAllPurchasesByItemCode(itemCode);
       
       const searchedItem = response?.data?.data;
-      // console.log("sss ----> ",searchedItem)
       
 
       if (searchedItem) {
@@ -551,67 +549,50 @@ const PurchaseEntry = () => {
     return dayjs(dateStr, "DD/MM/YYYY");
   };
 
-  // useEffect(() => {
-  //   console.log("purchases after state update: ", purchases);
-  // }, [purchases]);
-  
-
   const entryNumberSearch = debounce(async (entryNumber) => {
     
     try {
-      if (entryNumber && entryNoEditable) {
+      if (entryNumber > 0) {
         const response = await getPurchaseDetailsByEntryNo(entryNumber);
-        // console.log(response)
         
 
         if (response?.data?.data) {
           const receivedData = response.data.data;
-          console.log("entryno Data > ", receivedData);
+          // console.log("receivedData > ", receivedData);
 
           const passDateObject = convertToDayjsObject(receivedData.passDate);
           const billDateObject = convertToDayjsObject(receivedData.billDate);
 
-          setFormData((prevData) => ({
-            ...prevData,
+          setFormData({
             supplierName: receivedData.supplierId?._id,
             passNo: receivedData.passNo,
             passDate: passDateObject,
             stockIn: receivedData.storeId?._id,
             billNo: receivedData.billNo,
             billDate: billDateObject,
-          }));
+          });
 
           const purchaseItems = receivedData?.purchaseItems;
-          // console.log("purchaseItems: ",purchaseItems)
 
           const newPurchaseItems = purchaseItems.map((purchase) => ({
             _id: purchase?._id,
             itemId: purchase?.itemId?._id,
             itemCode: purchase?.itemCode,
-            // itemCode: purchase?.itemDetailsId?.itemCode,
             itemName: purchase?.itemId?.name,
             mrp: purchase?.mrp,
-            // mrp: purchase?.itemDetailsId?.mrp,
             batch: purchase?.batchNo,
-            // batch: purchase?.itemDetailsId?.batchNo,
             case: purchase?.caseNo,
             caseValue: purchase?.itemId?.caseValue,
             pcs: purchase?.pcs,
             brk: purchase?.brokenNo,
             purchaseRate: purchase?.purchaseRate,
-            // purchaseRate: purchase?.itemDetailsId?.purchaseRate,
             btlRate: purchase?.saleRate,
-            // btlRate: purchase?.itemDetailsId?.saleRate,
             gro: purchase?.gro,
             sp: purchase?.sp,
             amount: purchase?.itemAmount,
           }));
-          console.log("newPurchaseItems: ", newPurchaseItems)
 
           setPurchases([...newPurchaseItems]);
-          
-          // console.log("purchases: ", purchases);
-
 
           setTotalValues({
             totalMrp: receivedData.mrpValue,
@@ -645,9 +626,6 @@ const PurchaseEntry = () => {
     }
   }, 700);
 
-  // console.log("purchases: ", purchases)
-
-
   const handleRowClick = (index) => {
     const selectedRow = searchResults[index];
 
@@ -671,10 +649,6 @@ const PurchaseEntry = () => {
       itemDetailsId: selectedRow._id || null
     });
 
-    // if(selectedRow._id) {
-    //   formData.itemDetailsId = selectedRow._id
-    // }
-
     if (!selectedRow.itemCode) {
       itemCodeRef.current.focus();
     } else {
@@ -687,7 +661,7 @@ const PurchaseEntry = () => {
     const updatedPurchases = [...purchases];
     updatedPurchases.splice(index, 1);
     setPurchases(updatedPurchases);
-    // sessionStorage.setItem("purchases", updatedPurchases);
+    sessionStorage.setItem("purchases", updatedPurchases);
   };
 
   const handleFocusOnSave = () => {
@@ -732,16 +706,14 @@ const PurchaseEntry = () => {
       handleEnterKey(e, amountRef);
       return;
     }
-    // console.log("updatedPurchases formData: ", formData)
 
     const updatedPurchases = [
       ...purchases,
       { ...formData, btlRate: formData.mrp },
     ];
-    // console.log("updatedPurchases: ", updatedPurchases)
     setPurchases(updatedPurchases);
     // setPurchases([...purchases, formData]);
-    // sessionStorage.setItem("purchases", JSON.stringify(updatedPurchases));
+    sessionStorage.setItem("purchases", JSON.stringify(updatedPurchases));
     resetMiddleFormData();
     handleEnterKey(e, itemCodeRef);
     setSearchMode(false);
@@ -798,8 +770,6 @@ const PurchaseEntry = () => {
     const passDateObj = formatDate(formData.passDate);
     const billDateObj = formatDate(formData.billDate);
 
-    // console.log("purchases:  ", purchases)
-
     const payload = {
       supplierId: formData.supplierName,
       storeId: formData.stockIn,
@@ -819,30 +789,21 @@ const PurchaseEntry = () => {
       adjustment: parseFloat(totalValues.adjustment) || 0,
       netAmount: parseFloat(totalValues.netAmt) || 0,
       otherCharges: parseInt(totalValues.otherCharges) || 0,
-      purchaseItems: purchases.map((item) => {
-        const purchaseItem = {
-          itemCode: item.itemCode?.toString(),
-          itemId: item.itemId,
-          mrp: parseFloat(item.mrp) || 0,
-          batchNo: item.batch?.toString(),
-          caseNo: parseFloat(item.case) || 0,
-          pcs: parseFloat(item.pcs) || 0,
-          brokenNo: parseFloat(item.brk) || 0,
-          purchaseRate: parseFloat(item.purchaseRate) || 0,
-          saleRate: parseFloat(item.btlRate) || 0,
-          gro: parseFloat(item.gro) || 0,
-          sp: parseFloat(item.sp) || 0,
-          itemAmount: parseFloat(item.amount) || 0,
-        };
-    
-        // if (item.itemDetailsId) {
-        //   purchaseItem.itemDetailsId = item.itemDetailsId;
-        // }
-    
-        return purchaseItem;
-      }),
+      purchaseItems: purchases.map((item) => ({
+        itemCode: item.itemCode?.toString(),
+        itemId: item.itemId,
+        mrp: parseFloat(item.mrp) || 0,
+        batchNo: item.batch?.toString(),
+        caseNo: parseFloat(item.case) || 0,
+        pcs: parseFloat(item.pcs) || 0,
+        brokenNo: parseFloat(item.brk) || 0,
+        purchaseRate: parseFloat(item.purchaseRate) || 0,
+        saleRate: parseFloat(item.btlRate) || 0,
+        gro: parseFloat(item.gro) || 0,
+        sp: parseFloat(item.sp) || 0,
+        itemAmount: parseFloat(item.amount) || 0,
+      })),
     };
-    
 
     try {
       const response = await createPurchase(payload);
@@ -853,7 +814,7 @@ const PurchaseEntry = () => {
         setEntryNumber(response?.data?.data?.purchase?.entryNo);
         clearButtonRef.current.focus();
         setSearchMode(false);
-        // sessionStorage.setItem("purchases", []);
+        sessionStorage.setItem("purchases", []);
       } else if (response.response.status === 400) {
 
         const errorMessage = response.response.data.message;
@@ -955,7 +916,7 @@ const PurchaseEntry = () => {
     };
 
     try {
-      if (entryNumber && entryNoEditable) {
+      if (entryNumber && !entryNoEditable) {
 
         const response = await updatePurchaseDetailsByEntryNo(
           payload,
@@ -992,7 +953,7 @@ const PurchaseEntry = () => {
   // Purchase delete
   const handleDeletePurchase = async () => {
     try {
-      if (entryNoEditable && entryNumber) {
+      if (!entryNoEditable && entryNumber) {
         const response = await removePurchaseDetails(entryNumber);
 
         NotificationManager.success(
@@ -1003,7 +964,7 @@ const PurchaseEntry = () => {
         resetMiddleFormData();
         resetTotalValuesData();
         setEntryNumber("");
-        setEntryNoEditable(false);
+        setEntryNoEditable(true);
         resetMiddleFormData();
         setPurchases([]);
         setEditedRow({});
@@ -1146,7 +1107,7 @@ const PurchaseEntry = () => {
 
   const handlePurchaseOpen = () => {
     entryNoRef.current.focus();
-    setEntryNoEditable(true);
+    setEntryNoEditable(false);
   };
 
   const formatDate = (dateString) => {
@@ -1217,11 +1178,6 @@ const PurchaseEntry = () => {
             amount: selectedRow.amount || 0,
             itemDetailsId: selectedRow._id || null
           });
-
-          // if(selectedRow._id) {
-          //   formData.itemDetailsId = selectedRow._id
-          // }
-
           setSearchMode(false);
           setSelectedRowIndex(null);
           if (!selectedRow.itemCode) {
@@ -1240,11 +1196,9 @@ const PurchaseEntry = () => {
     };
   }, [searchMode, formData.itemName, searchResults, selectedRowIndex]);
 
-
   useEffect(() => {
     handlePurRatePcsChange();
   }, [formData.purchaseRate, formData.pcs]);
-
 
   useEffect(() => {
     const totalMrpValue = purchases.reduce((total, purchase) => {
@@ -1257,22 +1211,20 @@ const PurchaseEntry = () => {
     
   }, [formData.amount, purchases]);
 
-
   useEffect(() => {
     const grossAmount = purchases.reduce(
       (total, purchase) => total + parseFloat(purchase.amount),
       0
     );
-  
     const sDiscount = parseFloat(totalValues.totalSDiscount) || 0;
     const grossAmt = grossAmount - sDiscount;
-  
+
     const tcsPercentage = parseFloat(totalValues.tcs) || 1;
     const tcsAmt = (grossAmt * tcsPercentage) / 100;
-  
+
     const discount = parseFloat(totalValues.discount) || 0;
     const discountAmt = (grossAmt * discount) / 100;
-  
+
     const govtRate = parseFloat(totalValues.govtRate) || 0;
     const spcPurpose = parseFloat(totalValues.spcPurpose) || 0;
   
@@ -1296,8 +1248,9 @@ const PurchaseEntry = () => {
     setPurchases(updatedPurchases);
   
     const adjustment = parseFloat(totalValues.adjustment) || 0;
+    // console.log("adjustment: ", adjustment)
     let netAmt = grossAmt + govtRate + spcPurpose + tcsAmt;
-  
+    
     netAmt -= discountAmt;
     netAmt += adjustment;
   
@@ -1330,13 +1283,14 @@ const PurchaseEntry = () => {
       const pcs = parseFloat(item.pcs) || 0;
       return total + gro * pcs;
     }, 0);
-  
+
+    // Calculating total special purpose
     const totalSP = purchases.reduce((total, item) => {
       const sp = parseFloat(item.sp) || 0;
       const pcs = parseFloat(item.pcs) || 0;
       return total + sp * pcs;
     }, 0);
-  
+
     // Updating total special purpose and gro in totalValues
     if (!entryNumber || isRowUpdated) {
       
@@ -1371,10 +1325,10 @@ const PurchaseEntry = () => {
         handleEnterKey(e, itemCodeRef)
       );
     }
-    // const savedPurchases = sessionStorage.getItem("purchases");
-    // if(savedPurchases) {
-    //   setPurchases(JSON.parse(savedPurchases))
-    // }
+    const savedPurchases = sessionStorage.getItem("purchases");
+    if(savedPurchases) {
+      setPurchases(JSON.parse(savedPurchases))
+    }
   }, []);
 
   const handleItemCodeChange = (e) => {
@@ -1406,17 +1360,17 @@ const PurchaseEntry = () => {
 
   const handlePreviousEntryChange = () => {
     
-    if (entryNumber && entryNoEditable)
+    if (entryNumber && !entryNoEditable)
       setEntryNumber(parseInt(entryNumber) - 1);
   };
 
   const handleNextEntryChange = () => {
-    if (entryNumber && entryNoEditable)
+    if (entryNumber && !entryNoEditable)
       setEntryNumber(parseInt(entryNumber) + 1);
   };
 
   useEffect(() => {
-    if (entryNumber > 0 && entryNoEditable) {
+    if (entryNumber > 0 && !entryNoEditable) {
       entryNumberSearch(entryNumber);
     }
   }, [entryNumber]);
@@ -1433,7 +1387,6 @@ const PurchaseEntry = () => {
       }
     }
   };
-
 
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
@@ -1464,6 +1417,8 @@ const PurchaseEntry = () => {
         // console.log("rowData: ", rowData)
 
         const itemCode = (rowData["gtin number"] || "").replace("GTIN: ", "");
+
+        // console.log("Processing :", itemCode);
 
         try {
           const response = await getItemDetailsByItemCode(itemCode);
@@ -1530,7 +1485,6 @@ const PurchaseEntry = () => {
 
       event.target.value = null;
     };
-
     reader.readAsArrayBuffer(file);
   };
 
@@ -1665,7 +1619,7 @@ const PurchaseEntry = () => {
                 size="small"
                 className="input-field"
                 value={entryNumber}
-                disabled={!entryNoEditable}
+                disabled={entryNoEditable}
                 onChange={handleEntryNumberChange}
                 SelectProps={{
                   MenuProps: {
@@ -2341,6 +2295,7 @@ const PurchaseEntry = () => {
               <InputLabel className="input-label-2">MRP Value</InputLabel>
               <TextField
                 inputRef={totalMrpRef}
+                type="text"
                 size="small"
                 className="input-field"
                 fullWidth
@@ -2354,6 +2309,7 @@ const PurchaseEntry = () => {
               <InputLabel className="input-label-2">S. Discount</InputLabel>
               <TextField
                 inputRef={sDiscountRef}
+                type="text"
                 size="small"
                 className="input-field"
                 fullWidth
@@ -2366,6 +2322,7 @@ const PurchaseEntry = () => {
               <InputLabel className="input-label-2">Govt. Rate Off</InputLabel>
               <TextField
                 inputRef={totalGroRef}
+                type="text"
                 size="small"
                 className="input-field"
                 fullWidth
@@ -2381,6 +2338,7 @@ const PurchaseEntry = () => {
               </InputLabel>
               <TextField
                 inputRef={totalSPRef}
+                type="text"
                 size="small"
                 className="input-field"
                 fullWidth
@@ -2394,6 +2352,7 @@ const PurchaseEntry = () => {
               <InputLabel className="input-label-2">Tcs(%)</InputLabel>
               <TextField
                 inputRef={tcsPercentRef}
+                type="text"
                 size="small"
                 className="input-field"
                 fullWidth
@@ -2407,6 +2366,7 @@ const PurchaseEntry = () => {
               <InputLabel className="input-label-2">Tcs Amt.</InputLabel>
               <TextField
                 inputRef={tcsAmtRef}
+                type="text"
                 size="small"
                 className="input-field"
                 fullWidth
@@ -2432,6 +2392,7 @@ const PurchaseEntry = () => {
               <InputLabel className="input-label-2">Discount(%)</InputLabel>
               <TextField
                 inputRef={totalDiscountRef}
+                type="text"
                 size="small"
                 className="input-field"
                 fullWidth
@@ -2445,6 +2406,7 @@ const PurchaseEntry = () => {
               <InputLabel className="input-label-2">Other Charges</InputLabel>
               <TextField
                 inputRef={otherChargesRef}
+                type="text"
                 size="small"
                 className="input-field"
                 fullWidth
@@ -2457,10 +2419,12 @@ const PurchaseEntry = () => {
               <InputLabel className="input-label-2">Adjustment</InputLabel>
               <TextField
                 inputRef={adjustmentRef}
+                type="text"
                 size="small"
                 className="input-field"
                 fullWidth
                 value={totalValues.adjustment}
+                // InputProps={{ readOnly: true }}
                 onChange={handleAdjustmentChange}
                 inputProps={{ pattern: "^\\d*\\.?\\d*$" }}
                 onKeyDown={(e) => handleEnterKey(e, netAmountRef)}
