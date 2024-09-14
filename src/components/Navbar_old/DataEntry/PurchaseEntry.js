@@ -582,7 +582,7 @@ const PurchaseEntry = () => {
           }));
 
           const purchaseItems = receivedData?.purchaseItems;
-          console.log("purchaseItems: ",purchaseItems)
+          // console.log("purchaseItems: ",purchaseItems)
 
           const newPurchaseItems = purchaseItems.map((purchase) => ({
             _id: purchase?._id,
