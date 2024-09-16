@@ -16,6 +16,7 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { customTheme } from "../../../utils/customTheme";
 import debounce from "lodash/debounce";
+import dayjs from "dayjs";
 
 const DailyProfitReport = () => {
   const [allProfitData, setAllProfitData] = useState([]);
@@ -77,8 +78,8 @@ const DailyProfitReport = () => {
 
   const fetchAllProfits = async () => {
     const filterOptions = {
-      fromDate: filterData.dateFrom,
-      toDate: filterData.dateTo,
+      fromDate: filterData.dateFrom ? dayjs(filterData.dateFrom).format("DD/MM/YYYY") : null,
+      toDate: filterData.dateTo ? dayjs(filterData.dateTo).format("DD/MM/YYYY") : null,
     };
 
     setLoading(true);
@@ -138,12 +139,14 @@ const DailyProfitReport = () => {
                 <DatePicker
                   id="dateFrom"
                   format="DD/MM/YYYY"
-                  value={filterData.dateFrom}
                   className="input-field date-picker"
+                  value={
+                    filterData.dateFrom ? filterData.dateFrom : null
+                  }
                   onChange={(newDate) =>
                     setFilterData({
                       ...filterData,
-                      dateFrom: newDate ? newDate.format("YYYY/MM/DD") : null,
+                      dateFrom: newDate ? newDate : null,
                     })
                   }
                   renderInput={(params) => <TextField {...params} />}
@@ -162,12 +165,12 @@ const DailyProfitReport = () => {
                 <DatePicker
                   id="dateTo"
                   format="DD/MM/YYYY"
-                  value={filterData.dateTo}
                   className="input-field date-picker"
+                  value={filterData.dateTo ? filterData.dateTo : null}
                   onChange={(newDate) =>
                     setFilterData({
                       ...filterData,
-                      dateTo: newDate ? newDate.format("YYYY/MM/DD") : null,
+                      dateTo: newDate ? newDate : null,
                     })
                   }
                   renderInput={(params) => <TextField {...params} />}
@@ -233,7 +236,7 @@ const DailyProfitReport = () => {
               TotalQuantity: item.TotalQuantity || 0,
               salesAmount: item.salesAmount || 0,
               purchaseRate: item.purchaseRate || 0,
-              profit: item.profit || 0,
+              profit: item.profit?.toFixed(2) || 0,
             }))}
             columns={columns}
             rowCount={totalCount}

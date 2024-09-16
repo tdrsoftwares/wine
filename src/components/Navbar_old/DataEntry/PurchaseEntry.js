@@ -49,7 +49,6 @@ import * as XLSX from 'xlsx';
 
 
 const PurchaseEntry = () => {
-
   const [allSuppliers, setAllSuppliers] = useState([]);
   const [allStores, setAllStores] = useState([]);
   const [itemName, setItemName] = useState("");
@@ -502,7 +501,6 @@ const PurchaseEntry = () => {
       const response = await searchAllPurchasesByItemCode(itemCode);
       
       const searchedItem = response?.data?.data;
-      // console.log("sss ----> ",searchedItem)
       
 
       if (searchedItem) {
@@ -525,12 +523,6 @@ const PurchaseEntry = () => {
           sp: searchedItem.sp || 0,
           amount: searchedItem.amount || 0,
         });
-
-        // if(searchedItem._id) {
-        //   formData.itemDetailsId = searchedItem._id
-        // }
-        // console.log("itemCodeSearch form data: ",formData)
-
         batchRef.current.focus();
       } else {
         setSearchResults([]);
@@ -548,15 +540,10 @@ const PurchaseEntry = () => {
     return dayjs(dateStr, "DD/MM/YYYY");
   };
 
-  // useEffect(() => {
-  //   console.log("purchases after state update: ", purchases);
-  // }, [purchases]);
-  
-
   const entryNumberSearch = debounce(async (entryNumber) => {
     
     try {
-      if (entryNumber && entryNoEditable) {
+      if (entryNumber > 0) {
         const response = await getPurchaseDetailsByEntryNo(entryNumber);
         
 
@@ -577,7 +564,6 @@ const PurchaseEntry = () => {
           });
 
           const purchaseItems = receivedData?.purchaseItems;
-          // console.log("purchaseItems: ",purchaseItems)
 
           const newPurchaseItems = purchaseItems.map((purchase) => ({
             _id: purchase?._id,
@@ -653,10 +639,6 @@ const PurchaseEntry = () => {
       amount: selectedRow.amount || 0,
     });
 
-    // if(selectedRow._id) {
-    //   formData.itemDetailsId = selectedRow._id
-    // }
-
     if (!selectedRow.itemCode) {
       itemCodeRef.current.focus();
     } else {
@@ -719,7 +701,6 @@ const PurchaseEntry = () => {
       ...purchases,
       { ...formData, btlRate: formData.mrp },
     ];
-    // console.log("updatedPurchases: ", updatedPurchases)
     setPurchases(updatedPurchases);
     // setPurchases([...purchases, formData]);
     sessionStorage.setItem("purchases", JSON.stringify(updatedPurchases));
@@ -779,7 +760,6 @@ const PurchaseEntry = () => {
     const passDateObj = formatDate(formData.passDate);
     const billDateObj = formatDate(formData.billDate);
 
-    // console.log("purchases:  ", purchases)
     const payload = {
       supplierId: formData.supplierName,
       storeId: formData.stockIn,
@@ -822,7 +802,6 @@ const PurchaseEntry = () => {
         return purchaseItem;
       }),
     };
-    
 
     try {
       const response = await createPurchase(payload);
@@ -1195,11 +1174,6 @@ const PurchaseEntry = () => {
             sp: selectedRow.sp || 0,
             amount: selectedRow.amount || 0,
           });
-
-          // if(selectedRow._id) {
-          //   formData.itemDetailsId = selectedRow._id
-          // }
-
           setSearchMode(false);
           setSelectedRowIndex(null);
           if (!selectedRow.itemCode) {
@@ -1238,7 +1212,6 @@ const PurchaseEntry = () => {
       (total, purchase) => total + parseFloat(purchase.amount),
       0
     );
-  
     const sDiscount = parseFloat(totalValues.totalSDiscount) || 0;
     const grossAmt = grossAmount - sDiscount;
 
@@ -1250,32 +1223,19 @@ const PurchaseEntry = () => {
 
     const govtRate = parseFloat(totalValues.govtRate) || 0;
     const spcPurpose = parseFloat(totalValues.spcPurpose) || 0;
-  
-    const updatedPurchases = purchases.map((purchase) => {
-      const itemTotal =
-        parseFloat(purchase.purchaseRate) * parseFloat(purchase.pcs);
-  
-      const pcs = parseFloat(purchase.pcs);
-      const perPcsPercentage = (itemTotal / grossAmount) * 100;
-  
-      const itemsTotalGovtRate = (govtRate * (perPcsPercentage / 100)) / pcs;
-      const itemsTotalSP = (spcPurpose * (perPcsPercentage / 100)) / pcs;
-  
-      return {
-        ...purchase,
-        gro: itemsTotalGovtRate?.toFixed(2),
-        sp: itemsTotalSP?.toFixed(2),
-      };
-    });
-  
-    setPurchases(updatedPurchases);
-  
+
     const adjustment = parseFloat(totalValues.adjustment) || 0;
+    // console.log("adjustment: ", adjustment)
     let netAmt = grossAmt + govtRate + spcPurpose + tcsAmt;
-  
+    
     netAmt -= discountAmt;
-    netAmt += adjustment;
-  
+    if (adjustment < 0) {
+      netAmt += adjustment;
+
+    } else {
+      netAmt += adjustment;
+    }  
+
     setTotalValues((prevValues) => ({
       ...prevValues,
       grossAmt,
@@ -1291,15 +1251,30 @@ const PurchaseEntry = () => {
     totalValues.govtRate,
     totalValues.tcs,
     totalValues.spcPurpose,
-    totalValues.adjustment,
+    totalValues.adjustment
   ]);
 
+  // useEffect(() => {
+  //   const tcsPercentage = parseFloat(totalValues.tcs) || 1;
+  //   const grossAmt = parseFloat(totalValues.grossAmt) || 0;
+  //   const tcsAmt = (grossAmt * tcsPercentage) / 100;
+
+  //   const discount = parseFloat(totalValues.discount) || 0;
+  //   const discountAmt = (grossAmt * discount) / 100;
+
+  //   let netAmt = grossAmt + govtRate + spcPurpose + tcsAmt;
+  //   netAmt -= discountAmt;
+
+  //   setTotalValues((prevValues) => ({
+  //     ...prevValues,
+  //     tcsAmt,
+  //     discountAmt,
+  //     netAmt,
+  //   }));
+  // }, [totalValues.tcs, totalValues.grossAmt]);
 
   useEffect(() => {
-    if (isManualGovtRateChange) {
-      return; 
-    }
-  
+    // Calculating total government round off
     const totalGro = purchases.reduce((total, item) => {
       const gro = parseFloat(item.gro) || 0;
       const pcs = parseFloat(item.pcs) || 0;
@@ -1328,12 +1303,7 @@ const PurchaseEntry = () => {
         }));
       }
     }
-  }, [formData.gro, formData.sp, isRowUpdated, entryNumber]);
-  
-
-  useEffect(() => {
-    setIsManualGovtRateChange(false);
-  }, [totalValues.govtRate, totalValues.spcPurpose]);
+  }, [purchases]);
 
   useEffect(() => {
     if (passDateRef.current) {
@@ -1435,14 +1405,13 @@ const PurchaseEntry = () => {
           acc[header] = row[index] || "";
           return acc;
         }, {});
-        // console.log("rowData: ", rowData)
 
         const itemCode = (rowData["gtin number"] || "").replace("GTIN: ", "");
 
         try {
           const response = await getItemDetailsByItemCode(itemCode);
           const itemDetails = response?.data?.data;
-          // console.log("itemDetails: ", itemDetails)
+          // console.log("Response itemDetails", itemDetails);
 
           const updatedFormData = {
             ...formData,
@@ -2444,6 +2413,7 @@ const PurchaseEntry = () => {
                 className="input-field"
                 fullWidth
                 value={totalValues.adjustment}
+                // InputProps={{ readOnly: true }}
                 onChange={handleAdjustmentChange}
                 inputProps={{ pattern: "^\\d*\\.?\\d*$" }}
                 onKeyDown={(e) => handleEnterKey(e, netAmountRef)}

@@ -310,10 +310,16 @@ const DailySaleReport = () => {
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
                   id="dateFrom"
-                  format="DD/MM/YYYY"
-                  value={filterData.dateFrom}
-                  className="input-field date-picker"
-                  onChange={(newDate) => setFilterData({ ...filterData, dateFrom: newDate ? newDate.format('YYYY-MM-DD') : null })}
+                  className="date-picker input-field"
+                  value={
+                    filterData.dateFrom ? dayjs(filterData.dateFrom) : null
+                  }
+                  onChange={(newDate) =>
+                    setFilterData({
+                      ...filterData,
+                      dateFrom: newDate ? newDate.toISOString() : null,
+                    })
+                  }
                   renderInput={(params) => <TextField {...params} />}
                 />
               </LocalizationProvider>
@@ -329,11 +335,14 @@ const DailySaleReport = () => {
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
                   id="dateTo"
-                  format="DD/MM/YYYY"
-                  value={filterData.dateTo}
-                  className="input-field date-picker"
-                  onChange={(newDate) => setFilterData({ ...filterData, dateTo: newDate ? newDate.format('YYYY-MM-DD') : null })}
-
+                  className="date-picker input-field"
+                  value={filterData.dateTo ? dayjs(filterData.dateTo) : null}
+                  onChange={(newDate) =>
+                    setFilterData({
+                      ...filterData,
+                      dateTo: newDate ? newDate.toISOString() : null,
+                    })
+                  }
                   renderInput={(params) => <TextField {...params} />}
                 />
               </LocalizationProvider>
@@ -450,7 +459,12 @@ const DailySaleReport = () => {
                 }}
                 className="input-field"
                 renderInput={(params) => (
-                  <TextField {...params} fullWidth size="small" name="brandName" />
+                  <TextField
+                    {...params}
+                    fullWidth
+                    size="small"
+                    name="brandName"
+                  />
                 )}
               />
             </div>
@@ -470,7 +484,12 @@ const DailySaleReport = () => {
                 }}
                 className="input-field"
                 renderInput={(params) => (
-                  <TextField {...params} fullWidth size="small" name="itemName" />
+                  <TextField
+                    {...params}
+                    fullWidth
+                    size="small"
+                    name="itemName"
+                  />
                 )}
               />
             </div>
@@ -528,7 +547,6 @@ const DailySaleReport = () => {
             "& button": { marginTop: 2 },
           }}
         >
-          
           <Button
             color="inherit"
             size="small"
@@ -544,12 +562,12 @@ const DailySaleReport = () => {
                 itemName: "",
                 billNo: "",
                 volume: "",
-                mode: ""
+                mode: "",
               });
-              setItemName("")
-              setBrandName("")
-              setItemNameOptions([])
-              setBrandNameOptions([])
+              setItemName("");
+              setBrandName("");
+              setItemNameOptions([]);
+              setBrandNameOptions([]);
               setPaginationModel({ page: 1, pageSize: 10 });
             }}
           >
