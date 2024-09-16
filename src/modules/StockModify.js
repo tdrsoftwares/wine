@@ -1,26 +1,30 @@
 import { ThemeProvider } from "@emotion/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { customTheme } from "../utils/customTheme";
 import {
   Button,
   Grid,
   InputLabel,
+  MenuItem,
   Paper,
   TextField,
   Typography,
 } from "@mui/material";
 import { updateCustomerDetails } from "../services/customerService";
 import { NotificationManager } from "react-notifications";
+import { getAllStores } from "../services/storeService";
 
 const StockModify = () => {
   const [itemCode, setItemCode] = useState("");
   const [mrp, setMrp] = useState("");
   const [closingStock, setClosingStock] = useState("");
+  const [storeName, setStoreName] = useState("");
+  const [allStores, setAllStores] = useState([]);
 
   const handleUpdateCustomer = async () => {
     const payload = { closingStock };
     try {
-      const response = await updateCustomerDetails(itemCode, mrp, payload);
+      const response = await updateCustomerDetails(storeName, itemCode, mrp, payload);
       if (response.status === 200) {
         NotificationManager.success("Stock updated successfully!", "Success");
       } else{
@@ -31,9 +35,33 @@ const StockModify = () => {
     }
   };
 
+  const fetchAllStores = async () => {
+    try {
+      const allStoresResponse = await getAllStores();
+      // console.log("allStore response: ", allStoresResponse)
+      
+      if (allStoresResponse.status === 200) {
+        setAllStores(allStoresResponse?.data?.data);
+      } else {
+        // NotificationManager.error("No stores found", "Error");
+        setAllStores([]);
+      }
+    } catch (error) {
+      // NotificationManager.error(
+      //   "Error fetching stores. Please try again later.",
+      //   "Error"
+      // );
+      console.error("Error fetching stores:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllStores();
+  }, [])
+
   return (
     <ThemeProvider theme={customTheme}>
-      <Paper sx={{ p: 4, maxWidth: "800px", mx: "auto", mt: 5 }}>
+      <Paper sx={{ p: 4, maxWidth: "900px", mx: "auto", mt: 5 }}>
         <Typography variant="h6" gutterBottom>
           Stock Modify:
         </Typography>
@@ -43,7 +71,7 @@ const StockModify = () => {
             <Typography variant="subtitle2">Update here:</Typography>
           </Grid>
 
-          <Grid item xs={4}>
+          <Grid item xs={6}>
             <div className="input-wrapper">
               <InputLabel htmlFor="itemCode" className="input-label">
                 Item Code:
@@ -59,7 +87,7 @@ const StockModify = () => {
             </div>
           </Grid>
 
-          <Grid item xs={4}>
+          <Grid item xs={6}>
             <div className="input-wrapper">
               <InputLabel htmlFor="mrp" className="input-label">
                 MRP:
@@ -80,7 +108,7 @@ const StockModify = () => {
             </div>
           </Grid>
 
-          <Grid item xs={4}>
+          <Grid item xs={6}>
             <div className="input-wrapper">
               <InputLabel htmlFor="closingStock" className="input-label">
                 Closing Stock:
@@ -101,9 +129,41 @@ const StockModify = () => {
             </div>
           </Grid>
 
-          <Grid item xs={8}></Grid>
+          <Grid item xs={6}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="storeName" className="input-label">
+                Store Name :
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="storeName"
+                className="input-field"
+                value={storeName}
+                onChange={(e) => setStoreName(e.target.value)}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
+                    },
+                  },
+                }}
+              >
+                {allStores?.map((store) => (
+                  <MenuItem key={store._id} value={store._id}>
+                    {store.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </Grid>
 
-          <Grid item xs={4}>
+          <Grid item xs={9}></Grid>
+
+          <Grid item xs={3}>
             <Button
               color="info"
               size="small"

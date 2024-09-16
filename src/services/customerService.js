@@ -41,9 +41,15 @@ export const deleteCustomer = async (id) => {
   }
 };
 
-export const updateCustomerDetails = async (itemCode, mrp, payload) => {
+// on stock modify panel
+export const updateCustomerDetails = async (
+  storeId,
+  itemCode,
+  mrp,
+  payload
+) => {
   try {
-    const apiURL = `/stock/update-closing-stock?itemCode=${itemCode}&mrp=${mrp}`;
+    const apiURL = `/stock/update-closing-stock?storeId=${storeId}&itemCode=${itemCode}&mrp=${mrp}`;
     const updateItemData = await axiosInstance.put(apiURL, payload);
     return updateItemData;
   } catch (error) {
