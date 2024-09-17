@@ -1252,6 +1252,8 @@ const PurchaseEntry = () => {
       };
     });
 
+    console.log("updated purchase", updatedPurchases)
+
     setPurchases(updatedPurchases);
     sessionStorage.setItem("purchases", JSON.stringify(updatedPurchases));
     //
@@ -1270,7 +1272,6 @@ const PurchaseEntry = () => {
       discountAmt,
     }));
   }, [
-    purchases,
     totalValues.grossAmt,
     totalValues.discount,
     totalValues.totalSDiscount,
@@ -1279,6 +1280,8 @@ const PurchaseEntry = () => {
     totalValues.spcPurpose,
     totalValues.adjustment
   ]);
+
+  console.log("purchs ---> ", purchases)
 
   // useEffect(() => {
   //   const tcsPercentage = parseFloat(totalValues.tcs) || 1;
