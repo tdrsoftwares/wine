@@ -1224,6 +1224,30 @@ const PurchaseEntry = () => {
     const govtRate = parseFloat(totalValues.govtRate) || 0;
     const spcPurpose = parseFloat(totalValues.spcPurpose) || 0;
 
+
+    // code for total GRO n SP changes
+    const updatedPurchases = purchases.map((purchase) => {
+      const itemTotal =
+        parseFloat(purchase.purchaseRate) * parseFloat(purchase.pcs);
+  
+      const pcs = parseFloat(purchase.pcs);
+      const perPcsPercentage = (itemTotal / grossAmount) * 100;
+  
+      const itemsTotalGovtRate = (govtRate * (perPcsPercentage / 100)) / pcs;
+      const itemsTotalSP = (spcPurpose * (perPcsPercentage / 100)) / pcs;
+  
+      return {
+        ...purchase,
+        gro: itemsTotalGovtRate?.toFixed(2),
+        sp: itemsTotalSP?.toFixed(2),
+      };
+    });
+    
+    setPurchases(updatedPurchases);
+    sessionStorage.setItem("purchases", JSON.stringify(updatedPurchases));
+    //
+
+
     const adjustment = parseFloat(totalValues.adjustment) || 0;
     // console.log("adjustment: ", adjustment)
     let netAmt = grossAmt + govtRate + spcPurpose + tcsAmt;
@@ -1254,6 +1278,10 @@ const PurchaseEntry = () => {
     totalValues.adjustment
   ]);
 
+  useEffect(() => {
+    console.log("purchases: ", purchases)
+  }, [])
+
   // useEffect(() => {
   //   const tcsPercentage = parseFloat(totalValues.tcs) || 1;
   //   const grossAmt = parseFloat(totalValues.grossAmt) || 0;
@@ -1274,22 +1302,24 @@ const PurchaseEntry = () => {
   // }, [totalValues.tcs, totalValues.grossAmt]);
 
   useEffect(() => {
-    // Calculating total government round off
+    if (isManualGovtRateChange) {
+      return;
+    }
+
     const totalGro = purchases.reduce((total, item) => {
       const gro = parseFloat(item.gro) || 0;
       const pcs = parseFloat(item.pcs) || 0;
       return total + gro * pcs;
     }, 0);
-  
+
     const totalSP = purchases.reduce((total, item) => {
       const sp = parseFloat(item.sp) || 0;
       const pcs = parseFloat(item.pcs) || 0;
       return total + sp * pcs;
     }, 0);
-  
+
     // Updating total special purpose and gro in totalValues
     if (!entryNumber || isRowUpdated) {
-      
       if (totalGro) {
         setTotalValues((prevValues) => ({
           ...prevValues,
@@ -1303,7 +1333,13 @@ const PurchaseEntry = () => {
         }));
       }
     }
-  }, [purchases]);
+  }, [formData.gro, formData.sp, isRowUpdated, entryNumber]);
+  
+
+  useEffect(() => {
+    setIsManualGovtRateChange(false);
+  }, [totalValues.govtRate, totalValues.spcPurpose]);
+
 
   useEffect(() => {
     if (passDateRef.current) {
