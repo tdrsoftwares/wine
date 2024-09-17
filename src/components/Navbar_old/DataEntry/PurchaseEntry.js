@@ -1225,41 +1225,42 @@ const PurchaseEntry = () => {
     const govtRate = parseFloat(totalValues.govtRate) || 0;
     const spcPurpose = parseFloat(totalValues.spcPurpose) || 0;
 
-
-    // code for total GRO n SP changes
+    // Code for total GRO and SP changes
     const updatedPurchases = purchases.map((purchase) => {
-      const itemTotal =
-        parseFloat(purchase.purchaseRate) * parseFloat(purchase.pcs);
-  
-      const pcs = parseFloat(purchase.pcs);
+      const pcs = parseFloat(purchase.pcs) || 0;
+      const purchaseRate = parseFloat(purchase.purchaseRate) || 0;
+
+      // If pcs or purchaseRate is 0, return without calculating
+      if (pcs === 0 || purchaseRate === 0) {
+        console.warn(
+          `Skipping purchase item due to zero pcs or purchaseRate: `,
+          purchase
+        );
+        return { ...purchase, gro: 0, sp: 0 };
+      }
+
+      const itemTotal = purchaseRate * pcs;
       const perPcsPercentage = (itemTotal / grossAmount) * 100;
-  
+
       const itemsTotalGovtRate = (govtRate * (perPcsPercentage / 100)) / pcs;
       const itemsTotalSP = (spcPurpose * (perPcsPercentage / 100)) / pcs;
-  
+
       return {
         ...purchase,
-        gro: itemsTotalGovtRate?.toFixed(2),
-        sp: itemsTotalSP?.toFixed(2),
+        gro: itemsTotalGovtRate?.toFixed(2) || 0,
+        sp: itemsTotalSP?.toFixed(2) || 0,
       };
     });
-    
+
     setPurchases(updatedPurchases);
     sessionStorage.setItem("purchases", JSON.stringify(updatedPurchases));
     //
 
+    let netAmt = grossAmt + govtRate + spcPurpose + tcsAmt;
+    netAmt -= discountAmt;
 
     const adjustment = parseFloat(totalValues.adjustment) || 0;
-    // console.log("adjustment: ", adjustment)
-    let netAmt = grossAmt + govtRate + spcPurpose + tcsAmt;
-    
-    netAmt -= discountAmt;
-    if (adjustment < 0) {
-      netAmt += adjustment;
-
-    } else {
-      netAmt += adjustment;
-    }  
+    netAmt += adjustment;
 
     setTotalValues((prevValues) => ({
       ...prevValues,
