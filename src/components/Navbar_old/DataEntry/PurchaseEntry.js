@@ -541,11 +541,9 @@ const PurchaseEntry = () => {
   };
 
   const entryNumberSearch = debounce(async (entryNumber) => {
-    
     try {
-      if (entryNumber > 0) {
+      if (entryNumber && entryNoEditable) {
         const response = await getPurchaseDetailsByEntryNo(entryNumber);
-        
 
         if (response?.data?.data) {
           const receivedData = response.data.data;
@@ -604,6 +602,8 @@ const PurchaseEntry = () => {
           resetMiddleFormData();
           resetTotalValuesData();
           setPurchases([]);
+          sessionStorage.removeItem("purchases"); 
+          
           NotificationManager.error("No purchase details found!");
         }
       }
@@ -612,6 +612,7 @@ const PurchaseEntry = () => {
       resetMiddleFormData();
       resetTotalValuesData();
       setPurchases([]);
+      sessionStorage.removeItem("purchases"); 
       NotificationManager.error("Error fetching purchase details!");
       console.error("Error fetching items:", error);
     }
@@ -1243,7 +1244,7 @@ const PurchaseEntry = () => {
       };
     });
     
-    setPurchases([...updatedPurchases]);
+    setPurchases(updatedPurchases);
     sessionStorage.setItem("purchases", JSON.stringify(updatedPurchases));
     //
 
@@ -1277,10 +1278,6 @@ const PurchaseEntry = () => {
     totalValues.spcPurpose,
     totalValues.adjustment
   ]);
-
-  useEffect(() => {
-    console.log("purchases: ", purchases)
-  }, [])
 
   // useEffect(() => {
   //   const tcsPercentage = parseFloat(totalValues.tcs) || 1;
