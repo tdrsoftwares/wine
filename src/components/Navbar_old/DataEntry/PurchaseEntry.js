@@ -1243,7 +1243,7 @@ const PurchaseEntry = () => {
       };
     });
     
-    setPurchases(updatedPurchases);
+    setPurchases([...updatedPurchases]);
     sessionStorage.setItem("purchases", JSON.stringify(updatedPurchases));
     //
 
