@@ -326,11 +326,11 @@ const PurchaseEntry = () => {
         return;
       }
     }
-  
+
     const editedRowCopy = { ...editedRow };
-    
+
     editedRowCopy[field] = value;
-  
+
     if (field === "mrp") {
       editedRowCopy.btlRate = editedRowCopy.mrp;
     }
@@ -344,6 +344,7 @@ const PurchaseEntry = () => {
       editedRowCopy.pcs = newPcsValue;
     }
 
+
     if (field === "pcs") {
       const regex = /^\d*\.?\d*$/;
       if (regex.test(value) || value === "") {
@@ -351,6 +352,7 @@ const PurchaseEntry = () => {
         editedRowCopy.pcs = value;
       }
     }
+
 
     if (
       field === "purchaseRate" ||
@@ -373,14 +375,17 @@ const PurchaseEntry = () => {
       const gro = parseFloat(editedRowCopy.gro || purchases[index].gro) || 0;
       const sp = parseFloat(editedRowCopy.sp || purchases[index].sp) || 0;
 
+
       if (parseFloat(caseNo) === 0) {
         amount = (purRate * pcs).toFixed(2);
       } else if (parseFloat(caseNo) > 0) {
         amount = (purRate * parseFloat(caseNo) + gro + sp).toFixed(2);
       }
 
+
       editedRowCopy.amount = amount;
     }
+
 
     setEditedRow(editedRowCopy);
   };
