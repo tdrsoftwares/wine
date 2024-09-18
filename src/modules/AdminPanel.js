@@ -1,4 +1,12 @@
-import { Box, Button, Grid, Paper, ThemeProvider, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Grid,
+  Paper,
+  ThemeProvider,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
 import React, { useState } from "react";
 import DeleteConfirmDialog from "./DeleteConfirmDialog";
 import { customTheme } from "../utils/customTheme";
@@ -10,7 +18,12 @@ import { removeAllPurchases } from "../services/purchaseService";
 
 const AdminPanel = () => {
   const [openDeleteConfirmModal, setOpenDeleteConfirmModal] = useState(false);
-  const [deleteType, setDeleteType] = useState(""); 
+  const [deleteType, setDeleteType] = useState("");
+
+  const [loadingStocks, setLoadingStocks] = useState(false);
+  const [loadingPurchases, setLoadingPurchases] = useState(false);
+  const [loadingSales, setLoadingSales] = useState(false);
+  const [loadingTransfers, setLoadingTransfers] = useState(false);
 
   const handleOpenDeleteConfirmModal = (type) => {
     setDeleteType(type);
@@ -29,32 +42,6 @@ const AdminPanel = () => {
     handleOpenDeleteConfirmModal("purchases");
   };
 
-  const handleConfirmDeleteAllPurchases = async () => {
-    try {
-      const response = await removeAllPurchases(true);
-      if (response.status === 200) {
-        NotificationManager.success(
-          "All purchases deleted successfully.",
-          "Success"
-        );
-      } else {
-        console.log("error: ", response);
-        NotificationManager.error(
-          "Error deleting purchases. Please try again later.",
-          "Error"
-        );
-      }
-    } catch (error) {
-      NotificationManager.error(
-        "Error deleting purchases. Please try again later.",
-        "Error"
-      );
-      console.log(error);
-    } finally {
-      setOpenDeleteConfirmModal(false);
-    }
-  };
-
   const handleDeleteAllSales = () => {
     handleOpenDeleteConfirmModal("sales");
   };
@@ -64,6 +51,7 @@ const AdminPanel = () => {
   };
 
   const handleConfirmDeleteAllStocks = async () => {
+    setLoadingStocks(true);
     try {
       const response = await removeAllStocks(true);
       if (response.status === 200) {
@@ -84,11 +72,40 @@ const AdminPanel = () => {
       );
       console.log(error);
     } finally {
+      setLoadingStocks(false);
+      setOpenDeleteConfirmModal(false);
+    }
+  };
+
+  const handleConfirmDeleteAllPurchases = async () => {
+    setLoadingPurchases(true);
+    try {
+      const response = await removeAllPurchases(true);
+      if (response.status === 200) {
+        NotificationManager.success(
+          "All purchases deleted successfully.",
+          "Success"
+        );
+      } else {
+        NotificationManager.error(
+          "Error deleting purchases. Please try again later.",
+          "Error"
+        );
+      }
+    } catch (error) {
+      NotificationManager.error(
+        "Error deleting purchases. Please try again later.",
+        "Error"
+      );
+      console.log(error);
+    } finally {
+      setLoadingPurchases(false);
       setOpenDeleteConfirmModal(false);
     }
   };
 
   const handleConfirmDeleteAllSales = async () => {
+    setLoadingSales(true);
     try {
       const response = await removeAllSales(true);
       if (response.status === 200) {
@@ -97,7 +114,6 @@ const AdminPanel = () => {
           "Success"
         );
       } else {
-        console.log("error: ", response);
         NotificationManager.error(
           "Error deleting Sales. Please try again later.",
           "Error"
@@ -110,11 +126,13 @@ const AdminPanel = () => {
       );
       console.log(error);
     } finally {
+      setLoadingSales(false);
       setOpenDeleteConfirmModal(false);
     }
   };
 
   const handleConfirmDeleteAllTransfers = async () => {
+    setLoadingTransfers(true);
     try {
       const response = await removeAllTransfers(true);
       if (response.status === 200) {
@@ -123,7 +141,6 @@ const AdminPanel = () => {
           "Success"
         );
       } else {
-        console.log("error: ", response);
         NotificationManager.error(
           "Error deleting transfers. Please try again later.",
           "Error"
@@ -136,6 +153,7 @@ const AdminPanel = () => {
       );
       console.log(error);
     } finally {
+      setLoadingTransfers(false);
       setOpenDeleteConfirmModal(false);
     }
   };
@@ -169,12 +187,14 @@ const AdminPanel = () => {
               variant="contained"
               onClick={handleDeleteAllStocks}
               fullWidth
-              sx={{
-                marginTop: 1,
-                fontSize: "11px",
-              }}
+              sx={{ marginTop: 1, fontSize: "11px" }}
+              disabled={loadingStocks}
             >
-              DELETE ALL STOCKS
+              {loadingStocks ? (
+                <CircularProgress size={20} />
+              ) : (
+                "DELETE ALL STOCKS"
+              )}
             </Button>
           </Grid>
           <Grid item xs={6}>
@@ -184,12 +204,14 @@ const AdminPanel = () => {
               variant="contained"
               onClick={handleDeleteAllPurchases}
               fullWidth
-              sx={{
-                marginTop: 1,
-                fontSize: "11px",
-              }}
+              sx={{ marginTop: 1, fontSize: "11px" }}
+              disabled={loadingPurchases}
             >
-              DELETE ALL PURCHASES
+              {loadingPurchases ? (
+                <CircularProgress size={20} />
+              ) : (
+                "DELETE ALL PURCHASES"
+              )}
             </Button>
           </Grid>
           <Grid item xs={6}>
@@ -199,12 +221,14 @@ const AdminPanel = () => {
               variant="contained"
               onClick={handleDeleteAllSales}
               fullWidth
-              sx={{
-                marginTop: 1,
-                fontSize: "11px",
-              }}
+              sx={{ marginTop: 1, fontSize: "11px" }}
+              disabled={loadingSales}
             >
-              DELETE ALL SALES
+              {loadingSales ? (
+                <CircularProgress size={20} />
+              ) : (
+                "DELETE ALL SALES"
+              )}
             </Button>
           </Grid>
           <Grid item xs={6}>
@@ -214,12 +238,14 @@ const AdminPanel = () => {
               variant="contained"
               onClick={handleDeleteAllTransfers}
               fullWidth
-              sx={{
-                marginTop: 1,
-                fontSize: "11px",
-              }}
+              sx={{ marginTop: 1, fontSize: "11px" }}
+              disabled={loadingTransfers}
             >
-              DELETE ALL TRANSFERS
+              {loadingTransfers ? (
+                <CircularProgress size={20} />
+              ) : (
+                "DELETE ALL TRANSFERS"
+              )}
             </Button>
           </Grid>
         </Grid>
