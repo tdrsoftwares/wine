@@ -1,3 +1,4 @@
+
 import {
   Autocomplete,
   Box,
@@ -136,7 +137,7 @@ const BrandStockMrp = () => {
     },
     {
       field: "totalPurchased",
-      headerName: "Total Purchased",
+      headerName: "Total Receipt",
       flex: 1,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
@@ -282,7 +283,7 @@ const BrandStockMrp = () => {
     mrp: item.mrp || 0,
     openingBalance: item.openingBalance || 0,
     openingMrp: item.openingMrpValue || 0,
-    // totalPurchased: item.totalPurchased || 0,
+    totalPurchased: item.totalPurchased || 0,
     receiptMrpValue: item.reciptMrpValue || 0,
     totalSold: item.totalSold || 0,
     salesMrpValue: item.salesMrpValue || 0,
@@ -299,7 +300,7 @@ const BrandStockMrp = () => {
     mrp: "",
     openingBalance: totals.openingBalance,
     openingMrp: totals.openingMrpValue,
-    // totalPurchased: totals.totalPurchased,
+    totalPurchased: totals.totalPurchased,
     receiptMrpValue: totals.reciptMrpValue,
     totalSold: totals.totalSold,
     salesMrpValue: totals.salesMrpValue,
