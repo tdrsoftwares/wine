@@ -334,7 +334,7 @@ const PurchaseEntry = () => {
     if (field === "mrp") {
       editedRowCopy.btlRate = editedRowCopy.mrp;
     }
-  
+
     if (field === "case") {
       const newCase = parseFloat(value) || 0;
       
@@ -343,7 +343,7 @@ const PurchaseEntry = () => {
       editedRowCopy.case = newCase;
       editedRowCopy.pcs = newPcsValue;
     }
-  
+
     if (field === "pcs") {
       const regex = /^\d*\.?\d*$/;
       if (regex.test(value) || value === "") {
@@ -351,7 +351,7 @@ const PurchaseEntry = () => {
         editedRowCopy.pcs = value;
       }
     }
-  
+
     if (
       field === "purchaseRate" ||
       field === "pcs" ||
@@ -372,16 +372,16 @@ const PurchaseEntry = () => {
 
       const gro = parseFloat(editedRowCopy.gro || purchases[index].gro) || 0;
       const sp = parseFloat(editedRowCopy.sp || purchases[index].sp) || 0;
-  
+
       if (parseFloat(caseNo) === 0) {
         amount = (purRate * pcs).toFixed(2);
       } else if (parseFloat(caseNo) > 0) {
         amount = (purRate * parseFloat(caseNo) + gro + sp).toFixed(2);
       }
-  
+
       editedRowCopy.amount = amount;
     }
-    
+
     setEditedRow(editedRowCopy);
   };
   
@@ -1252,7 +1252,6 @@ const PurchaseEntry = () => {
       };
     });
 
-    console.log("updated purchase", updatedPurchases)
 
     setPurchases(updatedPurchases);
     sessionStorage.setItem("purchases", JSON.stringify(updatedPurchases));
@@ -1281,7 +1280,6 @@ const PurchaseEntry = () => {
     totalValues.adjustment
   ]);
 
-  console.log("purchs ---> ", purchases)
 
   // useEffect(() => {
   //   const tcsPercentage = parseFloat(totalValues.tcs) || 1;
@@ -2487,7 +2485,7 @@ const PurchaseEntry = () => {
             setItemName={setItemName}
             formData={formData}
             setFormData={setFormData}
-          /> 
+          />
           <Button
             ref={clearButtonRef}
             color="inherit"
