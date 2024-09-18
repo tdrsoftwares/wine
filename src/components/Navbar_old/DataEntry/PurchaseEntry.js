@@ -311,35 +311,36 @@ const PurchaseEntry = () => {
   };
 
   const handleEdit = (index, field, value) => {
-    if (
-      field === "mrp" ||
-      field === "case" ||
-      field === "pcs" ||
-      field === "brk" ||
-      field === "purchaseRate" ||
-      field === "btlRate" ||
-      field === "gro" ||
-      field === "sp" ||
-      field === "amount"
-    ) {
-      if (!isValidNumber(value)) {
-        return;
-      }
-    }
-
     const editedRowCopy = { ...editedRow };
+
+    if (
+      [
+        "mrp",
+        "case",
+        "pcs",
+        "brk",
+        "purchaseRate",
+        "btlRate",
+        "gro",
+        "sp",
+        "amount",
+      ].includes(field) &&
+      !isValidNumber(value)
+    ) {
+      return;
+    }
 
     editedRowCopy[field] = value;
 
+    // MRP to bottle rate
     if (field === "mrp") {
       editedRowCopy.btlRate = editedRowCopy.mrp;
     }
 
+    // Case change and update pcs accordingly
     if (field === "case") {
       const newCase = parseFloat(value) || 0;
-
-      const newPcsValue = newCase * purchases[index].caseValue || 0;
-
+      const newPcsValue = newCase * parseFloat(purchases[index].caseValue) || 0;
       editedRowCopy.case = newCase;
       editedRowCopy.pcs = newPcsValue;
     }
@@ -347,43 +348,39 @@ const PurchaseEntry = () => {
     if (field === "pcs") {
       const regex = /^\d*\.?\d*$/;
       if (regex.test(value) || value === "") {
+        editedRowCopy.pcs = parseFloat(value) || 0;
         editedRowCopy.case = 0;
-        editedRowCopy.pcs = value;
+        console.log(
+          "Updated pcs:",
+          editedRowCopy.pcs,
+          "and case:",
+          editedRowCopy.case
+        );
       }
     }
 
-    if (
-      field === "purchaseRate" ||
-      field === "pcs" ||
-      field === "case" ||
-      field === "gro" ||
-      field === "sp"
-    ) {
+    if (["purchaseRate", "pcs", "case", "gro", "sp"].includes(field)) {
       let amount = 0;
       const purRate =
         parseFloat(
           editedRowCopy.purchaseRate || purchases[index].purchaseRate
         ) || 0;
-
-      const pcs = parseFloat(editedRowCopy.pcs || purchases[index].pcs || 0);
-      const caseNo = parseFloat(
-        editedRowCopy.case || purchases[index].caseNo || 0
-      );
-
+      const pcs = parseFloat(editedRowCopy.pcs || 0);
+      const caseNo = parseFloat(editedRowCopy.case || 0);
       const gro = parseFloat(editedRowCopy.gro || purchases[index].gro) || 0;
       const sp = parseFloat(editedRowCopy.sp || purchases[index].sp) || 0;
 
-      if (parseFloat(caseNo) === 0) {
+      if (caseNo === 0) {
         amount = (purRate * pcs).toFixed(2);
-      } else if (parseFloat(caseNo) > 0) {
-        amount = (purRate * parseFloat(caseNo) + gro + sp).toFixed(2);
+      } else {
+        amount = (purRate * caseNo + gro + sp).toFixed(2);
       }
 
       editedRowCopy.amount = amount;
     }
 
     setEditedRow(editedRowCopy);
-  };
+  };  
   
 
   const handleEditClick = (index) => {
@@ -2175,7 +2172,11 @@ const PurchaseEntry = () => {
                       <TableCell align="center">
                         {editableIndex === index ? (
                           <Input
-                            value={editedRow.case || row.case}
+                            value={
+                              editedRow.case !== undefined
+                                ? editedRow.case
+                                : row.case
+                            } 
                             onChange={(e) =>
                               handleEdit(index, "case", e.target.value)
                             }
