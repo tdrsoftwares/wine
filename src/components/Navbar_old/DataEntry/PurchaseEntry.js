@@ -322,28 +322,33 @@ const PurchaseEntry = () => {
       field === "sp" ||
       field === "amount"
     ) {
-      if (!isValidNumber(value)) {
+      if (!isValidNumber(value) && value !== "") {
         return;
       }
     }
-  
+
     const editedRowCopy = { ...editedRow };
-    
+
     editedRowCopy[field] = value;
-  
+
     if (field === "mrp") {
       editedRowCopy.btlRate = editedRowCopy.mrp;
     }
-  
+
     if (field === "case") {
       const newCase = parseFloat(value) || 0;
-      
-      const newPcsValue = newCase * purchases[index].caseValue || 0;
 
-      editedRowCopy.case = newCase;
-      editedRowCopy.pcs = newPcsValue;
+    
+      if (value === "") {
+        editedRowCopy.case = 0;
+        editedRowCopy.pcs = 0;
+      } else {
+        const newPcsValue = newCase * purchases[index].caseValue || 0;
+        editedRowCopy.case = newCase;
+        editedRowCopy.pcs = newPcsValue;
+      }
     }
-  
+
     if (field === "pcs") {
       const regex = /^\d*\.?\d*$/;
       if (regex.test(value) || value === "") {
@@ -351,7 +356,7 @@ const PurchaseEntry = () => {
         editedRowCopy.pcs = value;
       }
     }
-  
+
     if (
       field === "purchaseRate" ||
       field === "pcs" ||
@@ -366,22 +371,22 @@ const PurchaseEntry = () => {
         ) || 0;
 
       const pcs = parseFloat(editedRowCopy.pcs || purchases[index].pcs || 0);
-      const caseNo =
-        parseFloat(editedRowCopy.case || purchases[index].caseNo || 0);
-        
+      const caseNo = parseFloat(
+        editedRowCopy.case || purchases[index].caseNo || 0
+      );
 
       const gro = parseFloat(editedRowCopy.gro || purchases[index].gro) || 0;
       const sp = parseFloat(editedRowCopy.sp || purchases[index].sp) || 0;
-  
+
       if (parseFloat(caseNo) === 0) {
         amount = (purRate * pcs).toFixed(2);
       } else if (parseFloat(caseNo) > 0) {
         amount = (purRate * parseFloat(caseNo) + gro + sp).toFixed(2);
       }
-  
+
       editedRowCopy.amount = amount;
     }
-    
+
     setEditedRow(editedRowCopy);
   };
   
@@ -1252,7 +1257,7 @@ const PurchaseEntry = () => {
       };
     });
 
-    console.log("updated purchase", updatedPurchases)
+    // console.log("updated purchase", updatedPurchases)
 
     setPurchases(updatedPurchases);
     sessionStorage.setItem("purchases", JSON.stringify(updatedPurchases));
@@ -1281,7 +1286,7 @@ const PurchaseEntry = () => {
     totalValues.adjustment
   ]);
 
-  console.log("purchs ---> ", purchases)
+  // console.log("purchs ---> ", purchases)
 
   // useEffect(() => {
   //   const tcsPercentage = parseFloat(totalValues.tcs) || 1;
@@ -2177,7 +2182,11 @@ const PurchaseEntry = () => {
                       <TableCell align="center">
                         {editableIndex === index ? (
                           <Input
-                            value={editedRow.case || row.case}
+                            value={
+                              editedRow.case === 0 || editedRow.case === ""
+                                ? ""
+                                : editedRow.case
+                            }
                             onChange={(e) =>
                               handleEdit(index, "case", e.target.value)
                             }
@@ -2190,7 +2199,11 @@ const PurchaseEntry = () => {
                       <TableCell align="center">
                         {editableIndex === index ? (
                           <Input
-                            value={editedRow.pcs || row.pcs}
+                            value={
+                              editedRow.pcs === 0 || editedRow.pcs === ""
+                                ? ""
+                                : editedRow.pcs
+                            }
                             onChange={(e) =>
                               handleEdit(index, "pcs", e.target.value)
                             }
@@ -2487,7 +2500,7 @@ const PurchaseEntry = () => {
             setItemName={setItemName}
             formData={formData}
             setFormData={setFormData}
-          /> 
+          />
           <Button
             ref={clearButtonRef}
             color="inherit"
