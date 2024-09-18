@@ -353,6 +353,7 @@ const PurchaseEntry = () => {
       }
     }
 
+    
 
     if (
       field === "purchaseRate" ||
