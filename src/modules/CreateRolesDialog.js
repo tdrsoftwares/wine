@@ -22,6 +22,7 @@ const CreateRolesDialog = (props) => {
   const { createRolesData, setCreateRolesData, openCreateRoles, setOpenCreateRoles } = props;
   const [modulePermissions, setModulePermissions] = useState([]);
 
+  // console.log("modulePermissions: ", modulePermissions);
 
   const fetchAllModules = async () => {
     try {
@@ -38,13 +39,14 @@ const CreateRolesDialog = (props) => {
             delete: false,
           },
         }));
-        // console.log("modulesData: ", modulesData)
+        // console.log("modulesData: ", modulesData);
         setModulePermissions(modulesData);
       } else {
         setModulePermissions([]);
       }
     } catch (error) {
       console.error("Error fetching modules:", error);
+      NotificationManager.error("Error fetching modules!", "Error");
     }
   };
 

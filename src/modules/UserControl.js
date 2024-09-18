@@ -5,7 +5,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { createUser, getAllRoles } from "../services/userService";
+import { createUser, getAllRoleNames } from "../services/userService";
 import { NotificationManager } from "react-notifications";
 import CreateUserDialog from "./CreateUserDialog";
 import CreateRolesDialog from "./CreateRolesDialog";
@@ -21,7 +21,7 @@ const UserControl = ({}) => {
     lastName: "",
     userName: "",
     email: "",
-    customerId: "",
+    // customerId: "",
     phoneNumber: "",
     roleId: "",
     password: "",
@@ -37,9 +37,11 @@ const UserControl = ({}) => {
   const [showPassword, setShowPassword] = useState(false);
   const [allRoles, setAllRoles] = useState([]);
 
-  const fetchAllRoles = async () => {
+  console.log("createuser data: ", createRolesData)
+
+  const fetchAllRoleNames = async () => {
     try {
-      const allRoles = await getAllRoles(createUserData.customerId);
+      const allRoles = await getAllRoleNames();
       console.log("allroles response: ", allRoles);
 
       if (allRoles.status === 200) {
@@ -58,8 +60,8 @@ const UserControl = ({}) => {
   };
 
   useEffect(() => {
-    if (createUserData.customerId) fetchAllRoles();
-  }, [createUserData.customerId]);
+    fetchAllRoleNames();
+  }, []);
 
   const isFormComplete = () => {
     return Object.values(createUserData).every((value) => value !== "");
@@ -71,7 +73,7 @@ const UserControl = ({}) => {
       lastName: createUserData.lastName,
       username: createUserData.userName,
       email: createUserData.email,
-      customerId: createUserData.customerId,
+      // customerId: createUserData.customerId,
       phoneNumber: createUserData.phoneNumber,
       roleId: createUserData.roleId,
       password: createUserData.password,
@@ -82,7 +84,7 @@ const UserControl = ({}) => {
       !createUserData.lastName ||
       !createUserData.userName ||
       !createUserData.email ||
-      !createUserData.customerId ||
+      // !createUserData.customerId ||
       !createUserData.phoneNumber ||
       !createUserData.roleId ||
       !createUserData.password
@@ -102,7 +104,7 @@ const UserControl = ({}) => {
           lastName: "",
           userName: "",
           email: "",
-          customerId: "",
+          // customerId: "",
           phoneNumber: "",
           roleId: "",
           password: "",
@@ -204,6 +206,8 @@ const UserControl = ({}) => {
         openCreateRoles={openCreateRoles}
         setOpenCreateRoles={setOpenCreateRoles}
       />
+
+
     </Paper>
   );
 };

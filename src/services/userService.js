@@ -1,10 +1,8 @@
 import axiosInstance from "../utils/axiosInstance";
 
-
 export const createUser = async (payload) => {
-
   try {
-    const apiURL = `/user-master/general-user`;
+    const apiURL = `/user/create`;
     const response = await axiosInstance.post(apiURL, payload);
     return response;
   } catch (error) {
@@ -13,15 +11,14 @@ export const createUser = async (payload) => {
 };
 
 export const createRole = async (payload) => {
-
-    try {
-      const apiURL = `/role/create`;
-      const response = await axiosInstance.post(apiURL, payload);
-      return response;
-    } catch (error) {
-      return error;
-    }
-  };
+  try {
+    const apiURL = `/role/create`;
+    const response = await axiosInstance.post(apiURL, payload);
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
 
 // export const updateStore = async (payload, id) => {
 //   try {
@@ -33,10 +30,9 @@ export const createRole = async (payload) => {
 //   }
 // };
 
-export const getAllRoles = async (customerId) => {
+export const getAllRoleNames = async () => {
   try {
-    // const dbName = localStorage.getItem('x-db-name');
-    const apiURL = `/role?customerId=${customerId}`;
+    const apiURL = `/role`;
     const response = await axiosInstance.get(apiURL);
     return response;
   } catch (error) {
@@ -45,14 +41,14 @@ export const getAllRoles = async (customerId) => {
 };
 
 export const getAllModules = async () => {
-    try {
-      const apiURL = `/module`;
-      const response = await axiosInstance.get(apiURL);
-      return response;
-    } catch (error) {
-      return error;
-    }
-  };
+  try {
+    const apiURL = `/admin/module`;
+    const response = await axiosInstance.get(apiURL);
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
 
 // export const deleteStore = async (id) => {
 //   try {

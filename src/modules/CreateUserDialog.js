@@ -138,7 +138,7 @@ const CreateUserDialog = (props) => {
                 </div>
               </Grid>
 
-              <Grid item xs={6}>
+              {/* <Grid item xs={6}>
                 <div className="input-wrapper">
                   <InputLabel
                     htmlFor="customerId"
@@ -161,7 +161,7 @@ const CreateUserDialog = (props) => {
                     }
                   />
                 </div>
-              </Grid>
+              </Grid> */}
 
               <Grid item xs={6}>
                 <div className="input-wrapper">
@@ -279,7 +279,7 @@ const CreateUserDialog = (props) => {
                 lastName: "",
                 userName: "",
                 email: "",
-                customerId: "",
+                // customerId: "",
                 phoneNumber: "",
                 roleId: "",
                 password: "",
