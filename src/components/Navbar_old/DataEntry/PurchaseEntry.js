@@ -337,13 +337,12 @@ const PurchaseEntry = () => {
 
     if (field === "case") {
       const newCase = parseFloat(value) || 0;
-      
+
       const newPcsValue = newCase * purchases[index].caseValue || 0;
 
       editedRowCopy.case = newCase;
       editedRowCopy.pcs = newPcsValue;
     }
-
 
     if (field === "pcs") {
       const regex = /^\d*\.?\d*$/;
@@ -352,8 +351,6 @@ const PurchaseEntry = () => {
         editedRowCopy.pcs = value;
       }
     }
-
-    
 
     if (
       field === "purchaseRate" ||
@@ -369,13 +366,12 @@ const PurchaseEntry = () => {
         ) || 0;
 
       const pcs = parseFloat(editedRowCopy.pcs || purchases[index].pcs || 0);
-      const caseNo =
-        parseFloat(editedRowCopy.case || purchases[index].caseNo || 0);
-        
+      const caseNo = parseFloat(
+        editedRowCopy.case || purchases[index].caseNo || 0
+      );
 
       const gro = parseFloat(editedRowCopy.gro || purchases[index].gro) || 0;
       const sp = parseFloat(editedRowCopy.sp || purchases[index].sp) || 0;
-
 
       if (parseFloat(caseNo) === 0) {
         amount = (purRate * pcs).toFixed(2);
@@ -383,10 +379,8 @@ const PurchaseEntry = () => {
         amount = (purRate * parseFloat(caseNo) + gro + sp).toFixed(2);
       }
 
-
       editedRowCopy.amount = amount;
     }
-
 
     setEditedRow(editedRowCopy);
   };
