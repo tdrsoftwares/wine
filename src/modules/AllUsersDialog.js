@@ -1,0 +1,89 @@
+import React from "react";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from "@mui/material";
+
+const AllUsersDialog = ({ open, onClose, allUsers }) => {
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle>All Users</DialogTitle>
+      <DialogContent>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                {/* Setting header background and text color */}
+                <TableCell sx={{ backgroundColor: "#3f51b5", color: "white" }}>
+                  First Name
+                </TableCell>
+                <TableCell sx={{ backgroundColor: "#3f51b5", color: "white" }}>
+                  Last Name
+                </TableCell>
+                <TableCell sx={{ backgroundColor: "#3f51b5", color: "white" }}>
+                  Email
+                </TableCell>
+                <TableCell sx={{ backgroundColor: "#3f51b5", color: "white" }}>
+                  Phone Number
+                </TableCell>
+                <TableCell sx={{ backgroundColor: "#3f51b5", color: "white" }}>
+                  Username
+                </TableCell>
+                <TableCell sx={{ backgroundColor: "#3f51b5", color: "white" }}>
+                  Status
+                </TableCell>
+                <TableCell sx={{ backgroundColor: "#3f51b5", color: "white" }}>
+                  Role
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {allUsers.map((user) => (
+                <TableRow key={user._id}>
+                  {/* Setting row background to white */}
+                  <TableCell sx={{ backgroundColor: "white" }}>
+                    {user.firstName}
+                  </TableCell>
+                  <TableCell sx={{ backgroundColor: "white" }}>
+                    {user.lastName}
+                  </TableCell>
+                  <TableCell sx={{ backgroundColor: "white" }}>
+                    {user.email}
+                  </TableCell>
+                  <TableCell sx={{ backgroundColor: "white" }}>
+                    {user.phoneNumber}
+                  </TableCell>
+                  <TableCell sx={{ backgroundColor: "white" }}>
+                    {user.username}
+                  </TableCell>
+                  <TableCell sx={{ backgroundColor: "white" }}>
+                    {user.status ? "Active" : "Inactive"}
+                  </TableCell>
+                  <TableCell sx={{ backgroundColor: "white" }}>
+                    {user.roleId ? user.roleId.name : "No Role"}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} color="primary">
+          Close
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+export default AllUsersDialog;

@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-// Helper function to parse permissions into boolean values
+// function to parse permissions into boolean values
 const parsePermissions = (permissionsArray) => {
   const permissionsObject = {
     create: false,
@@ -26,6 +26,7 @@ const parsePermissions = (permissionsArray) => {
     delete: false,
   };
 
+  // Iterates through the array to assign permissions
   permissionsArray.forEach((permission) => {
     if (permission in permissionsObject) {
       permissionsObject[permission] = true;
@@ -42,8 +43,6 @@ const RolesAndPermissionsDialog = ({
   handleDeleteRole,
   handlePermissionChange,
 }) => {
-  //   console.log("Role and permissions: ", allRoleAndPermissions);
-
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle>Roles and Permissions</DialogTitle>
@@ -98,11 +97,7 @@ const RolesAndPermissionsDialog = ({
 
                         <ListItem>
                           {/* Align Checkboxes in a Grid */}
-                          <Grid
-                            container
-                            spacing={2}
-                            style={{ marginLeft: "10px" }}
-                          >
+                          <Grid container spacing={2}>
                             {/* Create Permission */}
                             <Grid item xs={3}>
                               <FormControlLabel

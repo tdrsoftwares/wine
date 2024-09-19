@@ -6,17 +6,21 @@ import {
   deleteRole,
   getAllRoleAndPermissions,
   getAllRoleNames,
+  getAllUsers,
 } from "../services/userService";
 import { NotificationManager } from "react-notifications";
 import CreateUserDialog from "./CreateUserDialog";
 import CreateRolesDialog from "./CreateRolesDialog";
 import RolesAndPermissionsDialog from "./RolesAndPermissionsDialog";
+import AllUsersDialog from "./AllUsersDialog";
 
 const UserControl = ({}) => {
   const [openRolesAndPermissionDialog, setOpenRolesAndPermissionDialog] =
     useState(false);
   const [openCreateUser, setOpenCreateUser] = useState(false);
   const [openCreateRoles, setOpenCreateRoles] = useState(false);
+  const [openAllUsersDialog, setOpenAllUsersDialog] = useState(false);
+  const [allUsers, setAllUsers] = useState([]);
 
   const [createUserData, setCreateUserData] = useState({
     firstName: "",
@@ -96,6 +100,26 @@ const UserControl = ({}) => {
     }
   };
 
+  const fetchAllUsers = async () => {
+    try {
+      const allUsers = await getAllUsers();
+      console.log("allusers response: ", allUsers);
+
+      if (allUsers.status === 200) {
+        setAllUsers(allUsers?.data?.data);
+      } else {
+        // NotificationManager.error("No roles found", "Error");
+        setAllUsers([]);
+      }
+    } catch (error) {
+      // NotificationManager.error(
+      //   "Error fetching roles. Please try again later.",
+      //   "Error"
+      // );
+      console.error("Error fetching roles:", error);
+    }
+  };
+
   useEffect(() => {
     fetchAllRoleNames();
   }, []);
@@ -103,6 +127,10 @@ const UserControl = ({}) => {
   useEffect(() => {
     fetchAllRoleAndPermissions();
   }, [openRolesAndPermissionDialog]);
+
+  useEffect(() => {
+    fetchAllUsers();
+  }, [openAllUsersDialog]);
 
   const isFormComplete = () => {
     return Object.values(createUserData).every((value) => value !== "");
@@ -209,7 +237,7 @@ const UserControl = ({}) => {
           size="small"
           variant="contained"
           fullWidth
-          // onClick={() => setOpenAllUsersDialog(true)}
+          onClick={() => setOpenAllUsersDialog(true)}
           sx={{
             marginTop: 1,
             fontSize: "11px",
@@ -274,6 +302,12 @@ const UserControl = ({}) => {
         allRoleAndPermissions={allRoleAndPermissions}
         handleDeleteRole={handleDeleteRole}
         handlePermissionChange={handlePermissionChange}
+      />
+
+      <AllUsersDialog
+        open={openAllUsersDialog}
+        onClose={() => setOpenAllUsersDialog(false)}
+        allUsers={allUsers}
       />
     </Paper>
   );

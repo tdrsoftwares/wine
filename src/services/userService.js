@@ -30,15 +30,15 @@ export const createRole = async (payload) => {
 //   }
 // };
 
-// export const getAllUsers = async () => {
-//   try {
-//     const apiURL = `/user/get-all`;
-//     const response = await axiosInstance.get(apiURL);
-//     return response;
-//   } catch (error) {
-//     return error;
-//   }
-// };
+export const getAllUsers = async () => {
+  try {
+    const apiURL = `/user/get-all`;
+    const response = await axiosInstance.get(apiURL);
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
 
 export const getAllRoleNames = async () => {
   try {
