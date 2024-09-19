@@ -1,14 +1,16 @@
-import {
-  Box,
-  Button,
-  Paper,
-  Typography,
-} from "@mui/material";
+// userControll
+import { Box, Button, Paper, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { createUser, getAllRoleNames } from "../services/userService";
+import {
+  createUser,
+  deleteRole,
+  getAllRoleAndPermissions,
+  getAllRoleNames,
+} from "../services/userService";
 import { NotificationManager } from "react-notifications";
 import CreateUserDialog from "./CreateUserDialog";
 import CreateRolesDialog from "./CreateRolesDialog";
+import RolesAndPermissionsDialog from "./RolesAndPermissionsDialog";
 
 const UserControl = ({}) => {
   const [openRolesAndPermissionDialog, setOpenRolesAndPermissionDialog] =
@@ -36,8 +38,23 @@ const UserControl = ({}) => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [allRoles, setAllRoles] = useState([]);
+  const [allRoleAndPermissions, setAllRoleAndPermissions] = useState([]);
 
-  console.log("createuser data: ", createRolesData)
+  // console.log("createuser data: ", createRolesData);
+
+  // permission checkbox changes
+  const handlePermissionChange = (
+    roleIndex,
+    moduleIndex,
+    permissionType,
+    isChecked
+  ) => {
+    const updatedRoles = [...allRoleAndPermissions];
+    updatedRoles[roleIndex].modulePermission[
+      moduleIndex
+    ].permission.permissions[permissionType] = isChecked;
+    setAllRoleAndPermissions(updatedRoles);
+  };
 
   const fetchAllRoleNames = async () => {
     try {
@@ -59,9 +76,33 @@ const UserControl = ({}) => {
     }
   };
 
+  const fetchAllRoleAndPermissions = async () => {
+    try {
+      const allRoleAndPermissions = await getAllRoleAndPermissions();
+      console.log("getAllRoleAndPermissions response: ", allRoleAndPermissions);
+
+      if (allRoleAndPermissions.status === 200) {
+        setAllRoleAndPermissions(allRoleAndPermissions?.data?.data);
+      } else {
+        // NotificationManager.error("No role and permissions found", "Error");
+        setAllRoleAndPermissions([]);
+      }
+    } catch (error) {
+      // NotificationManager.error(
+      //   "Error fetching role and permissions. Please try again later.",
+      //   "Error"
+      // );
+      console.error("Error fetching role and permissions:", error);
+    }
+  };
+
   useEffect(() => {
     fetchAllRoleNames();
   }, []);
+
+  useEffect(() => {
+    fetchAllRoleAndPermissions();
+  }, [openRolesAndPermissionDialog]);
 
   const isFormComplete = () => {
     return Object.values(createUserData).every((value) => value !== "");
@@ -118,6 +159,24 @@ const UserControl = ({}) => {
     }
   };
 
+  const handleDeleteRole = async (roleId) => {
+    try {
+      const response = await deleteRole(roleId);
+
+      if (response && response.status === 200) {
+        const updatedRoles = allRoleAndPermissions.filter(
+          (role) => role._id !== roleId
+        );
+        setAllRoleAndPermissions(updatedRoles);
+        NotificationManager.success("Role deleted successfully", "Success");
+      } else {
+        NotificationManager.error("Error deleting role!", "Error");
+      }
+    } catch (error) {
+      console.error("Failed to delete role:", error);
+    }
+  };
+
   return (
     <Paper
       sx={{
@@ -150,15 +209,16 @@ const UserControl = ({}) => {
           size="small"
           variant="contained"
           fullWidth
-          onClick={() => setOpenRolesAndPermissionDialog(true)}
+          // onClick={() => setOpenAllUsersDialog(true)}
           sx={{
             marginTop: 1,
             fontSize: "11px",
           }}
         >
-          ALL ROLES AND PERMISSIONS
+          ALL USERS
         </Button>
       </Box>
+
       <Box display="flex" justifyContent="space-between" gap={2}>
         <Button
           color="primary"
@@ -179,13 +239,14 @@ const UserControl = ({}) => {
           size="small"
           variant="contained"
           fullWidth
-          onClick={() => {}}
+          onClick={() => setOpenRolesAndPermissionDialog(true)}
           sx={{
             marginTop: 1,
             fontSize: "11px",
           }}
-          disabled
-        ></Button>
+        >
+          ALL ROLES AND PERMISSIONS
+        </Button>
       </Box>
 
       <CreateUserDialog
@@ -207,7 +268,13 @@ const UserControl = ({}) => {
         setOpenCreateRoles={setOpenCreateRoles}
       />
 
-
+      <RolesAndPermissionsDialog
+        open={openRolesAndPermissionDialog}
+        onClose={() => setOpenRolesAndPermissionDialog(false)}
+        allRoleAndPermissions={allRoleAndPermissions}
+        handleDeleteRole={handleDeleteRole}
+        handlePermissionChange={handlePermissionChange}
+      />
     </Paper>
   );
 };

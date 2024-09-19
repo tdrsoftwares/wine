@@ -30,9 +30,29 @@ export const createRole = async (payload) => {
 //   }
 // };
 
+// export const getAllUsers = async () => {
+//   try {
+//     const apiURL = `/user/get-all`;
+//     const response = await axiosInstance.get(apiURL);
+//     return response;
+//   } catch (error) {
+//     return error;
+//   }
+// };
+
 export const getAllRoleNames = async () => {
   try {
     const apiURL = `/role`;
+    const response = await axiosInstance.get(apiURL);
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const getAllRoleAndPermissions = async () => {
+  try {
+    const apiURL = `/role/all-roles`;
     const response = await axiosInstance.get(apiURL);
     return response;
   } catch (error) {
@@ -50,12 +70,12 @@ export const getAllModules = async () => {
   }
 };
 
-// export const deleteStore = async (id) => {
-//   try {
-//     const apiURL = `/store/delete/${id}`;
-//     const deleteStoreData = await axiosInstance.delete(apiURL);
-//     return deleteStoreData;
-//   } catch (error) {
-//     return error;
-//   }
-// };
+export const deleteRole = async (roleId) => {
+  try {
+    const apiURL = `/role/delete/${roleId}`;
+    const deleteRoleData = await axiosInstance.delete(apiURL);
+    return deleteRoleData;
+  } catch (error) {
+    return error;
+  }
+};

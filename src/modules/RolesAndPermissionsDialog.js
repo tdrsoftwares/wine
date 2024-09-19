@@ -1,0 +1,218 @@
+import React from "react";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Typography,
+  List,
+  ListItem,
+  Checkbox,
+  Grid,
+  FormControlLabel,
+  IconButton,
+  Divider,
+  ListItemText,
+} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+
+// Helper function to parse permissions into boolean values
+const parsePermissions = (permissionsArray) => {
+  const permissionsObject = {
+    create: false,
+    read: false,
+    update: false,
+    delete: false,
+  };
+
+  permissionsArray.forEach((permission) => {
+    if (permission in permissionsObject) {
+      permissionsObject[permission] = true;
+    }
+  });
+
+  return permissionsObject;
+};
+
+const RolesAndPermissionsDialog = ({
+  open,
+  onClose,
+  allRoleAndPermissions,
+  handleDeleteRole,
+  handlePermissionChange,
+}) => {
+  //   console.log("Role and permissions: ", allRoleAndPermissions);
+
+  return (
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
+      <DialogTitle>Roles and Permissions</DialogTitle>
+      <DialogContent>
+        {allRoleAndPermissions && allRoleAndPermissions.length > 0 ? (
+          allRoleAndPermissions.map((role, roleIndex) => (
+            <div key={role._id} style={{ marginBottom: "20px" }}>
+              {/* Role Header and Delete Button */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Typography variant="h6" style={{ fontWeight: "bold" }}>
+                  {role.name}
+                </Typography>
+                <IconButton
+                  color="error"
+                  aria-label="delete role"
+                  onClick={() => handleDeleteRole(role._id)}
+                  size="small"
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </div>
+              <Typography variant="body2" color="textSecondary">
+                {role.description}
+              </Typography>
+
+              <Divider style={{ margin: "10px 0" }} />
+
+              {/* Module Permissions List */}
+              <List>
+                {role.modulePermission && role.modulePermission.length > 0 ? (
+                  role.modulePermission.map((module, moduleIndex) => {
+                    // Parse the permissions array to boolean values
+                    const permissions = parsePermissions(
+                      module.permission.permission
+                    );
+
+                    return (
+                      <div key={module.permission._id}>
+                        {/* Module Header */}
+                        <Typography
+                          variant="subtitle1"
+                          style={{ fontWeight: "bold", marginTop: "10px" }}
+                        >
+                          {module.permission.moduleId.name}
+                        </Typography>
+
+                        <ListItem>
+                          {/* Align Checkboxes in a Grid */}
+                          <Grid
+                            container
+                            spacing={2}
+                            style={{ marginLeft: "10px" }}
+                          >
+                            {/* Create Permission */}
+                            <Grid item xs={3}>
+                              <FormControlLabel
+                                control={
+                                  <Checkbox
+                                    checked={permissions.create || false}
+                                    onChange={(e) =>
+                                      handlePermissionChange(
+                                        roleIndex,
+                                        moduleIndex,
+                                        "create",
+                                        e.target.checked
+                                      )
+                                    }
+                                    disabled
+                                  />
+                                }
+                                label="Create"
+                              />
+                            </Grid>
+
+                            {/* Read Permission */}
+                            <Grid item xs={3}>
+                              <FormControlLabel
+                                control={
+                                  <Checkbox
+                                    checked={permissions.read || false}
+                                    onChange={(e) =>
+                                      handlePermissionChange(
+                                        roleIndex,
+                                        moduleIndex,
+                                        "read",
+                                        e.target.checked
+                                      )
+                                    }
+                                    disabled
+                                  />
+                                }
+                                label="Read"
+                              />
+                            </Grid>
+
+                            {/* Update Permission */}
+                            <Grid item xs={3}>
+                              <FormControlLabel
+                                control={
+                                  <Checkbox
+                                    checked={permissions.update || false}
+                                    onChange={(e) =>
+                                      handlePermissionChange(
+                                        roleIndex,
+                                        moduleIndex,
+                                        "update",
+                                        e.target.checked
+                                      )
+                                    }
+                                    disabled
+                                  />
+                                }
+                                label="Update"
+                              />
+                            </Grid>
+
+                            {/* Delete Permission */}
+                            <Grid item xs={3}>
+                              <FormControlLabel
+                                control={
+                                  <Checkbox
+                                    checked={permissions.delete || false}
+                                    onChange={(e) =>
+                                      handlePermissionChange(
+                                        roleIndex,
+                                        moduleIndex,
+                                        "delete",
+                                        e.target.checked
+                                      )
+                                    }
+                                    disabled
+                                  />
+                                }
+                                label="Delete"
+                              />
+                            </Grid>
+                          </Grid>
+                        </ListItem>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <ListItem>
+                    <ListItemText primary="No specific permissions assigned." />
+                  </ListItem>
+                )}
+              </List>
+              <Divider style={{ marginTop: "20px" }} />
+            </div>
+          ))
+        ) : (
+          <Typography variant="body1">
+            No roles and permissions available.
+          </Typography>
+        )}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} color="primary">
+          Close
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+export default RolesAndPermissionsDialog;
