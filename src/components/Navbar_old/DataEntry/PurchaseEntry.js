@@ -312,7 +312,7 @@ const PurchaseEntry = () => {
 
   const handleEdit = (index, field, value) => {
     const editedRowCopy = { ...editedRow };
-
+  
     if (
       [
         "mrp",
@@ -329,58 +329,29 @@ const PurchaseEntry = () => {
     ) {
       return;
     }
-
+  
     editedRowCopy[field] = value;
-
-    // MRP to bottle rate
+  
+    // MRP to bottle rate logic (just store the value for now)
     if (field === "mrp") {
       editedRowCopy.btlRate = editedRowCopy.mrp;
     }
-
-    // Case change and update pcs accordingly
+  
+    // Store values for case and pcs without calculations
     if (field === "case") {
-      const newCase = parseFloat(value) || 0;
-      const newPcsValue = newCase * parseFloat(purchases[index].caseValue) || 0;
-      editedRowCopy.case = newCase;
-      editedRowCopy.pcs = newPcsValue;
+      editedRowCopy.case = parseFloat(value) || 0;
     }
-
+  
     if (field === "pcs") {
       const regex = /^\d*\.?\d*$/;
       if (regex.test(value) || value === "") {
         editedRowCopy.pcs = parseFloat(value) || 0;
         editedRowCopy.case = 0;
-        console.log(
-          "Updated pcs:",
-          editedRowCopy.pcs,
-          "and case:",
-          editedRowCopy.case
-        );
       }
     }
-
-    if (["purchaseRate", "pcs", "case", "gro", "sp"].includes(field)) {
-      let amount = 0;
-      const purRate =
-        parseFloat(
-          editedRowCopy.purchaseRate || purchases[index].purchaseRate
-        ) || 0;
-      const pcs = parseFloat(editedRowCopy.pcs || 0);
-      const caseNo = parseFloat(editedRowCopy.case || 0);
-      const gro = parseFloat(editedRowCopy.gro || purchases[index].gro) || 0;
-      const sp = parseFloat(editedRowCopy.sp || purchases[index].sp) || 0;
-
-      if (caseNo === 0) {
-        amount = (purRate * pcs).toFixed(2);
-      } else {
-        amount = (purRate * caseNo + gro + sp).toFixed(2);
-      }
-
-      editedRowCopy.amount = amount;
-    }
-
+  
     setEditedRow(editedRowCopy);
-  };  
+  };
   
 
   const handleEditClick = (index) => {
@@ -391,21 +362,47 @@ const PurchaseEntry = () => {
     setIsRowUpdated(true);
     const updatedPurchases = [...purchases];
     const updatedRow = { ...updatedPurchases[index] };
-
+  
+    // Copy all edited fields into the updatedRow
     for (const key in editedRow) {
       if (editedRow.hasOwnProperty(key)) {
         updatedRow[key] = editedRow[key];
       }
     }
-
     
+    // Calculate pcs based on case (if applicable)
+    if (editedRow.case) {
+      const newPcsValue = parseFloat(editedRow.case) * parseFloat(purchases[index].caseValue || 0) || 0;
+      updatedRow.pcs = newPcsValue;
+    }
+  
+    // Calculate amount based on purchaseRate and pcs
+    if (editedRow.purchaseRate || updatedRow.purchaseRate) {
+      const purRate = parseFloat(updatedRow.purchaseRate || purchases[index].purchaseRate) || 0;
+      const pcs = parseFloat(updatedRow.pcs || 0);
+      let amount = 0;
+      
+      if (updatedRow.case === 0 && pcs > 0) {
+        amount = (purRate * pcs).toFixed(2);
+      } else if (updatedRow.case > 0) {
+        const gro = parseFloat(updatedRow.gro || purchases[index].gro) || 0;
+        const sp = parseFloat(updatedRow.sp || purchases[index].sp) || 0;
+        amount = (purRate * updatedRow.case + gro + sp).toFixed(2);
+      }
+  
+      updatedRow.amount = amount;
+    }
+  
+    // Save updated values
     updatedPurchases[index] = updatedRow;
     sessionStorage.setItem('purchases', JSON.stringify(updatedPurchases));
     setPurchases(updatedPurchases);
-
+  
+    // Reset the editing state
     setEditedRow({});
     setEditableIndex(-1);
   };
+  
 
   const fetchAllSuppliers = async () => {
     try {
