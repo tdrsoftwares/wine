@@ -31,6 +31,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import { getAllCompanies } from "../../services/companyService";
 import { customTheme } from "../../utils/customTheme";
+import { usePermissions } from "../../utils/PermissionsContext";
 
 const BrandRegister = () => {
   const [brandName, setBrandName] = useState("");
@@ -46,6 +47,16 @@ const BrandRegister = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const tableRef = useRef(null);
+
+  const { permissions } = usePermissions();
+
+  const companyPermissions =
+    permissions?.find((permission) => permission.moduleName === "Company")
+      ?.permissions || [];
+  const canCreate = companyPermissions.includes("create");
+  const canRead = companyPermissions.includes("read");
+  const canUpdate = companyPermissions.includes("update");
+  const canDelete = companyPermissions.includes("delete");
 
   const handleClickOutside = (event) => {
     if (tableRef.current && !tableRef.current.contains(event.target)) {
@@ -165,7 +176,7 @@ const BrandRegister = () => {
       if (allBrandsResponse.status === 200) {
         setAllBrands(allBrandsResponse?.data?.data);
       } else {
-        setAllBrands([])
+        setAllBrands([]);
         // NotificationManager.error("No brands found." , "Error");
       }
     } catch (error) {
@@ -186,7 +197,6 @@ const BrandRegister = () => {
       } else {
         // NotificationManager.error("No companies found." , "Error");
         setAllCompanies([]);
-
       }
     } catch (error) {
       // NotificationManager.error(
@@ -431,101 +441,137 @@ const BrandRegister = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {allBrands ? (
-                  sortedData()
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((brand, index) => (
-                      <TableRow
-                        key={brand._id}
-                        sx={{
-                          backgroundColor: "#fff",
-                        }}
-                      >
-                        <TableCell align="center">
-                          {page * rowsPerPage + index + 1}
-                        </TableCell>
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <Input
-                              value={editedRow.name}
-                              onChange={(e) =>
-                                setEditedRow({
-                                  ...editedRow,
-                                  name: e.target.value,
-                                })
-                              }
-                            />
-                          ) : (
-                            brand.name
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <Input
-                              value={editedRow.companyId?.name}
-                              onChange={(e) =>
-                                setEditedRow({
-                                  ...editedRow,
-                                  companyId: { name: e.target.value },
-                                })
-                              }
-                            />
-                          ) : (
-                            brand?.companyId?.name
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <Input
-                              value={editedRow.type}
-                              onChange={(e) =>
-                                setEditedRow({
-                                  ...editedRow,
-                                  type: e.target.value,
-                                })
-                              }
-                            />
-                          ) : (
-                            brand.type
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <Input
-                              value={editedRow.indexNo}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                if (!isNaN(value)) {
+                {canRead ? (
+                  allBrands ? (
+                    sortedData()
+                      .slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
+                      .map((brand, index) => (
+                        <TableRow
+                          key={brand._id}
+                          sx={{
+                            backgroundColor: "#fff",
+                          }}
+                        >
+                          <TableCell align="center">
+                            {page * rowsPerPage + index + 1}
+                          </TableCell>
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <Input
+                                value={editedRow.name}
+                                onChange={(e) =>
                                   setEditedRow({
                                     ...editedRow,
-                                    indexNo: value,
-                                  });
+                                    name: e.target.value,
+                                  })
                                 }
+                              />
+                            ) : (
+                              brand.name
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <Input
+                                value={editedRow.companyId?.name}
+                                onChange={(e) =>
+                                  setEditedRow({
+                                    ...editedRow,
+                                    companyId: { name: e.target.value },
+                                  })
+                                }
+                              />
+                            ) : (
+                              brand?.companyId?.name
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <Input
+                                value={editedRow.type}
+                                onChange={(e) =>
+                                  setEditedRow({
+                                    ...editedRow,
+                                    type: e.target.value,
+                                  })
+                                }
+                              />
+                            ) : (
+                              brand.type
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <Input
+                                value={editedRow.indexNo}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (!isNaN(value)) {
+                                    setEditedRow({
+                                      ...editedRow,
+                                      indexNo: value,
+                                    });
+                                  }
+                                }}
+                              />
+                            ) : (
+                              brand.indexNo
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <SaveIcon
+                                sx={{
+                                  cursor: canUpdate ? "pointer" : "not-allowed",
+                                  color: canUpdate ? "green" : "gray",
+                                }}
+                                onClick={
+                                  canUpdate
+                                    ? () => handleSaveClick(brand._id)
+                                    : null
+                                }
+                              />
+                            ) : (
+                              <EditIcon
+                                sx={{
+                                  cursor: canUpdate ? "pointer" : "not-allowed",
+                                  color: canUpdate ? "blue" : "gray",
+                                }}
+                                onClick={
+                                  canUpdate
+                                    ? () => handleEditClick(index, brand._id)
+                                    : null
+                                }
+                              />
+                            )}
+                            <CloseIcon
+                              sx={{
+                                cursor: canDelete ? "pointer" : "not-allowed",
+                                color: canDelete ? "red" : "gray",
                               }}
+                              onClick={
+                                canDelete
+                                  ? () => handleRemoveBrand(brand._id)
+                                  : null
+                              }
                             />
-                          ) : (
-                            brand.indexNo
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <SaveIcon
-                              sx={{ cursor: "pointer", color: "green" }}
-                              onClick={() => handleSaveClick(brand._id)}
-                            />
-                          ) : (
-                            <EditIcon
-                              sx={{ cursor: "pointer", color: "blue" }}
-                              onClick={() => handleEditClick(index, brand._id)}
-                            />
-                          )}
-                          <CloseIcon
-                            sx={{ cursor: "pointer", color: "red" }}
-                            onClick={() => handleRemoveBrand(brand._id)}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    ))
+                          </TableCell>
+                        </TableRow>
+                      ))
+                  ) : (
+                    <TableRow
+                      sx={{
+                        backgroundColor: "#fff",
+                      }}
+                    >
+                      <TableCell colSpan={11} align="center">
+                        No Data
+                      </TableCell>
+                    </TableRow>
+                  )
                 ) : (
                   <TableRow
                     sx={{
@@ -533,7 +579,7 @@ const BrandRegister = () => {
                     }}
                   >
                     <TableCell colSpan={11} align="center">
-                      No Data
+                      Access Denied
                     </TableCell>
                   </TableRow>
                 )}
@@ -541,15 +587,17 @@ const BrandRegister = () => {
             </Table>
           </TableContainer>
 
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={allBrands?.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
+          {canRead && (
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={allBrands?.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          )}
         </Box>
       </ThemeProvider>
     </Box>

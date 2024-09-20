@@ -18,6 +18,7 @@ import {
   updateCompany,
 } from "../../services/companyService";
 import { customTheme } from "../../utils/customTheme";
+import { usePermissions } from "../../utils/PermissionsContext";
 
 const CompanyRegister = () => {
   const [companyName, setCompanyName] = useState("");
@@ -28,7 +29,18 @@ const CompanyRegister = () => {
   const [newCompanyType, setNewCompanyType] = useState("");
   const [existingCompanyDelete, setExistingCompanyDelete] = useState("");
 
-  console.log("allCompanies: ", allCompanies);
+  const { permissions } = usePermissions();
+
+  // console.log("permissions: ", permissions);
+
+  const companyPermissions =
+    permissions?.find((permission) => permission.moduleName === "Company")
+      ?.permissions || [];
+  const canCreate = companyPermissions.includes("create");
+  const canRead = companyPermissions.includes("read");
+  const canUpdate = companyPermissions.includes("update");
+  const canDelete = companyPermissions.includes("delete");
+
   const clearForm = () => {
     setCompanyName("");
     setCompanyType("");
@@ -137,7 +149,6 @@ const CompanyRegister = () => {
       } else {
         // NotificationManager.error("No companies found." , "Error");
         setAllCompanies([]);
-
       }
     } catch (error) {
       // NotificationManager.error(
@@ -155,276 +166,299 @@ const CompanyRegister = () => {
   return (
     <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, minWidth: "900px" }}>
-        <Typography variant="subtitle2" sx={{ marginBottom: 1 }}>
-          Create Company:
-        </Typography>
+        {canRead ? (
+          <>
+            <Typography variant="subtitle2" sx={{ marginBottom: 1 }}>
+              Create Company:
+            </Typography>
 
-        <Grid container spacing={2}>
-          <Grid item xs={3}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="companyName" className="input-label">
-                Name :
-              </InputLabel>
-              <TextField
-                fullWidth
-                size="small"
-                type="text"
-                name="companyName"
-                value={companyName}
-                onChange={(e) => setCompanyName(e.target.value)}
-              />
-            </div>
-          </Grid>
+            <Grid container spacing={2}>
+              <Grid item xs={3}>
+                <div className="input-wrapper">
+                  <InputLabel htmlFor="companyName" className="input-label">
+                    Name :
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    type="text"
+                    name="companyName"
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                  />
+                </div>
+              </Grid>
 
-          <Grid item xs={3}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="companyType" className="input-label">
-                Type :
-              </InputLabel>
-              <TextField
-                select
-                fullWidth
-                size="small"
-                name="companyType"
-                value={companyType}
-                onChange={(e) => setCompanyType(e.target.value)}
-              >
-                <MenuItem value="Manufacturers">Manufacturers</MenuItem>
-                <MenuItem value="Traders">Traders</MenuItem>
-                <MenuItem value="Dealers">Dealers</MenuItem>
-                <MenuItem value="Distribution">Distribution</MenuItem>
-              </TextField>
-            </div>
-          </Grid>
-          <Grid item xs={3}></Grid>
-          <Grid item xs={3}>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "flex-end",
-              }}
+              <Grid item xs={3}>
+                <div className="input-wrapper">
+                  <InputLabel htmlFor="companyType" className="input-label">
+                    Type :
+                  </InputLabel>
+                  <TextField
+                    select
+                    fullWidth
+                    size="small"
+                    name="companyType"
+                    value={companyType}
+                    onChange={(e) => setCompanyType(e.target.value)}
+                  >
+                    <MenuItem value="Manufacturers">Manufacturers</MenuItem>
+                    <MenuItem value="Traders">Traders</MenuItem>
+                    <MenuItem value="Dealers">Dealers</MenuItem>
+                    <MenuItem value="Distribution">Distribution</MenuItem>
+                  </TextField>
+                </div>
+              </Grid>
+              <Grid item xs={3}></Grid>
+              <Grid item xs={3}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                  }}
+                >
+                  <Button
+                    color="warning"
+                    size="small"
+                    variant="outlined"
+                    sx={{
+                      marginRight: 1,
+                      borderRadius: 8,
+                      padding: "4px 10px",
+                      fontSize: "11px",
+                    }}
+                    onClick={clearForm}
+                  >
+                    Clear
+                  </Button>
+                  <Button
+                    color="primary"
+                    size="small"
+                    variant="contained"
+                    sx={{
+                      borderRadius: 8,
+                      padding: "4px 10px",
+                      fontSize: "11px",
+                    }}
+                    onClick={handleCreateCompany}
+                    disabled={!canCreate}
+                  >
+                    Create
+                  </Button>
+                </Box>
+              </Grid>
+            </Grid>
+
+            <Typography
+              variant="subtitle2"
+              sx={{ marginBottom: 1, marginTop: 4 }}
             >
-              <Button
-                color="warning"
-                size="small"
-                variant="outlined"
-                sx={{
-                  marginRight: 1,
-                  borderRadius: 8,
-                  padding: "4px 10px",
-                  fontSize: "11px",
-                }}
-                onClick={clearForm}
-              >
-                Clear
-              </Button>
-              <Button
-                color="primary"
-                size="small"
-                variant="contained"
-                sx={{
-                  borderRadius: 8,
-                  padding: "4px 10px",
-                  fontSize: "11px",
-                }}
-                onClick={handleCreateCompany}
-              >
-                Create
-              </Button>
-            </Box>
-          </Grid>
-        </Grid>
-
-        <Typography variant="subtitle2" sx={{ marginBottom: 1, marginTop: 4 }}>
-          Update Company:
-        </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={3}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="indexNo" className="input-label">
-                Company :
-              </InputLabel>
-              <TextField
-                select
-                fullWidth
-                name="existingCompanyUpdate"
-                size="small"
-                value={existingCompanyUpdate}
-                variant="outlined"
-                SelectProps={{
-                  MenuProps: {
-                    PaperProps: {
-                      style: {
-                        maxHeight: 200,
+              Update Company:
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={3}>
+                <div className="input-wrapper">
+                  <InputLabel htmlFor="indexNo" className="input-label">
+                    Company :
+                  </InputLabel>
+                  <TextField
+                    select
+                    fullWidth
+                    name="existingCompanyUpdate"
+                    size="small"
+                    value={existingCompanyUpdate}
+                    variant="outlined"
+                    SelectProps={{
+                      MenuProps: {
+                        PaperProps: {
+                          style: {
+                            maxHeight: 200,
+                          },
+                        },
                       },
-                    },
-                  },
-                }}
-                onChange={(e) => handleUpdateCompanyChange(e)}
-              >
-                {allCompanies?.map((company) => (
-                  <MenuItem key={company._id} value={company._id}>
-                    {company.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </div>
-          </Grid>
+                    }}
+                    onChange={(e) => handleUpdateCompanyChange(e)}
+                  >
+                    {allCompanies?.map((company) => (
+                      <MenuItem key={company._id} value={company._id}>
+                        {company.name}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </div>
+              </Grid>
 
-          <Grid item xs={3}>
-            {existingCompanyUpdate && (
-              <div className="input-wrapper">
-                <InputLabel htmlFor="newCompanyName" className="input-label">
-                  Name :
-                </InputLabel>
-                <TextField
-                  fullWidth
-                  type="text"
-                  name="newCompanyName"
-                  size="small"
-                  value={newCompanyName}
-                  variant="outlined"
-                  onChange={(e) => setNewCompanyName(e.target.value)}
-                />
-              </div>
-            )}
-          </Grid>
-          <Grid item xs={3}>
-            {existingCompanyUpdate && (
-              <div className="input-wrapper">
-                <InputLabel htmlFor="newCompanyType" className="input-label">
-                  Type :
-                </InputLabel>
-                <TextField
-                  fullWidth
-                  type="text"
-                  size="small"
-                  name="newCompanyType"
-                  value={newCompanyType}
-                  variant="outlined"
-                  onChange={(e) => setNewCompanyType(e.target.value)}
-                />
-              </div>
-            )}
-          </Grid>
+              <Grid item xs={3}>
+                {existingCompanyUpdate && (
+                  <div className="input-wrapper">
+                    <InputLabel
+                      htmlFor="newCompanyName"
+                      className="input-label"
+                    >
+                      Name :
+                    </InputLabel>
+                    <TextField
+                      fullWidth
+                      type="text"
+                      name="newCompanyName"
+                      size="small"
+                      value={newCompanyName}
+                      variant="outlined"
+                      onChange={(e) => setNewCompanyName(e.target.value)}
+                    />
+                  </div>
+                )}
+              </Grid>
+              <Grid item xs={3}>
+                {existingCompanyUpdate && (
+                  <div className="input-wrapper">
+                    <InputLabel
+                      htmlFor="newCompanyType"
+                      className="input-label"
+                    >
+                      Type :
+                    </InputLabel>
+                    <TextField
+                      fullWidth
+                      type="text"
+                      size="small"
+                      name="newCompanyType"
+                      value={newCompanyType}
+                      variant="outlined"
+                      onChange={(e) => setNewCompanyType(e.target.value)}
+                    />
+                  </div>
+                )}
+              </Grid>
 
-          <Grid item xs={3}>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "flex-end",
-              }}
+              <Grid item xs={3}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                  }}
+                >
+                  <Button
+                    color="warning"
+                    size="medium"
+                    variant="outlined"
+                    sx={{
+                      marginRight: 1,
+                      borderRadius: 8,
+                      padding: "4px 10px",
+                      fontSize: "11px",
+                    }}
+                    onClick={() => {
+                      setExistingCompanyUpdate("");
+                      setNewCompanyName("");
+                    }}
+                  >
+                    Clear
+                  </Button>
+                  <Button
+                    color="info"
+                    size="medium"
+                    variant="contained"
+                    onClick={handleUpdateCompany}
+                    sx={{
+                      borderRadius: 8,
+                      padding: "4px 10px",
+                      fontSize: "11px",
+                    }}
+                    disabled={!canUpdate}
+                  >
+                    Change
+                  </Button>
+                </Box>
+              </Grid>
+            </Grid>
+
+            <Typography
+              variant="subtitle2"
+              sx={{ marginBottom: 1, marginTop: 2 }}
             >
-              <Button
-                color="warning"
-                size="medium"
-                variant="outlined"
-                sx={{
-                  marginRight: 1,
-                  borderRadius: 8,
-                  padding: "4px 10px",
-                  fontSize: "11px",
-                }}
-                onClick={() => {
-                  setExistingCompanyUpdate("");
-                  setNewCompanyName("");
-                }}
-              >
-                Clear
-              </Button>
-              <Button
-                color="info"
-                size="medium"
-                variant="contained"
-                onClick={handleUpdateCompany}
-                sx={{
-                  borderRadius: 8,
-                  padding: "4px 10px",
-                  fontSize: "11px",
-                }}
-              >
-                Change
-              </Button>
-            </Box>
-          </Grid>
-        </Grid>
-
-        <Typography variant="subtitle2" sx={{ marginBottom: 1, marginTop: 2 }}>
-          Delete Company
-        </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={3}>
-            <div className="input-wrapper">
-              <InputLabel
-                htmlFor="existingCompanyDelete"
-                className="input-label"
-              >
-                Company :
-              </InputLabel>
-              <TextField
-                select
-                fullWidth
-                name="existingCompanyDelete"
-                value={existingCompanyDelete}
-                size="small"
-                SelectProps={{
-                  MenuProps: {
-                    PaperProps: {
-                      style: {
-                        maxHeight: 200,
+              Delete Company
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={3}>
+                <div className="input-wrapper">
+                  <InputLabel
+                    htmlFor="existingCompanyDelete"
+                    className="input-label"
+                  >
+                    Company :
+                  </InputLabel>
+                  <TextField
+                    select
+                    fullWidth
+                    name="existingCompanyDelete"
+                    value={existingCompanyDelete}
+                    size="small"
+                    SelectProps={{
+                      MenuProps: {
+                        PaperProps: {
+                          style: {
+                            maxHeight: 200,
+                          },
+                        },
                       },
-                    },
-                  },
-                }}
-                onChange={(e) => setExistingCompanyDelete(e.target.value)}
-              >
-                {allCompanies?.map((company) => (
-                  <MenuItem key={company._id} value={company._id}>
-                    {company.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </div>
-          </Grid>
+                    }}
+                    onChange={(e) => setExistingCompanyDelete(e.target.value)}
+                  >
+                    {allCompanies?.map((company) => (
+                      <MenuItem key={company._id} value={company._id}>
+                        {company.name}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </div>
+              </Grid>
 
-          <Grid item xs={6}></Grid>
-          <Grid item xs={3}>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "flex-end",
-              }}
-            >
-              <Button
-                color="warning"
-                size="medium"
-                variant="outlined"
-                sx={{
-                  marginRight: 1,
-                  borderRadius: 8,
-                  padding: "4px 10px",
-                  fontSize: "11px",
-                }}
-                onClick={() => setExistingCompanyDelete("")}
-              >
-                Clear
-              </Button>
-              <Button
-                color="error"
-                size="small"
-                variant="contained"
-                sx={{
-                  borderRadius: 8,
-                  padding: "4px 10px",
-                  fontSize: "11px",
-                }}
-                onClick={handleDeleteCompany}
-              >
-                Delete
-              </Button>
-            </Box>
-          </Grid>
-        </Grid>
+              <Grid item xs={6}></Grid>
+              <Grid item xs={3}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                  }}
+                >
+                  <Button
+                    color="warning"
+                    size="medium"
+                    variant="outlined"
+                    sx={{
+                      marginRight: 1,
+                      borderRadius: 8,
+                      padding: "4px 10px",
+                      fontSize: "11px",
+                    }}
+                    onClick={() => setExistingCompanyDelete("")}
+                  >
+                    Clear
+                  </Button>
+                  <Button
+                    color="error"
+                    size="small"
+                    variant="contained"
+                    sx={{
+                      borderRadius: 8,
+                      padding: "4px 10px",
+                      fontSize: "11px",
+                    }}
+                    onClick={handleDeleteCompany}
+                    disabled={!canDelete}
+                  >
+                    Delete
+                  </Button>
+                </Box>
+              </Grid>
+            </Grid>
+          </>
+        ) : (
+          <Typography variant="subtitle1" sx={{ color: "red" }}>
+            You do not have permission to view company data.
+          </Typography>
+        )}
       </Box>
     </ThemeProvider>
   );

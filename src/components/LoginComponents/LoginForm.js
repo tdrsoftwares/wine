@@ -27,6 +27,7 @@ import axios from "axios";
 import { url } from "../../utils/apiDomain";
 import { FaIdCard } from "react-icons/fa";
 import CryptoJS from "crypto-js";
+import { usePermissions } from "../../utils/PermissionsContext";
 
 function LoginForm({ handleLogin }) {
   const [customerId, setCustomerId] = useState("");
@@ -42,6 +43,8 @@ function LoginForm({ handleLogin }) {
   const [newPassword, setNewPassword] = useState("");
   const [dialogEmail, setDialogEmail] = useState("");
   const navigate = useNavigate();
+
+  const { setPermissionsData } = usePermissions();
 
   const customerIdRef = useRef(null);
 
@@ -73,11 +76,11 @@ function LoginForm({ handleLogin }) {
         password: password,
       });
 
-      const { accessToken, refreshToken } = response.data.data;
-      //  console.log("accessToken: ", accessToken);
+      const { accessToken, refreshToken, roleAndPermissions } = response?.data?.data;
       document.cookie = `accessToken=${accessToken}; path=/;`;
       document.cookie = `refreshToken=${refreshToken}; path=/;`;
-      // localStorage.setItem("x-db-name", customerId);
+
+      setPermissionsData(roleAndPermissions);
 
       if (response.status === 200) {
         NotificationManager.success("Login successful.", "Success");

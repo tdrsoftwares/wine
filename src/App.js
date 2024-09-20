@@ -18,6 +18,7 @@ import { getLicenseInfo } from "./services/licenseService";
 import { IconButton } from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
+import { PermissionsProvider } from "./utils/PermissionsContext";
 
 const AppContent = () => {
   const [authenticatedUser, setAuthenticatedUser] = useState(null);
@@ -122,9 +123,9 @@ const AppContent = () => {
 
 const App = () => {
   return (
-    <LicenseDetailsProvider>
-      <AppContent />
-    </LicenseDetailsProvider>
+    <PermissionsProvider>
+        <AppContent />
+    </PermissionsProvider>
   );
 }
 

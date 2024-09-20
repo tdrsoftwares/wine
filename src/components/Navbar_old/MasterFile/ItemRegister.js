@@ -34,6 +34,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import { customTheme } from "../../../utils/customTheme";
+import { usePermissions } from "../../../utils/PermissionsContext";
 
 const ItemRegister = () => {
   const [itemName, setItemName] = useState("");
@@ -61,6 +62,17 @@ const ItemRegister = () => {
   const tableRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
+  const { permissions } = usePermissions();
+
+  // console.log("permissions: ", permissions);
+
+  const companyPermissions =
+    permissions?.find((permission) => permission.moduleName === "Company")
+      ?.permissions || [];
+  const canCreate = companyPermissions.includes("create");
+  const canRead = companyPermissions.includes("read");
+  const canUpdate = companyPermissions.includes("update");
+  const canDelete = companyPermissions.includes("delete");
 
   const clearForm = () => {
     setItemName("");
@@ -158,11 +170,9 @@ const ItemRegister = () => {
       if (allItemsResponse.status === 200) {
         setAllItems(allItemsResponse?.data?.data);
         setLoading(false);
-      }
-      else {
+      } else {
         // NotificationManager.error("No items found." , "Error");
         setAllItems([]);
-
       }
     } catch (error) {
       // NotificationManager.error(
@@ -181,7 +191,7 @@ const ItemRegister = () => {
         setAllCategory(getAllCategoryResponse?.data?.data);
       } else {
         // NotificationManager.error("No category found." , "Error");
-        setAllCategory([])
+        setAllCategory([]);
       }
     } catch (err) {
       // NotificationManager.error(
@@ -198,7 +208,7 @@ const ItemRegister = () => {
       if (allBrandsResponse.status === 200) {
         setAllBrands(allBrandsResponse?.data?.data);
       } else {
-        setAllBrands([])
+        setAllBrands([]);
         // NotificationManager.error("No brands found." , "Error");
       }
     } catch (error) {
@@ -219,7 +229,6 @@ const ItemRegister = () => {
       } else {
         // NotificationManager.error("No companies found." , "Error");
         setAllCompanies([]);
-
       }
     } catch (error) {
       // NotificationManager.error(
@@ -356,11 +365,11 @@ const ItemRegister = () => {
   });
 
   return (
-      <ThemeProvider theme={customTheme}>
-    <Box sx={{ p: 2, minWidth: "900px" }}>
-      <Typography variant="subtitle2" sx={{ marginBottom: 1 }}>
-        Create Item:
-      </Typography>
+    <ThemeProvider theme={customTheme}>
+      <Box sx={{ p: 2, minWidth: "900px" }}>
+        <Typography variant="subtitle2" sx={{ marginBottom: 1 }}>
+          Create Item:
+        </Typography>
 
         <Grid container spacing={2}>
           <Grid item xs={3}>
@@ -615,6 +624,7 @@ const ItemRegister = () => {
                   padding: "4px 10px",
                   fontSize: "11px",
                 }}
+                disabled={!canCreate}
               >
                 Create
               </Button>
@@ -765,293 +775,316 @@ const ItemRegister = () => {
               </TableHead>
 
               <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={12}
-                      align="center"
-                      sx={{
-                        backgroundColor: "#fff !important",
-                      }}
-                    >
-                      <CircularProgress />
-                    </TableCell>
-                  </TableRow>
-                ) : allItems?.length > 0 ? (
-                  filteredData
-                    ?.slice(
-                      page * rowsPerPage,
-                      page * rowsPerPage + rowsPerPage
-                    )
-                    .map((item, index) => (
-                      <TableRow
-                        key={index}
+                {canRead ? (
+                  loading ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={12}
+                        align="center"
                         sx={{
-                          backgroundColor: "#fff",
+                          backgroundColor: "#fff !important",
                         }}
                       >
-                        <TableCell align="center">
-                          {page * rowsPerPage + index + 1}
-                        </TableCell>
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <TextField
-                              fullWidth
-                              value={editedRow?.name || item?.name}
-                              onChange={(e) =>
-                                setEditedRow({
-                                  ...editedRow,
-                                  name: e.target.value,
-                                })
-                              }
-                              onKeyDown={(e) => handleKeyDown(e, item)}
-                            />
-                          ) : (
-                            item?.name || "No Data"
-                          )}
-                        </TableCell>
+                        <CircularProgress />
+                      </TableCell>
+                    </TableRow>
+                  ) : allItems?.length > 0 ? (
+                    filteredData
+                      ?.slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
+                      .map((item, index) => (
+                        <TableRow key={index} sx={{ backgroundColor: "#fff" }}>
+                          <TableCell align="center">
+                            {page * rowsPerPage + index + 1}
+                          </TableCell>
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <TextField
+                                fullWidth
+                                value={editedRow?.name || item?.name}
+                                onChange={(e) =>
+                                  setEditedRow({
+                                    ...editedRow,
+                                    name: e.target.value,
+                                  })
+                                }
+                                onKeyDown={(e) => handleKeyDown(e, item)}
+                              />
+                            ) : (
+                              item?.name || "No Data"
+                            )}
+                          </TableCell>
 
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <TextField
-                              fullWidth
-                              value={editedRow.description || item.description}
-                              onChange={(e) =>
-                                setEditedRow({
-                                  ...editedRow,
-                                  description: e.target.value,
-                                })
-                              }
-                              onKeyDown={(e) => handleKeyDown(e, item)}
-                            />
-                          ) : (
-                            item.description || "No Data"
-                          )}
-                        </TableCell>
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <TextField
+                                fullWidth
+                                value={
+                                  editedRow.description || item.description
+                                }
+                                onChange={(e) =>
+                                  setEditedRow({
+                                    ...editedRow,
+                                    description: e.target.value,
+                                  })
+                                }
+                                onKeyDown={(e) => handleKeyDown(e, item)}
+                              />
+                            ) : (
+                              item.description || "No Data"
+                            )}
+                          </TableCell>
 
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <TextField
-                              select
-                              fullWidth
-                              value={
-                                editedRow?.categoryId || ""
-                              }
-                              onChange={(e) =>
-                                setEditedRow({
-                                  ...editedRow,
-                                  categoryId: e.target.value,
-                                })
-                              }
-                              onKeyDown={(e) => handleKeyDown(e, item)}
-                              SelectProps={{
-                                MenuProps: {
-                                  PaperProps: {
-                                    sx: {
-                                      maxHeight: 200,
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <TextField
+                                select
+                                fullWidth
+                                value={editedRow?.categoryId || ""}
+                                onChange={(e) =>
+                                  setEditedRow({
+                                    ...editedRow,
+                                    categoryId: e.target.value,
+                                  })
+                                }
+                                onKeyDown={(e) => handleKeyDown(e, item)}
+                                SelectProps={{
+                                  MenuProps: {
+                                    PaperProps: {
+                                      sx: {
+                                        maxHeight: 200,
+                                      },
                                     },
                                   },
-                                },
-                              }}
-                            >
-                              {allCategory?.map((item) => (
-                                <MenuItem key={item._id} value={item._id}>
-                                  {item.categoryName}
-                                </MenuItem>
-                              ))}
-                            </TextField>
-                          ) : (
-                            item?.categoryId?.categoryName || "No Data"
-                          )}
-                        </TableCell>
+                                }}
+                              >
+                                {allCategory?.map((item) => (
+                                  <MenuItem key={item._id} value={item._id}>
+                                    {item.categoryName}
+                                  </MenuItem>
+                                ))}
+                              </TextField>
+                            ) : (
+                              item?.categoryId?.categoryName || "No Data"
+                            )}
+                          </TableCell>
 
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <TextField
-                              select
-                              fullWidth
-                              value={editedRow.subCategory || item.subCategory}
-                              onChange={(e) =>
-                                setEditedRow({
-                                  ...editedRow,
-                                  subCategory: e.target.value,
-                                })
-                              }
-                              onKeyDown={(e) => handleKeyDown(e, item)}
-                            >
-                              {["OS", "OSBI", "IMFL", "IML", "BEER", "LAB"].map(
-                                (item, id) => (
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <TextField
+                                select
+                                fullWidth
+                                value={
+                                  editedRow.subCategory || item.subCategory
+                                }
+                                onChange={(e) =>
+                                  setEditedRow({
+                                    ...editedRow,
+                                    subCategory: e.target.value,
+                                  })
+                                }
+                                onKeyDown={(e) => handleKeyDown(e, item)}
+                              >
+                                {[
+                                  "OS",
+                                  "OSBI",
+                                  "IMFL",
+                                  "IML",
+                                  "BEER",
+                                  "LAB",
+                                ].map((item, id) => (
                                   <MenuItem key={id} value={item}>
                                     {item}
                                   </MenuItem>
-                                )
-                              )}
-                            </TextField>
-                          ) : (
-                            item.subCategory || "No Data"
-                          )}
-                        </TableCell>
+                                ))}
+                              </TextField>
+                            ) : (
+                              item.subCategory || "No Data"
+                            )}
+                          </TableCell>
 
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <TextField
-                              select
-                              fullWidth
-                              value={
-                                editedRow?.companyId ||""
-                              }
-                              onChange={(e) =>
-                                setEditedRow({
-                                  ...editedRow,
-                                  companyId: e.target.value,
-                                })
-                              }
-                              onKeyDown={(e) => handleKeyDown(e, item)}
-                              SelectProps={{
-                                MenuProps: {
-                                  PaperProps: {
-                                    sx: {
-                                      maxHeight: 200,
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <TextField
+                                select
+                                fullWidth
+                                value={editedRow?.companyId || ""}
+                                onChange={(e) =>
+                                  setEditedRow({
+                                    ...editedRow,
+                                    companyId: e.target.value,
+                                  })
+                                }
+                                onKeyDown={(e) => handleKeyDown(e, item)}
+                                SelectProps={{
+                                  MenuProps: {
+                                    PaperProps: {
+                                      sx: {
+                                        maxHeight: 200,
+                                      },
                                     },
                                   },
-                                },
-                              }}
-                            >
-                              {allCompanies?.map((item) => (
-                                <MenuItem key={item._id} value={item._id}>
-                                  {item.name}
-                                </MenuItem>
-                              ))}
-                            </TextField>
-                          ) : (
-                            item?.companyId?.name || "No Data"
-                          )}
-                        </TableCell>
+                                }}
+                              >
+                                {allCompanies?.map((item) => (
+                                  <MenuItem key={item._id} value={item._id}>
+                                    {item.name}
+                                  </MenuItem>
+                                ))}
+                              </TextField>
+                            ) : (
+                              item?.companyId?.name || "No Data"
+                            )}
+                          </TableCell>
 
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <TextField
-                              select
-                              fullWidth
-                              value={
-                                editedRow?.brandId || ""
-                              }
-                              onChange={(e) =>
-                                setEditedRow({
-                                  ...editedRow,
-                                  brandId: e.target.value,
-                                })
-                              }
-                              onKeyDown={(e) => handleKeyDown(e, item)}
-                              SelectProps={{
-                                MenuProps: {
-                                  PaperProps: {
-                                    sx: {
-                                      maxHeight: 200,
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <TextField
+                                select
+                                fullWidth
+                                value={editedRow?.brandId || ""}
+                                onChange={(e) =>
+                                  setEditedRow({
+                                    ...editedRow,
+                                    brandId: e.target.value,
+                                  })
+                                }
+                                onKeyDown={(e) => handleKeyDown(e, item)}
+                                SelectProps={{
+                                  MenuProps: {
+                                    PaperProps: {
+                                      sx: {
+                                        maxHeight: 200,
+                                      },
                                     },
                                   },
-                                },
+                                }}
+                              >
+                                {allBrands?.map((item) => (
+                                  <MenuItem key={item._id} value={item._id}>
+                                    {item.name}
+                                  </MenuItem>
+                                ))}
+                              </TextField>
+                            ) : (
+                              item?.brandId?.name || "No Data"
+                            )}
+                          </TableCell>
+
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <TextField
+                                fullWidth
+                                value={editedRow.volume || item.volume}
+                                onChange={(e) =>
+                                  setEditedRow({
+                                    ...editedRow,
+                                    volume: e.target.value,
+                                  })
+                                }
+                                onKeyDown={(e) => handleKeyDown(e, item)}
+                              />
+                            ) : (
+                              item.volume || 0
+                            )}
+                          </TableCell>
+
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <TextField
+                                select
+                                fullWidth
+                                value={editedRow.group || item.group}
+                                onChange={(e) =>
+                                  setEditedRow({
+                                    ...editedRow,
+                                    group: e.target.value,
+                                  })
+                                }
+                                onKeyDown={(e) => handleKeyDown(e, item)}
+                              >
+                                {["FL", "BEER", "IML"].map((item, id) => (
+                                  <MenuItem key={id} value={item}>
+                                    {item}
+                                  </MenuItem>
+                                ))}
+                              </TextField>
+                            ) : (
+                              item.group || "No Data"
+                            )}
+                          </TableCell>
+
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <TextField
+                                fullWidth
+                                value={editedRow.caseValue || item.caseValue}
+                                onChange={(e) =>
+                                  setEditedRow({
+                                    ...editedRow,
+                                    caseValue: e.target.value,
+                                  })
+                                }
+                                onKeyDown={(e) => handleKeyDown(e, item)}
+                              />
+                            ) : (
+                              item.caseValue || 0
+                            )}
+                          </TableCell>
+
+                          <TableCell>
+                            {editableIndex !== index ? (
+                              <EditIcon
+                                sx={{
+                                  cursor: canUpdate ? "pointer" : "not-allowed",
+                                  color: canUpdate ? "blue" : "gray",
+                                }}
+                                onClick={
+                                  canUpdate
+                                    ? () => handleEditClick(index, item._id)
+                                    : null
+                                }
+                              />
+                            ) : (
+                              <SaveIcon
+                                sx={{
+                                  cursor: canUpdate ? "pointer" : "not-allowed",
+                                  color: canUpdate ? "green" : "gray",
+                                }}
+                                onClick={
+                                  canUpdate
+                                    ? () => handleSaveClick(item._id)
+                                    : null
+                                }
+                              />
+                            )}
+                            <CloseIcon
+                              sx={{
+                                cursor: canDelete ? "pointer" : "not-allowed",
+                                color: canDelete ? "red" : "gray",
                               }}
-                            >
-                              {allBrands?.map((item) => (
-                                <MenuItem key={item._id} value={item._id}>
-                                  {item.name}
-                                </MenuItem>
-                              ))}
-                            </TextField>
-                          ) : (
-                            item?.brandId?.name || "No Data"
-                          )}
-                        </TableCell>
-
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <TextField
-                              fullWidth
-                              value={editedRow.volume || item.volume}
-                              onChange={(e) =>
-                                setEditedRow({
-                                  ...editedRow,
-                                  volume: e.target.value,
-                                })
+                              onClick={
+                                canDelete
+                                  ? () => handleDeleteItem(item._id)
+                                  : null
                               }
-                              onKeyDown={(e) => handleKeyDown(e, item)}
                             />
-                          ) : (
-                            item.volume || 0
-                          )}
-                        </TableCell>
-
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <TextField
-                              select
-                              fullWidth
-                              value={editedRow.group || item.group}
-                              onChange={(e) =>
-                                setEditedRow({
-                                  ...editedRow,
-                                  group: e.target.value,
-                                })
-                              }
-                              onKeyDown={(e) => handleKeyDown(e, item)}
-                            >
-                              {["FL", "BEER", "IML"].map((item, id) => (
-                                <MenuItem key={id} value={item}>
-                                  {item}
-                                </MenuItem>
-                              ))}
-                            </TextField>
-                          ) : (
-                            item.group || "No Data"
-                          )}
-                        </TableCell>
-
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <TextField
-                              fullWidth
-                              value={editedRow.caseValue || item.caseValue}
-                              onChange={(e) =>
-                                setEditedRow({
-                                  ...editedRow,
-                                  caseValue: e.target.value,
-                                })
-                              }
-                              onKeyDown={(e) => handleKeyDown(e, item)}
-                            />
-                          ) : (
-                            item.caseValue || 0
-                          )}
-                        </TableCell>
-
-                        <TableCell>
-                          {editableIndex !== index ? (
-                            <EditIcon
-                              sx={{ cursor: "pointer", color: "blue" }}
-                              onClick={() => handleEditClick(index, item._id)}
-                            />
-                          ) : (
-                            <SaveIcon
-                              sx={{ cursor: "pointer", color: "green" }}
-                              onClick={() => handleSaveClick(item._id)}
-                            />
-                          )}
-                          <CloseIcon
-                            sx={{ cursor: "pointer", color: "red" }}
-                            onClick={() => handleDeleteItem(item._id)}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    ))
+                          </TableCell>
+                        </TableRow>
+                      ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={12} align="center">
+                        No Data
+                      </TableCell>
+                    </TableRow>
+                  )
                 ) : (
-                  <TableRow
-                    sx={{
-                      backgroundColor: "#fff",
-                    }}
-                  >
-                    <TableCell colSpan={11} align="center">
-                      No Data
+                  <TableRow>
+                    <TableCell colSpan={12} align="center">
+                      Access Denied
                     </TableCell>
                   </TableRow>
                 )}
@@ -1059,24 +1092,26 @@ const ItemRegister = () => {
             </Table>
           </TableContainer>
 
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={filteredData?.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            sx={{
-              "& .MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows":
-                {
-                  fontSize: "12px",
-                },
-            }}
-          />
+          {canRead && (
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={filteredData?.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              sx={{
+                "& .MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows":
+                  {
+                    fontSize: "12px",
+                  },
+              }}
+            />
+          )}
         </Box>
-    </Box>
-      </ThemeProvider>
+      </Box>
+    </ThemeProvider>
   );
 };
 
