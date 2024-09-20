@@ -312,7 +312,7 @@ const PurchaseEntry = () => {
 
   const handleEdit = (index, field, value) => {
     const editedRowCopy = { ...editedRow };
-  
+
     if (
       [
         "mrp",
@@ -329,19 +329,19 @@ const PurchaseEntry = () => {
     ) {
       return;
     }
-  
+
     editedRowCopy[field] = value;
-  
+
     // MRP to bottle rate logic (just store the value for now)
     if (field === "mrp") {
       editedRowCopy.btlRate = editedRowCopy.mrp;
     }
-  
+
     // Store values for case and pcs without calculations
     if (field === "case") {
       editedRowCopy.case = parseFloat(value) || 0;
     }
-  
+
     if (field === "pcs") {
       const regex = /^\d*\.?\d*$/;
       if (regex.test(value) || value === "") {
@@ -349,10 +349,9 @@ const PurchaseEntry = () => {
         editedRowCopy.case = 0;
       }
     }
-  
+
     setEditedRow(editedRowCopy);
   };
-  
 
   const handleEditClick = (index) => {
     setEditableIndex(index);
@@ -362,26 +361,42 @@ const PurchaseEntry = () => {
     setIsRowUpdated(true);
     const updatedPurchases = [...purchases];
     const updatedRow = { ...updatedPurchases[index] };
-  
+
     // Copy all edited fields into the updatedRow
     for (const key in editedRow) {
       if (editedRow.hasOwnProperty(key)) {
         updatedRow[key] = editedRow[key];
       }
     }
-    
+
+    // Perform calculations when saving:
+
+    // If amount is changed, calculate purchaseRate based on pcs
+    if (editedRow.amount && updatedRow.pcs > 0) {
+      updatedRow.purchaseRate = (
+        parseFloat(editedRow.amount) / updatedRow.pcs
+      ).toFixed(2);
+    }
+
     // Calculate pcs based on case (if applicable)
     if (editedRow.case) {
-      const newPcsValue = parseFloat(editedRow.case) * parseFloat(purchases[index].caseValue || 0) || 0;
+      const newPcsValue =
+        parseFloat(editedRow.case) *
+          parseFloat(purchases[index].caseValue || 0) || 0;
       updatedRow.pcs = newPcsValue;
     }
-  
-    // Calculate amount based on purchaseRate and pcs
-    if (editedRow.purchaseRate || updatedRow.purchaseRate) {
-      const purRate = parseFloat(updatedRow.purchaseRate || purchases[index].purchaseRate) || 0;
+
+    // Calculate amount based on purchaseRate and pcs if amount wasn't manually changed
+    if (
+      !editedRow.amount &&
+      (editedRow.purchaseRate || updatedRow.purchaseRate)
+    ) {
+      const purRate =
+        parseFloat(updatedRow.purchaseRate || purchases[index].purchaseRate) ||
+        0;
       const pcs = parseFloat(updatedRow.pcs || 0);
       let amount = 0;
-      
+
       if (updatedRow.case === 0 && pcs > 0) {
         amount = (purRate * pcs).toFixed(2);
       } else if (updatedRow.case > 0) {
@@ -389,19 +404,19 @@ const PurchaseEntry = () => {
         const sp = parseFloat(updatedRow.sp || purchases[index].sp) || 0;
         amount = (purRate * updatedRow.case + gro + sp).toFixed(2);
       }
-  
+
       updatedRow.amount = amount;
     }
-  
+
     // Save updated values
     updatedPurchases[index] = updatedRow;
-    sessionStorage.setItem('purchases', JSON.stringify(updatedPurchases));
+    sessionStorage.setItem("purchases", JSON.stringify(updatedPurchases));
     setPurchases(updatedPurchases);
-  
+
     // Reset the editing state
     setEditedRow({});
     setEditableIndex(-1);
-  };
+  }; 
   
 
   const fetchAllSuppliers = async () => {
