@@ -69,16 +69,19 @@ const CreateRolesDialog = (props) => {
       return;
     }
 
-    if (
-      modulePermissions.some(
-        (module) =>
-          !module.permissions.create &&
-          !module.permissions.read &&
-          !module.permissions.update &&
-          !module.permissions.delete
-      )
-    ) {
-      NotificationManager.warning("Please select at least one permission per module", "Warning");
+    const hasPermission = modulePermissions.some(
+      (module) =>
+        module.permissions.create ||
+        module.permissions.read ||
+        module.permissions.update ||
+        module.permissions.delete
+    );
+
+    if (!hasPermission) {
+      NotificationManager.warning(
+        "Please select at least one permission for one module",
+        "Warning"
+      );
       return;
     }
 
