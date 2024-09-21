@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
+  Autocomplete,
   Box,
   Button,
   Checkbox,
@@ -27,6 +28,7 @@ import CustomItemLedgerStatusFooter from "./CustomItemLedgerFooter";
 import { customTheme } from "../utils/customTheme";
 import debounce from "lodash.debounce";
 import ItemLedgerStatusPrintComponent from "./ItemLedgerStatusPrintComponent";
+import { searchByBrandName, searchByItemName } from "../services/saleBillService";
 
 const ItemLedgerStatus = () => {
   const todaysDate = dayjs();
@@ -60,6 +62,10 @@ const ItemLedgerStatus = () => {
   const [totalSold, setTotalSold] = useState(0);
   const [totalTransferredFrom, setTotalTransferredFrom] = useState(0);
   const [totalTransferredTo, setTotalTransferredTo] = useState(0);
+  const [itemName, setItemName] = useState("");
+  const [brandName, setBrandName] = useState("");
+  const [itemNameOptions, setItemNameOptions] = useState([]);
+  const [brandNameOptions, setBrandNameOptions] = useState([]);
 
   const printRef = useRef();
 
@@ -149,7 +155,6 @@ const ItemLedgerStatus = () => {
       //   "Error"
       // );
       console.error(error);
-
     }
   };
 
@@ -315,6 +320,44 @@ const ItemLedgerStatus = () => {
   const handlePrint = useReactToPrint({
     content: () => printRef.current,
   });
+
+  const itemNameSearch = debounce(async (searchText) => {
+    try {
+      const response = await searchByItemName(searchText);
+      if (response?.data?.data && response.data.data.length > 0) {
+        setItemNameOptions(response.data.data);
+      } else {
+        setItemNameOptions([]);
+      }
+    } catch (error) {
+      console.error("Error searching items:", error);
+      setItemNameOptions([]);
+    }
+  }, 500);
+
+  const brandNameSearch = debounce(async (searchText) => {
+    try {
+      const response = await searchByBrandName(searchText);
+      if (response?.data?.data && response.data.data.length > 0) {
+        setBrandNameOptions(response.data.data);
+      } else {
+        setBrandNameOptions([]);
+      }
+    } catch (error) {
+      console.error("Error searching brand:", error);
+      setBrandNameOptions([]);
+    }
+  }, 500);
+
+  const handleItemNameChange = (event, newValue) => {
+    setItemName(newValue);
+    setFilterData((prevData) => ({ ...prevData, itemName: newValue }));
+  };
+
+  const handleBrandNameChange = (event, newValue) => {
+    setBrandName(newValue);
+    setFilterData((prevData) => ({ ...prevData, brandName: newValue }));
+  };
 
   const flattenItemStatusData = (data) => {
     let flattenedData = [];
@@ -499,32 +542,23 @@ const ItemLedgerStatus = () => {
               <InputLabel htmlFor="itemName" className="input-label">
                 Item:
               </InputLabel>
-              <TextField
-                select
-                fullWidth
-                size="small"
-                name="itemName"
-                className="input-field"
-                value={filterData.itemName}
-                onChange={(e) =>
-                  setFilterData({ ...filterData, itemName: e.target.value })
-                }
-                SelectProps={{
-                  MenuProps: {
-                    PaperProps: {
-                      style: {
-                        maxHeight: 200,
-                      },
-                    },
-                  },
+              <Autocomplete
+                options={itemNameOptions.map((option) => option.name)}
+                value={itemName}
+                onChange={handleItemNameChange}
+                onInputChange={(event, newInputValue) => {
+                  itemNameSearch(newInputValue);
                 }}
-              >
-                {allItems?.map((item) => (
-                  <MenuItem key={item._id} value={item.name}>
-                    {item.name}
-                  </MenuItem>
-                ))}
-              </TextField>
+                className="input-field"
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    fullWidth
+                    size="small"
+                    name="itemName"
+                  />
+                )}
+              />
             </div>
           </Grid>
 
@@ -533,31 +567,23 @@ const ItemLedgerStatus = () => {
               <InputLabel htmlFor="brandName" className="input-label">
                 Brand:
               </InputLabel>
-              <TextField
-                select
-                fullWidth
-                size="small"
-                name="brandName"
-                className="input-field"
-                value={filterData.brandName || ""}
-                onChange={handleBrandChange}
-                SelectProps={{
-                  MenuProps: {
-                    PaperProps: {
-                      style: {
-                        maxHeight: 200,
-                      },
-                    },
-                  },
+              <Autocomplete
+                options={brandNameOptions.map((option) => option.name)}
+                value={brandName}
+                onChange={handleBrandNameChange}
+                onInputChange={(event, newInputValue) => {
+                  brandNameSearch(newInputValue);
                 }}
-              >
-                <MenuItem value="All Brands">All Brands</MenuItem>
-                {allBrands?.map((brand) => (
-                  <MenuItem key={brand._id} value={brand.name}>
-                    {`${brand.name}`}
-                  </MenuItem>
-                ))}
-              </TextField>
+                className="input-field"
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    fullWidth
+                    size="small"
+                    name="brandName"
+                  />
+                )}
+              />
             </div>
           </Grid>
 
@@ -736,6 +762,10 @@ const ItemLedgerStatus = () => {
                     storeName: "",
                     isBLTrue: false,
                   });
+                  setItemName("");
+                  setBrandName("");
+                  setItemNameOptions([]);
+                  setBrandNameOptions([]);
                   setPaginationModel({ page: 0, pageSize: 10 });
                   setAllItemStatusData([]);
                 }}
@@ -767,7 +797,7 @@ const ItemLedgerStatus = () => {
           sx={{
             height: 500,
             width: "100%",
-            //   marginTop: 1,
+            marginTop: 1,
             "& .custom-header": {
               backgroundColor: "#dae4ed",
               paddingLeft: 4,
