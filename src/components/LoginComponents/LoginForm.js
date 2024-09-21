@@ -73,18 +73,19 @@ function LoginForm({ handleLogin }) {
       const response = await axios.post(url + `/admin/user-master/login`, {
         customerId,
         email,
-        password: password,
+        password,
       });
 
+      // console.log("response data --> ", response.data.data)
       const { accessToken, refreshToken, roleAndPermissions } = response?.data?.data;
       document.cookie = `accessToken=${accessToken}; path=/;`;
       document.cookie = `refreshToken=${refreshToken}; path=/;`;
 
-      setPermissionsData(roleAndPermissions);
-
+      
       if (response.status === 200) {
         NotificationManager.success("Login successful.", "Success");
         handleLogin(email);
+        roleAndPermissions && setPermissionsData(roleAndPermissions);
       } else {
         navigate("/");
       }
