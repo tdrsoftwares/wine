@@ -1262,6 +1262,15 @@ const SaleBill = () => {
         itemCodeRef.current.focus();
       }
 
+
+      // if (
+      //   formData.billType === "CASHBILL" &&
+      //   (totalValues.flBeerVolume >= licenseDetails?.perBillMaxWine ||
+      //     totalValues.imlVolume >= licenseDetails?.perBillMaxCs)
+      // ) {
+      //   await autoSaveCashBill();
+      // }
+
       resetMiddleFormData();
     } catch (error) {
       console.error("Error submitting item:", error);
@@ -2014,12 +2023,6 @@ const SaleBill = () => {
       netAmt: netAmt.toFixed(2),
     };
   };
-
-  useEffect(() => {
-    // console.log("SaleBillPrintModal re-rendered with billNumber:", billNumber);
-
-  }, [isSplitPrinted]);
-  
   
 
   useEffect(() => {
@@ -2040,7 +2043,7 @@ const SaleBill = () => {
         autoSaveCashBill();
       }
     }
-  }, [handleSubmitIntoDataTable]);
+  }, [totalValues.flBeerVolume, totalValues.imlVolume]);
 
   useEffect(() => {
     if ((billNumber && billNoEditable) || (billNumber && seriesData)) {
