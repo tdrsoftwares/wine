@@ -31,6 +31,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import { customTheme } from "../../../utils/customTheme";
 import { useLicenseContext } from "../../../utils/licenseContext";
+import { usePermissions } from "../../../utils/PermissionsContext";
 
 const StoreRegister = () => {
   const [storeName, setStoreName] = useState("");
@@ -45,7 +46,15 @@ const StoreRegister = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [search, setSearch] = useState("");
   const tableRef = useRef(null);
-  const { licenseDetails } = useLicenseContext();
+  const { permissions } = usePermissions();
+
+  const companyPermissions =
+    permissions?.find((permission) => permission.moduleName === "Company")
+      ?.permissions || [];
+  const canCreate = companyPermissions.includes("create");
+  const canRead = companyPermissions.includes("read");
+  const canUpdate = companyPermissions.includes("update");
+  const canDelete = companyPermissions.includes("delete");
 
   const handleClickOutside = (event) => {
     if (tableRef.current && !tableRef.current.contains(event.target)) {
@@ -296,12 +305,27 @@ const StoreRegister = () => {
               }}
             >
               <Button
+                color="primary"
+                size="medium"
+                variant="contained"
+                onClick={handleCreateStore}
+                sx={{
+                  marginRight: 1,
+                  borderRadius: 8,
+                  padding: "4px 10px",
+                  fontSize: "11px",
+                }}
+                disabled={!canCreate}
+              >
+                Create
+              </Button>
+
+              <Button
                 color="warning"
                 size="medium"
                 variant="outlined"
                 onClick={clearForm}
                 sx={{
-                  marginRight: 1,
                   borderRadius: 8,
                   padding: "4px 10px",
                   fontSize: "11px",
@@ -309,19 +333,7 @@ const StoreRegister = () => {
               >
                 Clear
               </Button>
-              <Button
-                color="primary"
-                size="medium"
-                variant="contained"
-                onClick={handleCreateStore}
-                sx={{
-                  borderRadius: 8,
-                  padding: "4px 10px",
-                  fontSize: "11px",
-                }}
-              >
-                Create
-              </Button>
+              
             </Box>
           </Grid>
 
@@ -415,6 +427,7 @@ const StoreRegister = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
+                  canRead ?
                   allStores && filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((store, index) => (
                       <TableRow
@@ -477,22 +490,31 @@ const StoreRegister = () => {
                         <TableCell>
                           {editableIndex !== index ? (
                             <EditIcon
-                              sx={{ cursor: "pointer", color: "blue" }}
-                              onClick={() => handleEditClick(index, store._id)}
+                              sx={{ cursor: canUpdate ? "pointer" : "not-allowed",
+                                color: canUpdate ? "blue" : "gray", }}
+                              onClick={ canUpdate ? () => handleEditClick(index, store._id) : null }
                             />
                           ) : (
                             <SaveIcon
-                              sx={{ cursor: "pointer", color: "green" }}
-                              onClick={() => handleSaveClick(store._id)}
+                              sx={{ cursor: canUpdate ? "pointer" : "not-allowed",
+                                color: canUpdate ? "green" : "gray", }}
+                              onClick={canUpdate ? () => handleSaveClick(store._id) : null}
                             />
                           )}
                           <CloseIcon
-                            sx={{ cursor: "pointer", color: "red" }}
-                            onClick={() => handleRemoveStore(store._id)}
+                            sx={{ cursor: canDelete ? "pointer" : "not-allowed",
+                              color: canDelete ? "red" : "gray", }}
+                            onClick={canDelete ? () => handleRemoveStore(store._id) : null}
                           />
                         </TableCell>
                       </TableRow>
-                    ))
+                    )) : (
+                      <TableRow>
+                    <TableCell colSpan={12} align="center">
+                      You do not have permission to view company data.
+                    </TableCell>
+                  </TableRow>
+                    )
                 )}
               </TableBody>
             </Table>

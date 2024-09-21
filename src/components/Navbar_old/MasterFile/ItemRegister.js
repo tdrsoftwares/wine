@@ -1084,7 +1084,7 @@ const ItemRegister = () => {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={12} align="center">
-                      Access Denied
+                      You do not have permission to view company data.
                     </TableCell>
                   </TableRow>
                 )}

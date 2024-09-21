@@ -9,6 +9,7 @@ export const usePermissions = () => {
 
 export const PermissionsProvider = ({ children }) => {
   const [permissions, setPermissions] = useState(null);
+  console.log("permissions --> ", permissions)
 
   const setPermissionsData = (roleAndPermissions) => {
     const modulesPermissions = roleAndPermissions[0].modulePermission.map(

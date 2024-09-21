@@ -30,6 +30,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import { customTheme } from "../../../utils/customTheme";
+import { usePermissions } from "../../../utils/PermissionsContext";
 
 const LedgerCreation = ({ sidebarVisible }) => {
   const [ledgerName, setLedgerName] = useState("");
@@ -45,6 +46,15 @@ const LedgerCreation = ({ sidebarVisible }) => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const tableRef = useRef(null);
   const [loading, setLoading] = useState(true);
+  const { permissions } = usePermissions();
+
+  const companyPermissions =
+    permissions?.find((permission) => permission.moduleName === "Company")
+      ?.permissions || [];
+  const canCreate = companyPermissions.includes("create");
+  const canRead = companyPermissions.includes("read");
+  const canUpdate = companyPermissions.includes("update");
+  const canDelete = companyPermissions.includes("delete");
 
   const clearForm = () => {
     setLedgerName("");
@@ -296,31 +306,37 @@ const LedgerCreation = ({ sidebarVisible }) => {
         <Box
           sx={{
             display: "flex",
-            justifyContent: "flex-end"
+            justifyContent: "flex-end",
           }}
         >
           <Button
-            color="warning"
+            color="primary"
             size="medium"
-            variant="outlined"
-            onClick={clearForm}
+            variant="contained"
+            onClick={handleCreateLedger}
             sx={{
               marginRight: 1,
               borderRadius: 8,
               padding: "4px 10px",
               fontSize: "11px",
             }}
-          >
-            Clear
-          </Button>
-          <Button
-            color="primary"
-            size="medium"
-            variant="contained"
-            onClick={handleCreateLedger}
-            sx={{ borderRadius: 8, padding: "4px 10px", fontSize: "11px" }}
+            disabled={!canCreate}
           >
             Create
+          </Button>
+
+          <Button
+            color="warning"
+            size="medium"
+            variant="outlined"
+            onClick={clearForm}
+            sx={{
+              borderRadius: 8,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
+          >
+            Clear
           </Button>
         </Box>
 
@@ -393,117 +409,149 @@ const LedgerCreation = ({ sidebarVisible }) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={6}
-                      align="center"
-                      sx={{
-                        backgroundColor: "#fff !important",
-                      }}
-                    >
-                      <CircularProgress />
-                    </TableCell>
-                  </TableRow>
-                ) : allLedgers ? (
-                  sortedData()
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((brand, index) => (
-                      <TableRow
-                        key={brand._id}
+                {canRead ? (
+                  loading ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={6}
+                        align="center"
                         sx={{
-                          backgroundColor: "#fff",
+                          backgroundColor: "#fff !important",
                         }}
                       >
-                        <TableCell align="center">
-                          {page * rowsPerPage + index + 1}
-                        </TableCell>
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <Input
-                              value={editedRow.name}
-                              onChange={(e) =>
-                                setEditedRow({
-                                  ...editedRow,
-                                  name: e.target.value,
-                                })
-                              }
-                            />
-                          ) : (
-                            brand.name
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <Input
-                              value={editedRow.underGroup}
-                              onChange={(e) =>
-                                setEditedRow({
-                                  ...editedRow,
-                                  underGroup: e.target.value,
-                                })
-                              }
-                            />
-                          ) : (
-                            brand?.underGroup
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <Input
-                              value={editedRow.openingBlance}
-                              onChange={(e) =>
-                                setEditedRow({
-                                  ...editedRow,
-                                  openingBlance: e.target.value,
-                                })
-                              }
-                            />
-                          ) : (
-                            brand.openingBlance
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <Input
-                              value={editedRow.closingBlance}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                if (!isNaN(value)) {
+                        <CircularProgress />
+                      </TableCell>
+                    </TableRow>
+                  ) : allLedgers ? (
+                    sortedData()
+                      .slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
+                      .map((brand, index) => (
+                        <TableRow
+                          key={brand._id}
+                          sx={{
+                            backgroundColor: "#fff",
+                          }}
+                        >
+                          <TableCell align="center">
+                            {page * rowsPerPage + index + 1}
+                          </TableCell>
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <Input
+                                value={editedRow.name}
+                                onChange={(e) =>
                                   setEditedRow({
                                     ...editedRow,
-                                    closingBlance: value,
-                                  });
+                                    name: e.target.value,
+                                  })
                                 }
+                              />
+                            ) : (
+                              brand.name
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <Input
+                                value={editedRow.underGroup}
+                                onChange={(e) =>
+                                  setEditedRow({
+                                    ...editedRow,
+                                    underGroup: e.target.value,
+                                  })
+                                }
+                              />
+                            ) : (
+                              brand?.underGroup
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <Input
+                                value={editedRow.openingBlance}
+                                onChange={(e) =>
+                                  setEditedRow({
+                                    ...editedRow,
+                                    openingBlance: e.target.value,
+                                  })
+                                }
+                              />
+                            ) : (
+                              brand.openingBlance
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <Input
+                                value={editedRow.closingBlance}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (!isNaN(value)) {
+                                    setEditedRow({
+                                      ...editedRow,
+                                      closingBlance: value,
+                                    });
+                                  }
+                                }}
+                              />
+                            ) : (
+                              brand.closingBlance
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <SaveIcon
+                                sx={{
+                                  cursor: canUpdate ? "pointer" : "not-allowed",
+                                  color: canUpdate ? "green" : "gray",
+                                }}
+                                onClick={
+                                  canUpdate
+                                    ? () => handleSaveClick(brand._id)
+                                    : null
+                                }
+                              />
+                            ) : (
+                              <EditIcon
+                                sx={{
+                                  cursor: canUpdate ? "pointer" : "not-allowed",
+                                  color: canUpdate ? "blue" : "gray",
+                                }}
+                                onClick={() =>
+                                  canUpdate
+                                    ? handleEditClick(index, brand._id)
+                                    : null
+                                }
+                              />
+                            )}
+                            <CloseIcon
+                              sx={{
+                                cursor: canDelete ? "pointer" : "not-allowed",
+                                color: canDelete ? "red" : "gray",
                               }}
+                              onClick={
+                                canDelete
+                                  ? () => handleRemoveLedger(brand._id)
+                                  : null
+                              }
                             />
-                          ) : (
-                            brand.closingBlance
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <SaveIcon
-                              sx={{ cursor: "pointer", color: "green" }}
-                              onClick={() => handleSaveClick(brand._id)}
-                            />
-                          ) : (
-                            <EditIcon
-                              sx={{ cursor: "pointer", color: "blue" }}
-                              onClick={() => handleEditClick(index, brand._id)}
-                            />
-                          )}
-                          <CloseIcon
-                            sx={{ cursor: "pointer", color: "red" }}
-                            onClick={() => handleRemoveLedger(brand._id)}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    ))
+                          </TableCell>
+                        </TableRow>
+                      ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={6} align="center">
+                        No Data
+                      </TableCell>
+                    </TableRow>
+                  )
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={6} align="center">
-                      No Data
+                    <TableCell colSpan={12} align="center">
+                      You do not have permission to view company data.
                     </TableCell>
                   </TableRow>
                 )}
@@ -511,15 +559,17 @@ const LedgerCreation = ({ sidebarVisible }) => {
             </Table>
           </TableContainer>
 
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={allLedgers?.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
+          {canRead && (
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={allLedgers?.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          )}
         </Box>
       </Box>
     </ThemeProvider>

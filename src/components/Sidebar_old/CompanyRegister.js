@@ -31,8 +31,6 @@ const CompanyRegister = () => {
 
   const { permissions } = usePermissions();
 
-  // console.log("permissions: ", permissions);
-
   const companyPermissions =
     permissions?.find((permission) => permission.moduleName === "Company")
       ?.permissions || [];

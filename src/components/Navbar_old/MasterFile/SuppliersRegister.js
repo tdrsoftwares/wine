@@ -29,6 +29,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import { customTheme } from "../../../utils/customTheme";
+import { usePermissions } from "../../../utils/PermissionsContext";
 
 const SuppliersRegister = () => {
   const [formData, setFormData] = useState({
@@ -50,6 +51,15 @@ const SuppliersRegister = () => {
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const { permissions } = usePermissions();
+
+  const companyPermissions =
+    permissions?.find((permission) => permission.moduleName === "Company")
+      ?.permissions || [];
+  const canCreate = companyPermissions.includes("create");
+  const canRead = companyPermissions.includes("read");
+  const canUpdate = companyPermissions.includes("update");
+  const canDelete = companyPermissions.includes("delete");
 
   useEffect(() => {
     fetchAllSuppliers();
@@ -174,7 +184,7 @@ const SuppliersRegister = () => {
   };
 
   const sortedData = () => {
-    let sorted = allSuppliers ? [...allSuppliers] : []
+    let sorted = allSuppliers ? [...allSuppliers] : [];
     if (sortBy) {
       sorted.sort((a, b) => {
         const firstValue =
@@ -197,13 +207,12 @@ const SuppliersRegister = () => {
     try {
       const response = await getAllSuppliers();
       // console.log("response: ", response)
-      if(response.status === 200) {
+      if (response.status === 200) {
         setAllSuppliers(response?.data?.data);
       } else {
-        setAllSuppliers([])
+        setAllSuppliers([]);
         // NotificationManager.error("No suppliers found.", "Error")
       }
-      
     } catch (error) {
       // NotificationManager.error(
       //   "Error fetching suppliers. Please try again later.",
@@ -405,6 +414,7 @@ const SuppliersRegister = () => {
                   padding: "4px 10px",
                   fontSize: "11px",
                 }}
+                disabled={!canCreate}
               >
                 Create
               </Button>
@@ -421,7 +431,6 @@ const SuppliersRegister = () => {
               >
                 Clear
               </Button>
-              
             </Box>
           </Grid>
 
@@ -538,157 +547,189 @@ const SuppliersRegister = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredData
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((supplier, index) => (
-                    <TableRow
-                      key={supplier._id}
-                      sx={{
-                        backgroundColor: "#fff",
-                      }}
-                    >
-                      <TableCell align="center" sx={{ minWidth: "80px" }}>
-                        {page * rowsPerPage + index + 1}
-                      </TableCell>
-                      <TableCell>
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.name || supplier.name}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                name: e.target.value,
-                              })
+                {canRead ? (
+                  filteredData
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((supplier, index) => (
+                      <TableRow
+                        key={supplier._id}
+                        sx={{
+                          backgroundColor: "#fff",
+                        }}
+                      >
+                        <TableCell align="center" sx={{ minWidth: "80px" }}>
+                          {page * rowsPerPage + index + 1}
+                        </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.name || supplier.name}
+                              onChange={(e) =>
+                                setEditedRow({
+                                  ...editedRow,
+                                  name: e.target.value,
+                                })
+                              }
+                            />
+                          ) : (
+                            supplier.name
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.address || supplier.address}
+                              onChange={(e) =>
+                                setEditedRow({
+                                  ...editedRow,
+                                  address: e.target.value,
+                                })
+                              }
+                            />
+                          ) : (
+                            supplier.address
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.contactNo || supplier.contactNo}
+                              onChange={(e) =>
+                                setEditedRow({
+                                  ...editedRow,
+                                  contactNo: e.target.value,
+                                })
+                              }
+                            />
+                          ) : (
+                            supplier.contactNo
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.gstinNo || supplier.gstinNo}
+                              onChange={(e) =>
+                                setEditedRow({
+                                  ...editedRow,
+                                  gstinNo: e.target.value,
+                                })
+                              }
+                            />
+                          ) : (
+                            supplier.gstinNo
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.panNo || supplier.panNo}
+                              onChange={(e) =>
+                                setEditedRow({
+                                  ...editedRow,
+                                  panNo: e.target.value,
+                                })
+                              }
+                            />
+                          ) : (
+                            supplier.panNo
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={editedRow.cinNo || supplier.cinNo}
+                              onChange={(e) =>
+                                setEditedRow({
+                                  ...editedRow,
+                                  cinNo: e.target.value,
+                                })
+                              }
+                            />
+                          ) : (
+                            supplier.cinNo
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <Input
+                              value={
+                                editedRow.openingBlance ||
+                                supplier.openingBlance
+                              }
+                              onChange={(e) =>
+                                setEditedRow({
+                                  ...editedRow,
+                                  openingBlance: e.target.value,
+                                })
+                              }
+                            />
+                          ) : (
+                            supplier.openingBlance
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <SaveIcon
+                              sx={{
+                                cursor: canUpdate ? "pointer" : "not-allowed",
+                                color: canUpdate ? "green" : "gray",
+                              }}
+                              onClick={
+                                canUpdate
+                                  ? () => handleSaveClick(supplier._id)
+                                  : null
+                              }
+                            />
+                          ) : (
+                            <EditIcon
+                              sx={{
+                                cursor: canUpdate ? "pointer" : "not-allowed",
+                                color: canUpdate ? "blue" : "gray",
+                              }}
+                              onClick={
+                                canUpdate
+                                  ? () => handleEditClick(index, supplier._id)
+                                  : null
+                              }
+                            />
+                          )}
+                          <CloseIcon
+                            sx={{
+                              cursor: canDelete ? "pointer" : "not-allowed",
+                              color: canDelete ? "red" : "gray",
+                            }}
+                            onClick={
+                              canDelete
+                                ? () => handleRemoveSupplier(supplier._id)
+                                : null
                             }
                           />
-                        ) : (
-                          supplier.name
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.address || supplier.address}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                address: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          supplier.address
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.contactNo || supplier.contactNo}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                contactNo: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          supplier.contactNo
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.gstinNo || supplier.gstinNo}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                gstinNo: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          supplier.gstinNo
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.panNo || supplier.panNo}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                panNo: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          supplier.panNo
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.cinNo || supplier.cinNo}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                cinNo: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          supplier.cinNo
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {editableIndex === index ? (
-                          <Input
-                            value={
-                              editedRow.openingBlance || supplier.openingBlance
-                            }
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                openingBlance: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          supplier.openingBlance
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {editableIndex === index ? (
-                          <SaveIcon
-                            sx={{ cursor: "pointer", color: "green" }}
-                            onClick={() => handleSaveClick(supplier._id)}
-                          />
-                        ) : (
-                          <EditIcon
-                            sx={{ cursor: "pointer", color: "blue" }}
-                            onClick={() => handleEditClick(index, supplier._id)}
-                          />
-                        )}
-                        <CloseIcon
-                          sx={{ cursor: "pointer", color: "red" }}
-                          onClick={() => handleRemoveSupplier(supplier._id)}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={12} align="center">
+                      You do not have permission to view company data.
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </TableContainer>
 
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={filteredData?.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
+          {canRead && (
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={filteredData?.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          )}
         </Box>
       </Box>
     </ThemeProvider>

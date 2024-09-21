@@ -24,9 +24,19 @@ import { customTheme } from "../../../utils/customTheme";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import { usePermissions } from "../../../utils/PermissionsContext";
 
 const LicenseeInfo = ({ authenticatedUser }) => {
   const { setLicenseDetails } = useLicenseContext();
+  const { permissions } = usePermissions();
+
+  const companyPermissions =
+    permissions?.find((permission) => permission.moduleName === "Company")
+      ?.permissions || [];
+  const canCreate = companyPermissions.includes("create");
+  const canRead = companyPermissions.includes("read");
+  const canUpdate = companyPermissions.includes("update");
+  const canDelete = companyPermissions.includes("delete");
 
   let [getData, setGetData] = useState([]);
   let [editEnable, setEditEnable] = useState(true);
@@ -680,6 +690,7 @@ const LicenseeInfo = ({ authenticatedUser }) => {
             size="small"
             variant="contained"
             onClick={handleCreate}
+            disabled={!canCreate}
           >
             CREATE
           </Button>
@@ -694,6 +705,7 @@ const LicenseeInfo = ({ authenticatedUser }) => {
                 nameOfLicenceRef.current.focus();
               }}
               sx={{ marginLeft: 2 }}
+              disabled={!canUpdate}
             >
               EDIT
             </Button>
@@ -704,6 +716,7 @@ const LicenseeInfo = ({ authenticatedUser }) => {
               variant="contained"
               onClick={handleUpdate}
               sx={{ marginLeft: 2 }}
+              disabled={!canUpdate}
             >
               SAVE
             </Button>

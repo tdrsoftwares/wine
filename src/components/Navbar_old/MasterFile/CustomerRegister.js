@@ -30,7 +30,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import { customTheme } from "../../../utils/customTheme";
-
+import { usePermissions } from "../../../utils/PermissionsContext";
 
 const Customers = () => {
   const tableRef = useRef(null);
@@ -57,7 +57,15 @@ const Customers = () => {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // console.log("allCustomerData", allCustomerData);
+  const { permissions } = usePermissions();
+
+  const companyPermissions =
+    permissions?.find((permission) => permission.moduleName === "Company")
+      ?.permissions || [];
+  const canCreate = companyPermissions.includes("create");
+  const canRead = companyPermissions.includes("read");
+  const canUpdate = companyPermissions.includes("update");
+  const canDelete = companyPermissions.includes("delete");
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -190,8 +198,8 @@ const Customers = () => {
       type: formData.customerType,
       additionalCharge: formData.additionalCharge || 0,
     };
-    if(formData.discountCategory) {
-      payload.discountCategory = formData.discountCategory
+    if (formData.discountCategory) {
+      payload.discountCategory = formData.discountCategory;
     }
     // console.log("payload: ", payload);
 
@@ -306,7 +314,11 @@ const Customers = () => {
         <Grid container spacing={2}>
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="customerName" className="input-label" required>
+              <InputLabel
+                htmlFor="customerName"
+                className="input-label"
+                required
+              >
                 Customer Name :
               </InputLabel>
               <TextField
@@ -320,7 +332,11 @@ const Customers = () => {
           </Grid>
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="contactPerson" className="input-label" required>
+              <InputLabel
+                htmlFor="contactPerson"
+                className="input-label"
+                required
+              >
                 Contact Person :
               </InputLabel>
               <TextField
@@ -402,7 +418,11 @@ const Customers = () => {
 
           <Grid item xs={3}>
             <div className="input-wrapper">
-              <InputLabel htmlFor="customerType" className="input-label" required>
+              <InputLabel
+                htmlFor="customerType"
+                className="input-label"
+                required
+              >
                 Customer Type :
               </InputLabel>
               <TextField
@@ -474,6 +494,7 @@ const Customers = () => {
                   padding: "4px 10px",
                   fontSize: "11px",
                 }}
+                disabled={!canCreate}
               >
                 Create
               </Button>
@@ -632,122 +653,126 @@ const Customers = () => {
               </TableHead>
 
               <TableBody>
-                {allCustomerData !== 0 ? (
-                  filteredData
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((item, index) => (
-                      <TableRow
-                        key={index}
-                        sx={{
-                          backgroundColor: "#fff",
-                        }}
-                      >
-                        <TableCell align="center">
-                          {page * rowsPerPage + index + 1}
-                        </TableCell>
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <Input
-                              value={editedRow.name}
-                              onChange={(e) =>
-                                setEditedRow({
-                                  ...editedRow,
-                                  name: e.target.value,
-                                })
-                              }
-                            />
-                          ) : (
-                            item.name
-                          )}
-                        </TableCell>
-
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <Input
-                              value={editedRow.type}
-                              onChange={(e) =>
-                                setEditedRow({
-                                  ...editedRow,
-                                  type: e.target.value,
-                                })
-                              }
-                            />
-                          ) : (
-                            item.type
-                          )}
-                        </TableCell>
-
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <Input
-                              value={editedRow.address}
-                              onChange={(e) =>
-                                setEditedRow({
-                                  ...editedRow,
-                                  address: e.target.value,
-                                })
-                              }
-                            />
-                          ) : (
-                            item.address
-                          )}
-                        </TableCell>
-
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <Input
-                              value={editedRow.contactNo}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                if (!isNaN(value)) {
+                {canRead ? (
+                  allCustomerData !== 0 ? (
+                    filteredData
+                      .slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
+                      .map((item, index) => (
+                        <TableRow
+                          key={index}
+                          sx={{
+                            backgroundColor: "#fff",
+                          }}
+                        >
+                          <TableCell align="center">
+                            {page * rowsPerPage + index + 1}
+                          </TableCell>
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <Input
+                                value={editedRow.name}
+                                onChange={(e) =>
                                   setEditedRow({
                                     ...editedRow,
-                                    contactNo: value,
-                                  });
+                                    name: e.target.value,
+                                  })
                                 }
-                              }}
-                            />
-                          ) : (
-                            item.contactNo
-                          )}
-                        </TableCell>
+                              />
+                            ) : (
+                              item.name
+                            )}
+                          </TableCell>
 
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <Input
-                              value={editedRow.whatsAppNo}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                if (!isNaN(value)) {
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <Input
+                                value={editedRow.type}
+                                onChange={(e) =>
                                   setEditedRow({
                                     ...editedRow,
-                                    whatsAppNo: value,
-                                  });
+                                    type: e.target.value,
+                                  })
                                 }
-                              }}
-                            />
-                          ) : (
-                            item.whatsAppNo || "No Data"
-                          )}
-                        </TableCell>
+                              />
+                            ) : (
+                              item.type
+                            )}
+                          </TableCell>
 
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <Input
-                              value={editedRow.contactPerson}
-                              onChange={(e) =>
-                                setEditedRow({
-                                  ...editedRow,
-                                  contactPerson: e.target.value,
-                                })
-                              }
-                            />
-                          ) : (
-                            item.contactPerson
-                          )}
-                        </TableCell>
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <Input
+                                value={editedRow.address}
+                                onChange={(e) =>
+                                  setEditedRow({
+                                    ...editedRow,
+                                    address: e.target.value,
+                                  })
+                                }
+                              />
+                            ) : (
+                              item.address
+                            )}
+                          </TableCell>
 
-                        {/* <TableCell>
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <Input
+                                value={editedRow.contactNo}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (!isNaN(value)) {
+                                    setEditedRow({
+                                      ...editedRow,
+                                      contactNo: value,
+                                    });
+                                  }
+                                }}
+                              />
+                            ) : (
+                              item.contactNo
+                            )}
+                          </TableCell>
+
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <Input
+                                value={editedRow.whatsAppNo}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (!isNaN(value)) {
+                                    setEditedRow({
+                                      ...editedRow,
+                                      whatsAppNo: value,
+                                    });
+                                  }
+                                }}
+                              />
+                            ) : (
+                              item.whatsAppNo || "No Data"
+                            )}
+                          </TableCell>
+
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <Input
+                                value={editedRow.contactPerson}
+                                onChange={(e) =>
+                                  setEditedRow({
+                                    ...editedRow,
+                                    contactPerson: e.target.value,
+                                  })
+                                }
+                              />
+                            ) : (
+                              item.contactPerson
+                            )}
+                          </TableCell>
+
+                          {/* <TableCell>
                         {editableIndex === index ? (
                           <Input
                             value={editedRow.openingBalance}
@@ -763,26 +788,26 @@ const Customers = () => {
                         )}
                       </TableCell> */}
 
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <Input
-                              value={editedRow.discount}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                if (!isNaN(value)) {
-                                  setEditedRow({
-                                    ...editedRow,
-                                    discount: value,
-                                  });
-                                }
-                              }}
-                            />
-                          ) : (
-                            item.discount || "No Data"
-                          )}
-                        </TableCell>
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <Input
+                                value={editedRow.discount}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (!isNaN(value)) {
+                                    setEditedRow({
+                                      ...editedRow,
+                                      discount: value,
+                                    });
+                                  }
+                                }}
+                              />
+                            ) : (
+                              item.discount || "No Data"
+                            )}
+                          </TableCell>
 
-                        {/* <TableCell>
+                          {/* <TableCell>
                         {editableIndex === index ? (
                           <Input
                             value={editedRow.validUpto}
@@ -798,68 +823,96 @@ const Customers = () => {
                         )}
                       </TableCell> */}
 
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <Input
-                              value={editedRow.discountCategory}
-                              onChange={(e) =>
-                                setEditedRow({
-                                  ...editedRow,
-                                  discountCategory: e.target.value,
-                                })
-                              }
-                            />
-                          ) : (
-                            item.discountCategory || "No Data"
-                          )}
-                        </TableCell>
-
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <Input
-                              value={editedRow.additionalCharge}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                if (!isNaN(value)) {
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <Input
+                                value={editedRow.discountCategory}
+                                onChange={(e) =>
                                   setEditedRow({
                                     ...editedRow,
-                                    additionalCharge: value,
-                                  });
+                                    discountCategory: e.target.value,
+                                  })
                                 }
-                              }}
-                            />
-                          ) : (
-                            item.additionalCharge || "No Data"
-                          )}
-                        </TableCell>
+                              />
+                            ) : (
+                              item.discountCategory || "No Data"
+                            )}
+                          </TableCell>
 
-                        <TableCell>
-                          {editableIndex !== index ? (
-                            <EditIcon
-                              sx={{ cursor: "pointer", color: "blue" }}
-                              onClick={() => handleEditClick(index, item._id)}
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <Input
+                                value={editedRow.additionalCharge}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (!isNaN(value)) {
+                                    setEditedRow({
+                                      ...editedRow,
+                                      additionalCharge: value,
+                                    });
+                                  }
+                                }}
+                              />
+                            ) : (
+                              item.additionalCharge || "No Data"
+                            )}
+                          </TableCell>
+
+                          <TableCell>
+                            {editableIndex !== index ? (
+                              <EditIcon
+                                sx={{
+                                  cursor: canUpdate ? "pointer" : "not-allowed",
+                                  color: canUpdate ? "blue" : "gray",
+                                }}
+                                onClick={
+                                  canUpdate
+                                    ? () => handleEditClick(index, item._id)
+                                    : null
+                                }
+                              />
+                            ) : (
+                              <SaveIcon
+                                sx={{
+                                  cursor: canUpdate ? "pointer" : "not-allowed",
+                                  color: canUpdate ? "green" : "gray",
+                                }}
+                                onClick={
+                                  canUpdate
+                                    ? () => handleSaveClick(item._id)
+                                    : null
+                                }
+                              />
+                            )}
+                            <CloseIcon
+                              sx={{
+                                cursor: canDelete ? "pointer" : "not-allowed",
+                                color: canDelete ? "red" : "gray",
+                              }}
+                              onClick={
+                                canDelete
+                                  ? () => handleDeleteItem(item._id)
+                                  : null
+                              }
                             />
-                          ) : (
-                            <SaveIcon
-                              sx={{ cursor: "pointer", color: "green" }}
-                              onClick={() => handleSaveClick(item._id)}
-                            />
-                          )}
-                          <CloseIcon
-                            sx={{ cursor: "pointer", color: "red" }}
-                            onClick={() => handleDeleteItem(item._id)}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    ))
+                          </TableCell>
+                        </TableRow>
+                      ))
+                  ) : (
+                    <TableRow
+                      sx={{
+                        backgroundColor: "#fff",
+                      }}
+                    >
+                      <TableCell colSpan={11} align="center">
+                        No Data
+                      </TableCell>
+                    </TableRow>
+                  )
                 ) : (
-                  <TableRow
-                    sx={{
-                      backgroundColor: "#fff",
-                    }}
-                  >
-                    <TableCell colSpan={11} align="center">
-                      No Data
+                  <TableRow>
+                    <TableCell colSpan={12} align="center">
+                      You do not have permission to view company data.
                     </TableCell>
                   </TableRow>
                 )}
@@ -867,15 +920,17 @@ const Customers = () => {
             </Table>
           </TableContainer>
 
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={filteredData?.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
+          {canRead && (
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={filteredData?.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          )}
         </Box>
       </Box>
     </ThemeProvider>
