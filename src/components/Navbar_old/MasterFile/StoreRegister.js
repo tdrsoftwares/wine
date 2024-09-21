@@ -511,7 +511,7 @@ const StoreRegister = () => {
                     )) : (
                       <TableRow>
                     <TableCell colSpan={12} align="center">
-                      You do not have permission to view company data.
+                      You do not have permission to view store data.
                     </TableCell>
                   </TableRow>
                     )

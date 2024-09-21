@@ -579,7 +579,7 @@ const BrandRegister = () => {
                     }}
                   >
                     <TableCell colSpan={11} align="center">
-                      You do not have permission to view company data.
+                      You do not have permission to view brand data.
                     </TableCell>
                   </TableRow>
                 )}

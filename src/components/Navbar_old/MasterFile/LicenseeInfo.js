@@ -187,19 +187,13 @@ const LicenseeInfo = ({ authenticatedUser }) => {
     try {
       const response = await createLicenseInfo(payload);
 
-      if(response.status === 200) {
+      if (response.status === 200) {
         // console.log("lic crt response", response)
-        NotificationManager.success(
-          "License Created Successfully",
-          "Success"
-        );
+        NotificationManager.success("License Created Successfully", "Success");
         setIsButtonDisabled(true);
-      } 
-      else {
-        NotificationManager.error("Problem creating license","Error")
+      } else {
+        NotificationManager.error("Problem creating license", "Error");
       }
-
-      
     } catch (error) {
       console.log(error);
       // Extract the error message or relevant information
@@ -225,10 +219,7 @@ const LicenseeInfo = ({ authenticatedUser }) => {
     const payload = { ...licenseData };
     try {
       const response = await updateLicenseInfo(payload, licenseData.id);
-      NotificationManager.success(
-        "License Updated Successfully",
-        "Success"
-      );
+      NotificationManager.success("License Updated Successfully", "Success");
       setEditEnable(true);
     } catch (error) {
       console.log(error);
@@ -267,498 +258,517 @@ const LicenseeInfo = ({ authenticatedUser }) => {
       perBillMaxCs: parseFloat(licenseData.perBillMaxCs),
     });
   };
-  // console.log("form Submitted"+[Object.entries(licenseData)]);
-  
 
   return (
     <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, minWidth: "900px" }}>
-        <Typography variant="h6" sx={{ marginBottom: 2 }}>
-          Information of License
-        </Typography>
+        {canRead ? (
+          <>
+            <Typography variant="h6" sx={{ marginBottom: 2 }}>
+              Information of License
+            </Typography>
+            <Grid container spacing={2} sx={{ marginBottom: 2 }}>
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel htmlFor="nameOfLicence" className="input-label">
+                    NAME OF LICENSE/SHOP:
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    inputRef={nameOfLicenceRef}
+                    size="small"
+                    name="nameOfLicence"
+                    value={licenseData.nameOfLicence}
+                    onChange={(e) =>
+                      setLicenseData({
+                        ...licenseData,
+                        nameOfLicence: e.target.value,
+                      })
+                    }
+                    InputProps={{ readOnly: editEnable }}
+                  />
+                </div>
+              </Grid>
 
-        <Grid container spacing={2} sx={{ marginBottom: 2 }}>
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="nameOfLicence" className="input-label">
-                NAME OF LICENSE/SHOP:
-              </InputLabel>
-              <TextField
-                fullWidth
-                inputRef={nameOfLicenceRef}
-                size="small"
-                name="nameOfLicence"
-                value={licenseData.nameOfLicence}
-                onChange={(e) =>
-                  setLicenseData({ ...licenseData, nameOfLicence: e.target.value })
-                }
-                InputProps={{ readOnly: editEnable }}
-              />
-            </div>
-          </Grid>
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel htmlFor="businessType" className="input-label">
+                    BUSINESS TYPE:
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    name="businessType"
+                    value={licenseData.businessType}
+                    onChange={(e) =>
+                      setLicenseData({
+                        ...licenseData,
+                        businessType: e.target.value,
+                      })
+                    }
+                    InputProps={{ readOnly: editEnable }}
+                  />
+                </div>
+              </Grid>
 
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="businessType" className="input-label">
-                BUSINESS TYPE:
-              </InputLabel>
-              <TextField
-                fullWidth
-                size="small"
-                name="businessType"
-                value={licenseData.businessType}
-                onChange={(e) =>
-                  setLicenseData({
-                    ...licenseData,
-                    businessType: e.target.value,
-                  })
-                }
-                InputProps={{ readOnly: editEnable }}
-              />
-            </div>
-          </Grid>
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel htmlFor="address" className="input-label">
+                    ADDRESS:
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    name="address"
+                    value={licenseData.address}
+                    onChange={(e) =>
+                      setLicenseData({
+                        ...licenseData,
+                        address: e.target.value,
+                      })
+                    }
+                    InputProps={{ readOnly: editEnable }}
+                  />
+                </div>
+              </Grid>
 
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="address" className="input-label">
-                ADDRESS:
-              </InputLabel>
-              <TextField
-                fullWidth
-                size="small"
-                name="address"
-                value={licenseData.address}
-                onChange={(e) =>
-                  setLicenseData({ ...licenseData, address: e.target.value })
-                }
-                InputProps={{ readOnly: editEnable }}
-              />
-            </div>
-          </Grid>
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel htmlFor="district" className="input-label">
+                    DISTRICT:
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    name="district"
+                    value={licenseData.district}
+                    onChange={(e) =>
+                      setLicenseData({
+                        ...licenseData,
+                        district: e.target.value,
+                      })
+                    }
+                    InputProps={{ readOnly: editEnable }}
+                  />
+                </div>
+              </Grid>
 
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="district" className="input-label">
-                DISTRICT:
-              </InputLabel>
-              <TextField
-                fullWidth
-                size="small"
-                name="district"
-                value={licenseData.district}
-                onChange={(e) =>
-                  setLicenseData({ ...licenseData, district: e.target.value })
-                }
-                InputProps={{ readOnly: editEnable }}
-              />
-            </div>
-          </Grid>
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel htmlFor="phoneNo" className="input-label">
+                    PHONE NO:
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    name="phoneNo"
+                    type="tel"
+                    value={licenseData.phoneNo}
+                    onChange={(e) =>
+                      setLicenseData({
+                        ...licenseData,
+                        phoneNo: e.target.value,
+                      })
+                    }
+                    InputProps={{ readOnly: editEnable }}
+                  />
+                </div>
+              </Grid>
 
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="phoneNo" className="input-label">
-                PHONE NO:
-              </InputLabel>
-              <TextField
-                fullWidth
-                size="small"
-                name="phoneNo"
-                type="tel"
-                value={licenseData.phoneNo}
-                onChange={(e) =>
-                  setLicenseData({ ...licenseData, phoneNo: e.target.value })
-                }
-                InputProps={{ readOnly: editEnable }}
-              />
-            </div>
-          </Grid>
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel
+                    htmlFor="fiancialPeriodfrom"
+                    className="input-label"
+                  >
+                    FINANCIAL PERIOD FROM:
+                  </InputLabel>
 
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="fiancialPeriodfrom" className="input-label">
-                FINANCIAL PERIOD FROM:
-              </InputLabel>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      id="fiancialPeriodfrom"
+                      format="DD/MM/YYYY"
+                      className="date-picker"
+                      value={dayjs(licenseData.fiancialPeriodfrom)}
+                      onChange={(newValue) =>
+                        handleDateChange("fiancialPeriodfrom", newValue)
+                      }
+                      sx={{ width: "100%" }}
+                      renderInput={(params) => <TextField {...params} />}
+                      readOnly={editEnable}
+                    />
+                  </LocalizationProvider>
+                </div>
+              </Grid>
 
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  id="fiancialPeriodfrom"
-                  format="DD/MM/YYYY"
-                  className="date-picker"
-                  value={dayjs(licenseData.fiancialPeriodfrom)}
-                  onChange={(newValue) =>
-                    handleDateChange("fiancialPeriodfrom", newValue)
-                  }
-                  sx={{ width: "100%" }}
-                  renderInput={(params) => <TextField {...params} />}
-                  readOnly={editEnable}
-                />
-              </LocalizationProvider>
-            </div>
-          </Grid>
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel
+                    htmlFor="fiancialPeriodTo"
+                    className="input-label"
+                  >
+                    FINANCIAL PERIOD TO:
+                  </InputLabel>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      id="fiancialPeriodTo"
+                      format="DD/MM/YYYY"
+                      className="date-picker"
+                      value={dayjs(licenseData.fiancialPeriodTo)}
+                      onChange={(newValue) =>
+                        handleDateChange("fiancialPeriodTo", newValue)
+                      }
+                      sx={{ width: "100%" }}
+                      renderInput={(params) => <TextField {...params} />}
+                      readOnly={editEnable}
+                    />
+                  </LocalizationProvider>
+                </div>
+              </Grid>
 
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="fiancialPeriodTo" className="input-label">
-                FINANCIAL PERIOD TO:
-              </InputLabel>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  id="fiancialPeriodTo"
-                  format="DD/MM/YYYY"
-                  className="date-picker"
-                  value={dayjs(licenseData.fiancialPeriodTo)}
-                  onChange={(newValue) =>
-                    handleDateChange("fiancialPeriodTo", newValue)
-                  }
-                  sx={{ width: "100%" }}
-                  renderInput={(params) => <TextField {...params} />}
-                  readOnly={editEnable}
-                />
-              </LocalizationProvider>
-            </div>
-          </Grid>
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel htmlFor="licenceId" className="input-label">
+                    LICENSE ID(12 DIGIT):
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    name="licenceId"
+                    value={licenseData.licenceId}
+                    onChange={(e) =>
+                      setLicenseData({
+                        ...licenseData,
+                        licenceId: e.target.value,
+                      })
+                    }
+                    InputProps={{ readOnly: editEnable }}
+                  />
+                </div>
+              </Grid>
 
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="licenceId" className="input-label">
-                LICENSE ID(12 DIGIT):
-              </InputLabel>
-              <TextField
-                fullWidth
-                size="small"
-                name="licenceId"
-                value={licenseData.licenceId}
-                onChange={(e) =>
-                  setLicenseData({ ...licenseData, licenceId: e.target.value })
-                }
-                InputProps={{ readOnly: editEnable }}
-              />
-            </div>
-          </Grid>
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel htmlFor="billCategory" className="input-label">
+                    BILL CATEGORY:
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    name="billCategory"
+                    value={licenseData.billCategory}
+                    onChange={(e) =>
+                      setLicenseData({
+                        ...licenseData,
+                        billCategory: e.target.value,
+                      })
+                    }
+                    InputProps={{ readOnly: editEnable }}
+                  />
+                </div>
+              </Grid>
 
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="billCategory" className="input-label">
-                BILL CATEGORY:
-              </InputLabel>
-              <TextField
-                fullWidth
-                size="small"
-                name="billCategory"
-                value={licenseData.billCategory}
-                onChange={(e) =>
-                  setLicenseData({
-                    ...licenseData,
-                    billCategory: e.target.value,
-                  })
-                }
-                InputProps={{ readOnly: editEnable }}
-              />
-            </div>
-          </Grid>
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel htmlFor="noOfBillCopies" className="input-label">
+                    NO. OF BILL COPIES:
+                  </InputLabel>
+                  <TextField
+                    select
+                    fullWidth
+                    size="small"
+                    name="noOfBillCopies"
+                    value={licenseData.noOfBillCopies}
+                    onChange={(e) =>
+                      setLicenseData({
+                        ...licenseData,
+                        noOfBillCopies: e.target.value,
+                      })
+                    }
+                    InputProps={{ readOnly: editEnable }}
+                  >
+                    <MenuItem value="">None</MenuItem>
+                    <MenuItem value={1}>One</MenuItem>
+                    <MenuItem value={2}>Two</MenuItem>
+                    <MenuItem value={3}>Three</MenuItem>
+                  </TextField>
+                </div>
+              </Grid>
 
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="noOfBillCopies" className="input-label">
-                NO. OF BILL COPIES:
-              </InputLabel>
-              <TextField
-                select
-                fullWidth
-                size="small"
-                name="noOfBillCopies"
-                value={licenseData.noOfBillCopies}
-                onChange={(e) =>
-                  setLicenseData({
-                    ...licenseData,
-                    noOfBillCopies: e.target.value,
-                  })
-                }
-                InputProps={{ readOnly: editEnable }}
-              >
-                <MenuItem value="">None</MenuItem>
-                <MenuItem value={1}>One</MenuItem>
-                <MenuItem value={2}>Two</MenuItem>
-                <MenuItem value={3}>Three</MenuItem>
-              </TextField>
-            </div>
-          </Grid>
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel htmlFor="autoBillPrint" className="input-label">
+                    AUTO BILL PRINT:
+                  </InputLabel>
+                  <TextField
+                    select
+                    fullWidth
+                    size="small"
+                    name="autoBillPrint"
+                    value={licenseData.autoBillPrint}
+                    onChange={(e) =>
+                      setLicenseData({
+                        ...licenseData,
+                        autoBillPrint: e.target.value,
+                      })
+                    }
+                    InputProps={{ readOnly: editEnable }}
+                  >
+                    <MenuItem value="">None</MenuItem>
+                    <MenuItem value={"YES"}>Yes</MenuItem>
+                    <MenuItem value={"NO"}>No</MenuItem>
+                  </TextField>
+                </div>
+              </Grid>
+            </Grid>
+            <Divider />
+            <Grid container spacing={2} sx={{ marginTop: 2 }}>
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel htmlFor="eposUserId" className="input-label">
+                    EPOS USER ID(15 DIGIT):
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    name="eposUserId"
+                    value={licenseData.eposUserId}
+                    onChange={(e) =>
+                      setLicenseData({
+                        ...licenseData,
+                        eposUserId: e.target.value,
+                      })
+                    }
+                    InputProps={{ readOnly: editEnable }}
+                  />
+                </div>
+              </Grid>
 
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="autoBillPrint" className="input-label">
-                AUTO BILL PRINT:
-              </InputLabel>
-              <TextField
-                select
-                fullWidth
-                size="small"
-                name="autoBillPrint"
-                value={licenseData.autoBillPrint}
-                onChange={(e) =>
-                  setLicenseData({
-                    ...licenseData,
-                    autoBillPrint: e.target.value,
-                  })
-                }
-                InputProps={{ readOnly: editEnable }}
-              >
-                <MenuItem value="">None</MenuItem>
-                <MenuItem value={"YES"}>Yes</MenuItem>
-                <MenuItem value={"NO"}>No</MenuItem>
-              </TextField>
-            </div>
-          </Grid>
-        </Grid>
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel className="input-label"></InputLabel>
+                  <Button
+                    color="success"
+                    size="small"
+                    variant="contained"
+                    // onClick={}
+                    sx={{ width: "100%" }}
+                  >
+                    EPOS CONFIGURE
+                  </Button>
+                </div>
+              </Grid>
 
-        <Divider />
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel htmlFor="eposPassword" className="input-label">
+                    EPOS PASSWORD:
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    name="eposPassword"
+                    value={licenseData.eposPassword}
+                    onChange={(e) =>
+                      setLicenseData({
+                        ...licenseData,
+                        eposPassword: e.target.value,
+                      })
+                    }
+                    InputProps={{ readOnly: editEnable }}
+                  />
+                </div>
+              </Grid>
 
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel htmlFor="noOfItemPerBill" className="input-label">
+                    NO OF ITEM PER BILL:
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    name="noOfItemPerBill"
+                    value={licenseData.noOfItemPerBill}
+                    onChange={(e) =>
+                      setLicenseData({
+                        ...licenseData,
+                        noOfItemPerBill: e.target.value,
+                      })
+                    }
+                    InputProps={{ readOnly: editEnable }}
+                  />
+                </div>
+              </Grid>
 
-        <Grid container spacing={2} sx={{ marginTop: 2 }}>
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="eposUserId" className="input-label">
-                EPOS USER ID(15 DIGIT):
-              </InputLabel>
-              <TextField
-                fullWidth
-                size="small"
-                name="eposUserId"
-                value={licenseData.eposUserId}
-                onChange={(e) =>
-                  setLicenseData({
-                    ...licenseData,
-                    eposUserId: e.target.value,
-                  })
-                }
-                InputProps={{ readOnly: editEnable }}
-              />
-            </div>
-          </Grid>
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel htmlFor="perBillMaxWine" className="input-label">
+                    PER BILL MAX WINE(ML):
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    name="perBillMaxWine"
+                    value={licenseData.perBillMaxWine}
+                    onChange={(e) =>
+                      setLicenseData({
+                        ...licenseData,
+                        perBillMaxWine: e.target.value,
+                      })
+                    }
+                    InputProps={{ readOnly: editEnable }}
+                  />
+                </div>
+              </Grid>
 
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <InputLabel className="input-label"></InputLabel>
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel htmlFor="perBillMaxCs" className="input-label">
+                    PER BILL MAX CS(ML):
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    name="perBillMaxCs"
+                    value={licenseData.perBillMaxCs}
+                    onChange={(e) =>
+                      setLicenseData({
+                        ...licenseData,
+                        perBillMaxCs: e.target.value,
+                      })
+                    }
+                    InputProps={{ readOnly: editEnable }}
+                  />
+                </div>
+              </Grid>
+
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel htmlFor="billMessages" className="input-label">
+                    BILL MESSAGES:
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    name="billMessages"
+                    value={licenseData.billMessages}
+                    onChange={(e) =>
+                      setLicenseData({
+                        ...licenseData,
+                        billMessages: e.target.value,
+                      })
+                    }
+                    InputProps={{ readOnly: editEnable }}
+                  />
+                </div>
+              </Grid>
+
+              <Grid item xs={4}>
+                <div className="input-wrapper">
+                  <InputLabel htmlFor="messageMobile" className="input-label">
+                    MESSAGE MOBILE:
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    name="messageMobile"
+                    value={licenseData.messageMobile}
+                    onChange={(e) =>
+                      setLicenseData({
+                        ...licenseData,
+                        messageMobile: e.target.value,
+                      })
+                    }
+                    InputProps={{ readOnly: editEnable }}
+                  />
+                </div>
+              </Grid>
+            </Grid>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                "& button": { marginTop: 2, marginBottom: 2 },
+              }}
+            >
               <Button
-                color="success"
+                color="secondary"
                 size="small"
                 variant="contained"
-                // onClick={}
-                sx={{ width: "100%" }}
+                onClick={handleCreate}
+                disabled={!canCreate}
               >
-                EPOS CONFIGURE
+                CREATE
               </Button>
-            </div>
-          </Grid>
+              {editEnable ? (
+                <Button
+                  color="primary"
+                  size="small"
+                  variant="contained"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setEditEnable(false);
+                    nameOfLicenceRef.current.focus();
+                  }}
+                  sx={{ marginLeft: 2 }}
+                  disabled={!canUpdate}
+                >
+                  EDIT
+                </Button>
+              ) : (
+                <Button
+                  color="success"
+                  size="small"
+                  variant="contained"
+                  onClick={handleUpdate}
+                  sx={{ marginLeft: 2 }}
+                  disabled={!canUpdate}
+                >
+                  SAVE
+                </Button>
+              )}
 
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="eposPassword" className="input-label">
-                EPOS PASSWORD:
-              </InputLabel>
-              <TextField
-                fullWidth
+              <Button
+                color="inherit"
                 size="small"
-                name="eposPassword"
-                value={licenseData.eposPassword}
-                onChange={(e) =>
-                  setLicenseData({
-                    ...licenseData,
-                    eposPassword: e.target.value,
-                  })
-                }
-                InputProps={{ readOnly: editEnable }}
-              />
-            </div>
-          </Grid>
-
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="noOfItemPerBill" className="input-label">
-                NO OF ITEM PER BILL:
-              </InputLabel>
-              <TextField
-                fullWidth
-                size="small"
-                name="noOfItemPerBill"
-                value={licenseData.noOfItemPerBill}
-                onChange={(e) =>
-                  setLicenseData({
-                    ...licenseData,
-                    noOfItemPerBill: e.target.value,
-                  })
-                }
-                InputProps={{ readOnly: editEnable }}
-              />
-            </div>
-          </Grid>
-
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="perBillMaxWine" className="input-label">
-                PER BILL MAX WINE(ML):
-              </InputLabel>
-              <TextField
-                fullWidth
-                size="small"
-                name="perBillMaxWine"
-                value={licenseData.perBillMaxWine}
-                onChange={(e) =>
-                  setLicenseData({
-                    ...licenseData,
-                    perBillMaxWine: e.target.value,
-                  })
-                }
-                InputProps={{ readOnly: editEnable }}
-              />
-            </div>
-          </Grid>
-
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="perBillMaxCs" className="input-label">
-                PER BILL MAX CS(ML):
-              </InputLabel>
-              <TextField
-                fullWidth
-                size="small"
-                name="perBillMaxCs"
-                value={licenseData.perBillMaxCs}
-                onChange={(e) =>
-                  setLicenseData({
-                    ...licenseData,
-                    perBillMaxCs: e.target.value,
-                  })
-                }
-                InputProps={{ readOnly: editEnable }}
-              />
-            </div>
-          </Grid>
-
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="billMessages" className="input-label">
-                BILL MESSAGES:
-              </InputLabel>
-              <TextField
-                fullWidth
-                size="small"
-                name="billMessages"
-                value={licenseData.billMessages}
-                onChange={(e) =>
-                  setLicenseData({
-                    ...licenseData,
-                    billMessages: e.target.value,
-                  })
-                }
-                InputProps={{ readOnly: editEnable }}
-              />
-            </div>
-          </Grid>
-
-          <Grid item xs={4}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="messageMobile" className="input-label">
-                MESSAGE MOBILE:
-              </InputLabel>
-              <TextField
-                fullWidth
-                size="small"
-                name="messageMobile"
-                value={licenseData.messageMobile}
-                onChange={(e) =>
-                  setLicenseData({
-                    ...licenseData,
-                    messageMobile: e.target.value,
-                  })
-                }
-                InputProps={{ readOnly: editEnable }}
-              />
-            </div>
-          </Grid>
-        </Grid>
-
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            "& button": { marginTop: 2, marginBottom: 2 },
-          }}
-        >
-          <Button
-            color="secondary"
-            size="small"
-            variant="contained"
-            onClick={handleCreate}
-            disabled={!canCreate}
-          >
-            CREATE
-          </Button>
-          {editEnable ? (
-            <Button
-              color="primary"
-              size="small"
-              variant="contained"
-              onClick={(e) => {
-                e.preventDefault();
-                setEditEnable(false);
-                nameOfLicenceRef.current.focus();
-              }}
-              sx={{ marginLeft: 2 }}
-              disabled={!canUpdate}
-            >
-              EDIT
-            </Button>
-          ) : (
-            <Button
-              color="success"
-              size="small"
-              variant="contained"
-              onClick={handleUpdate}
-              sx={{ marginLeft: 2 }}
-              disabled={!canUpdate}
-            >
-              SAVE
-            </Button>
-          )}
-
-          <Button
-            color="inherit"
-            size="small"
-            variant="contained"
-            onClick={clearForm}
-            sx={{ marginLeft: 2 }}
-          >
-            CLEAR
-          </Button>
-        </Box>
-
-        <Divider />
-
-        <Grid container spacing={2} sx={{ marginTop: 2, marginBottom: 3 }}>
-          <Grid item xs={6}>
-            <Typography variant="subtitle2" gutterBottom>
-              Wine Application Developed By: <b>TDR SOFTWARE PRIVATE LIMITED</b>
-            </Typography>
-          </Grid>
-          <Grid item xs={6}>
-            <Typography variant="subtitle2" gutterBottom>
-              COMPANY CIN NO: <b>U72300WB2013PTC196614</b>
-            </Typography>
-          </Grid>
-          <Grid item xs={6}>
-            <Typography variant="subtitle2" gutterBottom>
-              GSTIN: <b>19AAECT848D1ZX</b>
-            </Typography>
-          </Grid>
-          <Grid item xs={6}>
-            <Typography variant="subtitle2" gutterBottom>
-              CONTACT NO: <b>9830657184/ 8670920038</b>
-            </Typography>
-          </Grid>
-        </Grid>
-
-
+                variant="contained"
+                onClick={clearForm}
+                sx={{ marginLeft: 2 }}
+              >
+                CLEAR
+              </Button>
+            </Box>
+            <Divider />
+            <Grid container spacing={2} sx={{ marginTop: 2, marginBottom: 3 }}>
+              <Grid item xs={6}>
+                <Typography variant="subtitle2" gutterBottom>
+                  Wine Application Developed By:{" "}
+                  <b>TDR SOFTWARE PRIVATE LIMITED</b>
+                </Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography variant="subtitle2" gutterBottom>
+                  COMPANY CIN NO: <b>U72300WB2013PTC196614</b>
+                </Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography variant="subtitle2" gutterBottom>
+                  GSTIN: <b>19AAECT848D1ZX</b>
+                </Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography variant="subtitle2" gutterBottom>
+                  CONTACT NO: <b>9830657184/ 8670920038</b>
+                </Typography>
+              </Grid>
+            </Grid>{" "}
+          </>
+        ) : (
+          <Typography variant="subtitle1" sx={{ color: "red" }}>
+            You do not have permission to view license data.
+          </Typography>
+        )}
       </Box>
     </ThemeProvider>
   );
