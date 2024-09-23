@@ -83,7 +83,7 @@ const UserControl = ({}) => {
   const fetchAllRoleAndPermissions = async () => {
     try {
       const allRoleAndPermissions = await getAllRoleAndPermissions();
-      console.log("getAllRoleAndPermissions response: ", allRoleAndPermissions);
+      // console.log("getAllRoleAndPermissions response: ", allRoleAndPermissions);
 
       if (allRoleAndPermissions.status === 200) {
         setAllRoleAndPermissions(allRoleAndPermissions?.data?.data);
@@ -103,7 +103,7 @@ const UserControl = ({}) => {
   const fetchAllUsers = async () => {
     try {
       const allUsers = await getAllUsers();
-      console.log("allusers response: ", allUsers);
+      // console.log("allusers response: ", allUsers);
 
       if (allUsers.status === 200) {
         setAllUsers(allUsers?.data?.data);

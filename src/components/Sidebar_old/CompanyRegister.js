@@ -29,7 +29,7 @@ const CompanyRegister = () => {
   const [newCompanyType, setNewCompanyType] = useState("");
   const [existingCompanyDelete, setExistingCompanyDelete] = useState("");
 
-  const { permissions } = usePermissions();
+  const { permissions, role } = usePermissions();
 
   const companyPermissions =
     permissions?.find((permission) => permission.moduleName === "Company")
@@ -109,7 +109,7 @@ const CompanyRegister = () => {
     const selectedCompany = allCompanies.find(
       (company) => company._id === e.target.value
     );
-    console.log("selectedCompany ---> ", selectedCompany);
+    // console.log("selectedCompany ---> ", selectedCompany);
     setNewCompanyName(selectedCompany.name);
     setNewCompanyType(selectedCompany.type);
   };
@@ -164,7 +164,7 @@ const CompanyRegister = () => {
   return (
     <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, minWidth: "900px" }}>
-        {canRead ? (
+        {canRead || role === "admin" ? (
           <>
             <Typography variant="subtitle2" sx={{ marginBottom: 1 }}>
               Create Company:
@@ -239,7 +239,7 @@ const CompanyRegister = () => {
                       fontSize: "11px",
                     }}
                     onClick={handleCreateCompany}
-                    disabled={!canCreate}
+                    disabled={!canCreate && role !== "admin"}
                   >
                     Create
                   </Button>
@@ -363,7 +363,7 @@ const CompanyRegister = () => {
                       padding: "4px 10px",
                       fontSize: "11px",
                     }}
-                    disabled={!canUpdate}
+                    disabled={!canUpdate && role !== "admin"}
                   >
                     Change
                   </Button>
@@ -444,7 +444,7 @@ const CompanyRegister = () => {
                       fontSize: "11px",
                     }}
                     onClick={handleDeleteCompany}
-                    disabled={!canDelete}
+                    disabled={!canDelete && role !== "admin"}
                   >
                     Delete
                   </Button>

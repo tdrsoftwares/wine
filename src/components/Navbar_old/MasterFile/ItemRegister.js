@@ -62,7 +62,7 @@ const ItemRegister = () => {
   const tableRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
-  const { permissions } = usePermissions();
+  const { permissions, role } = usePermissions();
 
   // console.log("permissions: ", permissions);
 
@@ -624,7 +624,7 @@ const ItemRegister = () => {
                   padding: "4px 10px",
                   fontSize: "11px",
                 }}
-                disabled={!canCreate}
+                disabled={!canCreate && role !== "admin"}
               >
                 Create
               </Button>
@@ -775,7 +775,7 @@ const ItemRegister = () => {
               </TableHead>
 
               <TableBody>
-                {canRead ? (
+                {canRead || role === "admin" ? (
                   loading ? (
                     <TableRow>
                       <TableCell
@@ -1038,11 +1038,17 @@ const ItemRegister = () => {
                             {editableIndex !== index ? (
                               <EditIcon
                                 sx={{
-                                  cursor: canUpdate ? "pointer" : "not-allowed",
-                                  color: canUpdate ? "blue" : "gray",
+                                  cursor:
+                                    canUpdate || role === "admin"
+                                      ? "pointer"
+                                      : "not-allowed",
+                                  color:
+                                    canUpdate || role === "admin"
+                                      ? "blue"
+                                      : "gray",
                                 }}
                                 onClick={
-                                  canUpdate
+                                  canUpdate || role === "admin"
                                     ? () => handleEditClick(index, item._id)
                                     : null
                                 }
@@ -1050,11 +1056,17 @@ const ItemRegister = () => {
                             ) : (
                               <SaveIcon
                                 sx={{
-                                  cursor: canUpdate ? "pointer" : "not-allowed",
-                                  color: canUpdate ? "green" : "gray",
+                                  cursor:
+                                    canUpdate || role === "admin"
+                                      ? "pointer"
+                                      : "not-allowed",
+                                  color:
+                                    canUpdate || role === "admin"
+                                      ? "green"
+                                      : "gray",
                                 }}
                                 onClick={
-                                  canUpdate
+                                  canUpdate || role === "admin"
                                     ? () => handleSaveClick(item._id)
                                     : null
                                 }
@@ -1062,11 +1074,17 @@ const ItemRegister = () => {
                             )}
                             <CloseIcon
                               sx={{
-                                cursor: canDelete ? "pointer" : "not-allowed",
-                                color: canDelete ? "red" : "gray",
+                                cursor:
+                                  canDelete || role === "admin"
+                                    ? "pointer"
+                                    : "not-allowed",
+                                color:
+                                  canDelete || role === "admin"
+                                    ? "red"
+                                    : "gray",
                               }}
                               onClick={
-                                canDelete
+                                canDelete || role === "admin"
                                   ? () => handleDeleteItem(item._id)
                                   : null
                               }
@@ -1092,23 +1110,24 @@ const ItemRegister = () => {
             </Table>
           </TableContainer>
 
-          {canRead && (
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              component="div"
-              count={filteredData?.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-              sx={{
-                "& .MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows":
-                  {
-                    fontSize: "12px",
-                  },
-              }}
-            />
-          )}
+          {canRead ||
+            (role === "admin" && (
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={filteredData?.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+                sx={{
+                  "& .MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows":
+                    {
+                      fontSize: "12px",
+                    },
+                }}
+              />
+            ))}
         </Box>
       </Box>
     </ThemeProvider>

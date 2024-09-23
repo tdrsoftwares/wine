@@ -51,7 +51,7 @@ const SuppliersRegister = () => {
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const { permissions } = usePermissions();
+  const { permissions, role } = usePermissions();
 
   const companyPermissions =
     permissions?.find((permission) => permission.moduleName === "Company")
@@ -414,7 +414,7 @@ const SuppliersRegister = () => {
                   padding: "4px 10px",
                   fontSize: "11px",
                 }}
-                disabled={!canCreate}
+                disabled={!canCreate && role !== "admin"}
               >
                 Create
               </Button>
@@ -547,7 +547,7 @@ const SuppliersRegister = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {canRead ? (
+                {canRead || role === "admin" ? (
                   filteredData
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((supplier, index) => (
@@ -672,11 +672,11 @@ const SuppliersRegister = () => {
                           {editableIndex === index ? (
                             <SaveIcon
                               sx={{
-                                cursor: canUpdate ? "pointer" : "not-allowed",
-                                color: canUpdate ? "green" : "gray",
+                                cursor: canUpdate || role === "admin" ? "pointer" : "not-allowed",
+                                color: canUpdate || role === "admin" ? "green" : "gray",
                               }}
                               onClick={
-                                canUpdate
+                                canUpdate || role === "admin"
                                   ? () => handleSaveClick(supplier._id)
                                   : null
                               }
@@ -684,11 +684,11 @@ const SuppliersRegister = () => {
                           ) : (
                             <EditIcon
                               sx={{
-                                cursor: canUpdate ? "pointer" : "not-allowed",
-                                color: canUpdate ? "blue" : "gray",
+                                cursor: canUpdate || role === "admin" ? "pointer" : "not-allowed",
+                                color: canUpdate || role === "admin" ? "blue" : "gray",
                               }}
                               onClick={
-                                canUpdate
+                                canUpdate || role === "admin"
                                   ? () => handleEditClick(index, supplier._id)
                                   : null
                               }
@@ -696,11 +696,11 @@ const SuppliersRegister = () => {
                           )}
                           <CloseIcon
                             sx={{
-                              cursor: canDelete ? "pointer" : "not-allowed",
-                              color: canDelete ? "red" : "gray",
+                              cursor: canDelete || role === "admin" ? "pointer" : "not-allowed",
+                              color: canDelete || role === "admin" ? "red" : "gray",
                             }}
                             onClick={
-                              canDelete
+                              canDelete || role === "admin"
                                 ? () => handleRemoveSupplier(supplier._id)
                                 : null
                             }
@@ -719,7 +719,7 @@ const SuppliersRegister = () => {
             </Table>
           </TableContainer>
 
-          {canRead && (
+          {canRead || role === "admin" && (
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"

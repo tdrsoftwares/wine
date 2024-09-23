@@ -28,7 +28,7 @@ import { usePermissions } from "../../../utils/PermissionsContext";
 
 const LicenseeInfo = ({ authenticatedUser }) => {
   const { setLicenseDetails } = useLicenseContext();
-  const { permissions } = usePermissions();
+  const { permissions, role } = usePermissions();
 
   const companyPermissions =
     permissions?.find((permission) => permission.moduleName === "Company")
@@ -262,7 +262,7 @@ const LicenseeInfo = ({ authenticatedUser }) => {
   return (
     <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, minWidth: "900px" }}>
-        {canRead ? (
+        {canRead || role === "admin" ? (
           <>
             <Typography variant="h6" sx={{ marginBottom: 2 }}>
               Information of License
@@ -697,7 +697,7 @@ const LicenseeInfo = ({ authenticatedUser }) => {
                 size="small"
                 variant="contained"
                 onClick={handleCreate}
-                disabled={!canCreate}
+                disabled={!canCreate && role !== "admin"}
               >
                 CREATE
               </Button>
@@ -712,7 +712,7 @@ const LicenseeInfo = ({ authenticatedUser }) => {
                     nameOfLicenceRef.current.focus();
                   }}
                   sx={{ marginLeft: 2 }}
-                  disabled={!canUpdate}
+                  disabled={!canUpdate && role !== "admin"}
                 >
                   EDIT
                 </Button>
@@ -723,7 +723,7 @@ const LicenseeInfo = ({ authenticatedUser }) => {
                   variant="contained"
                   onClick={handleUpdate}
                   sx={{ marginLeft: 2 }}
-                  disabled={!canUpdate}
+                  disabled={!canUpdate && role !== "admin"}
                 >
                   SAVE
                 </Button>
