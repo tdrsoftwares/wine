@@ -120,7 +120,7 @@ const SaleBill = () => {
   const [totalOnline, setTotalOnline] = useState(0);
 
   const [printData, setPrintData] = useState([]);
-  const [printTotalValues, setPrintTotalValues] = useState([])
+  const [printTotalValues, setPrintTotalValues] = useState([]);
 
   const tableRef = useRef(null);
   const customerNameRef = useRef(null);
@@ -1069,7 +1069,7 @@ const SaleBill = () => {
   const handleSaveClick = async (index) => {
     const updatedSales = [...salesData];
     const updatedRow = { ...updatedSales[index] };
-  
+
     if (updatedRow.pcs > updatedRow.currentStock) {
       NotificationManager.warning(
         `Out of Stock! Currently you have ${
@@ -1078,46 +1078,46 @@ const SaleBill = () => {
       );
       return;
     }
-  
+
     for (const key in editedRow) {
       if (editedRow.hasOwnProperty(key)) {
         updatedRow[key] = editedRow[key];
       }
     }
-  
+
     updatedSales[index] = updatedRow;
     setSalesData(updatedSales);
     sessionStorage.setItem("salesData", JSON.stringify(updatedSales));
-  
+
     setEditedRow({});
     setEditableIndex(-1);
-  
+
     // Recalculate total values
     const calculatedTotalVolume = updatedSales.reduce((total, item) => {
       return total + parseFloat(item.volume || 0) * parseInt(item.pcs || 1);
     }, 0);
-  
+
     const calculatedTotalPcs = updatedSales.reduce((total, item) => {
       return total + parseInt(item.pcs || 0);
     }, 0);
-  
+
     const calculatedGrossAmt = updatedSales.reduce((total, item) => {
       return total + parseFloat(item.amount || 0) * parseInt(item.pcs || 1);
     }, 0);
-  
+
     const totalDiscount = updatedSales.reduce((total, item) => {
       return total + parseFloat(item.discount * item.pcs || 0);
     }, 0);
-  
+
     const splDiscAmount =
       (calculatedGrossAmt * parseFloat(totalValues.splDiscount || 0)) / 100;
-  
+
     const netAmt =
       parseFloat(calculatedGrossAmt || 0) -
       parseFloat(splDiscAmount || 0) -
       parseFloat(totalValues.adjustment || 0) +
       parseFloat(totalValues.taxAmt || 0);
-  
+
     setTotalValues({
       ...totalValues,
       totalVolume: calculatedTotalVolume.toFixed(0),
@@ -1260,7 +1260,6 @@ const SaleBill = () => {
 
         itemCodeRef.current.focus();
       }
-
 
       // if (
       //   formData.billType === "CASHBILL" &&
@@ -1877,7 +1876,7 @@ const SaleBill = () => {
           }));
 
           setSalesData([...newSalesItems]);
-          console.log(salesData)
+          console.log(salesData);
 
           setTotalValues({
             totalVolume: receivedData.volume,
@@ -1996,23 +1995,25 @@ const SaleBill = () => {
     const calculatedTotalVolume = printData.reduce((total, item) => {
       return total + parseFloat(item.volume || 0) * parseInt(item.pcs || 1);
     }, 0);
-  
+
     const calculatedTotalPcs = printData.reduce((total, item) => {
       return total + parseInt(item.pcs || 0);
     }, 0);
-  
+
     const calculatedGrossAmt = printData.reduce((total, item) => {
       return total + parseFloat(item.amount || 0) * parseInt(item.pcs || 1);
     }, 0);
-  
+
     const totalDiscount = printData.reduce((total, item) => {
       return total + parseFloat(item.discount * item.pcs || 0);
     }, 0);
-  
-    const splDiscAmount = (calculatedGrossAmt * parseFloat(totalValues.splDiscount || 0)) / 100;
-  
-    const netAmt = parseFloat(calculatedGrossAmt || 0) - parseFloat(splDiscAmount || 0);
-  
+
+    const splDiscAmount =
+      (calculatedGrossAmt * parseFloat(totalValues.splDiscount || 0)) / 100;
+
+    const netAmt =
+      parseFloat(calculatedGrossAmt || 0) - parseFloat(splDiscAmount || 0);
+
     return {
       totalVolume: calculatedTotalVolume.toFixed(2),
       totalPcs: calculatedTotalPcs,
@@ -2022,7 +2023,6 @@ const SaleBill = () => {
       netAmt: netAmt.toFixed(2),
     };
   };
-  
 
   useEffect(() => {
     if (billDateRef.current) {
@@ -2032,38 +2032,37 @@ const SaleBill = () => {
     }
   }, []);
 
-
-const debounceAutoSave = useCallback(
-  debounce(() => {
-    if (
-      formData.billType === "CASHBILL" &&
-      (totalValues.flBeerVolume >= licenseDetails?.perBillMaxWine ||
-        totalValues.imlVolume >= licenseDetails?.perBillMaxCs)
-    ) {
-      const exceedsStock = salesData.some(
-        (item) => item.pcs > item.currentStock
-      );
-
-      if (!exceedsStock) {
-        autoSaveCashBill();
-      } else {
-        NotificationManager.warning(
-          "One or more items exceed available stock. Cannot auto-save."
+  const debounceAutoSave = useCallback(
+    debounce(() => {
+      if (
+        formData.billType === "CASHBILL" &&
+        (totalValues.flBeerVolume >= licenseDetails?.perBillMaxWine ||
+          totalValues.imlVolume >= licenseDetails?.perBillMaxCs)
+      ) {
+        const exceedsStock = salesData.some(
+          (item) => item.pcs > item.currentStock
         );
-      }
-    }
-  }, 300),
-  [formData.billType, totalValues, licenseDetails]
-);
 
-useEffect(() => {
-  if (licenseDetails?.perBillMaxWine && licenseDetails?.perBillMaxCs) {
-    debounceAutoSave();
-  }
-  return () => {
-    debounceAutoSave.cancel();
-  };
-}, [totalValues.flBeerVolume, totalValues.imlVolume, debounceAutoSave]);
+        if (!exceedsStock) {
+          autoSaveCashBill();
+        } else {
+          NotificationManager.warning(
+            "One or more items exceed available stock. Cannot auto-save."
+          );
+        }
+      }
+    }, 300),
+    [formData.billType, totalValues, licenseDetails]
+  );
+
+  useEffect(() => {
+    if (licenseDetails?.perBillMaxWine && licenseDetails?.perBillMaxCs) {
+      debounceAutoSave();
+    }
+    return () => {
+      debounceAutoSave.cancel();
+    };
+  }, [totalValues.flBeerVolume, totalValues.imlVolume, debounceAutoSave]);
 
   useEffect(() => {
     if ((billNumber && billNoEditable) || (billNumber && seriesData)) {
@@ -2104,7 +2103,6 @@ useEffect(() => {
     };
   }, []);
 
-
   const handlePrintClick = () => {
     const updatedSalesData = [...salesData];
     let splitItems = [];
@@ -2133,7 +2131,6 @@ useEffect(() => {
       setIsSplitPrinted(true);
     }
   };
-  
 
   useEffect(() => {
     if (isSplitPrinted) {
@@ -2141,7 +2138,6 @@ useEffect(() => {
       handlePrint();
     }
   }, [isSplitPrinted]);
-
 
   return (
     <ThemeProvider theme={customTheme}>
