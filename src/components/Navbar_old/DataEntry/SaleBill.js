@@ -1,6 +1,6 @@
 // saleBill
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -152,7 +152,8 @@ const SaleBill = () => {
   const adjustmentRef = useRef(null);
   const netAmtRef = useRef(null);
   const saveButtonRef = useRef(null);
-  const printModalRef = useRef();
+  const printModalRef = useRef(null);
+  const pcsEditRef = useRef(null);
 
   const handlePrint = useReactToPrint({
     content: () => printModalRef.current,
@@ -810,6 +811,10 @@ const SaleBill = () => {
               updatedRow.currentStock || 0
             }pcs in stock.`
           );
+          if (pcsEditRef && pcsEditRef.current) {
+            pcsEditRef.current.blur();
+          }
+          return;
         } else {
           updatedRow.amount = parseFloat(updatedRow.rate) * parseFloat(value);
         }
@@ -836,6 +841,15 @@ const SaleBill = () => {
     updatedSalesData[index] = updatedRow;
 
     setSalesData(updatedSalesData);
+
+    if (
+      updatedRow.pcs <= updatedRow.currentStock &&
+      formData.billType === "CASHBILL" &&
+      (totalValues.flBeerVolume >= licenseDetails?.perBillMaxWine ||
+        totalValues.imlVolume >= licenseDetails?.perBillMaxCs)
+    ) {
+      autoSaveCashBill();
+    }
   };
 
   const handleBillDateChange = (date) => {
@@ -1055,55 +1069,55 @@ const SaleBill = () => {
   const handleSaveClick = async (index) => {
     const updatedSales = [...salesData];
     const updatedRow = { ...updatedSales[index] };
-
+  
     if (updatedRow.pcs > updatedRow.currentStock) {
       NotificationManager.warning(
         `Out of Stock! Currently you have ${
           updatedRow.currentStock || 0
-        }pcs in stock.`
+        } pcs in stock.`
       );
       return;
     }
-
+  
     for (const key in editedRow) {
       if (editedRow.hasOwnProperty(key)) {
         updatedRow[key] = editedRow[key];
       }
     }
-
+  
     updatedSales[index] = updatedRow;
     setSalesData(updatedSales);
     sessionStorage.setItem("salesData", JSON.stringify(updatedSales));
-
+  
     setEditedRow({});
     setEditableIndex(-1);
-
+  
     // Recalculate total values
     const calculatedTotalVolume = updatedSales.reduce((total, item) => {
       return total + parseFloat(item.volume || 0) * parseInt(item.pcs || 1);
     }, 0);
-
+  
     const calculatedTotalPcs = updatedSales.reduce((total, item) => {
       return total + parseInt(item.pcs || 0);
     }, 0);
-
+  
     const calculatedGrossAmt = updatedSales.reduce((total, item) => {
       return total + parseFloat(item.amount || 0) * parseInt(item.pcs || 1);
     }, 0);
-
+  
     const totalDiscount = updatedSales.reduce((total, item) => {
       return total + parseFloat(item.discount * item.pcs || 0);
     }, 0);
-
+  
     const splDiscAmount =
       (calculatedGrossAmt * parseFloat(totalValues.splDiscount || 0)) / 100;
-
+  
     const netAmt =
       parseFloat(calculatedGrossAmt || 0) -
       parseFloat(splDiscAmount || 0) -
       parseFloat(totalValues.adjustment || 0) +
       parseFloat(totalValues.taxAmt || 0);
-
+  
     setTotalValues({
       ...totalValues,
       totalVolume: calculatedTotalVolume.toFixed(0),
@@ -1114,23 +1128,8 @@ const SaleBill = () => {
       netAmt: netAmt.toFixed(2),
     });
 
-    if (!licenseDetails?.perBillMaxCs) {
-      NotificationManager.warning(
-        "Per Bill Max CS(ML) is missing",
-        "Can't auto save."
-      );
-      return;
-    }
-
-    if (!licenseDetails?.perBillMaxWine) {
-      NotificationManager.warning(
-        "Per Bill Max Wine(ML) is missing",
-        "Can't auto save."
-      );
-      return;
-    }
-
     if (
+      updatedRow.pcs <= updatedRow.currentStock &&
       formData.billType === "CASHBILL" &&
       (totalValues.flBeerVolume >= licenseDetails?.perBillMaxWine ||
         totalValues.imlVolume >= licenseDetails?.perBillMaxCs)
@@ -2033,17 +2032,38 @@ const SaleBill = () => {
     }
   }, []);
 
-  useEffect(() => {
-    if (licenseDetails?.perBillMaxWine && licenseDetails?.perBillMaxCs) {
-      if (
-        formData.billType === "CASHBILL" &&
-        (totalValues.flBeerVolume >= licenseDetails?.perBillMaxWine ||
-          totalValues.imlVolume >= licenseDetails?.perBillMaxCs)
-      ) {
+
+const debounceAutoSave = useCallback(
+  debounce(() => {
+    if (
+      formData.billType === "CASHBILL" &&
+      (totalValues.flBeerVolume >= licenseDetails?.perBillMaxWine ||
+        totalValues.imlVolume >= licenseDetails?.perBillMaxCs)
+    ) {
+      const exceedsStock = salesData.some(
+        (item) => item.pcs > item.currentStock
+      );
+
+      if (!exceedsStock) {
         autoSaveCashBill();
+      } else {
+        NotificationManager.warning(
+          "One or more items exceed available stock. Cannot auto-save."
+        );
       }
     }
-  }, [totalValues.flBeerVolume, totalValues.imlVolume]);
+  }, 300),
+  [formData.billType, totalValues, licenseDetails]
+);
+
+useEffect(() => {
+  if (licenseDetails?.perBillMaxWine && licenseDetails?.perBillMaxCs) {
+    debounceAutoSave();
+  }
+  return () => {
+    debounceAutoSave.cancel();
+  };
+}, [totalValues.flBeerVolume, totalValues.imlVolume, debounceAutoSave]);
 
   useEffect(() => {
     if ((billNumber && billNoEditable) || (billNumber && seriesData)) {
@@ -2548,6 +2568,7 @@ const SaleBill = () => {
                 handlePrint={handlePrint}
                 setSalesData={setSalesData}
                 handlePrintClick={handlePrintClick}
+                pcsEditRef={pcsEditRef}
               />
             )}
           </Box>

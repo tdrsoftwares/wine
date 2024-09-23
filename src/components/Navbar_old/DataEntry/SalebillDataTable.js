@@ -25,7 +25,8 @@ const SalebillDataTable = (props) => {
     handleEditClick,
     handleSaveClick,
     handleRemoveClick,
-    handlePrintClick
+    handlePrintClick,
+    pcsEditRef
   } = props;
   // console.log("salesData: ", salesData)
 
@@ -151,6 +152,7 @@ const SalebillDataTable = (props) => {
                     <Input
                       value={editedRow.pcs || row.pcs}
                       onChange={(e) => handleEdit(index, "pcs", e.target.value)}
+                      inputRef={pcsEditRef}
                     />
                   ) : (
                     row.pcs
