@@ -57,7 +57,7 @@ const Customers = () => {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const { permissions } = usePermissions();
+  const { permissions, role } = usePermissions();
 
   const companyPermissions =
     permissions?.find((permission) => permission.moduleName === "Company")
@@ -494,7 +494,7 @@ const Customers = () => {
                   padding: "4px 10px",
                   fontSize: "11px",
                 }}
-                disabled={!canCreate}
+                disabled={!canCreate && role !== "admin"}
               >
                 Create
               </Button>
@@ -653,7 +653,7 @@ const Customers = () => {
               </TableHead>
 
               <TableBody>
-                {canRead ? (
+                {canRead || role === "admin" ? (
                   allCustomerData !== 0 ? (
                     filteredData
                       .slice(
@@ -862,11 +862,17 @@ const Customers = () => {
                             {editableIndex !== index ? (
                               <EditIcon
                                 sx={{
-                                  cursor: canUpdate ? "pointer" : "not-allowed",
-                                  color: canUpdate ? "blue" : "gray",
+                                  cursor:
+                                    canUpdate || role === "admin"
+                                      ? "pointer"
+                                      : "not-allowed",
+                                  color:
+                                    canUpdate || role === "admin"
+                                      ? "blue"
+                                      : "gray",
                                 }}
                                 onClick={
-                                  canUpdate
+                                  canUpdate || role === "admin"
                                     ? () => handleEditClick(index, item._id)
                                     : null
                                 }
@@ -874,11 +880,17 @@ const Customers = () => {
                             ) : (
                               <SaveIcon
                                 sx={{
-                                  cursor: canUpdate ? "pointer" : "not-allowed",
-                                  color: canUpdate ? "green" : "gray",
+                                  cursor:
+                                    canUpdate || role === "admin"
+                                      ? "pointer"
+                                      : "not-allowed",
+                                  color:
+                                    canUpdate || role === "admin"
+                                      ? "green"
+                                      : "gray",
                                 }}
                                 onClick={
-                                  canUpdate
+                                  canUpdate || role === "admin"
                                     ? () => handleSaveClick(item._id)
                                     : null
                                 }
@@ -886,11 +898,17 @@ const Customers = () => {
                             )}
                             <CloseIcon
                               sx={{
-                                cursor: canDelete ? "pointer" : "not-allowed",
-                                color: canDelete ? "red" : "gray",
+                                cursor:
+                                  canDelete || role === "admin"
+                                    ? "pointer"
+                                    : "not-allowed",
+                                color:
+                                  canDelete || role === "admin"
+                                    ? "red"
+                                    : "gray",
                               }}
                               onClick={
-                                canDelete
+                                canDelete || role === "admin"
                                   ? () => handleDeleteItem(item._id)
                                   : null
                               }
@@ -920,17 +938,18 @@ const Customers = () => {
             </Table>
           </TableContainer>
 
-          {canRead && (
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              component="div"
-              count={filteredData?.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-          )}
+          {canRead ||
+            (role === "admin" && (
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={filteredData?.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            ))}
         </Box>
       </Box>
     </ThemeProvider>

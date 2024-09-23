@@ -44,7 +44,7 @@ function LoginForm({ handleLogin }) {
   const [dialogEmail, setDialogEmail] = useState("");
   const navigate = useNavigate();
 
-  const { setPermissionsData } = usePermissions();
+  const { setPermissionsData, setRoleData } = usePermissions();
 
   const customerIdRef = useRef(null);
 
@@ -77,7 +77,7 @@ function LoginForm({ handleLogin }) {
       });
 
       // console.log("response data --> ", response.data.data)
-      const { accessToken, refreshToken, roleAndPermissions } = response?.data?.data;
+      const { accessToken, refreshToken, roleAndPermissions, user } = response?.data?.data;
       document.cookie = `accessToken=${accessToken}; path=/;`;
       document.cookie = `refreshToken=${refreshToken}; path=/;`;
 
@@ -86,6 +86,7 @@ function LoginForm({ handleLogin }) {
         NotificationManager.success("Login successful.", "Success");
         handleLogin(email);
         roleAndPermissions && setPermissionsData(roleAndPermissions);
+        user?.role && setRoleData(user.role);
       } else {
         navigate("/");
       }
