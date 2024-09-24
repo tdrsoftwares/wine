@@ -37,6 +37,7 @@ import debounce from "lodash.debounce";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
+import { usePermissions } from "../../../utils/PermissionsContext";
 
 const StockTransfer = () => {
   const toDaysDate = dayjs();
@@ -61,7 +62,7 @@ const StockTransfer = () => {
     category: "",
     volume: "",
     currentStock: "",
-    caseValue: ""
+    caseValue: "",
   });
   const [searchMode, setSearchMode] = useState(false);
   const [editableIndex, setEditableIndex] = useState(-1);
@@ -89,6 +90,16 @@ const StockTransfer = () => {
   const transferNoRef = useRef(null);
   const saveButtonRef = useRef(null);
   const newTransferRef = useRef(null);
+
+  const { permissions, role } = usePermissions();
+
+  const companyPermissions =
+    permissions?.find((permission) => permission.moduleName === "StockTransfer")
+      ?.permissions || [];
+  const canCreate = companyPermissions.includes("create");
+  const canRead = companyPermissions.includes("read");
+  const canUpdate = companyPermissions.includes("update");
+  const canDelete = companyPermissions.includes("delete");
 
   const resetTopFormData = () => {
     setFormData({
@@ -142,7 +153,6 @@ const StockTransfer = () => {
 
       setAllGodownStores(allGodowns);
       setAllNonGodownStores(allNonGodowns);
-
     } catch (error) {
       // NotificationManager.error(
       //   "Error fetching stores. Please try again later.",
@@ -263,7 +273,6 @@ const StockTransfer = () => {
     };
   }, [searchMode, formData.itemName, searchResults, selectedRowIndex]);
 
-  
   const fetchAllTransfers = async () => {
     try {
       const response = await getAllTransfers();
@@ -274,7 +283,7 @@ const StockTransfer = () => {
       //   "Error fetching transfers. Please try again later.",
       //   "Error"
       // );
-      console.error(error)
+      console.error(error);
     }
   };
 
@@ -404,7 +413,6 @@ const StockTransfer = () => {
 
     updatedRow[field] = value;
 
-    
     if (field === "case") {
       const newCase = parseFloat(value) || 0;
       const newPcsValue = newCase * transferData[index].caseValue || 0;
@@ -412,7 +420,7 @@ const StockTransfer = () => {
       updatedRow.case = newCase;
       updatedRow.pcs = newPcsValue;
     }
-  
+
     if (field === "pcs") {
       const regex = /^\d*\.?\d*$/;
       if (regex.test(value) || value === "") {
@@ -426,7 +434,6 @@ const StockTransfer = () => {
 
     setTransferData(updatedTransferData);
   };
-
 
   const handleEditClick = (index) => {
     setEditableIndex(index);
@@ -633,8 +640,10 @@ const StockTransfer = () => {
   const handleUpdateTransfer = async () => {
     const transferDateObj = formatDate(formData.transferDate);
 
-    if(isRowUpdated === false) {
-      NotificationManager.warning("Please change some values to update the transfer!");
+    if (isRowUpdated === false) {
+      NotificationManager.warning(
+        "Please change some values to update the transfer!"
+      );
       // transferFromRef.current.focus();
       return;
     }
@@ -842,12 +851,12 @@ const StockTransfer = () => {
                     },
                   },
                 }}
-                >
-                  {allTransfers?.map((item) => (
+              >
+                {allTransfers?.map((item) => (
                   <MenuItem key={item._id} value={item.transferNo}>
                     {`${item.transferNo}`}
                   </MenuItem>
-                ))} 
+                ))}
               </TextField>
             </div>
           </Grid>
@@ -1066,63 +1075,77 @@ const StockTransfer = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {Array.isArray(searchResults) && searchResults.length > 0 ? (
-                    searchResults.map((row, index) => (
-                      <TableRow
-                        key={index}
-                        onClick={() => {
-                          handleRowClick(index);
-                          setSearchMode(false);
-                        }}
-                        sx={{
-                          cursor: "pointer",
-                          backgroundColor:
-                            index === selectedRowIndex
-                              ? "rgba(25, 118, 210, 0.08) !important"
-                              : "#fff !important",
-                        }}
-                      >
-                        <TableCell
-                          align="center"
-                          sx={{ padding: "14px", paddingLeft: 2 }}
+                  {canRead || role === "admin" ? (
+                    Array.isArray(searchResults) && searchResults.length > 0 ? (
+                      searchResults.map((row, index) => (
+                        <TableRow
+                          key={index}
+                          onClick={() => {
+                            handleRowClick(index);
+                            setSearchMode(false);
+                          }}
+                          sx={{
+                            cursor: "pointer",
+                            backgroundColor:
+                              index === selectedRowIndex
+                                ? "rgba(25, 118, 210, 0.08) !important"
+                                : "#fff !important",
+                          }}
                         >
-                          {index + 1}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.itemCode || "No Data"}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.item?.name || "No Data"}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.mrp || 0}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.batchNo || 0}
-                        </TableCell>
-                        {/* <TableCell align="center" sx={{ padding: "14px" }}>
+                          <TableCell
+                            align="center"
+                            sx={{ padding: "14px", paddingLeft: 2 }}
+                          >
+                            {index + 1}
+                          </TableCell>
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row?.itemCode || "No Data"}
+                          </TableCell>
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row?.item?.name || "No Data"}
+                          </TableCell>
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row?.mrp || 0}
+                          </TableCell>
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row?.batchNo || 0}
+                          </TableCell>
+                          {/* <TableCell align="center" sx={{ padding: "14px" }}>
                           {row?.case || 0}
                         </TableCell> */}
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.currentStock || 0}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.item?.volume || 0}
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row?.currentStock || 0}
+                          </TableCell>
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row?.item?.volume || 0}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : isLoading ? (
+                      <TableRow>
+                        <TableCell
+                          colSpan={10}
+                          align="center"
+                          sx={{
+                            backgroundColor: "#fff !important",
+                          }}
+                        >
+                          <CircularProgress />
                         </TableCell>
                       </TableRow>
-                    ))
-                  ) : isLoading ? (
-                    <TableRow>
-                      <TableCell
-                        colSpan={10}
-                        align="center"
-                        sx={{
-                          backgroundColor: "#fff !important",
-                        }}
-                      >
-                        <CircularProgress />
-                      </TableCell>
-                    </TableRow>
+                    ) : (
+                      <TableRow>
+                        <TableCell
+                          colSpan={10}
+                          align="center"
+                          sx={{
+                            backgroundColor: "#fff !important",
+                          }}
+                        >
+                          No Data
+                        </TableCell>
+                      </TableRow>
+                    )
                   ) : (
                     <TableRow>
                       <TableCell
@@ -1132,7 +1155,7 @@ const StockTransfer = () => {
                           backgroundColor: "#fff !important",
                         }}
                       >
-                        No Data
+                        You do not have permission to view transfer data.
                       </TableCell>
                     </TableRow>
                   )}
@@ -1323,6 +1346,7 @@ const StockTransfer = () => {
                   padding: "4px 10px",
                   fontSize: "11px",
                 }}
+                disabled={!canUpdate && role !== "admin"}
               >
                 PREV BILL
               </Button>
@@ -1336,6 +1360,7 @@ const StockTransfer = () => {
                   padding: "4px 10px",
                   fontSize: "11px",
                 }}
+                disabled={!canUpdate && role !== "admin"}
               >
                 NEXT BILL
               </Button>
@@ -1350,6 +1375,7 @@ const StockTransfer = () => {
                   padding: "4px 10px",
                   fontSize: "11px",
                 }}
+                disabled={!canDelete && role !== "admin"}
               >
                 DELETE
               </Button>
@@ -1367,6 +1393,7 @@ const StockTransfer = () => {
                   padding: "4px 10px",
                   fontSize: "11px",
                 }}
+                disabled={!canUpdate && role !== "admin"}
               >
                 OPEN
               </Button>
@@ -1387,6 +1414,11 @@ const StockTransfer = () => {
                   padding: "4px 10px",
                   fontSize: "11px",
                 }}
+                disabled={
+                  transferNoEditable && transferNo
+                    ? !canUpdate && role !== "admin"
+                    : !canCreate && role !== "admin"
+                }
                 // onKeyDown={(e) => {
                 //   if (e.key === "Enter") {
                 //     handleCreateSale();

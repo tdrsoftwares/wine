@@ -2976,7 +2976,11 @@ const SaleBill = () => {
             padding: "4px 10px",
             fontSize: "11px",
           }}
-          disabled={!canCreate && role !== "admin"}
+          disabled={
+            !billNumber && !billNoEditable
+              ? !canCreate && role !== "admin"
+              : !canUpdate && role === "admin"
+          }
         >
           SAVE
         </Button>
