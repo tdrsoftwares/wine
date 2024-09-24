@@ -49,13 +49,12 @@ const ItemCatRegister = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const { permissions, role } = usePermissions();
 
-  const companyPermissions =
-    permissions?.find((permission) => permission.moduleName === "Category")
-      ?.permissions || [];
-  const canCreate = companyPermissions.includes("create");
-  const canRead = companyPermissions.includes("read");
-  const canUpdate = companyPermissions.includes("update");
-  const canDelete = companyPermissions.includes("delete");
+  const categoryPermissions = permissions?.find((permission) => permission.moduleName === "Category")?.permissions || [];
+  const canCreate = categoryPermissions.includes("create");
+  const canRead = categoryPermissions.includes("read");
+  const canUpdate = categoryPermissions.includes("update");
+  const canDelete = categoryPermissions.includes("delete");
+  console.log("categoryPermissions: ", categoryPermissions)
 
   const handleClickOutside = (event) => {
     if (tableRef.current && !tableRef.current.contains(event.target)) {
@@ -94,6 +93,12 @@ const ItemCatRegister = () => {
       indexNo: indexNo,
       groupNo: groupNo,
     };
+    if (role !== "admin" && !canCreate) {
+      NotificationManager.error("You don't have permission to create a category", "Error");
+      return;
+    }
+    console.log("role: ", role);
+    console.log("canCreatr: ", canCreate);
 
     try {
       const createCategoryResponse = await createItemCategory(payload);
@@ -308,7 +313,7 @@ const ItemCatRegister = () => {
             variant="contained"
             onClick={handleCreateCategory}
             sx={{ borderRadius: 8 }}
-            disabled={!canCreate && role !== "admin"}
+            disabled={role !== "admin" && !canCreate}
           >
             Create
           </Button>

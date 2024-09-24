@@ -624,7 +624,7 @@ const ItemRegister = () => {
                   padding: "4px 10px",
                   fontSize: "11px",
                 }}
-                disabled={!canCreate && role !== "admin"}
+                disabled={role !== "admin" && !canCreate}
               >
                 Create
               </Button>

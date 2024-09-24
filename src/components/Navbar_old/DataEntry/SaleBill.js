@@ -2898,7 +2898,7 @@ const SaleBill = () => {
             padding: "4px 10px",
             fontSize: "11px",
           }}
-          disabled={!canUpdate && role !== "admin"}
+          disabled={role !== "admin" && !canUpdate}
         >
           PREV BILL
         </Button>
@@ -2912,7 +2912,7 @@ const SaleBill = () => {
             padding: "4px 10px",
             fontSize: "11px",
           }}
-          disabled={!canUpdate && role !== "admin"}
+          disabled={role !== "admin" && !canUpdate}
         >
           NEXT BILL
         </Button>
@@ -2927,7 +2927,7 @@ const SaleBill = () => {
             padding: "4px 10px",
             fontSize: "11px",
           }}
-          disabled={!canDelete && role !== "admin"}
+          disabled={role !== "admin" && !canDelete}
         >
           DELETE
         </Button>
@@ -2945,7 +2945,7 @@ const SaleBill = () => {
             padding: "4px 10px",
             fontSize: "11px",
           }}
-          disabled={!canUpdate && role !== "admin"}
+          disabled={role !== "admin" && !canUpdate}
         >
           OPEN
         </Button>
@@ -2978,7 +2978,7 @@ const SaleBill = () => {
           }}
           disabled={
             !billNumber && !billNoEditable
-              ? !canCreate && role !== "admin"
+              ? role !== "admin" && !canCreate
               : !canUpdate && role === "admin"
           }
         >

@@ -697,7 +697,7 @@ const LicenseeInfo = ({ authenticatedUser }) => {
                 size="small"
                 variant="contained"
                 onClick={handleCreate}
-                disabled={!canCreate && role !== "admin"}
+                disabled={role !== "admin" && !canCreate}
               >
                 CREATE
               </Button>
@@ -712,7 +712,7 @@ const LicenseeInfo = ({ authenticatedUser }) => {
                     nameOfLicenceRef.current.focus();
                   }}
                   sx={{ marginLeft: 2 }}
-                  disabled={!canUpdate && role !== "admin"}
+                  disabled={role !== "admin" && !canUpdate}
                 >
                   EDIT
                 </Button>
@@ -723,7 +723,7 @@ const LicenseeInfo = ({ authenticatedUser }) => {
                   variant="contained"
                   onClick={handleUpdate}
                   sx={{ marginLeft: 2 }}
-                  disabled={!canUpdate && role !== "admin"}
+                  disabled={role !== "admin" && !canUpdate}
                 >
                   SAVE
                 </Button>

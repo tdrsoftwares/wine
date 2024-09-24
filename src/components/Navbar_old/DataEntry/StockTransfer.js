@@ -1346,7 +1346,7 @@ const StockTransfer = () => {
                   padding: "4px 10px",
                   fontSize: "11px",
                 }}
-                disabled={!canUpdate && role !== "admin"}
+                disabled={role !== "admin" && !canUpdate}
               >
                 PREV BILL
               </Button>
@@ -1360,7 +1360,7 @@ const StockTransfer = () => {
                   padding: "4px 10px",
                   fontSize: "11px",
                 }}
-                disabled={!canUpdate && role !== "admin"}
+                disabled={role !== "admin" && !canUpdate}
               >
                 NEXT BILL
               </Button>
@@ -1375,7 +1375,7 @@ const StockTransfer = () => {
                   padding: "4px 10px",
                   fontSize: "11px",
                 }}
-                disabled={!canDelete && role !== "admin"}
+                disabled={role !== "admin" && !canDelete}
               >
                 DELETE
               </Button>
@@ -1393,7 +1393,7 @@ const StockTransfer = () => {
                   padding: "4px 10px",
                   fontSize: "11px",
                 }}
-                disabled={!canUpdate && role !== "admin"}
+                disabled={role !== "admin" && !canUpdate}
               >
                 OPEN
               </Button>
@@ -1416,8 +1416,8 @@ const StockTransfer = () => {
                 }}
                 disabled={
                   transferNoEditable && transferNo
-                    ? !canUpdate && role !== "admin"
-                    : !canCreate && role !== "admin"
+                    ? role !== "admin" && !canUpdate
+                    : role !== "admin" && !canCreate
                 }
                 // onKeyDown={(e) => {
                 //   if (e.key === "Enter") {

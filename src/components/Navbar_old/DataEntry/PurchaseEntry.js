@@ -1715,7 +1715,7 @@ const PurchaseEntry = () => {
                   fontSize: "11px",
                   cursor: "pointer",
                 }}
-                disabled={!canCreate && role !== "admin"}
+                disabled={role !== "admin" && !canCreate}
               >
                 Upload Purchase
                 <input
@@ -1736,7 +1736,7 @@ const PurchaseEntry = () => {
                   padding: "4px 10px",
                   fontSize: "11px",
                 }}
-                disabled={!canCreate && role !== "admin"}
+                disabled={role !== "admin" && !canCreate}
               >
                 CREATE ITEM
               </Button>
@@ -2533,7 +2533,7 @@ const PurchaseEntry = () => {
               padding: "4px 10px",
               fontSize: "11px",
             }}
-            disabled={!canUpdate && role !== "admin"}
+            disabled={role !== "admin" && !canUpdate}
           >
             PREV BILL
           </Button>
@@ -2548,7 +2548,7 @@ const PurchaseEntry = () => {
               padding: "4px 10px",
               fontSize: "11px",
             }}
-            disabled={!canUpdate && role !== "admin"}
+            disabled={role !== "admin" && !canUpdate}
           >
             NEXT BILL
           </Button>
@@ -2564,7 +2564,7 @@ const PurchaseEntry = () => {
               padding: "4px 10px",
               fontSize: "11px",
             }}
-            disabled={!canDelete && role !== "admin"}
+            disabled={role !== "admin" && !canDelete}
           >
             DELETE
           </Button>
@@ -2579,7 +2579,7 @@ const PurchaseEntry = () => {
               padding: "4px 10px",
               fontSize: "11px",
             }}
-            disabled={!canUpdate && role !== "admin"}
+            disabled={role !== "admin" && !canUpdate}
           >
             OPEN
           </Button>
@@ -2617,8 +2617,8 @@ const PurchaseEntry = () => {
             onKeyDown={handleCreatePurchaseKeyDown}
             disabled={
               !entryNumber
-                ? !canCreate && role !== "admin"
-                : !canUpdate && role !== "admin"
+                ? role !== "admin" && !canCreate
+                : role !== "admin" && !canUpdate
             }
           >
             SAVE

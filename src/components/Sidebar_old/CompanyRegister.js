@@ -239,7 +239,7 @@ const CompanyRegister = () => {
                       fontSize: "11px",
                     }}
                     onClick={handleCreateCompany}
-                    disabled={!canCreate && role !== "admin"}
+                    disabled={role !== "admin" && !canCreate}
                   >
                     Create
                   </Button>
@@ -363,7 +363,7 @@ const CompanyRegister = () => {
                       padding: "4px 10px",
                       fontSize: "11px",
                     }}
-                    disabled={!canUpdate && role !== "admin"}
+                    disabled={role !== "admin" && !canUpdate}
                   >
                     Change
                   </Button>
@@ -444,7 +444,7 @@ const CompanyRegister = () => {
                       fontSize: "11px",
                     }}
                     onClick={handleDeleteCompany}
-                    disabled={!canDelete && role !== "admin"}
+                    disabled={role !== "admin" && !canDelete}
                   >
                     Delete
                   </Button>

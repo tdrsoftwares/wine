@@ -19,8 +19,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { getAllCustomer } from "../../../services/customerService";
 import dayjs from "dayjs";
 import { customTheme } from "../../../utils/customTheme";
-
-
+import { usePermissions } from "../../../utils/PermissionsContext";
 
 const SaleReportSummary = () => {
   const [selectOptions, setselectOptions] = useState(null);
@@ -44,13 +43,18 @@ const SaleReportSummary = () => {
   });
   const [totalCount, setTotalCount] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { permissions, role } = usePermissions();
+
+  const companyPermissions =
+    permissions?.find((permission) => permission.moduleName === "Reports")
+      ?.permissions || [];
+  const canRead = companyPermissions.includes("read");
 
   const formatDate = (date) => {
     if (!date) return null;
     return dayjs(date).format("DD/MM/YYYY");
   };
 
-  
   const columns = [
     {
       field: "sNo",
@@ -270,7 +274,6 @@ const SaleReportSummary = () => {
     debouncedFetch();
   }, [paginationModel, filterData]);
 
-
   return (
     <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, minWidth: "900px" }}>
@@ -455,6 +458,7 @@ const SaleReportSummary = () => {
                 variant="contained"
                 onClick={() => fetchAllSales()}
                 sx={{ marginLeft: 2 }}
+                disabled={!canRead && role !== "admin"}
               >
                 Display
               </Button>
@@ -476,71 +480,78 @@ const SaleReportSummary = () => {
             },
           }}
         >
-          <DataGrid
-            rows={(allSalesData || [])?.map((sale, index) => ({
-              id: index,
-              sNo: index + 1,
-              billNo: sale.billNo || 0,
-              billDate: sale.billDate || "No Data",
-              // new Date(sale.billDate).toLocaleDateString("en-GB"),
-              billType: sale.billType || "No Data",
-              billSeries: sale.billSeries || "No Data",
-              customer: sale.customer?.name || "No Data",
-              customerType: sale.customer?.type || "No Data",
-              phoneNumber: sale.customer?.contactNo || "No Data",
-              volume: sale.volume || 0,
-              totalPcs: sale.totalPcs || 0,
-              grossAmount: sale.grossAmount?.toFixed(2) || 0,
-              // discAmount: sale.discAmount || "No Data",
-              // splDisc: sale.splDisc,
-              splDiscAmount: sale.splDiscAmount?.toFixed(2) || 0,
-              // taxAmount: sale.taxAmount || "No Data",
-              adjustment: sale.adjustment?.toFixed(2) || 0,
-              netAmount: sale.netAmount?.toFixed(2) || 0,
-              action: (
-                <Button
-                  variant="contained"
-                  size="small"
-                  onClick={() => handleViewClick(sale)}
+          {canRead || role === "admin" ? (
+            <DataGrid
+              rows={(allSalesData || [])?.map((sale, index) => ({
+                id: index,
+                sNo: index + 1,
+                billNo: sale.billNo || 0,
+                billDate: sale.billDate || "No Data",
+                // new Date(sale.billDate).toLocaleDateString("en-GB"),
+                billType: sale.billType || "No Data",
+                billSeries: sale.billSeries || "No Data",
+                customer: sale.customer?.name || "No Data",
+                customerType: sale.customer?.type || "No Data",
+                phoneNumber: sale.customer?.contactNo || "No Data",
+                volume: sale.volume || 0,
+                totalPcs: sale.totalPcs || 0,
+                grossAmount: sale.grossAmount?.toFixed(2) || 0,
+                // discAmount: sale.discAmount || "No Data",
+                // splDisc: sale.splDisc,
+                splDiscAmount: sale.splDiscAmount?.toFixed(2) || 0,
+                // taxAmount: sale.taxAmount || "No Data",
+                adjustment: sale.adjustment?.toFixed(2) || 0,
+                netAmount: sale.netAmount?.toFixed(2) || 0,
+                action: (
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={() => handleViewClick(sale)}
+                  >
+                    View
+                  </Button>
+                ),
+              }))}
+              columns={columnsData}
+              rowCount={totalCount}
+              pagination
+              paginationMode="server"
+              pageSizeOptions={[10, 25, 50, 100]}
+              onPaginationModelChange={(newModel) =>
+                setPaginationModel(newModel)
+              }
+              sx={{ backgroundColor: "#fff" }}
+              loading={loading}
+              loadingOverlay={
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                  }}
                 >
-                  View
-                </Button>
-              ),
-            }))}
-            columns={columnsData}
-            rowCount={totalCount}
-            pagination
-            paginationMode="server"
-            pageSizeOptions={[10, 25, 50, 100]}
-            onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
-            sx={{ backgroundColor: "#fff" }}
-            loading={loading}
-            loadingOverlay={
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: "50%",
-                  left: "50%",
-                  transform: "translate(-50%, -50%)",
-                }}
-              >
-                <CircularProgress />
-              </Box>
-            }
-            slots={{
-              toolbar: GridToolbar,
-            }}
-            initialState={{
-              density: "compact",
-            }}
-          />
+                  <CircularProgress />
+                </Box>
+              }
+              slots={{
+                toolbar: GridToolbar,
+              }}
+              initialState={{
+                density: "compact",
+              }}
+            />
+          ) : (
+            <Typography variant="body1">
+              You do not have permission to view this data.
+            </Typography>
+          )}
           <SalesDetailsModal
             open={isModalOpen}
             handleClose={() => setIsModalOpen(false)}
             rowData={selectedRowData}
           />
         </Box>
-
       </Box>
     </ThemeProvider>
   );

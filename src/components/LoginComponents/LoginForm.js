@@ -85,8 +85,14 @@ function LoginForm({ handleLogin }) {
       if (response.status === 200) {
         NotificationManager.success("Login successful.", "Success");
         handleLogin(email);
-        roleAndPermissions && setPermissionsData(roleAndPermissions);
-        user?.role && setRoleData(user.role);
+        if (roleAndPermissions) {
+          setPermissionsData(roleAndPermissions);
+          localStorage.setItem("permissions", JSON.stringify(roleAndPermissions));
+        }
+        if (user?.role) {
+          setRoleData(user.role);
+          localStorage.setItem("role", user.role);
+        }
       } else {
         navigate("/");
       }

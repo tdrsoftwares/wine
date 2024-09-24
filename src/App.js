@@ -73,11 +73,15 @@ const AppContent = () => {
     document.cookie = `refreshToken=""; path=/;`;
     clearCookie("accessToken");
     clearCookie("refreshToken");
-
+  
     setAuthenticatedUser(null);
     setRoleData(null);
     setPermissionsData(null);
+  
+    localStorage.removeItem("permissions");
+    localStorage.removeItem("role");
   };
+  
 
   return (
     <Router>
