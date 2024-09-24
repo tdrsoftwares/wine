@@ -49,7 +49,7 @@ const LedgerCreation = ({ sidebarVisible }) => {
   const { permissions, role } = usePermissions();
 
   const companyPermissions =
-    permissions?.find((permission) => permission.moduleName === "Company")
+    permissions?.find((permission) => permission.moduleName === "Ledger")
       ?.permissions || [];
   const canCreate = companyPermissions.includes("create");
   const canRead = companyPermissions.includes("read");

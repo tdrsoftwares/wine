@@ -53,7 +53,7 @@ const CompanyRegister = () => {
       const createCompanyResponse = await createCompany(payload);
       if (createCompanyResponse.status === 200) {
         NotificationManager.success("Company created successfully", "Success");
-        console.log("Company created successfully:", createCompanyResponse);
+        // console.log("Company created successfully:", createCompanyResponse);
         clearForm();
         fetchAllCompanies();
       } else {
@@ -84,7 +84,7 @@ const CompanyRegister = () => {
       );
       if (updateCompanyResponse.status === 200) {
         NotificationManager.success("Company updated successfully", "Success");
-        console.log("Company updated successfully:", updateCompanyResponse);
+        // console.log("Company updated successfully:", updateCompanyResponse);
         setExistingCompanyUpdate("");
         setNewCompanyName("");
         fetchAllCompanies();
@@ -119,7 +119,7 @@ const CompanyRegister = () => {
       const deleteCompanyResponse = await deleteCompany(existingCompanyDelete);
       if (deleteCompanyResponse.status === 200) {
         NotificationManager.success("Company deleted successfully", "Success");
-        console.log("Company deleted successfully:", deleteCompanyResponse);
+        // console.log("Company deleted successfully:", deleteCompanyResponse);
         setExistingCompanyDelete("");
         fetchAllCompanies();
       } else {

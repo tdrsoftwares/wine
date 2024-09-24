@@ -67,7 +67,7 @@ const ItemRegister = () => {
   // console.log("permissions: ", permissions);
 
   const companyPermissions =
-    permissions?.find((permission) => permission.moduleName === "Company")
+    permissions?.find((permission) => permission.moduleName === "Item")
       ?.permissions || [];
   const canCreate = companyPermissions.includes("create");
   const canRead = companyPermissions.includes("read");

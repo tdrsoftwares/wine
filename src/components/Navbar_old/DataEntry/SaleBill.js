@@ -158,7 +158,7 @@ const SaleBill = () => {
   const { permissions, role } = usePermissions();
 
   const companyPermissions =
-    permissions?.find((permission) => permission.moduleName === "Company")
+    permissions?.find((permission) => permission.moduleName === "Sales")
       ?.permissions || [];
   const canCreate = companyPermissions.includes("create");
   const canRead = companyPermissions.includes("read");
@@ -2898,7 +2898,7 @@ const SaleBill = () => {
             padding: "4px 10px",
             fontSize: "11px",
           }}
-          disabled={!canRead && role !== "admin"}
+          disabled={!canUpdate && role !== "admin"}
         >
           PREV BILL
         </Button>
@@ -2912,7 +2912,7 @@ const SaleBill = () => {
             padding: "4px 10px",
             fontSize: "11px",
           }}
-          disabled={!canRead && role !== "admin"}
+          disabled={!canUpdate && role !== "admin"}
         >
           NEXT BILL
         </Button>
@@ -2945,7 +2945,7 @@ const SaleBill = () => {
             padding: "4px 10px",
             fontSize: "11px",
           }}
-          disabled={!canRead && role !== "admin"}
+          disabled={!canUpdate && role !== "admin"}
         >
           OPEN
         </Button>
@@ -2959,7 +2959,7 @@ const SaleBill = () => {
             padding: "4px 10px",
             fontSize: "11px",
           }}
-          disabled={!canCreate && role !== "admin"}
+          disabled={!canRead && role !== "admin"}
         >
           PRINT
         </Button>

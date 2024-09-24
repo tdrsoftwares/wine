@@ -45,8 +45,8 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import { customTheme } from "../../../utils/customTheme";
 import PurchaseBillPrintModal from "./PurchaseBillPrintModal";
 import { useLicenseContext } from "../../../utils/licenseContext";
-import * as XLSX from 'xlsx';
-
+import * as XLSX from "xlsx";
+import { usePermissions } from "../../../utils/PermissionsContext";
 
 const PurchaseEntry = () => {
   const [allSuppliers, setAllSuppliers] = useState([]);
@@ -60,7 +60,8 @@ const PurchaseEntry = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [entryNumber, setEntryNumber] = useState("");
   const [entryNoEditable, setEntryNoEditable] = useState(false);
-  const [showPurchaseBillPrintModal, setShowPurchaseBillPrintModal] = useState(false);
+  const [showPurchaseBillPrintModal, setShowPurchaseBillPrintModal] =
+    useState(false);
   const [formData, setFormData] = useState({
     _id: "",
     supplierName: "",
@@ -112,6 +113,15 @@ const PurchaseEntry = () => {
   const [editedRow, setEditedRow] = useState({});
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
   const [isRowUpdated, setIsRowUpdated] = useState(false);
+  const { permissions, role } = usePermissions();
+
+  const companyPermissions =
+    permissions?.find((permission) => permission.moduleName === "Purchase")
+      ?.permissions || [];
+  const canCreate = companyPermissions.includes("create");
+  const canRead = companyPermissions.includes("read");
+  const canUpdate = companyPermissions.includes("update");
+  const canDelete = companyPermissions.includes("delete");
 
   const tableRef = useRef(null);
   const supplierNameRef = useRef(null);
@@ -250,7 +260,7 @@ const PurchaseEntry = () => {
         formData;
       if (event.keyCode === 120) {
         // 120 F9 key
-        
+
         if (
           supplierName &&
           passNo &&
@@ -279,7 +289,7 @@ const PurchaseEntry = () => {
 
   const handleItemNameChange = (event) => {
     const itemNameValue = event.target.value;
-    
+
     itemNameSearch(itemNameValue);
     setFormData({
       ...formData,
@@ -293,10 +303,7 @@ const PurchaseEntry = () => {
 
     setEditedRow({});
     setEditableIndex(-1);
-    
   };
-
-
 
   const handleSupplierNameChange = (e) => {
     setFormData({ ...formData, supplierName: e.target.value });
@@ -416,27 +423,25 @@ const PurchaseEntry = () => {
     // Reset the editing state
     setEditedRow({});
     setEditableIndex(-1);
-  }; 
-  
+  };
 
   const fetchAllSuppliers = async () => {
     try {
       const response = await getAllSuppliers();
       // console.log("response: ", response)
-      if(response.status === 200) {
+      if (response.status === 200) {
         setAllSuppliers(response?.data?.data);
       } else {
-        setAllSuppliers([])
+        setAllSuppliers([]);
         // NotificationManager.error("No suppliers found.", "Error")
-        console.log("No suppliers found.", "Error")
+        console.log("No suppliers found.", "Error");
       }
-      
     } catch (error) {
       // NotificationManager.error(
       //   "Error fetching suppliers. Please try again later.",
       //   "Error"
       // );
-      console.error("No suppliers found.", "Error")
+      console.error("No suppliers found.", "Error");
     }
   };
 
@@ -448,7 +453,7 @@ const PurchaseEntry = () => {
         setAllEntries(response?.data?.data);
       } else {
         // NotificationManager.error("No entry no. found", "Error");
-        console.log("No entry no. found.", "Error")
+        console.log("No entry no. found.", "Error");
         setAllEntries([]);
       }
     } catch (error) {
@@ -464,12 +469,12 @@ const PurchaseEntry = () => {
     try {
       const allStoresResponse = await getAllStores();
       // console.log("allStore response: ", allStoresResponse)
-      
+
       if (allStoresResponse.status === 200) {
         setAllStores(allStoresResponse?.data?.data);
       } else {
         // NotificationManager.error("No stores found", "Error");
-        console.log("No suppliers found.", "Error")
+        console.log("No suppliers found.", "Error");
         setAllStores([]);
       }
     } catch (error) {
@@ -485,12 +490,10 @@ const PurchaseEntry = () => {
     try {
       setIsLoading(true);
       const response = await searchAllPurchasesByItemName(item);
-      
+
       if (response?.data?.data) {
         setSearchResults(response?.data?.data);
-        
       } else {
-        
         setSearchResults([]);
         setIsModalOpen(true);
         setItemName(item);
@@ -508,9 +511,8 @@ const PurchaseEntry = () => {
     try {
       setIsLoading(true);
       const response = await searchAllPurchasesByItemCode(itemCode);
-      
+
       const searchedItem = response?.data?.data;
-      
 
       if (searchedItem) {
         setSearchResults(searchedItem);
@@ -611,8 +613,8 @@ const PurchaseEntry = () => {
           resetMiddleFormData();
           resetTotalValuesData();
           setPurchases([]);
-          sessionStorage.removeItem("purchases"); 
-          
+          sessionStorage.removeItem("purchases");
+
           NotificationManager.error("No purchase details found!");
         }
       }
@@ -621,7 +623,7 @@ const PurchaseEntry = () => {
       resetMiddleFormData();
       resetTotalValuesData();
       setPurchases([]);
-      sessionStorage.removeItem("purchases"); 
+      sessionStorage.removeItem("purchases");
       NotificationManager.error("Error fetching purchase details!");
       console.error("Error fetching items:", error);
     }
@@ -630,7 +632,6 @@ const PurchaseEntry = () => {
   const handleRowClick = (index) => {
     const selectedRow = searchResults[index];
 
-    
     setFormData({
       ...formData,
       itemId: selectedRow.item._id,
@@ -654,7 +655,6 @@ const PurchaseEntry = () => {
     } else {
       batchRef.current.focus();
     }
-    
   };
 
   const handleRemovePurchasesTableRow = (index) => {
@@ -676,7 +676,6 @@ const PurchaseEntry = () => {
       nextInputRef.current.focus();
     }
   };
-
 
   const handleSubmitIntoDataTable = (e) => {
     e.preventDefault();
@@ -804,11 +803,11 @@ const PurchaseEntry = () => {
           sp: parseFloat(item.sp) || 0,
           itemAmount: parseFloat(item.amount) || 0,
         };
-    
+
         // if (item.itemDetailsId) {
         //   purchaseItem.itemDetailsId = item.itemDetailsId;
         // }
-    
+
         return purchaseItem;
       }),
     };
@@ -824,7 +823,6 @@ const PurchaseEntry = () => {
         setSearchMode(false);
         sessionStorage.setItem("purchases", []);
       } else if (response.response.status === 400) {
-
         const errorMessage = response.response.data.message;
         NotificationManager.error(errorMessage, "Error");
       } else {
@@ -924,13 +922,11 @@ const PurchaseEntry = () => {
 
     try {
       if (entryNumber && entryNoEditable) {
-
         const response = await updatePurchaseDetailsByEntryNo(
           payload,
           entryNumber
         );
 
-        
         if (response.status === 200) {
           NotificationManager.success(
             "Purchase updated successfully",
@@ -938,7 +934,6 @@ const PurchaseEntry = () => {
           );
           setSearchMode(false);
         } else if (response.response.status === 400) {
-
           const errorMessage = response.response.data.message;
           NotificationManager.error(errorMessage, "Error");
         } else {
@@ -1014,14 +1009,13 @@ const PurchaseEntry = () => {
 
   const handleAmountChange = (event) => {
     const newAmountValue = parseFloat(event.target.value) || 0;
-    
+
     const pcs = parseFloat(formData.caseValue) || 1;
-    
+
     let newPurchaseRate = 0;
 
     if (pcs !== 0) {
       newPurchaseRate = parseFloat(newAmountValue / pcs);
-      
     }
 
     setFormData({
@@ -1029,14 +1023,13 @@ const PurchaseEntry = () => {
       amount: newAmountValue.toString(),
       purchaseRate: newPurchaseRate.toString(),
     });
-    
   };
 
   const handleCaseChange = (event) => {
     const newCase = parseFloat(event.target.value) || 0;
-    
+
     const newPcsValue = newCase * parseFloat(formData.caseValue) || 0;
-    
+
     setFormData({
       ...formData,
       case: newCase,
@@ -1086,10 +1079,9 @@ const PurchaseEntry = () => {
     }));
   };
 
-
   const handleGovtRateChange = (event) => {
     const govtRate = event.target.value === "" ? "" : event.target.value;
-  
+
     if (!isNaN(parseFloat(govtRate)) || event.target.value === "") {
       setIsManualGovtRateChange(true);
       setTotalValues((prevValues) => ({
@@ -1102,7 +1094,6 @@ const PurchaseEntry = () => {
   const handleSpcPurchasesChange = (event) => {
     const spcPurpose =
       event.target.value === "" ? "" : parseFloat(event.target.value);
-      
 
     if (!isNaN(spcPurpose) || event.target.value === "") {
       setTotalValues((prevValues) => ({
@@ -1119,14 +1110,13 @@ const PurchaseEntry = () => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    
 
     const day = date.getDate().toString().padStart(2, "0");
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const year = date.getFullYear().toString();
 
     const formattedDate = `${day}/${month}/${year}`;
-    
+
     return formattedDate;
   };
 
@@ -1143,7 +1133,9 @@ const PurchaseEntry = () => {
     fetchAllStores();
   }, []);
 
-  useEffect(() => { fetchAllEntries() },[entryNumber, entryNoEditable]);
+  useEffect(() => {
+    fetchAllEntries();
+  }, [entryNumber, entryNoEditable]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -1214,7 +1206,6 @@ const PurchaseEntry = () => {
       ...prevValues,
       totalMrp: totalMrpValue,
     }));
-    
   }, [formData.amount, purchases]);
 
   useEffect(() => {
@@ -1261,7 +1252,6 @@ const PurchaseEntry = () => {
       };
     });
 
-
     setPurchases(updatedPurchases);
     sessionStorage.setItem("purchases", JSON.stringify(updatedPurchases));
     //
@@ -1286,9 +1276,8 @@ const PurchaseEntry = () => {
     totalValues.govtRate,
     totalValues.tcs,
     totalValues.spcPurpose,
-    totalValues.adjustment
+    totalValues.adjustment,
   ]);
-
 
   // useEffect(() => {
   //   const tcsPercentage = parseFloat(totalValues.tcs) || 1;
@@ -1342,12 +1331,10 @@ const PurchaseEntry = () => {
       }
     }
   }, [formData.gro, formData.sp, isRowUpdated, entryNumber]);
-  
 
   useEffect(() => {
     setIsManualGovtRateChange(false);
   }, [totalValues.govtRate, totalValues.spcPurpose]);
-
 
   useEffect(() => {
     if (passDateRef.current) {
@@ -1361,8 +1348,8 @@ const PurchaseEntry = () => {
       );
     }
     const savedPurchases = sessionStorage.getItem("purchases");
-    if(savedPurchases) {
-      setPurchases(JSON.parse(savedPurchases))
+    if (savedPurchases) {
+      setPurchases(JSON.parse(savedPurchases));
     }
   }, []);
 
@@ -1386,7 +1373,7 @@ const PurchaseEntry = () => {
 
   const handleEntryNumberChange = (e) => {
     const value = e.target.value;
-    
+
     const regex = /^\d*\.?\d*$/;
     if (regex.test(value) || value === "") {
       setEntryNumber(value);
@@ -1394,7 +1381,6 @@ const PurchaseEntry = () => {
   };
 
   const handlePreviousEntryChange = () => {
-    
     if (entryNumber && entryNoEditable)
       setEntryNumber(parseInt(entryNumber) - 1);
   };
@@ -1465,7 +1451,7 @@ const PurchaseEntry = () => {
             mrp: itemDetails?.mrp || rowData.mrp || 0,
             batch: itemDetails?.batchNo || rowData.batch || "",
             case: rowData.case || 0,
-            caseValue: rowData.casevalue ||  itemDetails?.itemId?.caseValue || 0,
+            caseValue: rowData.casevalue || itemDetails?.itemId?.caseValue || 0,
             pcs: rowData["bottle(s)"] || 0,
             brk: rowData.brk || 0,
             purchaseRate:
@@ -1509,7 +1495,7 @@ const PurchaseEntry = () => {
               0,
             volume: rowData.measure || 0,
           };
-          console.log("updatedFormData else: ",updatedFormData)
+          console.log("updatedFormData else: ", updatedFormData);
 
           setPurchases((prevPurchases) => [...prevPurchases, updatedFormData]);
         }
@@ -1520,7 +1506,6 @@ const PurchaseEntry = () => {
 
     reader.readAsArrayBuffer(file);
   };
-
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -1730,6 +1715,7 @@ const PurchaseEntry = () => {
                   fontSize: "11px",
                   cursor: "pointer",
                 }}
+                disabled={!canCreate && role !== "admin"}
               >
                 Upload Purchase
                 <input
@@ -1750,6 +1736,7 @@ const PurchaseEntry = () => {
                   padding: "4px 10px",
                   fontSize: "11px",
                 }}
+                disabled={!canCreate && role !== "admin"}
               >
                 CREATE ITEM
               </Button>
@@ -1997,69 +1984,83 @@ const PurchaseEntry = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {Array.isArray(searchResults) && searchResults.length > 0 ? (
-                    searchResults.map((row, index) => (
-                      <TableRow
-                        key={index}
-                        onClick={() => {
-                          handleRowClick(index);
-                          setSearchMode(false);
-                        }}
-                        sx={{
-                          cursor: "pointer",
-                          backgroundColor:
-                            index === selectedRowIndex
-                              ? "rgba(25, 118, 210, 0.2) !important"
-                              : "#fff !important",
-                        }}
-                      >
-                        <TableCell
-                          align="center"
-                          sx={{ padding: "14px", paddingLeft: 2 }}
+                  {canRead || role === "admin" ? (
+                    Array.isArray(searchResults) && searchResults.length > 0 ? (
+                      searchResults.map((row, index) => (
+                        <TableRow
+                          key={index}
+                          onClick={() => {
+                            handleRowClick(index);
+                            setSearchMode(false);
+                          }}
+                          sx={{
+                            cursor: "pointer",
+                            backgroundColor:
+                              index === selectedRowIndex
+                                ? "rgba(25, 118, 210, 0.2) !important"
+                                : "#fff !important",
+                          }}
                         >
-                          {index + 1}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.itemCode || "No Data"}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.item?.name || "No Data"}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.mrp || 0}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.batchNo || 0}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.item?.caseValue || 0}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.purchaseRate || 0}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.saleRate || 0}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.gro || 0}
-                        </TableCell>
-                        <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.sp || 0}
+                          <TableCell
+                            align="center"
+                            sx={{ padding: "14px", paddingLeft: 2 }}
+                          >
+                            {index + 1}
+                          </TableCell>
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row?.itemCode || "No Data"}
+                          </TableCell>
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row?.item?.name || "No Data"}
+                          </TableCell>
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row?.mrp || 0}
+                          </TableCell>
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row?.batchNo || 0}
+                          </TableCell>
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row?.item?.caseValue || 0}
+                          </TableCell>
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row?.purchaseRate || 0}
+                          </TableCell>
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row?.saleRate || 0}
+                          </TableCell>
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row?.gro || 0}
+                          </TableCell>
+                          <TableCell align="center" sx={{ padding: "14px" }}>
+                            {row?.sp || 0}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : isLoading ? (
+                      <TableRow>
+                        <TableCell
+                          colSpan={10}
+                          align="center"
+                          sx={{
+                            backgroundColor: "#fff !important",
+                          }}
+                        >
+                          <CircularProgress />
                         </TableCell>
                       </TableRow>
-                    ))
-                  ) : isLoading ? (
-                    <TableRow>
-                      <TableCell
-                        colSpan={10}
-                        align="center"
-                        sx={{
-                          backgroundColor: "#fff !important",
-                        }}
-                      >
-                        <CircularProgress />
-                      </TableCell>
-                    </TableRow>
+                    ) : (
+                      <TableRow>
+                        <TableCell
+                          colSpan={10}
+                          align="center"
+                          sx={{
+                            backgroundColor: "#fff !important",
+                          }}
+                        >
+                          No Data
+                        </TableCell>
+                      </TableRow>
+                    )
                   ) : (
                     <TableRow>
                       <TableCell
@@ -2069,7 +2070,7 @@ const PurchaseEntry = () => {
                           backgroundColor: "#fff !important",
                         }}
                       >
-                        No Data
+                        You do not have permission to view purchase data.
                       </TableCell>
                     </TableRow>
                   )}
@@ -2188,7 +2189,7 @@ const PurchaseEntry = () => {
                               editedRow.case !== undefined
                                 ? editedRow.case
                                 : row.case
-                            } 
+                            }
                             onChange={(e) =>
                               handleEdit(index, "case", e.target.value)
                             }
@@ -2491,14 +2492,17 @@ const PurchaseEntry = () => {
             justifyContent: "flex-end",
           }}
         >
-          <ItemRegisterModal
-            isModalOpen={isModalOpen}
-            setIsModalOpen={setIsModalOpen}
-            itemName={itemName}
-            setItemName={setItemName}
-            formData={formData}
-            setFormData={setFormData}
-          />
+          {canCreate ||
+            (role === "admin" && (
+              <ItemRegisterModal
+                isModalOpen={isModalOpen}
+                setIsModalOpen={setIsModalOpen}
+                itemName={itemName}
+                setItemName={setItemName}
+                formData={formData}
+                setFormData={setFormData}
+              />
+            ))}
           <Button
             ref={clearButtonRef}
             color="inherit"
@@ -2529,6 +2533,7 @@ const PurchaseEntry = () => {
               padding: "4px 10px",
               fontSize: "11px",
             }}
+            disabled={!canUpdate && role !== "admin"}
           >
             PREV BILL
           </Button>
@@ -2543,6 +2548,7 @@ const PurchaseEntry = () => {
               padding: "4px 10px",
               fontSize: "11px",
             }}
+            disabled={!canUpdate && role !== "admin"}
           >
             NEXT BILL
           </Button>
@@ -2558,6 +2564,7 @@ const PurchaseEntry = () => {
               padding: "4px 10px",
               fontSize: "11px",
             }}
+            disabled={!canDelete && role !== "admin"}
           >
             DELETE
           </Button>
@@ -2572,6 +2579,7 @@ const PurchaseEntry = () => {
               padding: "4px 10px",
               fontSize: "11px",
             }}
+            disabled={!canUpdate && role !== "admin"}
           >
             OPEN
           </Button>
@@ -2588,6 +2596,7 @@ const PurchaseEntry = () => {
               padding: "4px 10px",
               fontSize: "11px",
             }}
+            disabled={!canRead && role !== "admin"}
           >
             PRINT
           </Button>
@@ -2606,6 +2615,11 @@ const PurchaseEntry = () => {
               fontSize: "11px",
             }}
             onKeyDown={handleCreatePurchaseKeyDown}
+            disabled={
+              !entryNumber
+                ? !canCreate && role !== "admin"
+                : !canUpdate && role !== "admin"
+            }
           >
             SAVE
           </Button>
