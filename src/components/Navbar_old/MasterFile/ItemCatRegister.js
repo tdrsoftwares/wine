@@ -54,7 +54,6 @@ const ItemCatRegister = () => {
   const canRead = categoryPermissions.includes("read");
   const canUpdate = categoryPermissions.includes("update");
   const canDelete = categoryPermissions.includes("delete");
-  console.log("categoryPermissions: ", categoryPermissions)
 
   const handleClickOutside = (event) => {
     if (tableRef.current && !tableRef.current.contains(event.target)) {

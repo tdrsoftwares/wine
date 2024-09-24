@@ -15,6 +15,7 @@ import { NotificationManager } from "react-notifications";
 import { removeAllStocks } from "../services/stockService";
 import { removeAllSales } from "../services/saleBillService";
 import { removeAllPurchases } from "../services/purchaseService";
+import { usePermissions } from "../utils/PermissionsContext";
 
 const AdminPanel = () => {
   const [openDeleteConfirmModal, setOpenDeleteConfirmModal] = useState(false);
@@ -24,6 +25,7 @@ const AdminPanel = () => {
   const [loadingPurchases, setLoadingPurchases] = useState(false);
   const [loadingSales, setLoadingSales] = useState(false);
   const [loadingTransfers, setLoadingTransfers] = useState(false);
+  const { permissions, role } = usePermissions();
 
   const handleOpenDeleteConfirmModal = (type) => {
     setDeleteType(type);
@@ -180,74 +182,78 @@ const AdminPanel = () => {
           <Grid item xs={12}>
             <Typography variant="subtitle2">Delete here:</Typography>
           </Grid>
-          <Grid item xs={6}>
-            <Button
-              color="error"
-              size="small"
-              variant="contained"
-              onClick={handleDeleteAllStocks}
-              fullWidth
-              sx={{ marginTop: 1, fontSize: "11px" }}
-              disabled={loadingStocks}
-            >
-              {loadingStocks ? (
-                <CircularProgress size={20} />
-              ) : (
-                "DELETE ALL STOCKS"
-              )}
-            </Button>
-          </Grid>
-          <Grid item xs={6}>
-            <Button
-              color="error"
-              size="small"
-              variant="contained"
-              onClick={handleDeleteAllPurchases}
-              fullWidth
-              sx={{ marginTop: 1, fontSize: "11px" }}
-              disabled={loadingPurchases}
-            >
-              {loadingPurchases ? (
-                <CircularProgress size={20} />
-              ) : (
-                "DELETE ALL PURCHASES"
-              )}
-            </Button>
-          </Grid>
-          <Grid item xs={6}>
-            <Button
-              color="error"
-              size="small"
-              variant="contained"
-              onClick={handleDeleteAllSales}
-              fullWidth
-              sx={{ marginTop: 1, fontSize: "11px" }}
-              disabled={loadingSales}
-            >
-              {loadingSales ? (
-                <CircularProgress size={20} />
-              ) : (
-                "DELETE ALL SALES"
-              )}
-            </Button>
-          </Grid>
-          <Grid item xs={6}>
-            <Button
-              color="error"
-              size="small"
-              variant="contained"
-              onClick={handleDeleteAllTransfers}
-              fullWidth
-              sx={{ marginTop: 1, fontSize: "11px" }}
-              disabled={loadingTransfers}
-            >
-              {loadingTransfers ? (
-                <CircularProgress size={20} />
-              ) : (
-                "DELETE ALL TRANSFERS"
-              )}
-            </Button>
-          </Grid>
+          {role === "admin" && (
+            <>
+              <Grid item xs={6}>
+                <Button
+                  color="error"
+                  size="small"
+                  variant="contained"
+                  onClick={handleDeleteAllStocks}
+                  fullWidth
+                  sx={{ marginTop: 1, fontSize: "11px" }}
+                  disabled={loadingStocks}
+                >
+                  {loadingStocks ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    "DELETE ALL STOCKS"
+                  )}
+                </Button>
+              </Grid>
+              <Grid item xs={6}>
+                <Button
+                  color="error"
+                  size="small"
+                  variant="contained"
+                  onClick={handleDeleteAllPurchases}
+                  fullWidth
+                  sx={{ marginTop: 1, fontSize: "11px" }}
+                  disabled={loadingPurchases}
+                >
+                  {loadingPurchases ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    "DELETE ALL PURCHASES"
+                  )}
+                </Button>
+              </Grid>
+              <Grid item xs={6}>
+                <Button
+                  color="error"
+                  size="small"
+                  variant="contained"
+                  onClick={handleDeleteAllSales}
+                  fullWidth
+                  sx={{ marginTop: 1, fontSize: "11px" }}
+                  disabled={loadingSales}
+                >
+                  {loadingSales ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    "DELETE ALL SALES"
+                  )}
+                </Button>
+              </Grid>
+              <Grid item xs={6}>
+                <Button
+                  color="error"
+                  size="small"
+                  variant="contained"
+                  onClick={handleDeleteAllTransfers}
+                  fullWidth
+                  sx={{ marginTop: 1, fontSize: "11px" }}
+                  disabled={loadingTransfers}
+                >
+                  {loadingTransfers ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    "DELETE ALL TRANSFERS"
+                  )}
+                </Button>
+              </Grid>
+            </>
+          )}
         </Grid>
 
         <DeleteConfirmDialog

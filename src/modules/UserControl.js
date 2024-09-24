@@ -13,6 +13,7 @@ import CreateUserDialog from "./CreateUserDialog";
 import CreateRolesDialog from "./CreateRolesDialog";
 import RolesAndPermissionsDialog from "./RolesAndPermissionsDialog";
 import AllUsersDialog from "./AllUsersDialog";
+import { usePermissions } from "../utils/PermissionsContext";
 
 const UserControl = ({}) => {
   const [openRolesAndPermissionDialog, setOpenRolesAndPermissionDialog] =
@@ -43,8 +44,15 @@ const UserControl = ({}) => {
   const [showPassword, setShowPassword] = useState(false);
   const [allRoles, setAllRoles] = useState([]);
   const [allRoleAndPermissions, setAllRoleAndPermissions] = useState([]);
+  const { permissions, role } = usePermissions();
 
-  // console.log("createuser data: ", createRolesData);
+  const userPermission =
+    permissions?.find((permission) => permission.moduleName === "User")
+      ?.permissions || [];
+  const canCreate = userPermission.includes("create");
+  const canRead = userPermission.includes("read");
+  const canUpdate = userPermission.includes("update");
+  const canDelete = userPermission.includes("delete");
 
   // permission checkbox changes
   const handlePermissionChange = (
@@ -228,6 +236,7 @@ const UserControl = ({}) => {
             marginTop: 1,
             fontSize: "11px",
           }}
+          disabled={role !== "admin" && !canCreate}
         >
           CREATE USER
         </Button>
@@ -242,6 +251,7 @@ const UserControl = ({}) => {
             marginTop: 1,
             fontSize: "11px",
           }}
+          disabled={role !== "admin" && !canRead}
         >
           ALL USERS
         </Button>
@@ -258,6 +268,7 @@ const UserControl = ({}) => {
             marginTop: 1,
             fontSize: "11px",
           }}
+          disabled={role !== "admin" && !canCreate}
         >
           CREATE ROLES
         </Button>
@@ -272,43 +283,52 @@ const UserControl = ({}) => {
             marginTop: 1,
             fontSize: "11px",
           }}
+          disabled={role !== "admin" && !canRead}
         >
           ALL ROLES AND PERMISSIONS
         </Button>
       </Box>
 
-      <CreateUserDialog
-        createUserData={createUserData}
-        setCreateUserData={setCreateUserData}
-        openCreateUser={openCreateUser}
-        setOpenCreateUser={setOpenCreateUser}
-        showPassword={showPassword}
-        setShowPassword={setShowPassword}
-        handleCreateUser={handleCreateUser}
-        isFormComplete={isFormComplete}
-        allRoles={allRoles}
-      />
+      {role !== "admin" && !canCreate && (
+        <CreateUserDialog
+          createUserData={createUserData}
+          setCreateUserData={setCreateUserData}
+          openCreateUser={openCreateUser}
+          setOpenCreateUser={setOpenCreateUser}
+          showPassword={showPassword}
+          setShowPassword={setShowPassword}
+          handleCreateUser={handleCreateUser}
+          isFormComplete={isFormComplete}
+          allRoles={allRoles}
+        />
+      )}
 
-      <CreateRolesDialog
-        createRolesData={createRolesData}
-        setCreateRolesData={setCreateRolesData}
-        openCreateRoles={openCreateRoles}
-        setOpenCreateRoles={setOpenCreateRoles}
-      />
+      {role === "admin" && !canCreate && (
+        <CreateRolesDialog
+          createRolesData={createRolesData}
+          setCreateRolesData={setCreateRolesData}
+          openCreateRoles={openCreateRoles}
+          setOpenCreateRoles={setOpenCreateRoles}
+        />
+      )}
 
-      <RolesAndPermissionsDialog
-        open={openRolesAndPermissionDialog}
-        onClose={() => setOpenRolesAndPermissionDialog(false)}
-        allRoleAndPermissions={allRoleAndPermissions}
-        handleDeleteRole={handleDeleteRole}
-        handlePermissionChange={handlePermissionChange}
-      />
+      {role !== "admin" && !canRead && (
+        <RolesAndPermissionsDialog
+          open={openRolesAndPermissionDialog}
+          onClose={() => setOpenRolesAndPermissionDialog(false)}
+          allRoleAndPermissions={allRoleAndPermissions}
+          handleDeleteRole={handleDeleteRole}
+          handlePermissionChange={handlePermissionChange}
+        />
+      )}
 
-      <AllUsersDialog
-        open={openAllUsersDialog}
-        onClose={() => setOpenAllUsersDialog(false)}
-        allUsers={allUsers}
-      />
+      {role !== "admin" && !canRead && (
+        <AllUsersDialog
+          open={openAllUsersDialog}
+          onClose={() => setOpenAllUsersDialog(false)}
+          allUsers={allUsers}
+        />
+      )}
     </Paper>
   );
 };

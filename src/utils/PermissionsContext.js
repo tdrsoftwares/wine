@@ -32,6 +32,7 @@ export const PermissionsProvider = ({ children }) => {
           permissions: modPerm.permission.permission,
         })
       );
+      console.log("modulesPermissions: ",modulesPermissions)
       setPermissions(modulesPermissions);
       localStorage.setItem("permissions", JSON.stringify(modulesPermissions));
     } else {

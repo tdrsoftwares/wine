@@ -87,11 +87,11 @@ function LoginForm({ handleLogin }) {
         handleLogin(email);
         if (roleAndPermissions) {
           setPermissionsData(roleAndPermissions);
-          localStorage.setItem("permissions", JSON.stringify(roleAndPermissions));
+          // localStorage.setItem("permissions", JSON.stringify(roleAndPermissions));
         }
         if (user?.role) {
           setRoleData(user.role);
-          localStorage.setItem("role", user.role);
+          // localStorage.setItem("role", user.role);
         }
       } else {
         navigate("/");
