@@ -18,6 +18,8 @@ const SalebillSearchTable = (props) => {
     setSearchMode,
     selectedRowIndex,
     isLoading,
+    canRead,
+    role,
   } = props;
   return (
     <>
@@ -55,60 +57,74 @@ const SalebillSearchTable = (props) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {Array.isArray(searchResults) && searchResults.length > 0 ? (
-              searchResults.map((row, index) => (
-                <TableRow
-                  key={index}
-                  onClick={() => {
-                    handleRowClick(index);
-                    setSearchMode(false);
-                  }}
-                  sx={{
-                    cursor: "pointer",
-                    backgroundColor:
-                      index === selectedRowIndex
-                        ? "rgba(25, 118, 210, 0.15) !important"
-                        : "#fff !important",
-                    "&:hover": {
-                      backgroundColor: "rgba(25, 118, 210, 0.15) !important",
-                    },
-                  }}
-                >
-                  <TableCell
-                    align="center"
-                    sx={{ padding: "14px", paddingLeft: 2 }}
+            {canRead || role === "admin" ? (
+              Array.isArray(searchResults) && searchResults.length > 0 ? (
+                searchResults.map((row, index) => (
+                  <TableRow
+                    key={index}
+                    onClick={() => {
+                      handleRowClick(index);
+                      setSearchMode(false);
+                    }}
+                    sx={{
+                      cursor: "pointer",
+                      backgroundColor:
+                        index === selectedRowIndex
+                          ? "rgba(25, 118, 210, 0.15) !important"
+                          : "#fff !important",
+                      "&:hover": {
+                        backgroundColor: "rgba(25, 118, 210, 0.15) !important",
+                      },
+                    }}
                   >
-                    {index + 1}
-                  </TableCell>
-                  <TableCell align="center" sx={{ padding: "14px" }}>
-                    {row?.itemCode || "No Data"}
-                  </TableCell>
-                  <TableCell align="center" sx={{ padding: "14px" }}>
-                    {row?.item?.name || "No Data"}
-                  </TableCell>
-                  <TableCell align="center" sx={{ padding: "14px" }}>
-                    {row?.mrp || 0}
-                  </TableCell>
-                  <TableCell align="center" sx={{ padding: "14px" }}>
-                    {row?.batchNo || 0}
-                  </TableCell>
-                  <TableCell align="center" sx={{ padding: "14px" }}>
-                    {row?.currentStock || 0}
+                    <TableCell
+                      align="center"
+                      sx={{ padding: "14px", paddingLeft: 2 }}
+                    >
+                      {index + 1}
+                    </TableCell>
+                    <TableCell align="center" sx={{ padding: "14px" }}>
+                      {row?.itemCode || "No Data"}
+                    </TableCell>
+                    <TableCell align="center" sx={{ padding: "14px" }}>
+                      {row?.item?.name || "No Data"}
+                    </TableCell>
+                    <TableCell align="center" sx={{ padding: "14px" }}>
+                      {row?.mrp || 0}
+                    </TableCell>
+                    <TableCell align="center" sx={{ padding: "14px" }}>
+                      {row?.batchNo || 0}
+                    </TableCell>
+                    <TableCell align="center" sx={{ padding: "14px" }}>
+                      {row?.currentStock || 0}
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : isLoading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    align="center"
+                    sx={{
+                      backgroundColor: "#fff !important",
+                    }}
+                  >
+                    <CircularProgress />
                   </TableCell>
                 </TableRow>
-              ))
-            ) : isLoading ? (
-              <TableRow>
-                <TableCell
-                  colSpan={6}
-                  align="center"
-                  sx={{
-                    backgroundColor: "#fff !important",
-                  }}
-                >
-                  <CircularProgress />
-                </TableCell>
-              </TableRow>
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    align="center"
+                    sx={{
+                      backgroundColor: "#fff !important",
+                    }}
+                  >
+                    No Data
+                  </TableCell>
+                </TableRow>
+              )
             ) : (
               <TableRow>
                 <TableCell
@@ -118,7 +134,7 @@ const SalebillSearchTable = (props) => {
                     backgroundColor: "#fff !important",
                   }}
                 >
-                  No Data
+                  You do not have permission to view sales data.
                 </TableCell>
               </TableRow>
             )}

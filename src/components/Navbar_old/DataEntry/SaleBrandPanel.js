@@ -29,6 +29,8 @@ const SaleBrandPanel = ({
   brandWiseItemData,
   setBrandWiseItemData,
   fetchAllBrandWiseItems,
+  canRead,
+  role,
 }) => {
   const [allBrands, setAllBrands] = useState([]);
 
@@ -43,7 +45,6 @@ const SaleBrandPanel = ({
         setAllBrands([]);
         // NotificationManager.error("No brands found.", "Error");
         console.log("No brands Found", "Error");
-
       }
     } catch (error) {
       // NotificationManager.error(
@@ -181,43 +182,59 @@ const SaleBrandPanel = ({
                   <CircularProgress />
                 </TableCell>
               </TableRow>
-            ) : Array.isArray(brandWiseItemData) &&
+            ) : canRead || role === "admin" ? (
+              Array.isArray(brandWiseItemData) &&
               brandWiseItemData.length > 0 ? (
-              brandWiseItemData.map((row, index) => (
-                <TableRow
-                  key={index}
-                  onClick={() => {
-                    handleBrandItemsRowClick(index);
-                  }}
-                  sx={{
-                    cursor: "pointer",
-                    "&:hover": {
-                      backgroundColor: "rgba(25, 118, 210, 0.15) !important",
-                    },
-                  }}
-                >
-                  <TableCell
-                    align="left"
+                brandWiseItemData.map((row, index) => (
+                  <TableRow
+                    key={index}
+                    onClick={() => {
+                      handleBrandItemsRowClick(index);
+                    }}
                     sx={{
-                      maxWidth: 150,
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
+                      cursor: "pointer",
                       "&:hover": {
-                        overflow: "visible",
-                        whiteSpace: "normal",
-                        backgroundColor: "rgba(25, 118, 210, 0.15)",
+                        backgroundColor: "rgba(25, 118, 210, 0.15) !important",
                       },
                     }}
-                    title={row?.item?.name || "No Data"}
                   >
-                    {row?.item?.name || "No Data"}
+                    <TableCell
+                      align="left"
+                      sx={{
+                        maxWidth: 150,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        "&:hover": {
+                          overflow: "visible",
+                          whiteSpace: "normal",
+                          backgroundColor: "rgba(25, 118, 210, 0.15)",
+                        },
+                      }}
+                      title={row?.item?.name || "No Data"}
+                    >
+                      {row?.item?.name || "No Data"}
+                    </TableCell>
+                    <TableCell align="center">
+                      {row?.currentStock || 0}
+                    </TableCell>
+                    <TableCell align="center">{row?.mrp || 0}</TableCell>
+                    <TableCell align="center">{row?.batchNo || 0}</TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={4}
+                    align="center"
+                    sx={{
+                      backgroundColor: "#fff !important",
+                    }}
+                  >
+                    No Data
                   </TableCell>
-                  <TableCell align="center">{row?.currentStock || 0}</TableCell>
-                  <TableCell align="center">{row?.mrp || 0}</TableCell>
-                  <TableCell align="center">{row?.batchNo || 0}</TableCell>
                 </TableRow>
-              ))
+              )
             ) : (
               <TableRow>
                 <TableCell
@@ -227,7 +244,7 @@ const SaleBrandPanel = ({
                     backgroundColor: "#fff !important",
                   }}
                 >
-                  No Data
+                  You do not have permission to view sales data.
                 </TableCell>
               </TableRow>
             )}

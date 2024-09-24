@@ -42,6 +42,7 @@ import SaleBrandPanel from "./SaleBrandPanel";
 import SalebillSearchTable from "./SalebillSearchTable";
 import SalebillDataTable from "./SalebillDataTable";
 import socketService from "../../../utils/socket";
+import { usePermissions } from "../../../utils/PermissionsContext";
 
 const SaleBill = () => {
   const [allCustomerData, setAllCustomerData] = useState([]);
@@ -154,6 +155,15 @@ const SaleBill = () => {
   const saveButtonRef = useRef(null);
   const printModalRef = useRef(null);
   const pcsEditRef = useRef(null);
+  const { permissions, role } = usePermissions();
+
+  const companyPermissions =
+    permissions?.find((permission) => permission.moduleName === "Company")
+      ?.permissions || [];
+  const canCreate = companyPermissions.includes("create");
+  const canRead = companyPermissions.includes("read");
+  const canUpdate = companyPermissions.includes("update");
+  const canDelete = companyPermissions.includes("delete");
 
   const handlePrint = useReactToPrint({
     content: () => printModalRef.current,
@@ -2549,6 +2559,8 @@ const SaleBill = () => {
                 setSearchMode={setSearchMode}
                 selectedRowIndex={selectedRowIndex}
                 isLoading={isLoading}
+                canRead={canRead}
+                role={role}
               />
             ) : (
               <SalebillDataTable
@@ -2781,6 +2793,8 @@ const SaleBill = () => {
             brandWiseItemData={brandWiseItemData}
             setBrandWiseItemData={setBrandWiseItemData}
             fetchAllBrandWiseItems={fetchAllBrandWiseItems}
+            canRead={canRead}
+            role={role}
           />
           <Box
             component="form"
@@ -2884,6 +2898,7 @@ const SaleBill = () => {
             padding: "4px 10px",
             fontSize: "11px",
           }}
+          disabled={!canRead && role !== "admin"}
         >
           PREV BILL
         </Button>
@@ -2897,6 +2912,7 @@ const SaleBill = () => {
             padding: "4px 10px",
             fontSize: "11px",
           }}
+          disabled={!canRead && role !== "admin"}
         >
           NEXT BILL
         </Button>
@@ -2911,6 +2927,7 @@ const SaleBill = () => {
             padding: "4px 10px",
             fontSize: "11px",
           }}
+          disabled={!canDelete && role !== "admin"}
         >
           DELETE
         </Button>
@@ -2928,6 +2945,7 @@ const SaleBill = () => {
             padding: "4px 10px",
             fontSize: "11px",
           }}
+          disabled={!canRead && role !== "admin"}
         >
           OPEN
         </Button>
@@ -2941,6 +2959,7 @@ const SaleBill = () => {
             padding: "4px 10px",
             fontSize: "11px",
           }}
+          disabled={!canCreate && role !== "admin"}
         >
           PRINT
         </Button>
@@ -2957,6 +2976,7 @@ const SaleBill = () => {
             padding: "4px 10px",
             fontSize: "11px",
           }}
+          disabled={!canCreate && role !== "admin"}
         >
           SAVE
         </Button>

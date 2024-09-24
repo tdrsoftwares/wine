@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 const PermissionsContext = createContext();
 
@@ -10,6 +10,19 @@ export const PermissionsProvider = ({ children }) => {
   const [permissions, setPermissions] = useState(null);
   const [role, setRole] = useState(null);
 
+  useEffect(() => {
+    const savedPermissions = localStorage.getItem("permissions");
+    const savedRole = localStorage.getItem("role");
+
+    if (savedPermissions) {
+      setPermissions(JSON.parse(savedPermissions));
+    }
+
+    if (savedRole) {
+      setRole(savedRole);
+    }
+  }, []);
+
   const setPermissionsData = (roleAndPermissions) => {
     if (roleAndPermissions) {
       const modulesPermissions = roleAndPermissions[0].modulePermission.map(
@@ -20,13 +33,20 @@ export const PermissionsProvider = ({ children }) => {
         })
       );
       setPermissions(modulesPermissions);
+      localStorage.setItem("permissions", JSON.stringify(modulesPermissions));
     } else {
       setPermissions(null);
+      localStorage.removeItem("permissions");
     }
   };
 
   const setRoleData = (role) => {
     setRole(role || null);
+    if (role) {
+      localStorage.setItem("role", role);
+    } else {
+      localStorage.removeItem("role");
+    }
   };
 
   return (
