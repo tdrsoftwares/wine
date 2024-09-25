@@ -10,18 +10,18 @@ export const PermissionsProvider = ({ children }) => {
   const [permissions, setPermissions] = useState(null);
   const [role, setRole] = useState(null);
 
-  // useEffect(() => {
-  //   const savedPermissions = localStorage.getItem("permissions");
-  //   const savedRole = localStorage.getItem("role");
+  useEffect(() => {
+    const savedPermissions = localStorage.getItem("permissions");
+    const savedRole = localStorage.getItem("role");
 
-  //   if (savedPermissions) {
-  //     setPermissions(JSON.parse(savedPermissions));
-  //   }
+    if (savedPermissions) {
+      setPermissions(JSON.parse(savedPermissions));
+    }
 
-  //   if (savedRole) {
-  //     setRole(savedRole);
-  //   }
-  // }, []);
+    if (savedRole) {
+      setRole(savedRole);
+    }
+  }, []);
 
   const setPermissionsData = (roleAndPermissions) => {
     if (roleAndPermissions) {
@@ -34,19 +34,19 @@ export const PermissionsProvider = ({ children }) => {
       );
       console.log("modulesPermissions: ",modulesPermissions)
       setPermissions(modulesPermissions);
-      // localStorage.setItem("permissions", JSON.stringify(modulesPermissions));
+      localStorage.setItem("permissions", JSON.stringify(modulesPermissions));
     } else {
       setPermissions(null);
-      // localStorage.removeItem("permissions");
+      localStorage.removeItem("permissions");
     }
   };
 
   const setRoleData = (role) => {
     setRole(role || null);
     if (role) {
-      // localStorage.setItem("role", role);
+      localStorage.setItem("role", role);
     } else {
-      // localStorage.removeItem("role");
+      localStorage.removeItem("role");
     }
   };
 
