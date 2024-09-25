@@ -71,7 +71,7 @@ const UserControl = ({}) => {
   const fetchAllRoleNames = async () => {
     try {
       const allRoles = await getAllRoleNames();
-      console.log("allroles response: ", allRoles);
+      // console.log("allroles response: ", allRoles);
 
       if (allRoles.status === 200) {
         setAllRoles(allRoles?.data?.data);
