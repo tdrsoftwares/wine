@@ -26,6 +26,7 @@ import {
 import { getCateLedgerPackDetails } from "../../services/cateLedgerPackService";
 import { useReactToPrint } from "react-to-print";
 import CatLedgerPackPrintComponent from "./CatLedgerPackPrintComponent";
+import { usePermissions } from "../../utils/PermissionsContext";
 
 const CatLedgerPack = () => {
   const [categoryName, setCategoryName] = useState("");
@@ -46,6 +47,13 @@ const CatLedgerPack = () => {
   const [totalSales, setTotalSales] = useState(0);
   const [totalOpeningBal, setTotalOpeningBal] = useState(0);
   const [totalClosingBal, setTotalClosingBal] = useState(0);
+
+  const { permissions, role } = usePermissions();
+
+  const reportsPermissions =
+    permissions?.find((permission) => permission.moduleName === "Reports")
+      ?.permissions || [];
+  const canRead = reportsPermissions.includes("read");
 
   const printRef = useRef();
 
@@ -451,6 +459,7 @@ const CatLedgerPack = () => {
             size="small"
             variant="contained"
             onClick={handlePrint}
+            disabled={!canRead && role !== "admin"}
           >
             Print
           </Button>
@@ -459,6 +468,7 @@ const CatLedgerPack = () => {
             size="small"
             variant="contained"
             onClick={fetchAllCateLedger}
+            disabled={!canRead && role !== "admin"}
           >
             Display
           </Button>
@@ -473,26 +483,32 @@ const CatLedgerPack = () => {
             "& .custom-cell": { paddingLeft: 4 },
           }}
         >
-          <DataGrid
-            rows={allRowData}
-            columns={columns}
-            rowCount={totalCount}
-            pagination
-            paginationModel={paginationModel}
-            pageSizeOptions={[10, 25, 50, 100]}
-            onPaginationModelChange={setPaginationModel}
-            sx={{ backgroundColor: "#fff" }}
-            disableRowSelectionOnClick
-            loading={loading}
-            loadingOverlay={<CircularProgress />}
-            slots={{
-              toolbar: GridToolbar,
-              footer: CustomFooter,
-            }}
-            initialState={{
-              density: "compact",
-            }}
-          />
+          {canRead || role === "admin" ? (
+            <DataGrid
+              rows={allRowData}
+              columns={columns}
+              rowCount={totalCount}
+              pagination
+              paginationModel={paginationModel}
+              pageSizeOptions={[10, 25, 50, 100]}
+              onPaginationModelChange={setPaginationModel}
+              sx={{ backgroundColor: "#fff" }}
+              disableRowSelectionOnClick
+              loading={loading}
+              loadingOverlay={<CircularProgress />}
+              slots={{
+                toolbar: GridToolbar,
+                footer: CustomFooter,
+              }}
+              initialState={{
+                density: "compact",
+              }}
+            />
+          ) : (
+            <Typography variant="body1" color="red">
+              You do not have permission to view this data.
+            </Typography>
+          )}
         </Box>
 
         <CatLedgerPackPrintComponent

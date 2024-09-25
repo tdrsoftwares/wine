@@ -1,4 +1,3 @@
-
 import {
   Autocomplete,
   Box,
@@ -13,17 +12,14 @@ import {
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import React, { useEffect, useRef, useState } from "react";
-import {
-  DataGrid,
-  GridToolbar,
-  useGridApiRef,
-} from "@mui/x-data-grid";
+import { DataGrid, GridToolbar, useGridApiRef } from "@mui/x-data-grid";
 import { searchByBrandName } from "../../../services/saleBillService";
 import dayjs from "dayjs";
 import { customTheme } from "../../../utils/customTheme";
 import { useReactToPrint } from "react-to-print";
 import debounce from "lodash.debounce";
 import { getAllBrandStockMrp } from "../../../services/brandStockMrpService";
+import { usePermissions } from "../../../utils/PermissionsContext";
 
 const BrandStockMrp = () => {
   const [allBrandStockMrp, setAllBrandStockMrp] = useState([]);
@@ -57,6 +53,13 @@ const BrandStockMrp = () => {
     salesMrpValue: 0,
     closingMrpValue: 0,
   });
+
+  const { permissions, role } = usePermissions();
+
+  const reportsPermissions =
+    permissions?.find((permission) => permission.moduleName === "Reports")
+      ?.permissions || [];
+  const canRead = reportsPermissions.includes("read");
 
   const calculateTotals = (data) => {
     const totals = data.reduce(
@@ -185,32 +188,35 @@ const BrandStockMrp = () => {
   };
 
   const fetchAllBrandStockMrp = async () => {
-    const fromDate = filterData.dateFrom ? formatDate(filterData.dateFrom) : null;
+    const fromDate = filterData.dateFrom
+      ? formatDate(filterData.dateFrom)
+      : null;
     const toDate = filterData.dateTo ? formatDate(filterData.dateTo) : null;
-  
+
     setLoading(true);
     try {
       const filterOptions = {
         fromDate,
         toDate,
-        brandName: filterData.brandName === "All Brands" ? "" : filterData.brandName,
-        AllBrand: filterData.brandName === "All Brands"
+        brandName:
+          filterData.brandName === "All Brands" ? "" : filterData.brandName,
+        AllBrand: filterData.brandName === "All Brands",
       };
-  
+
       const response = await getAllBrandStockMrp(filterOptions);
       const responseData = response?.data?.data;
       // console.log("responseData: ", responseData);
-  
+
       const itemsData = responseData?.reduce((acc, brandData) => {
-        const brandItems = brandData.items.map(item => ({
+        const brandItems = brandData.items.map((item) => ({
           ...item,
           brandName: brandData.brand,
         }));
         return [...acc, ...brandItems];
       }, []);
-      
+
       // console.log("item data: ", itemsData);
-  
+
       if (responseData) {
         setAllBrandStockMrp(itemsData || []);
         setTotalCount(itemsData?.length || 0);
@@ -225,7 +231,6 @@ const BrandStockMrp = () => {
       setLoading(false);
     }
   };
-  
 
   const brandNameSearch = debounce(async (searchText) => {
     try {
@@ -268,13 +273,14 @@ const BrandStockMrp = () => {
       return { totalVolume, totalAmount, totalPcs };
     };
 
-    const { totalVolume, totalAmount, totalPcs } = calculateSums(allBrandStockMrp);
+    const { totalVolume, totalAmount, totalPcs } =
+      calculateSums(allBrandStockMrp);
     setTotalVolume(totalVolume);
     setTotalAmount(totalAmount);
     setTotalPcs(totalPcs);
   }, [allBrandStockMrp]);
 
-  console.log("allBrandStockMrp: ", allBrandStockMrp)
+  console.log("allBrandStockMrp: ", allBrandStockMrp);
   const rows = (allBrandStockMrp || []).map((item, index) => ({
     id: index,
     sNo: index + 1,
@@ -291,22 +297,22 @@ const BrandStockMrp = () => {
     closingMrpValue: item.closingMrpValue || 0,
   }));
 
-  
-  rows.length > 0 && rows.push({
-    id: "totals", 
-    sNo: "Total",
-    brandName: "",
-    itemName: "",
-    mrp: "",
-    openingBalance: totals.openingBalance,
-    openingMrp: totals.openingMrpValue,
-    totalPurchased: totals.totalPurchased,
-    receiptMrpValue: totals.reciptMrpValue,
-    totalSold: totals.totalSold,
-    salesMrpValue: totals.salesMrpValue,
-    closingBalance: totals.closingBalance,
-    closingMrpValue: totals.closingMrpValue,
-  });
+  rows.length > 0 &&
+    rows.push({
+      id: "totals",
+      sNo: "Total",
+      brandName: "",
+      itemName: "",
+      mrp: "",
+      openingBalance: totals.openingBalance,
+      openingMrp: totals.openingMrpValue,
+      totalPurchased: totals.totalPurchased,
+      receiptMrpValue: totals.reciptMrpValue,
+      totalSold: totals.totalSold,
+      salesMrpValue: totals.salesMrpValue,
+      closingBalance: totals.closingBalance,
+      closingMrpValue: totals.closingMrpValue,
+    });
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -428,6 +434,7 @@ const BrandStockMrp = () => {
             size="small"
             variant="contained"
             onClick={fetchAllBrandStockMrp}
+            disabled={!canRead && role !== "admin"}
           >
             Display
           </Button>
@@ -442,31 +449,37 @@ const BrandStockMrp = () => {
             "& .custom-cell": { paddingLeft: 4 },
           }}
         >
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            rowCount={totalCount}
-            apiRef={apiRef}
-            pagination
-            paginationMode="server"
-            paginationModel={paginationModel}
-            pageSizeOptions={[10, 25, 50, 100]}
-            onPaginationModelChange={setPaginationModel}
-            sx={{ backgroundColor: "#fff" }}
-            disableRowSelectionOnClick
-            loading={loading}
-            loadingOverlay={
-              <Box>
-                <CircularProgress />
-              </Box>
-            }
-            slots={{
-              toolbar: GridToolbar,
-            }}
-            initialState={{
-              density: "compact",
-            }}
-          />
+          {canRead || role === "admin" ? (
+            <DataGrid
+              rows={rows}
+              columns={columns}
+              rowCount={totalCount}
+              apiRef={apiRef}
+              pagination
+              paginationMode="server"
+              paginationModel={paginationModel}
+              pageSizeOptions={[10, 25, 50, 100]}
+              onPaginationModelChange={setPaginationModel}
+              sx={{ backgroundColor: "#fff" }}
+              disableRowSelectionOnClick
+              loading={loading}
+              loadingOverlay={
+                <Box>
+                  <CircularProgress />
+                </Box>
+              }
+              slots={{
+                toolbar: GridToolbar,
+              }}
+              initialState={{
+                density: "compact",
+              }}
+            />
+          ) : (
+            <Typography variant="body1" color="red">
+              You do not have permission to view this data.
+            </Typography>
+          )}
         </Box>
       </Box>
     </ThemeProvider>

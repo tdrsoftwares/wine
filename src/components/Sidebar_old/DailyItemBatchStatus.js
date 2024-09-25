@@ -18,6 +18,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { getAllStores } from "../../services/storeService";
 import { getDailyItemBatchDetails } from "../../services/dailyItemBatchService";
 import { customTheme } from "../../utils/customTheme";
+import { usePermissions } from "../../utils/PermissionsContext";
 
 const DailyItemBatchStatus = () => {
   const [todayDate, setTodayDate] = useState(null);
@@ -31,6 +32,13 @@ const DailyItemBatchStatus = () => {
   const [licenseDetails, setLicenseDetails] = useState({});
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
+
+  const { permissions, role } = usePermissions();
+
+  const reportsPermissions =
+    permissions?.find((permission) => permission.moduleName === "Reports")
+      ?.permissions || [];
+  const canRead = reportsPermissions.includes("read");
 
   const formatDate = (date) => {
     if (!date) return null;
@@ -46,19 +54,19 @@ const DailyItemBatchStatus = () => {
       headerClassName: "custom-header",
     },
     {
-        field: "itemName",
-        headerName: "Item",
-        flex: 1,
-        cellClassName: "custom-cell",
-        headerClassName: "custom-header",
-      },
-      {
-        field: "openingBalance",
-        headerName: "Opening",
-        flex: 1,
-        cellClassName: "custom-cell",
-        headerClassName: "custom-header",
-      },
+      field: "itemName",
+      headerName: "Item",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "openingBalance",
+      headerName: "Opening",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
     {
       field: "supplierNames",
       headerName: "Source",
@@ -75,33 +83,33 @@ const DailyItemBatchStatus = () => {
       headerClassName: "custom-header",
     },
     {
-        field: "batchNo",
-        headerName: "Batch",
-        flex: 1,
-        cellClassName: "custom-cell",
-        headerClassName: "custom-header",
-      },
-      {
-        field: "pcs",
-        headerName: "Receipts",
-        flex: 1,
-        cellClassName: "custom-cell",
-        headerClassName: "custom-header",
-      },
-      {
-        field: "total",
-        headerName: "Total",
-        flex: 1,
-        cellClassName: "custom-cell",
-        headerClassName: "custom-header",
-      },
-      {
-        field: "totalSold",
-        headerName: "Sales",
-        flex: 1,
-        cellClassName: "custom-cell",
-        headerClassName: "custom-header",
-      },
+      field: "batchNo",
+      headerName: "Batch",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "pcs",
+      headerName: "Receipts",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "total",
+      headerName: "Total",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "totalSold",
+      headerName: "Sales",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
     {
       field: "closingBalance",
       headerName: "Closing",
@@ -190,7 +198,7 @@ const DailyItemBatchStatus = () => {
 
   useEffect(() => {
     const debouncedFetch = debounce(fetchAllItemBatchDetails, 300);
-    if(todayDate && storeName) debouncedFetch();
+    if (todayDate && storeName) debouncedFetch();
   }, [todayDate, storeName]);
 
   return (
@@ -251,7 +259,6 @@ const DailyItemBatchStatus = () => {
               </TextField>
             </div>
           </Grid>
-          
         </Grid>
 
         <Box
@@ -270,7 +277,6 @@ const DailyItemBatchStatus = () => {
                 setTodayDate(null);
                 setStoreName("");
               }}
-              sx={{ padding: "4px 10px", fontSize: "11px" }}
             >
               Clear Filters
             </Button>
@@ -280,7 +286,8 @@ const DailyItemBatchStatus = () => {
               size="small"
               variant="contained"
               onClick={fetchAllItemBatchDetails}
-              sx={{ marginLeft: 2, padding: "4px 10px", fontSize: "11px" }}
+              sx={{ marginLeft: 2 }}
+              disabled={!canRead && role !== "admin"}
             >
               Display
             </Button>
@@ -296,52 +303,67 @@ const DailyItemBatchStatus = () => {
             "& .custom-cell": { paddingLeft: 4 },
           }}
         >
-          <DataGrid
-            rows={(allRowData || []).map((item, index) => {
-                const purchasedData = item.currentPurchasedData.length > 0 ? item.currentPurchasedData[0] : {};
+          {canRead || role === "admin" ? (
+            <DataGrid
+              rows={(allRowData || []).map((item, index) => {
+                const purchasedData =
+                  item.currentPurchasedData.length > 0
+                    ? item.currentPurchasedData[0]
+                    : {};
                 return {
                   id: index,
                   sNo: index + 1,
                   itemName: item.item,
                   openingBalance: item.openingBalance,
-                  supplierNames: purchasedData.supplierNames ? purchasedData.supplierNames.join(", ") : "-",
-                  passNo: purchasedData.passNo ? purchasedData.passNo.join(", ") : "-",
-                  batchNo: purchasedData.batchNo ? purchasedData.batchNo.join(", ") : "-",
+                  supplierNames: purchasedData.supplierNames
+                    ? purchasedData.supplierNames.join(", ")
+                    : "-",
+                  passNo: purchasedData.passNo
+                    ? purchasedData.passNo.join(", ")
+                    : "-",
+                  batchNo: purchasedData.batchNo
+                    ? purchasedData.batchNo.join(", ")
+                    : "-",
                   pcs: purchasedData.pcs ? purchasedData.pcs.join(", ") : "-",
                   total: item.total,
                   totalSold: item.totalSold,
                   closingBalance: item.closingBalance,
                 };
               })}
-            columns={columnsData}
-            rowCount={totalCount}
-            pagination
-            paginationModel={paginationModel}
-            onPaginationModelChange={setPaginationModel}
-            pageSizeOptions={[10, 25, 50]}
-            sx={{ backgroundColor: "#fff" }}
-            loading={loading}
-            components={{
-              LoadingOverlay: () => (
-                <Box
-                  sx={{
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                  }}
-                >
-                  <CircularProgress />
-                </Box>
-              ),
-            }}
-            slots={{
-              toolbar: GridToolbar,
-            }}
-            initialState={{
-              density: "compact",
-            }}
-          />
+              columns={columnsData}
+              rowCount={totalCount}
+              pagination
+              paginationModel={paginationModel}
+              onPaginationModelChange={setPaginationModel}
+              pageSizeOptions={[10, 25, 50]}
+              sx={{ backgroundColor: "#fff" }}
+              loading={loading}
+              components={{
+                LoadingOverlay: () => (
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                    }}
+                  >
+                    <CircularProgress />
+                  </Box>
+                ),
+              }}
+              slots={{
+                toolbar: GridToolbar,
+              }}
+              initialState={{
+                density: "compact",
+              }}
+            />
+          ) : (
+            <Typography variant="body1" color="red">
+              You do not have permission to view this data.
+            </Typography>
+          )}
         </Box>
       </Box>
     </ThemeProvider>
