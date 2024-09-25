@@ -14,15 +14,13 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import React, { useEffect, useState } from "react";
 import { getAllCustomer } from "../../../services/customerService";
-import { NotificationManager } from "react-notifications";
-import { getAllItems } from "../../../services/itemService";
-import { getAllBrands } from "../../../services/brandService";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import dayjs from "dayjs";
 import { getItemWiseSaleDetails, searchByBrandName, searchByItemName } from "../../../services/saleBillService";
 import { getAllItemCategory } from "../../../services/categoryService";
 import { customTheme } from "../../../utils/customTheme";
 import debounce from "lodash.debounce";
+import { usePermissions } from "../../../utils/PermissionsContext";
 
 const ItemWiseSaleReport = () => {
   const [allSalesData, setAllSalesData] = useState([]);
@@ -58,6 +56,12 @@ const ItemWiseSaleReport = () => {
     pageSize: 10,
   });
   const [totalCount, setTotalCount] = useState(0);
+  const { permissions, role } = usePermissions();
+
+  const reportsPermissions =
+    permissions?.find((permission) => permission.moduleName === "Reports")
+      ?.permissions || [];
+  const canRead = reportsPermissions.includes("read");
 
   const columns = [
     {
@@ -349,9 +353,7 @@ const ItemWiseSaleReport = () => {
         <Typography variant="subtitle2" gutterBottom>
           Item Wise Sale Report:
         </Typography>
-        <Typography sx={{ fontSize: "13px" }}>
-          Filter By:
-        </Typography>
+        <Typography sx={{ fontSize: "13px" }}>Filter By:</Typography>
 
         <Grid container spacing={2}>
           <Grid item xs={3}>
@@ -444,7 +446,12 @@ const ItemWiseSaleReport = () => {
                 }}
                 className="input-field"
                 renderInput={(params) => (
-                  <TextField {...params} fullWidth size="small" name="brandName" />
+                  <TextField
+                    {...params}
+                    fullWidth
+                    size="small"
+                    name="brandName"
+                  />
                 )}
               />
             </div>
@@ -464,7 +471,12 @@ const ItemWiseSaleReport = () => {
                 }}
                 className="input-field"
                 renderInput={(params) => (
-                  <TextField {...params} fullWidth size="small" name="itemName" />
+                  <TextField
+                    {...params}
+                    fullWidth
+                    size="small"
+                    name="itemName"
+                  />
                 )}
               />
             </div>
@@ -653,6 +665,7 @@ const ItemWiseSaleReport = () => {
           sx={{
             display: "flex",
             justifyContent: "flex-end",
+            gap: 1,
             "& button": { marginTop: 1 },
           }}
         >
@@ -676,12 +689,12 @@ const ItemWiseSaleReport = () => {
                 billNo: "",
                 pack: "",
                 phone: "",
-                mode: ""
+                mode: "",
               });
-              setItemName("")
-              setBrandName("")
-              setItemNameOptions([])
-              setBrandNameOptions([])
+              setItemName("");
+              setBrandName("");
+              setItemNameOptions([]);
+              setBrandNameOptions([]);
               setPaginationModel({ page: 0, pageSize: 10 });
               // fetchAllSales();
             }}
@@ -703,7 +716,8 @@ const ItemWiseSaleReport = () => {
             size="small"
             variant="contained"
             onClick={fetchAllSales}
-            sx={{ marginLeft: 2 }}
+            // sx={{ marginLeft: 2 }}
+            disabled={!canRead && role !== "admin"}
           >
             Display
           </Button>
@@ -719,55 +733,76 @@ const ItemWiseSaleReport = () => {
             "& .custom-cell": { paddingLeft: 4 },
           }}
         >
-          <DataGrid
-            rows={(allSalesData || [])?.map((item, index) => ({
-              id: index,
-              sNo: index + 1,
-              createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
-              billDate: item.billDate || "No Data",
-              billNo: item.billNo || "No Data",
-              billType: item.billType || "No Data",
-              itemCode: item.salesItems?.itemDetails?.itemCode || item.salesItems?.itemCode || "No Data",
-              itemName: item.salesItems?.item?.name || "No Data",
-              brandName: item.salesItems?.item?.brand?.name || "No Data",
-              categoryName: item.salesItems?.item?.category?.categoryName || "No Data",
-              customerName: item.customer?.name || "No Data",
-              batchNo: item.salesItems?.itemDetails?.batchNo || item.salesItems?.batchNo || "No Data",
-              brokenNo: item.brokenNo || item?.salesItems?.break || 0,
-              caseNo: item.caseNo || 0,
-              pcs: item.salesItems?.pcs || 0,
-              pack: item.salesItems?.item?.volume || 0,
-              series: item.billSeries || "No Data",
-              group: item.salesItems?.item?.group || "No Data",
-              // updatedAt: new Date(item.updatedAt).toLocaleDateString("en-GB"),
-              mrp: item.salesItems?.itemDetails?.mrp || item.salesItems?.mrp || 0,
-              // bl: item.salesItems?.itemDetails?.bl || item.salesItems?.bl || 0,
-              rate: item.salesItems?.itemDetails?.saleRate || item.salesItems?.rate || 0,
-              broken: item.salesItems?.break || 0,
-              // split: item.salesItems?.split || 0,
-              itemAmount: item.salesItems?.amount || 0,
-            }))}
-            columns={columns}
-            rowCount={totalCount}
-            pagination
-            paginationMode="server"
-            pageSizeOptions={[10, 25, 50, 100]}
-            onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
-            sx={{ backgroundColor: "#fff" }}
-            disableRowSelectionOnClick
-            loading={loading}
-            loadingOverlay={
-              <Box>
-                <CircularProgress />
-              </Box>
-            }
-            slots={{
-              toolbar: GridToolbar,
-            }}
-            initialState={{
-              density: "compact",
-            }}
-          />
+          {canRead || role === "admin" ? (
+            <DataGrid
+              rows={(allSalesData || [])?.map((item, index) => ({
+                id: index,
+                sNo: index + 1,
+                createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
+                billDate: item.billDate || "No Data",
+                billNo: item.billNo || "No Data",
+                billType: item.billType || "No Data",
+                itemCode:
+                  item.salesItems?.itemDetails?.itemCode ||
+                  item.salesItems?.itemCode ||
+                  "No Data",
+                itemName: item.salesItems?.item?.name || "No Data",
+                brandName: item.salesItems?.item?.brand?.name || "No Data",
+                categoryName:
+                  item.salesItems?.item?.category?.categoryName || "No Data",
+                customerName: item.customer?.name || "No Data",
+                batchNo:
+                  item.salesItems?.itemDetails?.batchNo ||
+                  item.salesItems?.batchNo ||
+                  "No Data",
+                brokenNo: item.brokenNo || item?.salesItems?.break || 0,
+                caseNo: item.caseNo || 0,
+                pcs: item.salesItems?.pcs || 0,
+                pack: item.salesItems?.item?.volume || 0,
+                series: item.billSeries || "No Data",
+                group: item.salesItems?.item?.group || "No Data",
+                // updatedAt: new Date(item.updatedAt).toLocaleDateString("en-GB"),
+                mrp:
+                  item.salesItems?.itemDetails?.mrp ||
+                  item.salesItems?.mrp ||
+                  0,
+                // bl: item.salesItems?.itemDetails?.bl || item.salesItems?.bl || 0,
+                rate:
+                  item.salesItems?.itemDetails?.saleRate ||
+                  item.salesItems?.rate ||
+                  0,
+                broken: item.salesItems?.break || 0,
+                // split: item.salesItems?.split || 0,
+                itemAmount: item.salesItems?.amount || 0,
+              }))}
+              columns={columns}
+              rowCount={totalCount}
+              pagination
+              paginationMode="server"
+              pageSizeOptions={[10, 25, 50, 100]}
+              onPaginationModelChange={(newModel) =>
+                setPaginationModel(newModel)
+              }
+              sx={{ backgroundColor: "#fff" }}
+              disableRowSelectionOnClick
+              loading={loading}
+              loadingOverlay={
+                <Box>
+                  <CircularProgress />
+                </Box>
+              }
+              slots={{
+                toolbar: GridToolbar,
+              }}
+              initialState={{
+                density: "compact",
+              }}
+            />
+          ) : (
+            <Typography variant="body1">
+              You do not have permission to view this data.
+            </Typography>
+          )}
         </Box>
       </Box>
     </ThemeProvider>

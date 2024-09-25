@@ -20,6 +20,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { customTheme } from "../../../utils/customTheme";
 import { getAllStores } from "../../../services/storeService";
+import { usePermissions } from "../../../utils/PermissionsContext";
 
 const PurchaseReportSummary = () => {
   const [selectedSupplier, setSelectedSupplier] = useState("");
@@ -38,8 +39,13 @@ const PurchaseReportSummary = () => {
 
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [openDeleteConfirmModal, setOpenDeleteConfirmModal] = useState(false);
-  const [deleteConfirmed, setDeleteConfirmed] = useState(false);
+
+  const { permissions, role } = usePermissions();
+
+  const reportsPermissions =
+    permissions?.find((permission) => permission.moduleName === "Reports")
+      ?.permissions || [];
+  const canRead = reportsPermissions.includes("read");
 
   const formatDate = (date) => {
     if (!date) return null;
@@ -256,7 +262,6 @@ const PurchaseReportSummary = () => {
       //   "Error"
       // );
       console.error("Error fetching suppliers:", error);
-
     }
   };
 
@@ -277,7 +282,7 @@ const PurchaseReportSummary = () => {
 
   useEffect(() => {
     const debouncedFetch = debounce(fetchAllPurchases, 300);
-    if(stockIn) {
+    if (stockIn) {
       debouncedFetch();
     }
   }, [paginationModel, dateFrom, dateTo, selectedSupplier, stockIn]);
@@ -397,6 +402,7 @@ const PurchaseReportSummary = () => {
           sx={{
             display: "flex",
             justifyContent: "flex-end",
+            gap: 1,
             "& button": { marginTop: 1 },
           }}
         >
@@ -410,7 +416,7 @@ const PurchaseReportSummary = () => {
               setSelectedSupplier("");
               setStockIn("");
               setPaginationModel({ page: 0, pageSize: 10 });
-              setAllPurchases([])
+              setAllPurchases([]);
             }}
           >
             Clear Filters
@@ -420,7 +426,8 @@ const PurchaseReportSummary = () => {
             size="small"
             variant="contained"
             onClick={fetchAllPurchases}
-            sx={{ marginLeft: 2 }}
+            // sx={{ marginLeft: 2 }}
+            disabled={!canRead && role !== "admin"}
           >
             Display
           </Button>
@@ -435,65 +442,71 @@ const PurchaseReportSummary = () => {
             "& .custom-cell": { paddingLeft: 4 },
           }}
         >
-          <DataGrid
-            rows={(allPurchases || []).map((purchase, index) => ({
-              id: index,
-              sNo: index + 1,
-              billDate: purchase.billDate || "No Data",
-              passDate: purchase.passDate || "No Data",
-              entryNo: purchase.entryNo || 0,
-              billNo: purchase.billNo || 0,
-              passNo: purchase.passNo || 0,
-              supplierName: purchase.supplier?.name || "No Data",
-              storeName: purchase.store?.name || "No Data",
-              mrpValue: purchase.mrpValue?.toFixed(2) || 0,
-              grossAmount: purchase.grossAmount?.toFixed(2) || 0,
-              discount: purchase.discount || 0,
-              govtROff: purchase.govtROff?.toFixed(2) || 0,
-              specialPurpose: purchase.specialPurpose?.toFixed(2) || 0,
-              tcsAmount: purchase.tcsAmount?.toFixed(2) || 0,
-              netAmount: purchase.netAmount?.toFixed(2) || 0,
-              action: (
-                <Button
-                  variant="contained"
-                  size="small"
-                  onClick={() => handleViewClick(purchase)}
-                >
-                  View
-                </Button>
-              ),
-            }))}
-            columns={columnsData}
-            rowCount={totalCount}
-            pagination
-            paginationMode="server"
-            pageSizeOptions={[10, 25, 50, 100]}
-            paginationModel={paginationModel}
-            onPaginationModelChange={setPaginationModel}
-            sx={{ backgroundColor: "#fff" }}
-            loading={loading}
-            components={{
-              LoadingOverlay: () => (
-                <Box
-                  sx={{
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                  }}
-                >
-                  <CircularProgress />
-                </Box>
-              ),
-            }}
-            slots={{
-              toolbar: GridToolbar,
-              // pagination: Pagination
-            }}
-            initialState={{
-              density: "compact",
-            }}
-          />
+          {canRead || role === "admin" ? (
+            <DataGrid
+              rows={(allPurchases || []).map((purchase, index) => ({
+                id: index,
+                sNo: index + 1,
+                billDate: purchase.billDate || "No Data",
+                passDate: purchase.passDate || "No Data",
+                entryNo: purchase.entryNo || 0,
+                billNo: purchase.billNo || 0,
+                passNo: purchase.passNo || 0,
+                supplierName: purchase.supplier?.name || "No Data",
+                storeName: purchase.store?.name || "No Data",
+                mrpValue: purchase.mrpValue?.toFixed(2) || 0,
+                grossAmount: purchase.grossAmount?.toFixed(2) || 0,
+                discount: purchase.discount || 0,
+                govtROff: purchase.govtROff?.toFixed(2) || 0,
+                specialPurpose: purchase.specialPurpose?.toFixed(2) || 0,
+                tcsAmount: purchase.tcsAmount?.toFixed(2) || 0,
+                netAmount: purchase.netAmount?.toFixed(2) || 0,
+                action: (
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={() => handleViewClick(purchase)}
+                  >
+                    View
+                  </Button>
+                ),
+              }))}
+              columns={columnsData}
+              rowCount={totalCount}
+              pagination
+              paginationMode="server"
+              pageSizeOptions={[10, 25, 50, 100]}
+              paginationModel={paginationModel}
+              onPaginationModelChange={setPaginationModel}
+              sx={{ backgroundColor: "#fff" }}
+              loading={loading}
+              components={{
+                LoadingOverlay: () => (
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                    }}
+                  >
+                    <CircularProgress />
+                  </Box>
+                ),
+              }}
+              slots={{
+                toolbar: GridToolbar,
+                // pagination: Pagination
+              }}
+              initialState={{
+                density: "compact",
+              }}
+            />
+          ) : (
+            <Typography variant="body1">
+              You do not have permission to view this data.
+            </Typography>
+          )}
 
           <PurchaseDetailsModal
             open={isModalOpen}

@@ -45,10 +45,10 @@ const SaleReportSummary = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { permissions, role } = usePermissions();
 
-  const companyPermissions =
+  const reportsPermissions =
     permissions?.find((permission) => permission.moduleName === "Reports")
       ?.permissions || [];
-  const canRead = companyPermissions.includes("read");
+  const canRead = reportsPermissions.includes("read");
 
   const formatDate = (date) => {
     if (!date) return null;
@@ -546,11 +546,14 @@ const SaleReportSummary = () => {
               You do not have permission to view this data.
             </Typography>
           )}
-          <SalesDetailsModal
-            open={isModalOpen}
-            handleClose={() => setIsModalOpen(false)}
-            rowData={selectedRowData}
-          />
+          {canRead ||
+            (role === "admin" && (
+              <SalesDetailsModal
+                open={isModalOpen}
+                handleClose={() => setIsModalOpen(false)}
+                rowData={selectedRowData}
+              />
+            ))}
         </Box>
       </Box>
     </ThemeProvider>

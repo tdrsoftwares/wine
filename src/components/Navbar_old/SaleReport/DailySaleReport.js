@@ -23,12 +23,17 @@ import {
   GridToolbar,
   useGridApiRef,
 } from "@mui/x-data-grid";
-import { getDailySalesDetails, searchByBrandName, searchByItemName } from "../../../services/saleBillService";
+import {
+  getDailySalesDetails,
+  searchByBrandName,
+  searchByItemName,
+} from "../../../services/saleBillService";
 import dayjs from "dayjs";
 import { customTheme } from "../../../utils/customTheme";
 import DailySalePrintComponent from "./DailySalePrintComponent";
 import { useReactToPrint } from "react-to-print";
 import debounce from "lodash.debounce";
+import { usePermissions } from "../../../utils/PermissionsContext";
 
 const DailySaleReport = () => {
   const [allCategory, setAllCategory] = useState([]);
@@ -61,6 +66,12 @@ const DailySaleReport = () => {
   const [brandName, setBrandName] = useState("");
   const [itemNameOptions, setItemNameOptions] = useState([]);
   const [brandNameOptions, setBrandNameOptions] = useState([]);
+  const { permissions, role } = usePermissions();
+
+  const reportsPermissions =
+    permissions?.find((permission) => permission.moduleName === "Reports")
+      ?.permissions || [];
+  const canRead = reportsPermissions.includes("read");
 
   const apiRef = useGridApiRef();
   const printRef = useRef();
@@ -134,7 +145,6 @@ const DailySaleReport = () => {
       //   "Error"
       // );
       console.error(err);
-      
     }
   };
 
@@ -159,7 +169,9 @@ const DailySaleReport = () => {
   };
 
   const fetchAllSales = async () => {
-    const fromDate = filterData.dateFrom ? formatDate(filterData.dateFrom) : null;
+    const fromDate = filterData.dateFrom
+      ? formatDate(filterData.dateFrom)
+      : null;
     const toDate = filterData.dateTo ? formatDate(filterData.dateTo) : null;
 
     setLoading(true);
@@ -177,7 +189,7 @@ const DailySaleReport = () => {
         group: filterData.group,
         itemName: filterData.itemName,
         volume: filterData.volume,
-        mode: filterData.mode
+        mode: filterData.mode,
       };
       const response = await getDailySalesDetails(filterOptions);
       // console.log("Response salesData: ", response);
@@ -579,6 +591,7 @@ const DailySaleReport = () => {
             variant="contained"
             onClick={handlePrint}
             // sx={{ marginLeft: 2 }}
+            disabled={!canRead && role !== "admin"}
           >
             Print
           </Button>
@@ -588,6 +601,7 @@ const DailySaleReport = () => {
             variant="contained"
             onClick={fetchAllSales}
             // sx={{ marginLeft: 2 }}
+            disabled={!canRead && role !== "admin"}
           >
             Display
           </Button>
@@ -602,47 +616,53 @@ const DailySaleReport = () => {
             "& .custom-cell": { paddingLeft: 4 },
           }}
         >
-          <DataGrid
-            rows={(allSalesData || [])?.map((item, index) => ({
-              id: index,
-              sNo: index + 1,
-              itemName: item._id || "No Data",
-              totalPcs: item.totalPcs || "No Data",
-              rate: item.rate || "No Data",
-              totalVolumeLiters: item.totalVolumeLiters || "No Data",
-              totalAmount: item.totalAmount || "No Data",
-            }))}
-            columns={columns}
-            rowCount={totalCount}
-            apiRef={apiRef}
-            pagination
-            paginationMode="server"
-            paginationModel={paginationModel}
-            pageSizeOptions={[10, 25, 50, 100]}
-            onPaginationModelChange={setPaginationModel}
-            sx={{ backgroundColor: "#fff" }}
-            disableRowSelectionOnClick
-            loading={loading}
-            loadingOverlay={
-              <Box>
-                <CircularProgress />
-              </Box>
-            }
-            slots={{
-              footer: CustomFooter,
-              toolbar: GridToolbar,
-            }}
-            initialState={{
-              pagination: {
-                paginationModel: {
-                  page: paginationModel.page,
-                  pageSize: paginationModel.pageSize,
+          {canRead || role === "admin" ? (
+            <DataGrid
+              rows={(allSalesData || [])?.map((item, index) => ({
+                id: index,
+                sNo: index + 1,
+                itemName: item._id || "No Data",
+                totalPcs: item.totalPcs || "No Data",
+                rate: item.rate || "No Data",
+                totalVolumeLiters: item.totalVolumeLiters || "No Data",
+                totalAmount: item.totalAmount || "No Data",
+              }))}
+              columns={columns}
+              rowCount={totalCount}
+              apiRef={apiRef}
+              pagination
+              paginationMode="server"
+              paginationModel={paginationModel}
+              pageSizeOptions={[10, 25, 50, 100]}
+              onPaginationModelChange={setPaginationModel}
+              sx={{ backgroundColor: "#fff" }}
+              disableRowSelectionOnClick
+              loading={loading}
+              loadingOverlay={
+                <Box>
+                  <CircularProgress />
+                </Box>
+              }
+              slots={{
+                footer: CustomFooter,
+                toolbar: GridToolbar,
+              }}
+              initialState={{
+                pagination: {
+                  paginationModel: {
+                    page: paginationModel.page,
+                    pageSize: paginationModel.pageSize,
+                  },
+                  rowCount: totalCount,
                 },
-                rowCount: totalCount,
-              },
-              density: "compact",
-            }}
-          />
+                density: "compact",
+              }}
+            />
+          ) : (
+            <Typography variant="body1">
+              You do not have permission to view this data.
+            </Typography>
+          )}
         </Box>
 
         <div style={{ display: "none" }}>

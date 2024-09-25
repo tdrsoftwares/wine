@@ -20,7 +20,11 @@ import { getAllSuppliers } from "../../../services/supplierService";
 import { getAllItemCategory } from "../../../services/categoryService";
 import { customTheme } from "../../../utils/customTheme";
 import debounce from "lodash.debounce";
-import { searchByBrandName, searchByItemName } from "../../../services/saleBillService";
+import {
+  searchByBrandName,
+  searchByItemName,
+} from "../../../services/saleBillService";
+import { usePermissions } from "../../../utils/PermissionsContext";
 
 const ItemWisePurchaseReport = () => {
   const [filterData, setFilterData] = useState({
@@ -50,12 +54,18 @@ const ItemWisePurchaseReport = () => {
   const [brandName, setBrandName] = useState("");
   const [itemNameOptions, setItemNameOptions] = useState([]);
   const [brandNameOptions, setBrandNameOptions] = useState([]);
-  
+
   const [loading, setLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     page: 1,
     pageSize: 10,
   });
+  const { permissions, role } = usePermissions();
+
+  const reportsPermissions =
+    permissions?.find((permission) => permission.moduleName === "Reports")
+      ?.permissions || [];
+  const canRead = reportsPermissions.includes("read");
 
   const formatDate = (date) => {
     if (!date) return null;
@@ -249,7 +259,7 @@ const ItemWisePurchaseReport = () => {
         categoryName: filterData.categoryName,
         volume: filterData.pack,
         itemCode: filterData.itemCode,
-        mode: filterData.mode
+        mode: filterData.mode,
       };
       const response = await getItemWisePurchaseDetails(filterOptions);
       // console.log("Response: ", response);
@@ -266,7 +276,7 @@ const ItemWisePurchaseReport = () => {
       // NotificationManager.error(
       //  "Error fetching purchases. Please try again later.",
       //   "Error"
-      // ); 
+      // );
       console.log("Error fetching purchases", error);
     } finally {
       setLoading(false);
@@ -277,20 +287,18 @@ const ItemWisePurchaseReport = () => {
     try {
       const response = await getAllSuppliers();
       // console.log("response: ", response)
-      if(response.status === 200) {
+      if (response.status === 200) {
         setAllSuppliers(response?.data?.data);
       } else {
-        setAllSuppliers([])
+        setAllSuppliers([]);
         // NotificationManager.error("No suppliers found.", "Error")
       }
-      
     } catch (error) {
       // NotificationManager.error(
       //   "Error fetching suppliers. Please try again later.",
       //   "Error"
       // );
       console.error("Error fetching suppliers:", error);
-
     }
   };
 
@@ -301,7 +309,7 @@ const ItemWisePurchaseReport = () => {
         setAllCategory(getAllCategoryResponse?.data?.data);
       } else {
         // NotificationManager.error("No category found." , "Error");
-        setAllCategory([])
+        setAllCategory([]);
       }
     } catch (err) {
       // NotificationManager.error(
@@ -309,7 +317,6 @@ const ItemWisePurchaseReport = () => {
       //   "Error"
       // );
       console.error(err);
-
     }
   };
 
@@ -360,11 +367,7 @@ const ItemWisePurchaseReport = () => {
   useEffect(() => {
     const debouncedFetch = debounce(fetchAllPurchases, 300);
     debouncedFetch();
-  }, [
-    paginationModel,
-    selectedSupplier,
-    filterData
-  ]);
+  }, [paginationModel, selectedSupplier, filterData]);
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -463,7 +466,12 @@ const ItemWisePurchaseReport = () => {
                 }}
                 className="input-field"
                 renderInput={(params) => (
-                  <TextField {...params} fullWidth size="small" name="itemName" />
+                  <TextField
+                    {...params}
+                    fullWidth
+                    size="small"
+                    name="itemName"
+                  />
                 )}
               />
             </div>
@@ -501,7 +509,12 @@ const ItemWisePurchaseReport = () => {
                 }}
                 className="input-field"
                 renderInput={(params) => (
-                  <TextField {...params} fullWidth size="small" name="brandName" />
+                  <TextField
+                    {...params}
+                    fullWidth
+                    size="small"
+                    name="brandName"
+                  />
                 )}
               />
             </div>
@@ -519,7 +532,9 @@ const ItemWisePurchaseReport = () => {
                 name="categoryName"
                 className="input-field"
                 value={filterData.categoryName}
-                onChange={(e) => setFilterData({...filterData, categoryName: e.target.value})}
+                onChange={(e) =>
+                  setFilterData({ ...filterData, categoryName: e.target.value })
+                }
                 SelectProps={{
                   MenuProps: {
                     PaperProps: {
@@ -551,7 +566,9 @@ const ItemWisePurchaseReport = () => {
                 name="volume"
                 className="input-field"
                 value={filterData.pack}
-                onChange={(e) => setFilterData({...filterData, pack: e.target.value})}
+                onChange={(e) =>
+                  setFilterData({ ...filterData, pack: e.target.value })
+                }
               />
             </div>
           </Grid>
@@ -567,7 +584,9 @@ const ItemWisePurchaseReport = () => {
                 name="mode"
                 className="input-field"
                 value={filterData.mode}
-                onChange={(e) => setFilterData({...filterData, mode: e.target.value})}
+                onChange={(e) =>
+                  setFilterData({ ...filterData, mode: e.target.value })
+                }
               >
                 <MenuItem value="">None</MenuItem>
                 {["cash", "online"].map((option, i) => (
@@ -584,6 +603,7 @@ const ItemWisePurchaseReport = () => {
           sx={{
             display: "flex",
             justifyContent: "flex-end",
+            gap: 1,
             "& button": { marginTop: 1 },
           }}
         >
@@ -607,13 +627,13 @@ const ItemWisePurchaseReport = () => {
                 billNo: "",
                 pack: "",
                 phone: "",
-                mode: ""
+                mode: "",
               });
-              setSelectedSupplier("")
-              setItemName("")
-              setBrandName("")
-              setItemNameOptions([])
-              setBrandNameOptions([])
+              setSelectedSupplier("");
+              setItemName("");
+              setBrandName("");
+              setItemNameOptions([]);
+              setBrandNameOptions([]);
               setPaginationModel({ page: 1, pageSize: 10 });
             }}
             // sx={{ borderRadius: 8 }}
@@ -634,7 +654,8 @@ const ItemWisePurchaseReport = () => {
             size="small"
             variant="contained"
             onClick={() => fetchAllPurchases()}
-            sx={{ marginLeft: 2 }}
+            // sx={{ marginLeft: 2 }}
+            disabled={!canRead && role !== "admin"}
           >
             Display
           </Button>
@@ -650,62 +671,70 @@ const ItemWisePurchaseReport = () => {
             "& .custom-cell": { paddingLeft: 4 },
           }}
         >
-          <DataGrid
-            rows={(allPurchases || [])?.map((item, index) => ({
-              id: index,
-              sNo: index + 1,
-              createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
-              // billDate: item.billDate || "No Data",
-              entryNo: item.entryNo || "No Data",
-              billNo: item.billNo || "No Data",
-              itemCode: item.purchaseItems?.itemCode || "No Data",
-              itemName: item.purchaseItems?.item?.name || "No Data",
-              brandName: item.purchaseItems?.item?.brand?.name || "No Data",
-              categoryName:
-                item.purchaseItems?.item?.category?.categoryName || "No Data",
-              batchNo: item.purchaseItems?.batchNo || "No Data",
-              brokenNo: item.purchaseItems?.brokenNo || 0,
-              caseNo: item.purchaseItems?.caseNo || 0,
-              pcs: item.purchaseItems?.pcs || 0,
-              volume: item.purchaseItems?.item?.volume || 0,
-              mrp: item.purchaseItems?.mrp || 0,
-              gro: item.purchaseItems?.gro || 0,
-              sp: item.purchaseItems?.sp || 0,
-              bl: item.bl || 0,
-              supplierName: item.supplier?.name || "No Data",
-              storeName: item.store?.name || "No Data",
-              purchaseRate: item.purchaseItems?.purchaseRate || 0,
-              saleRate: item.purchaseItems?.saleRate || 0,
-              itemAmount: item.purchaseItems?.itemAmount || 0,
-            }))}
-            columns={columns}
-            rowCount={totalCount}
-            pagination
-            paginationMode="server"
-            paginationModel={paginationModel}
-            pageSizeOptions={[10, 25, 50, 100]}
-            onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
-            sx={{ backgroundColor: "#fff" }}
-            loading={loading}
-            loadingOverlay={
-              <Box>
-                <CircularProgress />
-              </Box>
-            }
-            slots={{
-              toolbar: GridToolbar,
-            }}
-            initialState={{
-              pagination: {
-                paginationModel: {
-                  page: paginationModel.page,
-                  pageSize: paginationModel.pageSize,
+          {canRead || role === "admin" ? (
+            <DataGrid
+              rows={(allPurchases || [])?.map((item, index) => ({
+                id: index,
+                sNo: index + 1,
+                createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
+                // billDate: item.billDate || "No Data",
+                entryNo: item.entryNo || "No Data",
+                billNo: item.billNo || "No Data",
+                itemCode: item.purchaseItems?.itemCode || "No Data",
+                itemName: item.purchaseItems?.item?.name || "No Data",
+                brandName: item.purchaseItems?.item?.brand?.name || "No Data",
+                categoryName:
+                  item.purchaseItems?.item?.category?.categoryName || "No Data",
+                batchNo: item.purchaseItems?.batchNo || "No Data",
+                brokenNo: item.purchaseItems?.brokenNo || 0,
+                caseNo: item.purchaseItems?.caseNo || 0,
+                pcs: item.purchaseItems?.pcs || 0,
+                volume: item.purchaseItems?.item?.volume || 0,
+                mrp: item.purchaseItems?.mrp || 0,
+                gro: item.purchaseItems?.gro || 0,
+                sp: item.purchaseItems?.sp || 0,
+                bl: item.bl || 0,
+                supplierName: item.supplier?.name || "No Data",
+                storeName: item.store?.name || "No Data",
+                purchaseRate: item.purchaseItems?.purchaseRate || 0,
+                saleRate: item.purchaseItems?.saleRate || 0,
+                itemAmount: item.purchaseItems?.itemAmount || 0,
+              }))}
+              columns={columns}
+              rowCount={totalCount}
+              pagination
+              paginationMode="server"
+              paginationModel={paginationModel}
+              pageSizeOptions={[10, 25, 50, 100]}
+              onPaginationModelChange={(newModel) =>
+                setPaginationModel(newModel)
+              }
+              sx={{ backgroundColor: "#fff" }}
+              loading={loading}
+              loadingOverlay={
+                <Box>
+                  <CircularProgress />
+                </Box>
+              }
+              slots={{
+                toolbar: GridToolbar,
+              }}
+              initialState={{
+                pagination: {
+                  paginationModel: {
+                    page: paginationModel.page,
+                    pageSize: paginationModel.pageSize,
+                  },
+                  rowCount: totalCount,
                 },
-                rowCount: totalCount,
-              },
-              density: "compact",
-            }}
-          />
+                density: "compact",
+              }}
+            />
+          ) : (
+            <Typography variant="body1">
+              You do not have permission to view this data.
+            </Typography>
+          )}
         </Box>
       </Box>
     </ThemeProvider>
