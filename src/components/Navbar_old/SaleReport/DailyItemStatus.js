@@ -31,6 +31,7 @@ import DailyItemStatusPrintComponent from "./DailyItemStatusPrintComponent";
 import { searchByBrandName, searchByItemName } from "../../../services/saleBillService";
 
 import debounce from "lodash.debounce";
+import { usePermissions } from "../../../utils/PermissionsContext";
 
 const DailyItemStatus = () => {
   const todaysDate = dayjs();
@@ -67,6 +68,13 @@ const DailyItemStatus = () => {
   const [brandName, setBrandName] = useState("");
   const [itemNameOptions, setItemNameOptions] = useState([]);
   const [brandNameOptions, setBrandNameOptions] = useState([]);
+
+  const { permissions, role } = usePermissions();
+
+  const reportsPermissions =
+    permissions?.find((permission) => permission.moduleName === "Reports")
+      ?.permissions || [];
+  const canRead = reportsPermissions.includes("read");
 
   const printRef = useRef();
 
@@ -512,7 +520,7 @@ const DailyItemStatus = () => {
                 Brand:
               </InputLabel>
               <Autocomplete
-                options={brandNameOptions.map((option) => option.name)} 
+                options={brandNameOptions.map((option) => option.name)}
                 value={brandName}
                 onChange={handleBrandNameChange}
                 onInputChange={(event, newInputValue) => {
@@ -716,6 +724,7 @@ const DailyItemStatus = () => {
             variant="contained"
             onClick={handlePrint}
             // sx={{ marginLeft: 2 }}
+            disabled={!canRead && role !== "admin"}
           >
             Print
           </Button>
@@ -725,6 +734,7 @@ const DailyItemStatus = () => {
             variant="contained"
             onClick={fetchAllItemStatus}
             // sx={{ marginLeft: 2 }}
+            disabled={!canRead && role !== "admin"}
           >
             Display
           </Button>
@@ -739,47 +749,53 @@ const DailyItemStatus = () => {
             "& .custom-cell": { paddingLeft: 4 },
           }}
         >
-          <DataGrid
-            rows={rows}
-            getRowId={(row) => row.id}
-            columns={columns}
-            rowCount={totalCount}
-            pagination
-            paginationMode="server"
-            pageSizeOptions={[10, 25, 50, 100]}
-            paginationModel={paginationModel}
-            onPaginationModelChange={setPaginationModel}
-            disableRowSelectionOnClick
-            loading={loading}
-            loadingOverlay={
-              <Box>
-                <CircularProgress />
-              </Box>
-            }
-            initialState={{
-              density: "compact",
-            }}
-            slots={{
-              footer: CustomItemStatusFooter,
-              toolbar: GridToolbar,
-            }}
-            slotProps={{
-              footer: {
-                allItemStatusData,
-                filterData,
-                totalOpeningBalance,
-                totalClosingBalance,
-                totalPurchased,
-                totalSold,
-                totalTransferredFrom,
-                totalTransferredTo,
-              },
-            }}
-            sx={{
-              backgroundColor: "#fff",
-              fontSize: "12px",
-            }}
-          />
+          {canRead || role === "admin" ? (
+            <DataGrid
+              rows={rows}
+              getRowId={(row) => row.id}
+              columns={columns}
+              rowCount={totalCount}
+              pagination
+              paginationMode="server"
+              pageSizeOptions={[10, 25, 50, 100]}
+              paginationModel={paginationModel}
+              onPaginationModelChange={setPaginationModel}
+              disableRowSelectionOnClick
+              loading={loading}
+              loadingOverlay={
+                <Box>
+                  <CircularProgress />
+                </Box>
+              }
+              initialState={{
+                density: "compact",
+              }}
+              slots={{
+                footer: CustomItemStatusFooter,
+                toolbar: GridToolbar,
+              }}
+              slotProps={{
+                footer: {
+                  allItemStatusData,
+                  filterData,
+                  totalOpeningBalance,
+                  totalClosingBalance,
+                  totalPurchased,
+                  totalSold,
+                  totalTransferredFrom,
+                  totalTransferredTo,
+                },
+              }}
+              sx={{
+                backgroundColor: "#fff",
+                fontSize: "12px",
+              }}
+            />
+          ) : (
+            <Typography variant="body1" color="red">
+              You do not have permission to view this data.
+            </Typography>
+          )}
         </Box>
 
         <div style={{ display: "none" }}>

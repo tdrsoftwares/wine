@@ -21,6 +21,7 @@ import { customTheme } from "../../../utils/customTheme";
 import { getAllStatements } from "../../../services/monthlyStatementService";
 import PrintableReport from "./PrintableExport";
 import { getLicenseInfo } from "../../../services/licenseService";
+import { usePermissions } from "../../../utils/PermissionsContext";
 
 const MonthlyStatement = () => {
   const [dateFrom, setDateFrom] = useState(null);
@@ -34,6 +35,12 @@ const MonthlyStatement = () => {
   const [licenseDetails, setLicenseDetails] = useState({});
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const { permissions, role } = usePermissions();
+
+  const reportsPermissions =
+    permissions?.find((permission) => permission.moduleName === "Reports")
+      ?.permissions || [];
+  const canRead = reportsPermissions.includes("read");
 
   const formatDate = (date) => {
     if (!date) return null;
@@ -291,6 +298,8 @@ const MonthlyStatement = () => {
             data={allStatements}
             licenseDetails={licenseDetails}
             isPcsTrue={isPcsTrue}
+            canRead={canRead}
+            role={role}
           />
 
           <div>
@@ -302,7 +311,6 @@ const MonthlyStatement = () => {
                 setDateFrom(null);
                 setDateTo(null);
               }}
-              sx={{ padding: "4px 10px", fontSize: "11px" }}
             >
               Clear Filters
             </Button>
@@ -312,7 +320,8 @@ const MonthlyStatement = () => {
               size="small"
               variant="contained"
               onClick={fetchAllStatements}
-              sx={{ marginLeft: 2, padding: "4px 10px", fontSize: "11px" }}
+              sx={{ marginLeft: 1 }}
+              disabled={!canRead && role !== "admin"}
             >
               Display
             </Button>
@@ -323,39 +332,45 @@ const MonthlyStatement = () => {
           sx={{
             height: 500,
             width: "100%",
-            marginTop: 1,
+            marginTop: 2,
             "& .custom-header": { backgroundColor: "#dae4ed", paddingLeft: 4 },
             "& .custom-cell": { paddingLeft: 4 },
           }}
         >
-          <DataGrid
-            rows={rows}
-            columns={columnsData}
-            rowCount={totalCount}
-            pagination
-            paginationModel={paginationModel}
-            onPaginationModelChange={setPaginationModel}
-            pageSizeOptions={[10, 25, 50]}
-            sx={{ backgroundColor: "#fff" }}
-            loading={loading}
-            components={{
-              LoadingOverlay: () => (
-                <Box
-                  sx={{
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                  }}
-                >
-                  <CircularProgress />
-                </Box>
-              ),
-            }}
-            initialState={{
-              density: "compact",
-            }}
-          />
+          {canRead || role === "admin" ? (
+            <DataGrid
+              rows={rows}
+              columns={columnsData}
+              rowCount={totalCount}
+              pagination
+              paginationModel={paginationModel}
+              onPaginationModelChange={setPaginationModel}
+              pageSizeOptions={[10, 25, 50]}
+              sx={{ backgroundColor: "#fff" }}
+              loading={loading}
+              components={{
+                LoadingOverlay: () => (
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                    }}
+                  >
+                    <CircularProgress />
+                  </Box>
+                ),
+              }}
+              initialState={{
+                density: "compact",
+              }}
+            />
+          ) : (
+            <Typography variant="body1" color="red">
+              You do not have permission to view this data.
+            </Typography>
+          )}
         </Box>
       </Box>
     </ThemeProvider>

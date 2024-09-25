@@ -74,7 +74,7 @@ const StockReport = () => {
   const { permissions, role } = usePermissions();
 
   const reportsPermissions =
-    permissions?.find((permission) => permission.moduleName === "Reports")
+    permissions?.find((permission) => permission.moduleName === "Stock")
       ?.permissions || [];
   const canRead = reportsPermissions.includes("read");
 
@@ -681,7 +681,7 @@ const StockReport = () => {
           sx={{
             height: 450,
             width: "100%",
-            marginTop: 1,
+            marginTop: 2,
             "& .custom-header": {
               backgroundColor: "#dae4ed",
             },
@@ -748,7 +748,7 @@ const StockReport = () => {
               sx={{ backgroundColor: "#fff", fontSize: "12px" }}
             />
           ) : (
-            <Typography variant="body1">
+            <Typography variant="body1" color="red">
               You do not have permission to view this data.
             </Typography>
           )}

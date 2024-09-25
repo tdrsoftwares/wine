@@ -17,6 +17,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { customTheme } from "../../../utils/customTheme";
 import debounce from "lodash/debounce";
 import dayjs from "dayjs";
+import { usePermissions } from "../../../utils/PermissionsContext";
 
 const DailyProfitReport = () => {
   const [allProfitData, setAllProfitData] = useState([]);
@@ -30,6 +31,13 @@ const DailyProfitReport = () => {
     dateFrom: null,
     dateTo: null,
   });
+
+  const { permissions, role } = usePermissions();
+
+  const reportsPermissions =
+    permissions?.find((permission) => permission.moduleName === "Reports")
+      ?.permissions || [];
+  const canRead = reportsPermissions.includes("read");
 
   const columns = [
     {
@@ -201,19 +209,20 @@ const DailyProfitReport = () => {
           >
             Clear Filters
           </Button>
-          <Button
+          {/* <Button
             color="warning"
             size="small"
             variant="contained"
             onClick={() => {}}
           >
             Print
-          </Button>
+          </Button> */}
           <Button
             color="info"
             size="small"
             variant="contained"
             onClick={fetchAllProfits}
+            disabled={!canRead && role !== "admin"}
           >
             Display
           </Button>
@@ -228,7 +237,7 @@ const DailyProfitReport = () => {
             "& .custom-cell": { paddingLeft: 4 },
           }}
         >
-          <DataGrid
+          {canRead || role === "admin" ? <DataGrid
             rows={(allProfitData || [])?.map((item, index) => ({
               id: index,
               sNo: index + 1,
@@ -258,7 +267,11 @@ const DailyProfitReport = () => {
             initialState={{
               density: "compact",
             }}
-          />
+          />: (
+            <Typography variant="body1" color="red">
+              You do not have permission to view this data.
+            </Typography>
+          )}
         </Box>
       </Box>
     </ThemeProvider>

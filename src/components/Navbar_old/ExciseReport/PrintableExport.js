@@ -256,7 +256,7 @@ const PrintComponent = forwardRef(
   }
 );
 
-const PrintableReport = ({ data, licenseDetails, isPcsTrue }) => {
+const PrintableReport = ({ data, licenseDetails, isPcsTrue, canRead, role }) => {
   const componentRef = useRef();
   const XLXS = require("xlsx");
 
@@ -375,6 +375,7 @@ const PrintableReport = ({ data, licenseDetails, isPcsTrue }) => {
           variant="contained"
           sx={{ padding: "4px 10px", fontSize: "11px", marginRight: 1 }}
           onClick={handlePrint}
+          disabled={!canRead && role !== "admin"}
         >
           Print
         </Button>
@@ -384,6 +385,7 @@ const PrintableReport = ({ data, licenseDetails, isPcsTrue }) => {
           variant="contained"
           sx={{ padding: "4px 10px", fontSize: "11px", marginRight: 1 }}
           onClick={exportToExcel}
+          disabled={!canRead && role !== "admin"}
         >
           Export to Excel
         </Button>
@@ -393,6 +395,7 @@ const PrintableReport = ({ data, licenseDetails, isPcsTrue }) => {
           variant="contained"
           sx={{ padding: "4px 10px", fontSize: "11px" }}
           onClick={exportToPDF}
+          disabled={!canRead && role !== "admin"}
         >
           Export to PDF
         </Button>

@@ -646,7 +646,7 @@ const ItemTransferReport = () => {
               }}
             />
           ) : (
-            <Typography variant="body1">
+            <Typography variant="body1" color="red">
               You do not have permission to view this data.
             </Typography>
           )}

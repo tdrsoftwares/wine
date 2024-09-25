@@ -29,6 +29,7 @@ import { customTheme } from "../utils/customTheme";
 import debounce from "lodash.debounce";
 import ItemLedgerStatusPrintComponent from "./ItemLedgerStatusPrintComponent";
 import { searchByBrandName, searchByItemName } from "../services/saleBillService";
+import { usePermissions } from "../utils/PermissionsContext";
 
 const ItemLedgerStatus = () => {
   const todaysDate = dayjs();
@@ -66,6 +67,13 @@ const ItemLedgerStatus = () => {
   const [brandName, setBrandName] = useState("");
   const [itemNameOptions, setItemNameOptions] = useState([]);
   const [brandNameOptions, setBrandNameOptions] = useState([]);
+
+  const { permissions, role } = usePermissions();
+
+  const reportsPermissions =
+    permissions?.find((permission) => permission.moduleName === "Reports")
+      ?.permissions || [];
+  const canRead = reportsPermissions.includes("read");
 
   const printRef = useRef();
 
@@ -743,7 +751,7 @@ const ItemLedgerStatus = () => {
                 justifyContent: "flex-end",
                 alignItems: "center",
                 gap: 1,
-                "& button": { marginTop: 2 },
+                "& button": { marginTop: 1 },
               }}
             >
               <Button
@@ -778,6 +786,7 @@ const ItemLedgerStatus = () => {
                 size="small"
                 variant="contained"
                 onClick={handlePrint}
+                disabled={!canRead && role !== "admin"}
               >
                 Print
               </Button>
@@ -786,6 +795,7 @@ const ItemLedgerStatus = () => {
                 size="small"
                 variant="contained"
                 onClick={fetchAllItemLedgerStatus}
+                disabled={!canRead && role !== "admin"}
               >
                 Display
               </Button>
@@ -797,7 +807,7 @@ const ItemLedgerStatus = () => {
           sx={{
             height: 500,
             width: "100%",
-            marginTop: 1,
+            marginTop: 2,
             "& .custom-header": {
               backgroundColor: "#dae4ed",
               paddingLeft: 4,
@@ -805,47 +815,53 @@ const ItemLedgerStatus = () => {
             "& .custom-cell": { paddingLeft: 4 },
           }}
         >
-          <DataGrid
-            rows={rows}
-            getRowId={(row) => row.id}
-            columns={columns}
-            rowCount={totalCount}
-            pagination
-            paginationMode="server"
-            pageSizeOptions={[10, 25, 50, 100]}
-            paginationModel={paginationModel}
-            onPaginationModelChange={setPaginationModel}
-            disableRowSelectionOnClick
-            loading={loading}
-            loadingOverlay={
-              <Box>
-                <CircularProgress />
-              </Box>
-            }
-            initialState={{
-              density: "compact",
-            }}
-            slots={{
-              footer: CustomItemLedgerStatusFooter,
-              toolbar: GridToolbar,
-            }}
-            slotProps={{
-              footer: {
-                allItemStatusData,
-                filterData,
-                totalOpeningBalance,
-                totalClosingBalance,
-                totalPurchased,
-                totalSold,
-                totalTransferredFrom,
-                totalTransferredTo,
-              },
-            }}
-            sx={{
-              backgroundColor: "#fff",
-              fontSize: "12px",
-            }}
-          />
+          {canRead || role === "admin" ? (
+            <DataGrid
+              rows={rows}
+              getRowId={(row) => row.id}
+              columns={columns}
+              rowCount={totalCount}
+              pagination
+              paginationMode="server"
+              pageSizeOptions={[10, 25, 50, 100]}
+              paginationModel={paginationModel}
+              onPaginationModelChange={setPaginationModel}
+              disableRowSelectionOnClick
+              loading={loading}
+              loadingOverlay={
+                <Box>
+                  <CircularProgress />
+                </Box>
+              }
+              initialState={{
+                density: "compact",
+              }}
+              slots={{
+                footer: CustomItemLedgerStatusFooter,
+                toolbar: GridToolbar,
+              }}
+              slotProps={{
+                footer: {
+                  allItemStatusData,
+                  filterData,
+                  totalOpeningBalance,
+                  totalClosingBalance,
+                  totalPurchased,
+                  totalSold,
+                  totalTransferredFrom,
+                  totalTransferredTo,
+                },
+              }}
+              sx={{
+                backgroundColor: "#fff",
+                fontSize: "12px",
+              }}
+            />
+          ) : (
+            <Typography variant="body1" color="red">
+              You do not have permission to view this data.
+            </Typography>
+          )}
         </Box>
       </Box>
 

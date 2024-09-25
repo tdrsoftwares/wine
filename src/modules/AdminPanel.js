@@ -182,7 +182,7 @@ const AdminPanel = () => {
           <Grid item xs={12}>
             <Typography variant="subtitle2">Delete here:</Typography>
           </Grid>
-          {role === "admin" && (
+          {role === "admin" ? (
             <>
               <Grid item xs={6}>
                 <Button
@@ -253,6 +253,10 @@ const AdminPanel = () => {
                 </Button>
               </Grid>
             </>
+          ) : (
+            <Typography variant="body1" color="red" sx={{ margin: 2 }}>
+              You do not have permission to view this data.
+            </Typography>
           )}
         </Grid>
 

@@ -437,7 +437,7 @@ const PurchaseReportSummary = () => {
           sx={{
             height: 500,
             width: "100%",
-            marginTop: 1,
+            marginTop: 2,
             "& .custom-header": { backgroundColor: "#dae4ed", paddingLeft: 4 },
             "& .custom-cell": { paddingLeft: 4 },
           }}
@@ -503,7 +503,7 @@ const PurchaseReportSummary = () => {
               }}
             />
           ) : (
-            <Typography variant="body1">
+            <Typography variant="body1" color="red">
               You do not have permission to view this data.
             </Typography>
           )}
