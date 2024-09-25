@@ -23,7 +23,11 @@ import { getItemTransferDetails } from "../../../services/transferService";
 import { getAllStores } from "../../../services/storeService";
 import { getAllBrands } from "../../../services/brandService";
 import debounce from "lodash.debounce";
-import { searchByBrandName, searchByItemName } from "../../../services/saleBillService";
+import {
+  searchByBrandName,
+  searchByItemName,
+} from "../../../services/saleBillService";
+import { usePermissions } from "../../../utils/PermissionsContext";
 
 const ItemTransferReport = () => {
   const [allTransfers, setAllTransfers] = useState([]);
@@ -50,6 +54,12 @@ const ItemTransferReport = () => {
     page: 1,
     pageSize: 10,
   });
+  const { permissions, role } = usePermissions();
+
+  const reportsPermissions =
+    permissions?.find((permission) => permission.moduleName === "Reports")
+      ?.permissions || [];
+  const canRead = reportsPermissions.includes("read");
 
   const formatDate = (date) => {
     if (!date) return null;
@@ -172,7 +182,9 @@ const ItemTransferReport = () => {
   ];
 
   const fetchAllTransfer = async () => {
-    const fromDate = filterData.dateFrom ? formatDate(filterData.dateFrom) : null;
+    const fromDate = filterData.dateFrom
+      ? formatDate(filterData.dateFrom)
+      : null;
     const toDate = filterData.dateTo ? formatDate(filterData.dateTo) : null;
 
     setLoading(true);
@@ -299,7 +311,7 @@ const ItemTransferReport = () => {
 
   useEffect(() => {
     const debouncedFetch = debounce(fetchAllTransfer, 300);
-    if(filterData.storeName){
+    if (filterData.storeName) {
       debouncedFetch();
     }
   }, [paginationModel, filterData]);
@@ -523,6 +535,7 @@ const ItemTransferReport = () => {
           sx={{
             display: "flex",
             justifyContent: "flex-end",
+            gap: 1,
             "& button": { marginTop: 1 },
           }}
         >
@@ -551,20 +564,16 @@ const ItemTransferReport = () => {
             Clear Filters
           </Button>
 
-          {/* <div> */}
-            {/* <Button color="inherit" size="small" variant="contained">
-              Print
-            </Button> */}
-            <Button
-              color="info"
-              size="small"
-              variant="contained"
-              onClick={fetchAllTransfer}
-              sx={{ marginLeft: 2 }}
-            >
-              Display
-            </Button>
-          {/* </div> */}
+          <Button
+            color="info"
+            size="small"
+            variant="contained"
+            onClick={fetchAllTransfer}
+            // sx={{ marginLeft: 2 }}
+            disabled={!canRead && role !== "admin"}
+          >
+            Display
+          </Button>
         </Box>
 
         <Box
@@ -576,63 +585,71 @@ const ItemTransferReport = () => {
             "& .custom-cell": { paddingLeft: 4 },
           }}
         >
-          <DataGrid
-            rows={(allTransfers || [])?.map((item, index) => ({
-              id: index,
-              sNo: index + 1,
-              // createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
-              transferDate: item.transferDate || "No Data",
-              transferFrom: item.transferFrom?.name || "No Data",
-              transferTo: item.transferTo?.name || "No Data",
-              itemCode:
-                item.stocktransferitems?.itemDetails?.itemCode ||
-                item.stocktransferitems?.itemCode ||
-                "No Data",
-              itemName: item.stocktransferitems?.item?.name || "No Data",
-              transferNo: item.transferNo || "No Data",
-              brandName:
-                item.stocktransferitems?.item?.brand?.name || "No Data",
-              categoryName:
-                item.stocktransferitems?.item?.category?.categoryName ||
-                "No Data",
-              batchNo:
-                item.stocktransferitems?.itemDetails?.batchNo ||
-                item.stocktransferitems?.batchNo ||
-                "No Data",
-              caseNo:
-                item.stocktransferitems?.itemDetails?.case ||
-                item.stocktransferitems?.case ||
-                0,
-              pcs: item.stocktransferitems?.pcs || 0,
-              volume: item.stocktransferitems?.item?.volume || 0,
-              totalVolumeLiters: item.totalVolumeLiters || 0,
-              group: item.stocktransferitems?.item?.group || "No Data",
-              mrp:
-                item.stocktransferitems?.itemDetails?.mrp ||
-                item.stocktransferitems?.mrp ||
-                0,
-            }))}
-            columns={columns}
-            rowCount={totalCount}
-            pagination
-            paginationMode="server"
-            paginationModel={paginationModel}
-            pageSizeOptions={[10, 25, 50, 100]}
-            onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
-            sx={{ backgroundColor: "#fff" }}
-            loading={loading}
-            loadingOverlay={
-              <Box>
-                <CircularProgress />
-              </Box>
-            }
-            slots={{
-              toolbar: GridToolbar,
-            }}
-            initialState={{
-              density: "compact",
-            }}
-          />
+          {canRead || role === "admin" ? (
+            <DataGrid
+              rows={(allTransfers || [])?.map((item, index) => ({
+                id: index,
+                sNo: index + 1,
+                // createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
+                transferDate: item.transferDate || "No Data",
+                transferFrom: item.transferFrom?.name || "No Data",
+                transferTo: item.transferTo?.name || "No Data",
+                itemCode:
+                  item.stocktransferitems?.itemDetails?.itemCode ||
+                  item.stocktransferitems?.itemCode ||
+                  "No Data",
+                itemName: item.stocktransferitems?.item?.name || "No Data",
+                transferNo: item.transferNo || "No Data",
+                brandName:
+                  item.stocktransferitems?.item?.brand?.name || "No Data",
+                categoryName:
+                  item.stocktransferitems?.item?.category?.categoryName ||
+                  "No Data",
+                batchNo:
+                  item.stocktransferitems?.itemDetails?.batchNo ||
+                  item.stocktransferitems?.batchNo ||
+                  "No Data",
+                caseNo:
+                  item.stocktransferitems?.itemDetails?.case ||
+                  item.stocktransferitems?.case ||
+                  0,
+                pcs: item.stocktransferitems?.pcs || 0,
+                volume: item.stocktransferitems?.item?.volume || 0,
+                totalVolumeLiters: item.totalVolumeLiters || 0,
+                group: item.stocktransferitems?.item?.group || "No Data",
+                mrp:
+                  item.stocktransferitems?.itemDetails?.mrp ||
+                  item.stocktransferitems?.mrp ||
+                  0,
+              }))}
+              columns={columns}
+              rowCount={totalCount}
+              pagination
+              paginationMode="server"
+              paginationModel={paginationModel}
+              pageSizeOptions={[10, 25, 50, 100]}
+              onPaginationModelChange={(newModel) =>
+                setPaginationModel(newModel)
+              }
+              sx={{ backgroundColor: "#fff" }}
+              loading={loading}
+              loadingOverlay={
+                <Box>
+                  <CircularProgress />
+                </Box>
+              }
+              slots={{
+                toolbar: GridToolbar,
+              }}
+              initialState={{
+                density: "compact",
+              }}
+            />
+          ) : (
+            <Typography variant="body1">
+              You do not have permission to view this data.
+            </Typography>
+          )}
         </Box>
       </Box>
     </ThemeProvider>

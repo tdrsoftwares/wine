@@ -23,9 +23,13 @@ import { getAllCompanies } from "../../services/companyService";
 import { getAllItemCategory } from "../../services/categoryService";
 import { getAllStores } from "../../services/storeService";
 import { customTheme } from "../../utils/customTheme";
-import * as XLSX from 'xlsx';
+import * as XLSX from "xlsx";
 import debounce from "lodash.debounce";
-import { searchByBrandName, searchByItemName } from "../../services/saleBillService";
+import {
+  searchByBrandName,
+  searchByItemName,
+} from "../../services/saleBillService";
+import { usePermissions } from "../../utils/PermissionsContext";
 
 const StockReport = () => {
   const [allStocks, setAllStocks] = useState([]);
@@ -66,6 +70,13 @@ const StockReport = () => {
   const [totalVolume, setTotalVolume] = useState(0);
   const [totalStock, setTotalStock] = useState(0);
   const [totalMRP, setTotalMRP] = useState(0);
+
+  const { permissions, role } = usePermissions();
+
+  const reportsPermissions =
+    permissions?.find((permission) => permission.moduleName === "Reports")
+      ?.permissions || [];
+  const canRead = reportsPermissions.includes("read");
 
   const columns = [
     {
@@ -189,7 +200,7 @@ const StockReport = () => {
     setLoading(true);
     try {
       const filterOptions = {
-        page: paginationModel.page +1,
+        page: paginationModel.page + 1,
         pageSize: paginationModel.pageSize,
         itemName: filterData.itemName,
         itemCode: filterData.itemCode,
@@ -201,16 +212,15 @@ const StockReport = () => {
         company: filterData.company,
       };
       // console.log(hasExportClicked)
-      
+
       // console.log("filterOptions: ", filterOptions);
       // console.log("paginationModel: ", paginationModel);
       const allStocksResponse = await getAllStocks(filterOptions);
       // console.log("allStocksResponse: ", allStocksResponse);
       const allStocksData = allStocksResponse?.data?.data;
-  
+
       setAllStocks(allStocksData?.items || []);
       setTotalCount(allStocksData?.totalItems || 0);
-
     } catch (error) {
       // NotificationManager.error(
       //   "Error fetching stock. Please try again later.",
@@ -226,7 +236,7 @@ const StockReport = () => {
     try {
       const allStoresResponse = await getAllStores();
       // console.log("allStore response: ", allStoresResponse)
-      
+
       if (allStoresResponse.status === 200) {
         setAllStores(allStoresResponse?.data?.data);
       } else {
@@ -251,7 +261,6 @@ const StockReport = () => {
       } else {
         // NotificationManager.error("No companies found." , "Error");
         setAllCompanies([]);
-
       }
     } catch (error) {
       // NotificationManager.error(
@@ -269,7 +278,7 @@ const StockReport = () => {
         setAllCategory(getAllCategoryResponse?.data?.data);
       } else {
         // NotificationManager.error("No category found." , "Error");
-        setAllCategory([])
+        setAllCategory([]);
       }
     } catch (err) {
       // NotificationManager.error(
@@ -277,7 +286,6 @@ const StockReport = () => {
       //   "Error"
       // );
       console.error(err);
-
     }
   };
 
@@ -321,7 +329,7 @@ const StockReport = () => {
 
   useEffect(() => {
     const debouncedFetch = debounce(fetchAllStocks, 300);
-    if(filterData.storeName) {
+    if (filterData.storeName) {
       debouncedFetch();
     }
   }, [paginationModel, filterData]);
@@ -349,7 +357,7 @@ const StockReport = () => {
     setBrandName("");
     setItemNameOptions([]);
     setBrandNameOptions([]);
-    setAllStocks([])
+    setAllStocks([]);
     setPaginationModel({ page: 0, pageSize: 10 });
   };
 
@@ -377,7 +385,6 @@ const StockReport = () => {
     setTotalStock(totalStock);
     setTotalMRP(totalMRP);
   }, [allStocks]);
-
 
   // const exportToExcel = async () => {
   //   setHasExportClicked(true);
@@ -407,7 +414,6 @@ const StockReport = () => {
 
   //   XLSX.writeFile(workbook, "Stock_Report.xlsx");
   // };
-
 
   const CustomFooter = () => {
     return (
@@ -468,7 +474,12 @@ const StockReport = () => {
                 }}
                 className="input-field"
                 renderInput={(params) => (
-                  <TextField {...params} fullWidth size="small" name="itemName" />
+                  <TextField
+                    {...params}
+                    fullWidth
+                    size="small"
+                    name="itemName"
+                  />
                 )}
               />
             </div>
@@ -552,7 +563,12 @@ const StockReport = () => {
                 }}
                 className="input-field"
                 renderInput={(params) => (
-                  <TextField {...params} fullWidth size="small" name="brandName" />
+                  <TextField
+                    {...params}
+                    fullWidth
+                    size="small"
+                    name="brandName"
+                  />
                 )}
               />
             </div>
@@ -627,6 +643,7 @@ const StockReport = () => {
           sx={{
             display: "flex",
             justifyContent: "flex-end",
+            gap: 1,
             "& button": { marginTop: 1 },
           }}
         >
@@ -644,7 +661,6 @@ const StockReport = () => {
             size="small"
             variant="contained"
             onClick={handleClearFilters}
-            sx={{ padding: "4px 10px", fontSize: "11px" }}
           >
             Clear Filters
           </Button>
@@ -654,7 +670,7 @@ const StockReport = () => {
             size="small"
             variant="contained"
             onClick={fetchAllStocks}
-            sx={{ marginLeft: 2, padding: "4px 10px", fontSize: "11px" }}
+            disabled={!canRead && role !== "admin"}
           >
             Display
           </Button>
@@ -671,63 +687,71 @@ const StockReport = () => {
             },
           }}
         >
-          <DataGrid
-            rows={(allStocks || [])?.map((stock, index) => ({
-              id: index,
-              sNo: index + paginationModel.page * paginationModel.pageSize + 1,
-              createdAt: new Date(stock.createdAt).toLocaleDateString("en-GB"),
-              itemCode: stock.itemCode || "No Data",
-              itemName: stock?.item?.name || "No Data",
-              currentStock: stock.currentStock || 0,
-              brandName: stock?.item?.brand?.name || "No Data",
-              categoryName: stock?.item?.category?.categoryName || "No Data",
-              companyName: stock?.item?.company?.name || "No Data",
-              batchNo: stock.batchNo || "No Data",
-              volume: stock?.item?.volume || 0,
-              saleRate: stock.saleRate || 0,
-              purchaseRate: stock.purchaseRate || 0,
-              stockRate: stock.stockRate || 0,
-              storeName: stock.store?.name || "No Data",
-              storeType: stock.store?.type || "No Data",
-              openingStock: stock.openingStock || 0,
-              mrp: stock.mrp || 0,
-            }))}
-            keepNonExistentRowsSelected
-            columns={columnsData}
-            rowCount={totalCount}
-            paginationMode="server"
-            pageSizeOptions={[10, 25, 50, 100]}
-            paginationModel={paginationModel}
-            onPaginationModelChange={(newPaginationModel) =>
-              setPaginationModel(newPaginationModel)
-            }
-            initialState={{
-              density: "compact",
-              sorting: {
-                sortModel: [{ field: 'currentStock', sort: 'desc' }],
+          {canRead || role === "admin" ? (
+            <DataGrid
+              rows={(allStocks || [])?.map((stock, index) => ({
+                id: index,
+                sNo:
+                  index + paginationModel.page * paginationModel.pageSize + 1,
+                createdAt: new Date(stock.createdAt).toLocaleDateString(
+                  "en-GB"
+                ),
+                itemCode: stock.itemCode || "No Data",
+                itemName: stock?.item?.name || "No Data",
+                currentStock: stock.currentStock || 0,
+                brandName: stock?.item?.brand?.name || "No Data",
+                categoryName: stock?.item?.category?.categoryName || "No Data",
+                companyName: stock?.item?.company?.name || "No Data",
+                batchNo: stock.batchNo || "No Data",
+                volume: stock?.item?.volume || 0,
+                saleRate: stock.saleRate || 0,
+                purchaseRate: stock.purchaseRate || 0,
+                stockRate: stock.stockRate || 0,
+                storeName: stock.store?.name || "No Data",
+                storeType: stock.store?.type || "No Data",
+                openingStock: stock.openingStock || 0,
+                mrp: stock.mrp || 0,
+              }))}
+              keepNonExistentRowsSelected
+              columns={columnsData}
+              rowCount={totalCount}
+              paginationMode="server"
+              pageSizeOptions={[10, 25, 50, 100]}
+              paginationModel={paginationModel}
+              onPaginationModelChange={(newPaginationModel) =>
+                setPaginationModel(newPaginationModel)
               }
-            }}
-            
-            disableRowSelectionOnClick
-            loading={loading}
-            loadingOverlay={
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: "50%",
-                  left: "50%",
-                  transform: "translate(-50%, -50%)",
-                }}
-              >
-                <CircularProgress />
-              </Box>
-            }
-            slots={{
-              footer: CustomFooter,
-              toolbar: GridToolbar,
-            }}
-            sx={{ backgroundColor: "#fff", fontSize: "12px" }}
-          />
+              initialState={{
+                density: "compact",
+                sorting: {
+                  sortModel: [{ field: "currentStock", sort: "desc" }],
+                },
+              }}
+              disableRowSelectionOnClick
+              loading={loading}
+              loadingOverlay={
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                  }}
+                >
+                  <CircularProgress />
+                </Box>
+              }
+              slots={{
+                footer: CustomFooter,
+                toolbar: GridToolbar,
+              }}
+              sx={{ backgroundColor: "#fff", fontSize: "12px" }}
+            />
+          ) : (
+            <Typography variant="body1">
+              You do not have permission to view this data.
+            </Typography>
+          )}
         </Box>
       </Box>
     </ThemeProvider>
