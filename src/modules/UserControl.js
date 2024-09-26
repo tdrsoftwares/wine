@@ -236,7 +236,7 @@ const UserControl = ({}) => {
             marginTop: 1,
             fontSize: "11px",
           }}
-          disabled={role !== "admin" && !canCreate}
+          disabled={role !== "admin"}
         >
           CREATE USER
         </Button>
@@ -251,7 +251,7 @@ const UserControl = ({}) => {
             marginTop: 1,
             fontSize: "11px",
           }}
-          disabled={role !== "admin" && !canRead}
+          disabled={role !== "admin"}
         >
           ALL USERS
         </Button>
@@ -268,7 +268,7 @@ const UserControl = ({}) => {
             marginTop: 1,
             fontSize: "11px",
           }}
-          disabled={role !== "admin" && !canCreate}
+          disabled={role !== "admin"}
         >
           CREATE ROLES
         </Button>
@@ -283,7 +283,7 @@ const UserControl = ({}) => {
             marginTop: 1,
             fontSize: "11px",
           }}
-          disabled={role !== "admin" && !canRead}
+          disabled={role !== "admin"}
         >
           ALL ROLES AND PERMISSIONS
         </Button>

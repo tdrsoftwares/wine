@@ -21,6 +21,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import { customTheme } from "../utils/customTheme";
 import { useEffect } from "react";
+import { usePermissions } from "../utils/PermissionsContext";
 
 const StockUpdation = () => {
   const [editableIndex, setEditableIndex] = useState(null);
@@ -33,6 +34,8 @@ const StockUpdation = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const tableRef = useRef(null);
   const [loading, setLoading] = useState(false);
+
+  const { role } = usePermissions();
 
   const fetchAllStocks = async () => {
     setLoading(true);
@@ -194,42 +197,43 @@ const StockUpdation = () => {
                       <CircularProgress />
                     </TableCell>
                   </TableRow>
-                ) : (allStocks || [])?.length > 0 ? (
-                  allStocks.map((item, index) => (
-                    <TableRow
-                      key={index}
-                      sx={{
-                        backgroundColor: "#fff",
-                      }}
-                    >
-                      <TableCell align="center">
-                        {page * rowsPerPage + index + 1}
-                      </TableCell>
-                      <TableCell>
-                        {new Date(item?.createdAt).toLocaleDateString(
-                          "en-GB"
-                        ) || "No Data"}
-                      </TableCell>
-                      <TableCell>
-                        {editableIndex === index ? (
-                          <TextField
-                            fullWidth
-                            value={editedRow.itemCode || ""}
-                            onChange={(e) =>
-                              setEditedRow({
-                                ...editedRow,
-                                itemCode: e.target.value,
-                              })
-                            }
-                            onKeyDown={(e) => handleKeyDown(e, item)}
-                          />
-                        ) : (
-                          item.itemCode || "No Data"
-                        )}
-                      </TableCell>
-                      <TableCell>{item?.item?.name || "No Data"}</TableCell>
+                ) : role === "admin" ? (
+                  (allStocks || [])?.length > 0 ? (
+                    allStocks.map((item, index) => (
+                      <TableRow
+                        key={index}
+                        sx={{
+                          backgroundColor: "#fff",
+                        }}
+                      >
+                        <TableCell align="center">
+                          {page * rowsPerPage + index + 1}
+                        </TableCell>
+                        <TableCell>
+                          {new Date(item?.createdAt).toLocaleDateString(
+                            "en-GB"
+                          ) || "No Data"}
+                        </TableCell>
+                        <TableCell>
+                          {editableIndex === index ? (
+                            <TextField
+                              fullWidth
+                              value={editedRow.itemCode || ""}
+                              onChange={(e) =>
+                                setEditedRow({
+                                  ...editedRow,
+                                  itemCode: e.target.value,
+                                })
+                              }
+                              onKeyDown={(e) => handleKeyDown(e, item)}
+                            />
+                          ) : (
+                            item.itemCode || "No Data"
+                          )}
+                        </TableCell>
+                        <TableCell>{item?.item?.name || "No Data"}</TableCell>
 
-                      {/* <TableCell>
+                        {/* <TableCell>
                           {item?.item?.category?.categoryName || "No Data"}
                         </TableCell>
 
@@ -241,21 +245,32 @@ const StockUpdation = () => {
                           {item?.item?.brand?.name || "No Data"}
                         </TableCell> */}
 
-                      <TableCell>
-                        {editableIndex !== index ? (
-                          <EditIcon
-                            sx={{ cursor: "pointer", color: "blue" }}
-                            onClick={() => handleEditClick(index, item._id)}
-                          />
-                        ) : (
-                          <SaveIcon
-                            sx={{ cursor: "pointer", color: "green" }}
-                            onClick={() => handleSaveClick(item._id)}
-                          />
-                        )}
+                        <TableCell>
+                          {editableIndex !== index ? (
+                            <EditIcon
+                              sx={{ cursor: "pointer", color: "blue" }}
+                              onClick={() => handleEditClick(index, item._id)}
+                            />
+                          ) : (
+                            <SaveIcon
+                              sx={{ cursor: "pointer", color: "green" }}
+                              onClick={() => handleSaveClick(item._id)}
+                            />
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow
+                      sx={{
+                        backgroundColor: "#fff",
+                      }}
+                    >
+                      <TableCell colSpan={11} align="center">
+                        No Data
                       </TableCell>
                     </TableRow>
-                  ))
+                  )
                 ) : (
                   <TableRow
                     sx={{
@@ -263,7 +278,7 @@ const StockUpdation = () => {
                     }}
                   >
                     <TableCell colSpan={11} align="center">
-                      No Data
+                      You do not have permission to view this data.
                     </TableCell>
                   </TableRow>
                 )}
@@ -271,21 +286,23 @@ const StockUpdation = () => {
             </Table>
           </TableContainer>
 
-          <TablePagination
-            rowsPerPageOptions={[10, 25, 50]}
-            component="div"
-            count={totalCount}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            sx={{
-              "& .MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows":
-                {
-                  fontSize: "12px",
-                },
-            }}
-          />
+          {role === "admin" && (
+            <TablePagination
+              rowsPerPageOptions={[10, 25, 50]}
+              component="div"
+              count={totalCount}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              sx={{
+                "& .MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows":
+                  {
+                    fontSize: "12px",
+                  },
+              }}
+            />
+          )}
         </Box>
       </Box>
     </ThemeProvider>
