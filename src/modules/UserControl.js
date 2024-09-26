@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import {
   createUser,
   deleteRole,
+  deleteUser,
   getAllRoleAndPermissions,
   getAllRoleNames,
   getAllUsers,
@@ -44,6 +45,7 @@ const UserControl = ({}) => {
   const [showPassword, setShowPassword] = useState(false);
   const [allRoles, setAllRoles] = useState([]);
   const [allRoleAndPermissions, setAllRoleAndPermissions] = useState([]);
+  const [loading, setLoading] = useState(false);
   const { permissions, role } = usePermissions();
 
   const userPermission =
@@ -195,6 +197,25 @@ const UserControl = ({}) => {
     }
   };
 
+  const handleDeleteUser = async (userId) => {
+    setLoading(true);
+    try {
+      const response = await deleteUser(userId);
+
+      if(response.status === 200) {
+        setAllUsers((prevUsers) => prevUsers.filter((user) => user._id !== userId));
+        NotificationManager.success("User deleted successfully.", "Success");
+      }
+
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      NotificationManager.error("Error deleting user:", "Success");
+
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleDeleteRole = async (roleId) => {
     try {
       const response = await deleteRole(roleId);
@@ -320,6 +341,8 @@ const UserControl = ({}) => {
         open={openAllUsersDialog}
         onClose={() => setOpenAllUsersDialog(false)}
         allUsers={allUsers}
+        handleDeleteUser={handleDeleteUser}
+        loading={loading}
       />
     </Paper>
   );

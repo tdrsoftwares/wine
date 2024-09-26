@@ -10,6 +10,16 @@ export const createUser = async (payload) => {
   }
 };
 
+export const deleteUser = async (userId) => {
+  try {
+    const apiURL = `/user/delete/${userId}`;
+    const deleteUserData = await axiosInstance.delete(apiURL);
+    return deleteUserData;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const createRole = async (payload) => {
   try {
     const apiURL = `/role/create`;

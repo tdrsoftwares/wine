@@ -11,9 +11,11 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  IconButton,
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
 
-const AllUsersDialog = ({ open, onClose, allUsers }) => {
+const AllUsersDialog = ({ open, onClose, allUsers, handleDeleteUser, loading }) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>All Users</DialogTitle>
@@ -44,6 +46,9 @@ const AllUsersDialog = ({ open, onClose, allUsers }) => {
                 <TableCell sx={{ backgroundColor: "#3f51b5", color: "white" }}>
                   Role
                 </TableCell>
+                <TableCell sx={{ backgroundColor: "#3f51b5", color: "white" }}>
+                  Action
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -70,6 +75,17 @@ const AllUsersDialog = ({ open, onClose, allUsers }) => {
                   </TableCell>
                   <TableCell sx={{ backgroundColor: "white" }}>
                     {user.roleId ? user.roleId.name : "No Role"}
+                  </TableCell>
+                  <TableCell sx={{ backgroundColor: "white" }}>
+                    <IconButton
+                      color="error"
+                      aria-label="delete user"
+                      onClick={() => handleDeleteUser(user._id)}
+                      size="small"
+                      disabled={loading}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
                   </TableCell>
                 </TableRow>
               ))}
