@@ -20,12 +20,8 @@ import { usePermissions } from "../utils/PermissionsContext";
 const AdminPanel = () => {
   const [openDeleteConfirmModal, setOpenDeleteConfirmModal] = useState(false);
   const [deleteType, setDeleteType] = useState("");
-
-  const [loadingStocks, setLoadingStocks] = useState(false);
-  const [loadingPurchases, setLoadingPurchases] = useState(false);
-  const [loadingSales, setLoadingSales] = useState(false);
-  const [loadingTransfers, setLoadingTransfers] = useState(false);
-  const { permissions, role } = usePermissions();
+  const [loading, setLoading] = useState(false);
+  const { role } = usePermissions();
 
   const handleOpenDeleteConfirmModal = (type) => {
     setDeleteType(type);
@@ -53,7 +49,7 @@ const AdminPanel = () => {
   };
 
   const handleConfirmDeleteAllStocks = async () => {
-    setLoadingStocks(true);
+    setLoading(true);
     try {
       const response = await removeAllStocks(true);
       if (response.status === 200) {
@@ -74,13 +70,13 @@ const AdminPanel = () => {
       );
       console.log(error);
     } finally {
-      setLoadingStocks(false);
+      setLoading(false);
       setOpenDeleteConfirmModal(false);
     }
   };
 
   const handleConfirmDeleteAllPurchases = async () => {
-    setLoadingPurchases(true);
+    setLoading(true);
     try {
       const response = await removeAllPurchases(true);
       if (response.status === 200) {
@@ -101,13 +97,13 @@ const AdminPanel = () => {
       );
       console.log(error);
     } finally {
-      setLoadingPurchases(false);
+      setLoading(false);
       setOpenDeleteConfirmModal(false);
     }
   };
 
   const handleConfirmDeleteAllSales = async () => {
-    setLoadingSales(true);
+    setLoading(true);
     try {
       const response = await removeAllSales(true);
       if (response.status === 200) {
@@ -128,13 +124,13 @@ const AdminPanel = () => {
       );
       console.log(error);
     } finally {
-      setLoadingSales(false);
+      setLoading(false);
       setOpenDeleteConfirmModal(false);
     }
   };
 
   const handleConfirmDeleteAllTransfers = async () => {
-    setLoadingTransfers(true);
+    setLoading(true);
     try {
       const response = await removeAllTransfers(true);
       if (response.status === 200) {
@@ -155,12 +151,13 @@ const AdminPanel = () => {
       );
       console.log(error);
     } finally {
-      setLoadingTransfers(false);
+      setLoading(false);
       setOpenDeleteConfirmModal(false);
     }
   };
 
   const handleConfirmDelete = () => {
+    // setLoading(true);
     if (deleteType === "stocks") {
       handleConfirmDeleteAllStocks();
     } else if (deleteType === "sales") {
@@ -170,6 +167,7 @@ const AdminPanel = () => {
     } else if (deleteType === "transfers") {
       handleConfirmDeleteAllTransfers();
     }
+    // setLoading(false);
   };
 
   return (
@@ -189,16 +187,11 @@ const AdminPanel = () => {
                   color="error"
                   size="small"
                   variant="contained"
-                  onClick={handleDeleteAllStocks}
+                  onClick={() => handleOpenDeleteConfirmModal("stocks")}
                   fullWidth
                   sx={{ marginTop: 1, fontSize: "11px" }}
-                  disabled={loadingStocks}
                 >
-                  {loadingStocks ? (
-                    <CircularProgress size={20} />
-                  ) : (
-                    "DELETE ALL STOCKS"
-                  )}
+                  DELETE ALL STOCKS
                 </Button>
               </Grid>
               <Grid item xs={6}>
@@ -206,16 +199,11 @@ const AdminPanel = () => {
                   color="error"
                   size="small"
                   variant="contained"
-                  onClick={handleDeleteAllPurchases}
+                  onClick={() => handleOpenDeleteConfirmModal("purchases")}
                   fullWidth
                   sx={{ marginTop: 1, fontSize: "11px" }}
-                  disabled={loadingPurchases}
                 >
-                  {loadingPurchases ? (
-                    <CircularProgress size={20} />
-                  ) : (
-                    "DELETE ALL PURCHASES"
-                  )}
+                  DELETE ALL PURCHASES
                 </Button>
               </Grid>
               <Grid item xs={6}>
@@ -223,16 +211,11 @@ const AdminPanel = () => {
                   color="error"
                   size="small"
                   variant="contained"
-                  onClick={handleDeleteAllSales}
+                  onClick={() => handleOpenDeleteConfirmModal("sales")}
                   fullWidth
                   sx={{ marginTop: 1, fontSize: "11px" }}
-                  disabled={loadingSales}
                 >
-                  {loadingSales ? (
-                    <CircularProgress size={20} />
-                  ) : (
-                    "DELETE ALL SALES"
-                  )}
+                  DELETE ALL SALES
                 </Button>
               </Grid>
               <Grid item xs={6}>
@@ -240,16 +223,11 @@ const AdminPanel = () => {
                   color="error"
                   size="small"
                   variant="contained"
-                  onClick={handleDeleteAllTransfers}
+                  onClick={() => handleOpenDeleteConfirmModal("transfers")}
                   fullWidth
                   sx={{ marginTop: 1, fontSize: "11px" }}
-                  disabled={loadingTransfers}
                 >
-                  {loadingTransfers ? (
-                    <CircularProgress size={20} />
-                  ) : (
-                    "DELETE ALL TRANSFERS"
-                  )}
+                  DELETE ALL TRANSFERS
                 </Button>
               </Grid>
             </>
@@ -264,6 +242,7 @@ const AdminPanel = () => {
           openDeleteConfirmModal={openDeleteConfirmModal}
           handleCloseDeleteConfirmModal={handleCloseDeleteConfirmModal}
           handleConfirmDelete={handleConfirmDelete}
+          loading={loading}
         />
       </Paper>
     </ThemeProvider>
