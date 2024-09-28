@@ -14,10 +14,11 @@ import {
   IconButton,
   Divider,
   ListItemText,
+  CircularProgress,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import SaveIcon from "@mui/icons-material/Save";
 
-// function to parse permissions into boolean values
 const parsePermissions = (permissionsArray) => {
   const permissionsObject = {
     create: false,
@@ -26,7 +27,6 @@ const parsePermissions = (permissionsArray) => {
     delete: false,
   };
 
-  // Iterates through the array to assign permissions
   permissionsArray.forEach((permission) => {
     if (permission in permissionsObject) {
       permissionsObject[permission] = true;
@@ -42,6 +42,8 @@ const RolesAndPermissionsDialog = ({
   allRoleAndPermissions,
   handleDeleteRole,
   handlePermissionChange,
+  handleRolesAndPermissionUpdate,
+  loading
 }) => {
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
@@ -80,7 +82,6 @@ const RolesAndPermissionsDialog = ({
               <List>
                 {role.modulePermission && role.modulePermission.length > 0 ? (
                   role.modulePermission.map((module, moduleIndex) => {
-                    // Parse the permissions array to boolean values
                     const permissions = parsePermissions(
                       module.permission.permission
                     );
@@ -96,10 +97,9 @@ const RolesAndPermissionsDialog = ({
                         </Typography>
 
                         <ListItem>
-                          {/* Align Checkboxes in a Grid */}
                           <Grid container spacing={2}>
                             {/* Create Permission */}
-                            <Grid item xs={3}>
+                            <Grid item xs={2.5}>
                               <FormControlLabel
                                 control={
                                   <Checkbox
@@ -112,7 +112,6 @@ const RolesAndPermissionsDialog = ({
                                         e.target.checked
                                       )
                                     }
-                                    disabled
                                   />
                                 }
                                 label="Create"
@@ -120,7 +119,7 @@ const RolesAndPermissionsDialog = ({
                             </Grid>
 
                             {/* Read Permission */}
-                            <Grid item xs={3}>
+                            <Grid item xs={2.5}>
                               <FormControlLabel
                                 control={
                                   <Checkbox
@@ -133,7 +132,6 @@ const RolesAndPermissionsDialog = ({
                                         e.target.checked
                                       )
                                     }
-                                    disabled
                                   />
                                 }
                                 label="Read"
@@ -141,7 +139,7 @@ const RolesAndPermissionsDialog = ({
                             </Grid>
 
                             {/* Update Permission */}
-                            <Grid item xs={3}>
+                            <Grid item xs={2.5}>
                               <FormControlLabel
                                 control={
                                   <Checkbox
@@ -154,7 +152,6 @@ const RolesAndPermissionsDialog = ({
                                         e.target.checked
                                       )
                                     }
-                                    disabled
                                   />
                                 }
                                 label="Update"
@@ -162,7 +159,7 @@ const RolesAndPermissionsDialog = ({
                             </Grid>
 
                             {/* Delete Permission */}
-                            <Grid item xs={3}>
+                            <Grid item xs={2.5}>
                               <FormControlLabel
                                 control={
                                   <Checkbox
@@ -175,11 +172,27 @@ const RolesAndPermissionsDialog = ({
                                         e.target.checked
                                       )
                                     }
-                                    disabled
                                   />
                                 }
                                 label="Delete"
                               />
+                            </Grid>
+
+                            {/* UPDATE PERMISSION BUTTON */}
+                            <Grid item xs={2}>
+                              <IconButton
+                                color="primary"
+                                aria-label="save role"
+                                onClick={() => handleRolesAndPermissionUpdate(roleIndex, moduleIndex)}
+                                size="small"
+                                disabled={loading}
+                              >
+                                {loading ? (
+                                  <CircularProgress size={24} />
+                                ) : (
+                                  <SaveIcon />
+                                )}
+                              </IconButton>
                             </Grid>
                           </Grid>
                         </ListItem>

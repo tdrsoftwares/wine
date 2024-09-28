@@ -8,6 +8,8 @@ import {
   getAllRoleAndPermissions,
   getAllRoleNames,
   getAllUsers,
+  updateRolePermissions,
+  updateUser,
 } from "../services/userService";
 import { NotificationManager } from "react-notifications";
 import CreateUserDialog from "./CreateUserDialog";
@@ -56,20 +58,6 @@ const UserControl = ({}) => {
   const canUpdate = userPermission.includes("update");
   const canDelete = userPermission.includes("delete");
 
-  // permission checkbox changes
-  const handlePermissionChange = (
-    roleIndex,
-    moduleIndex,
-    permissionType,
-    isChecked
-  ) => {
-    const updatedRoles = [...allRoleAndPermissions];
-    updatedRoles[roleIndex].modulePermission[
-      moduleIndex
-    ].permission.permissions[permissionType] = isChecked;
-    setAllRoleAndPermissions(updatedRoles);
-  };
-
   const fetchAllRoleNames = async () => {
     try {
       const allRoles = await getAllRoleNames();
@@ -111,6 +99,7 @@ const UserControl = ({}) => {
   };
 
   const fetchAllUsers = async () => {
+    setLoading(true);
     try {
       const allUsers = await getAllUsers();
       // console.log("allusers response: ", allUsers);
@@ -127,6 +116,8 @@ const UserControl = ({}) => {
       //   "Error"
       // );
       console.error("Error fetching roles:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -197,20 +188,113 @@ const UserControl = ({}) => {
     }
   };
 
+  const handleUpdateUser = async (user) => {
+    // console.log("user: ", user);
+    setLoading(true);
+
+    const payload = {
+      firstName: user.firstName,
+      lastName: user.lastName,
+      username: user.username,
+      email: user.email,
+      password: user.password,
+      phoneNumber: user.phoneNumber,
+      roleId: user.roleId?._id,
+    };
+    
+    try {
+      const response = await updateUser(payload, user._id);
+      if (response.status === 200) {
+        NotificationManager.success("User updated successfully.", "Success");
+        fetchAllUsers();
+      } else {
+        NotificationManager.error("Error updating user!", "Error");
+      }
+    } catch (error) {
+      console.error("Error updating user:", error);
+      NotificationManager.error("Error updating user. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleDeleteUser = async (userId) => {
     setLoading(true);
     try {
       const response = await deleteUser(userId);
 
-      if(response.status === 200) {
-        setAllUsers((prevUsers) => prevUsers.filter((user) => user._id !== userId));
+      if (response.status === 200) {
+        setAllUsers((prevUsers) =>
+          prevUsers.filter((user) => user._id !== userId)
+        );
         NotificationManager.success("User deleted successfully.", "Success");
       }
-
     } catch (error) {
       console.error("Error deleting user:", error);
       NotificationManager.error("Error deleting user:", "Success");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  const handlePermissionChange = (roleIndex, moduleIndex, permissionType, isChecked) => {
+
+    const updatedRoles = allRoleAndPermissions.map((role, rIndex) => {
+      if (rIndex === roleIndex) {
+        const updatedModulePermission = role.modulePermission.map((module, mIndex) => {
+          if (mIndex === moduleIndex) {
+
+            return {
+              ...module,
+              permission: {
+                ...module.permission,
+                permissions: {
+                  ...module.permission.permissions,
+                  [permissionType]: isChecked
+                }
+              }
+            };
+          }
+          return module;
+        });
+  
+        return {
+          ...role,
+          modulePermission: updatedModulePermission
+        };
+      }
+      return role;
+    });
+    setAllRoleAndPermissions(updatedRoles);
+  }; 
+
+  const handleRolesAndPermissionUpdate = async (roleIndex, moduleIndex) => {
+    setLoading(true);
+    const updatedRole = allRoleAndPermissions[roleIndex];
+    const updatedModule = updatedRole.modulePermission[moduleIndex];
+
+    const payload = {
+      roleId: updatedRole._id,
+      moduleId: updatedModule.permission.moduleId._id,
+      permissions: updatedModule.permission.permissions,
+    };
+
+    try {
+      const response = await updateRolePermissions(payload);
+      if (response.status === 200) {
+        NotificationManager.success(
+          "Permissions updated successfully",
+          "Success"
+        );
+      } else {
+        NotificationManager.error("Failed to update permissions", "Error");
+      }
+    } catch (error) {
+      console.error("Error updating permissions:", error);
+      NotificationManager.error(
+        "Error updating permissions. Please try again.",
+        "Error"
+      );
     } finally {
       setLoading(false);
     }
@@ -335,13 +419,19 @@ const UserControl = ({}) => {
         allRoleAndPermissions={allRoleAndPermissions}
         handleDeleteRole={handleDeleteRole}
         handlePermissionChange={handlePermissionChange}
+        handleRolesAndPermissionUpdate={handleRolesAndPermissionUpdate}
+        loading={loading}
       />
 
       <AllUsersDialog
         open={openAllUsersDialog}
-        onClose={() => setOpenAllUsersDialog(false)}
+        onClose={() => {
+          setOpenAllUsersDialog(false);
+          fetchAllUsers();
+        }}
         allUsers={allUsers}
         handleDeleteUser={handleDeleteUser}
+        handleUpdateUser={handleUpdateUser}
         loading={loading}
       />
     </Paper>

@@ -10,6 +10,16 @@ export const createUser = async (payload) => {
   }
 };
 
+export const updateUser = async (payload, id) => {
+  try {
+    const apiURL = `/user/update/${id}`;
+    const updateUserData = await axiosInstance.put(apiURL, payload);
+    return updateUserData;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const deleteUser = async (userId) => {
   try {
     const apiURL = `/user/delete/${userId}`;
@@ -29,16 +39,6 @@ export const createRole = async (payload) => {
     return error;
   }
 };
-
-// export const updateStore = async (payload, id) => {
-//   try {
-//     const apiURL = `/store/update/${id}`;
-//     const updateStoreData = await axiosInstance.put(apiURL, payload);
-//     return updateStoreData;
-//   } catch (error) {
-//     return error;
-//   }
-// };
 
 export const getAllUsers = async () => {
   try {
@@ -75,6 +75,16 @@ export const getAllModules = async () => {
     const apiURL = `/admin/module`;
     const response = await axiosInstance.get(apiURL);
     return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const updateRolePermissions = async (payload, id) => {
+  try {
+    const apiURL = `/role/update/${id}`;
+    const updateResponse = await axiosInstance.put(apiURL, payload);
+    return updateResponse;
   } catch (error) {
     return error;
   }
