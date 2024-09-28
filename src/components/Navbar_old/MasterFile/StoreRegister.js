@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
+  CircularProgress,
   Grid,
   Input,
   InputLabel,
@@ -46,6 +47,8 @@ const StoreRegister = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [search, setSearch] = useState("");
   const tableRef = useRef(null);
+  const [loading, setLoading] = useState(false);
+
   const { permissions, role } = usePermissions();
 
   const companyPermissions =
@@ -187,10 +190,11 @@ const StoreRegister = () => {
   };
 
   const fetchAllStores = async () => {
+    setLoading(true);
     try {
       const allStoresResponse = await getAllStores();
       // console.log("allStore response: ", allStoresResponse)
-      
+
       if (allStoresResponse.status === 200) {
         setAllStores(allStoresResponse?.data?.data);
       } else {
@@ -203,6 +207,8 @@ const StoreRegister = () => {
       //   "Error"
       // );
       console.error("Error fetching stores:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -333,7 +339,6 @@ const StoreRegister = () => {
               >
                 Clear
               </Button>
-              
             </Box>
           </Grid>
 
@@ -426,109 +431,166 @@ const StoreRegister = () => {
                       No Data
                     </TableCell>
                   </TableRow>
-                ) : (
-                  canRead || role === "admin" ?
-                  allStores && filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((store, index) => (
-                      <TableRow
-                        key={index}
+                ) : canRead || role === "admin" ? (
+                  loading ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={12}
+                        align="center"
                         sx={{
-                          backgroundColor: "#fff",
+                          backgroundColor: "#fff !important",
                         }}
                       >
-                        <TableCell align="center">
-                          {page * rowsPerPage + index + 1}
-                        </TableCell>
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <Input
-                              value={editedRow.name}
-                              onChange={(e) =>
-                                setEditedRow({
-                                  ...editedRow,
-                                  name: e.target.value,
-                                })
-                              }
-                            />
-                          ) : (
-                            store.name
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <Input
-                              value={editedRow.type}
-                              onChange={(e) =>
-                                setEditedRow({
-                                  ...editedRow,
-                                  type: e.target.value,
-                                })
-                              }
-                            />
-                          ) : (
-                            store.type
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <Input
-                              value={editedRow.indexNo}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                if (!isNaN(value)) {
+                        <CircularProgress />
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    allStores &&
+                    filteredData
+                      .slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
+                      .map((store, index) => (
+                        <TableRow
+                          key={index}
+                          sx={{
+                            backgroundColor: "#fff",
+                          }}
+                        >
+                          <TableCell align="center">
+                            {page * rowsPerPage + index + 1}
+                          </TableCell>
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <Input
+                                value={editedRow.name}
+                                onChange={(e) =>
                                   setEditedRow({
                                     ...editedRow,
-                                    indexNo: value,
-                                  });
+                                    name: e.target.value,
+                                  })
                                 }
+                              />
+                            ) : (
+                              store.name
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <Input
+                                value={editedRow.type}
+                                onChange={(e) =>
+                                  setEditedRow({
+                                    ...editedRow,
+                                    type: e.target.value,
+                                  })
+                                }
+                              />
+                            ) : (
+                              store.type
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <Input
+                                value={editedRow.indexNo}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (!isNaN(value)) {
+                                    setEditedRow({
+                                      ...editedRow,
+                                      indexNo: value,
+                                    });
+                                  }
+                                }}
+                              />
+                            ) : (
+                              store.indexNo
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {editableIndex !== index ? (
+                              <EditIcon
+                                sx={{
+                                  cursor:
+                                    canUpdate || role === "admin"
+                                      ? "pointer"
+                                      : "not-allowed",
+                                  color:
+                                    canUpdate || role === "admin"
+                                      ? "blue"
+                                      : "gray",
+                                }}
+                                onClick={
+                                  canUpdate || role === "admin"
+                                    ? () => handleEditClick(index, store._id)
+                                    : null
+                                }
+                              />
+                            ) : (
+                              <SaveIcon
+                                sx={{
+                                  cursor:
+                                    canUpdate || role === "admin"
+                                      ? "pointer"
+                                      : "not-allowed",
+                                  color:
+                                    canUpdate || role === "admin"
+                                      ? "green"
+                                      : "gray",
+                                }}
+                                onClick={
+                                  canUpdate || role === "admin"
+                                    ? () => handleSaveClick(store._id)
+                                    : null
+                                }
+                              />
+                            )}
+                            <CloseIcon
+                              sx={{
+                                cursor:
+                                  canDelete || role === "admin"
+                                    ? "pointer"
+                                    : "not-allowed",
+                                color:
+                                  canDelete || role === "admin"
+                                    ? "red"
+                                    : "gray",
                               }}
+                              onClick={
+                                canDelete || role === "admin"
+                                  ? () => handleRemoveStore(store._id)
+                                  : null
+                              }
                             />
-                          ) : (
-                            store.indexNo
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {editableIndex !== index ? (
-                            <EditIcon
-                              sx={{ cursor: canUpdate || role === "admin" ? "pointer" : "not-allowed",
-                                color: canUpdate || role === "admin" ? "blue" : "gray", }}
-                              onClick={ canUpdate || role === "admin" ? () => handleEditClick(index, store._id) : null }
-                            />
-                          ) : (
-                            <SaveIcon
-                              sx={{ cursor: canUpdate || role === "admin" ? "pointer" : "not-allowed",
-                                color: canUpdate || role === "admin" ? "green" : "gray", }}
-                              onClick={canUpdate || role === "admin" ? () => handleSaveClick(store._id) : null}
-                            />
-                          )}
-                          <CloseIcon
-                            sx={{ cursor: canDelete || role === "admin" ? "pointer" : "not-allowed",
-                              color: canDelete || role === "admin" ? "red" : "gray", }}
-                            onClick={canDelete || role === "admin" ? () => handleRemoveStore(store._id) : null}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    )) : (
-                      <TableRow>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                  )
+                ) : (
+                  <TableRow>
                     <TableCell colSpan={12} align="center">
                       You do not have permission to view store data.
                     </TableCell>
                   </TableRow>
-                    )
                 )}
               </TableBody>
             </Table>
           </TableContainer>
 
-          {canRead || role === "admin" &&<TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={filteredData?.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />}
+          {canRead ||
+            (role === "admin" && (
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={filteredData?.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            ))}
         </Box>
       </Box>
     </ThemeProvider>

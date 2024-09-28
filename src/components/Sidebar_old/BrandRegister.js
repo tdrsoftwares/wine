@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
+  CircularProgress,
   Grid,
   Input,
   InputLabel,
@@ -46,6 +47,7 @@ const BrandRegister = () => {
   const [sortOrder, setSortOrder] = useState("asc");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
   const tableRef = useRef(null);
 
   const { permissions, role } = usePermissions();
@@ -170,6 +172,7 @@ const BrandRegister = () => {
   };
 
   const fetchAllBrands = async () => {
+    setLoading(true);
     try {
       const allBrandsResponse = await getAllBrands();
       // console.log("allBrandsResponse ---> ", allBrandsResponse);
@@ -185,6 +188,8 @@ const BrandRegister = () => {
       //   "Error"
       // );
       console.error("Error fetching brands:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -265,12 +270,12 @@ const BrandRegister = () => {
   };
 
   return (
-    <Box sx={{ p: 2, minWidth: "900px" }}>
-      <Typography variant="subtitle2" sx={{ marginBottom: 2 }}>
-        Create Brand:
-      </Typography>
+    <ThemeProvider theme={customTheme}>
+      <Box sx={{ p: 2, minWidth: "900px" }}>
+        <Typography variant="subtitle2" sx={{ marginBottom: 2 }}>
+          Create Brand:
+        </Typography>
 
-      <ThemeProvider theme={customTheme}>
         <Grid container spacing={2}>
           <Grid item xs={3}>
             <div className="input-wrapper">
@@ -443,7 +448,19 @@ const BrandRegister = () => {
               </TableHead>
               <TableBody>
                 {canRead || role === "admin" ? (
-                  allBrands ? (
+                  loading ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={11}
+                        align="center"
+                        sx={{
+                          backgroundColor: "#fff !important",
+                        }}
+                      >
+                        <CircularProgress />
+                      </TableCell>
+                    </TableRow>
+                  ) : allBrands ? (
                     sortedData()
                       .slice(
                         page * rowsPerPage,
@@ -526,8 +543,14 @@ const BrandRegister = () => {
                             {editableIndex === index ? (
                               <SaveIcon
                                 sx={{
-                                  cursor: canUpdate || role === "admin" ? "pointer" : "not-allowed",
-                                  color: canUpdate || role === "admin" ? "green" : "gray",
+                                  cursor:
+                                    canUpdate || role === "admin"
+                                      ? "pointer"
+                                      : "not-allowed",
+                                  color:
+                                    canUpdate || role === "admin"
+                                      ? "green"
+                                      : "gray",
                                 }}
                                 onClick={
                                   canUpdate || role === "admin"
@@ -538,8 +561,14 @@ const BrandRegister = () => {
                             ) : (
                               <EditIcon
                                 sx={{
-                                  cursor: canUpdate || role === "admin" ? "pointer" : "not-allowed",
-                                  color: canUpdate || role === "admin" ? "blue" : "gray",
+                                  cursor:
+                                    canUpdate || role === "admin"
+                                      ? "pointer"
+                                      : "not-allowed",
+                                  color:
+                                    canUpdate || role === "admin"
+                                      ? "blue"
+                                      : "gray",
                                 }}
                                 onClick={
                                   canUpdate || role === "admin"
@@ -550,8 +579,14 @@ const BrandRegister = () => {
                             )}
                             <CloseIcon
                               sx={{
-                                cursor: canDelete || role === "admin" ? "pointer" : "not-allowed",
-                                color: canDelete || role === "admin" ? "red" : "gray",
+                                cursor:
+                                  canDelete || role === "admin"
+                                    ? "pointer"
+                                    : "not-allowed",
+                                color:
+                                  canDelete || role === "admin"
+                                    ? "red"
+                                    : "gray",
                               }}
                               onClick={
                                 canDelete || role === "admin"
@@ -588,20 +623,21 @@ const BrandRegister = () => {
             </Table>
           </TableContainer>
 
-          {canRead || role === "admin" && (
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              component="div"
-              count={allBrands?.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-          )}
+          {canRead ||
+            (role === "admin" && (
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={allBrands?.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            ))}
         </Box>
-      </ThemeProvider>
-    </Box>
+      </Box>
+    </ThemeProvider>
   );
 };
 

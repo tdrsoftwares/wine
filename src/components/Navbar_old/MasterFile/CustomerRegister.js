@@ -18,6 +18,7 @@ import {
   TableSortLabel,
   TablePagination,
   ThemeProvider,
+  CircularProgress,
 } from "@mui/material";
 import {
   createCustomer,
@@ -138,13 +139,13 @@ const Customers = () => {
   };
 
   const fetchAllCustomers = async () => {
+    setLoading(true);
     try {
       const allCustomerResponse = await getAllCustomer();
       // console.log("allCustomerResponse ---> ", allCustomerResponse);
 
       if (allCustomerResponse.status === 200) {
         setAllCustomerData(allCustomerResponse?.data?.data);
-        setLoading(false);
       } else {
         setAllCustomerData([]);
         // NotificationManager.error("No Customers Found", "Error");
@@ -155,6 +156,7 @@ const Customers = () => {
       //   "Error"
       // );
       console.error("Error fetching brands:", error);
+    } finally {
       setLoading(false);
     }
   };
@@ -654,7 +656,19 @@ const Customers = () => {
 
               <TableBody>
                 {canRead || role === "admin" ? (
-                  allCustomerData !== 0 ? (
+                  loading ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={11}
+                        align="center"
+                        sx={{
+                          backgroundColor: "#fff !important",
+                        }}
+                      >
+                        <CircularProgress />
+                      </TableCell>
+                    </TableRow>
+                  ) : allCustomerData !== 0 ? (
                     filteredData
                       .slice(
                         page * rowsPerPage,

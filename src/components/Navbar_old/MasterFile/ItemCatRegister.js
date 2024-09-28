@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
+  CircularProgress,
   Grid,
   Input,
   InputLabel,
@@ -47,9 +48,13 @@ const ItemCatRegister = () => {
   const tableRef = useRef(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
+
   const { permissions, role } = usePermissions();
 
-  const categoryPermissions = permissions?.find((permission) => permission.moduleName === "Category")?.permissions || [];
+  const categoryPermissions =
+    permissions?.find((permission) => permission.moduleName === "Category")
+      ?.permissions || [];
   const canCreate = categoryPermissions.includes("create");
   const canRead = categoryPermissions.includes("read");
   const canUpdate = categoryPermissions.includes("update");
@@ -93,7 +98,10 @@ const ItemCatRegister = () => {
       groupNo: groupNo,
     };
     if (role !== "admin" && !canCreate) {
-      NotificationManager.error("You don't have permission to create a category", "Error");
+      NotificationManager.error(
+        "You don't have permission to create a category",
+        "Error"
+      );
       return;
     }
     console.log("role: ", role);
@@ -189,7 +197,9 @@ const ItemCatRegister = () => {
     return sorted;
   };
 
+
   const fetchAllCategory = async () => {
+    setLoading(true);
     try {
       const getAllCategoryResponse = await getAllItemCategory();
       if (getAllCategoryResponse.status === 200) {
@@ -203,8 +213,11 @@ const ItemCatRegister = () => {
       //   "Something went Wrong, Please try again later.",
       //   "Error"
       // );
+    } finally {
+      setLoading(false);
     }
   };
+
 
   useEffect(() => {
     fetchAllCategory();
@@ -397,133 +410,172 @@ const ItemCatRegister = () => {
               </TableHead>
               <TableBody>
                 {canRead || role === "admin" ? (
-                  sortedData()
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((categoryName, index) => (
-                      <TableRow
-                        key={categoryName._id}
+                  loading ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={12}
+                        align="center"
                         sx={{
-                          backgroundColor: "#fff",
+                          backgroundColor: "#fff !important",
                         }}
                       >
-                        <TableCell align="center" sx={{ minWidth: "80px" }}>
-                          {page * rowsPerPage + index + 1}
-                        </TableCell>
-                        <TableCell align="center" sx={{ minWidth: "200px" }}>
-                          {editableIndex === index ? (
-                            <Input
-                              value={
-                                editedRow.categoryName ||
-                                categoryName.categoryName
-                              }
-                              onChange={(e) =>
-                                setEditedRow({
-                                  ...editedRow,
-                                  categoryName: e.target.value,
-                                })
-                              }
-                            />
-                          ) : (
-                            categoryName.categoryName
-                          )}
-                        </TableCell>
-                        <TableCell align="center" sx={{ minWidth: "200px" }}>
-                          {editableIndex === index ? (
-                            <Input
-                              value={
-                                editedRow.mainGroup || categoryName.mainGroup
-                              }
-                              onChange={(e) =>
-                                setEditedRow({
-                                  ...editedRow,
-                                  mainGroup: e.target.value,
-                                })
-                              }
-                            />
-                          ) : (
-                            categoryName.mainGroup
-                          )}
-                        </TableCell>
-                        <TableCell align="center" sx={{ minWidth: "200px" }}>
-                          {editableIndex === index ? (
-                            <Input
-                              value={editedRow.indexNo || categoryName.indexNo}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                if (!isNaN(value)) {
+                        <CircularProgress />
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    sortedData()
+                      .slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
+                      .map((categoryName, index) => (
+                        <TableRow
+                          key={categoryName._id}
+                          sx={{
+                            backgroundColor: "#fff",
+                          }}
+                        >
+                          <TableCell align="center" sx={{ minWidth: "80px" }}>
+                            {page * rowsPerPage + index + 1}
+                          </TableCell>
+                          <TableCell align="center" sx={{ minWidth: "200px" }}>
+                            {editableIndex === index ? (
+                              <Input
+                                value={
+                                  editedRow.categoryName ||
+                                  categoryName.categoryName
+                                }
+                                onChange={(e) =>
                                   setEditedRow({
                                     ...editedRow,
-                                    indexNo: value,
-                                  });
+                                    categoryName: e.target.value,
+                                  })
                                 }
-                              }}
-                            />
-                          ) : (
-                            categoryName.indexNo
-                          )}
-                        </TableCell>
-                        <TableCell align="center" sx={{ minWidth: "200px" }}>
-                          {editableIndex === index ? (
-                            <Input
-                              value={editedRow.groupNo || categoryName.groupNo}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                if (!isNaN(value)) {
+                              />
+                            ) : (
+                              categoryName.categoryName
+                            )}
+                          </TableCell>
+                          <TableCell align="center" sx={{ minWidth: "200px" }}>
+                            {editableIndex === index ? (
+                              <Input
+                                value={
+                                  editedRow.mainGroup || categoryName.mainGroup
+                                }
+                                onChange={(e) =>
                                   setEditedRow({
                                     ...editedRow,
-                                    groupNo: value,
-                                  });
+                                    mainGroup: e.target.value,
+                                  })
                                 }
-                              }}
-                            />
-                          ) : (
-                            categoryName.groupNo
-                          )}
-                        </TableCell>
-                        <TableCell align="center" sx={{ minWidth: "200px" }}>
-                          {editableIndex === index ? (
-                            <SaveIcon
+                              />
+                            ) : (
+                              categoryName.mainGroup
+                            )}
+                          </TableCell>
+                          <TableCell align="center" sx={{ minWidth: "200px" }}>
+                            {editableIndex === index ? (
+                              <Input
+                                value={
+                                  editedRow.indexNo || categoryName.indexNo
+                                }
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (!isNaN(value)) {
+                                    setEditedRow({
+                                      ...editedRow,
+                                      indexNo: value,
+                                    });
+                                  }
+                                }}
+                              />
+                            ) : (
+                              categoryName.indexNo
+                            )}
+                          </TableCell>
+                          <TableCell align="center" sx={{ minWidth: "200px" }}>
+                            {editableIndex === index ? (
+                              <Input
+                                value={
+                                  editedRow.groupNo || categoryName.groupNo
+                                }
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (!isNaN(value)) {
+                                    setEditedRow({
+                                      ...editedRow,
+                                      groupNo: value,
+                                    });
+                                  }
+                                }}
+                              />
+                            ) : (
+                              categoryName.groupNo
+                            )}
+                          </TableCell>
+                          <TableCell align="center" sx={{ minWidth: "200px" }}>
+                            {editableIndex === index ? (
+                              <SaveIcon
+                                sx={{
+                                  cursor:
+                                    canUpdate || role === "admin"
+                                      ? "pointer"
+                                      : "not-allowed",
+                                  color:
+                                    canUpdate || role === "admin"
+                                      ? "green"
+                                      : "gray",
+                                }}
+                                onClick={
+                                  canUpdate || role === "admin"
+                                    ? () => handleSaveCategory(categoryName._id)
+                                    : null
+                                }
+                              />
+                            ) : (
+                              <EditIcon
+                                sx={{
+                                  cursor:
+                                    canUpdate || role === "admin"
+                                      ? "pointer"
+                                      : "not-allowed",
+                                  color:
+                                    canUpdate || role === "admin"
+                                      ? "blue"
+                                      : "gray",
+                                }}
+                                onClick={
+                                  canUpdate || role === "admin"
+                                    ? () =>
+                                        handleEditCategory(
+                                          index,
+                                          categoryName._id
+                                        )
+                                    : null
+                                }
+                              />
+                            )}
+                            <CloseIcon
                               sx={{
-                                cursor: canUpdate || role === "admin" ? "pointer" : "not-allowed",
-                                color: canUpdate || role === "admin" ? "green" : "gray",
+                                cursor:
+                                  canDelete || role === "admin"
+                                    ? "pointer"
+                                    : "not-allowed",
+                                color:
+                                  canDelete || role === "admin"
+                                    ? "red"
+                                    : "gray",
                               }}
                               onClick={
-                                canUpdate || role === "admin"
-                                  ? () => handleSaveCategory(categoryName._id)
+                                canDelete || role === "admin"
+                                  ? () => handleRemoveCategory(categoryName._id)
                                   : null
                               }
                             />
-                          ) : (
-                            <EditIcon
-                              sx={{
-                                cursor: canUpdate || role === "admin" ? "pointer" : "not-allowed",
-                                color: canUpdate || role === "admin" ? "blue" : "gray",
-                              }}
-                              onClick={
-                                canUpdate || role === "admin"
-                                  ? () =>
-                                      handleEditCategory(
-                                        index,
-                                        categoryName._id
-                                      )
-                                  : null
-                              }
-                            />
-                          )}
-                          <CloseIcon
-                            sx={{
-                              cursor: canDelete || role === "admin" ? "pointer" : "not-allowed",
-                              color: canDelete || role === "admin" ? "red" : "gray",
-                            }}
-                            onClick={
-                              canDelete || role === "admin"
-                                ? () => handleRemoveCategory(categoryName._id)
-                                : null
-                            }
-                          />
-                        </TableCell>
-                      </TableRow>
-                    ))
+                          </TableCell>
+                        </TableRow>
+                      ))
+                  )
                 ) : (
                   <TableRow>
                     <TableCell colSpan={12} align="center">
@@ -535,17 +587,18 @@ const ItemCatRegister = () => {
             </Table>
           </TableContainer>
 
-          {canRead || role === "admin" && (
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              component="div"
-              count={allCategory?.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-          )}
+          {canRead ||
+            (role === "admin" && (
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={allCategory?.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            ))}
         </Box>
       </Box>
     </ThemeProvider>

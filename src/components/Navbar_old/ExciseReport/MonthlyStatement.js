@@ -3,6 +3,7 @@ import {
   Button,
   Checkbox,
   CircularProgress,
+  FormControlLabel,
   Grid,
   InputLabel,
   MenuItem,
@@ -28,6 +29,7 @@ const MonthlyStatement = () => {
   const [dateTo, setDateTo] = useState(null);
   const [allStatements, setAllStatements] = useState([]);
   const [isPcsTrue, setIsPcsTrue] = useState(false);
+  const [isElectionStatement, setIsElectionStatement] = useState(false)
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: 10,
@@ -244,7 +246,7 @@ const MonthlyStatement = () => {
                   id="dateFrom"
                   format="DD/MM/YYYY"
                   value={dateFrom}
-                  className="date-picker"
+                  className="date-picker input-field"
                   onChange={(date) => setDateFrom(date)}
                   renderInput={(params) => <TextField {...params} />}
                 />
@@ -263,27 +265,39 @@ const MonthlyStatement = () => {
                   id="dateTo"
                   format="DD/MM/YYYY"
                   value={dateTo}
-                  className="date-picker"
+                  className="date-picker input-field"
                   onChange={(date) => setDateTo(date)}
                   renderInput={(params) => <TextField {...params} />}
                 />
               </LocalizationProvider>
             </div>
           </Grid>
-          <Grid item xs={3}></Grid>
 
-          <Grid item xs={3}>
-            <div className="input-wrapper">
-              <InputLabel htmlFor="pcsOnly" className="input-label">
-                Pcs Only:
-              </InputLabel>
-              <Checkbox
-                name="pcsOnly"
-                checked={isPcsTrue}
-                inputProps={{ "aria-label": "controlled" }}
-                onChange={(e) => setIsPcsTrue(e.target.checked)}
-              />
-            </div>
+          <Grid item xs={2}></Grid>
+
+
+          <Grid item xs={2}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={isElectionStatement}
+                  onChange={(e) => setIsElectionStatement(e.target.checked)}
+                />
+              }
+              label="Election Statement"
+            />
+          </Grid>
+
+          <Grid item xs={2}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={isPcsTrue}
+                  onChange={(e) => setIsPcsTrue(e.target.checked)}
+                />
+              }
+              label="Pcs Only"
+            />
           </Grid>
         </Grid>
 
