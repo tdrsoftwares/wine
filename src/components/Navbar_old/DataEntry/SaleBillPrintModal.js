@@ -18,13 +18,11 @@ const SaleBillPrintModal = forwardRef(
     },
     ref
   ) => {
-
   
     const dataToPrint = isSplitPrinted ? printData : salesData;
     const valuesToPrint = isSplitPrinted ? printTotalValues : totalValues;
-
   
-    const { totalVolume, totalPcs, grossAmt, discountAmt, splDiscAmount, netAmt } = valuesToPrint;
+    const { totalVolume, totalPcs, grossAmt, splDiscAmount, netAmt } = valuesToPrint;
 
     const amountInWords = (amount) => {
       if (isNaN(amount) || amount === undefined || amount === null) {
@@ -43,7 +41,7 @@ const SaleBillPrintModal = forwardRef(
       items: dataToPrint || [],
       totalQty: totalPcs,
       grossAmt: parseFloat(grossAmt),
-      totalBL: parseFloat(totalVolume),
+      totalBL: parseFloat(totalVolume) * parseFloat(totalPcs),
       netAmount: parseFloat(netAmt),
       amountInWords: amountInWords(parseFloat(netAmt)),
     };

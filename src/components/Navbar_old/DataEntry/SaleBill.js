@@ -2112,36 +2112,85 @@ const SaleBill = () => {
       socketService.disconnect();
     };
   }, []);
+  
 
   const handlePrintClick = () => {
     const updatedSalesData = [...salesData];
     let splitItems = [];
-
+  
     updatedSalesData.forEach((item, idx) => {
       if (item.split > 0 && item.pcs >= item.split) {
-        const splitItem = { ...item, pcs: item.split };
-        updatedSalesData[idx].pcs = item.pcs - item.split;
+
+        const splitItem = {
+          ...item,
+          pcs: item.split,
+          amount: parseFloat(item.split) * parseFloat(item.rate), 
+        };
+        // console.log("splitItem: ", splitItem);
+  
+        const remainingPcs = item.pcs - item.split;
+        updatedSalesData[idx].pcs = remainingPcs;
         updatedSalesData[idx].split = 0;
+  
+
+        updatedSalesData[idx].amount = parseFloat(remainingPcs) * parseFloat(item.rate);
+        // console.log("updatedSalesData: ", updatedSalesData[idx]);
+  
+
         splitItems.push(splitItem);
       }
     });
 
     const filteredSalesData = updatedSalesData.filter((item) => item.pcs > 0);
-
+  
     if (splitItems.length > 0) {
+
       setSalesData(filteredSalesData);
       sessionStorage.setItem("salesData", JSON.stringify(filteredSalesData));
-
+  
       setPrintData(splitItems);
-
-      const printTotalVal = calculatePrintDataTotalValues(splitItems);
-      // console.log("Print Total Values:", printTotalVal);
+  
+      const printTotalVal = calculatePrintTotalValues(splitItems);
       setPrintTotalValues(printTotalVal);
-
+  
       setIsSplitPrinted(true);
     }
   };
 
+  const calculatePrintTotalValues = (splitItems) => {
+    let totalVolume = 0;
+    let totalPcs = 0;
+    let grossAmt = 0;
+    let discountAmt = 0;
+    let splDiscAmount = 0;
+    let netAmt = 0;
+  
+    splitItems.forEach((item) => {
+
+      const itemGrossAmt = item.rate * item.pcs;
+      const itemDiscountAmt = item.discount || 0;
+      const itemSplDiscAmount = item.splDiscAmount || 0;
+      const itemNetAmt = itemGrossAmt - itemDiscountAmt - itemSplDiscAmount;
+  
+
+      totalVolume += item.volume;
+      totalPcs += item.pcs;
+      grossAmt += itemGrossAmt;
+      discountAmt += itemDiscountAmt;
+      splDiscAmount += itemSplDiscAmount;
+      netAmt += itemNetAmt;
+    });
+  
+    return {
+      totalVolume: totalVolume.toFixed(2),
+      totalPcs: totalPcs,
+      grossAmt: grossAmt.toFixed(2),
+      discountAmt: discountAmt.toFixed(2),
+      splDiscAmount: splDiscAmount.toFixed(2),
+      netAmt: netAmt.toFixed(2),
+    };
+  };
+  
   useEffect(() => {
     if (isSplitPrinted) {
       handleCreateSale(printData);
