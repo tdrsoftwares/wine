@@ -185,7 +185,8 @@ const RolesAndPermissionsDialog = ({
                                 aria-label="save role"
                                 onClick={() => handleRolesAndPermissionUpdate(roleIndex, moduleIndex)}
                                 size="small"
-                                disabled={loading}
+                                // disabled={loading}
+                                disabled
                               >
                                 {loading ? (
                                   <CircularProgress size={24} />
