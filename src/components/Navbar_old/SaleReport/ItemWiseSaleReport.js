@@ -71,13 +71,13 @@ const ItemWiseSaleReport = () => {
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
-    {
-      field: "createdAt",
-      headerName: "Created Date",
-      width: 150,
-      cellClassName: "custom-cell",
-      headerClassName: "custom-header",
-    },
+    // {
+    //   field: "createdAt",
+    //   headerName: "Created Date",
+    //   width: 150,
+    //   cellClassName: "custom-cell",
+    //   headerClassName: "custom-header",
+    // },
     {
       field: "billDate",
       headerName: "Bill Date",
@@ -738,7 +738,7 @@ const ItemWiseSaleReport = () => {
               rows={(allSalesData || [])?.map((item, index) => ({
                 id: index,
                 sNo: index + 1,
-                createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
+                // createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
                 billDate: item.billDate || "No Data",
                 billNo: item.billNo || "No Data",
                 billType: item.billType || "No Data",
