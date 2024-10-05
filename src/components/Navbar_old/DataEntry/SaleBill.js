@@ -2112,47 +2112,43 @@ const SaleBill = () => {
       socketService.disconnect();
     };
   }, []);
-  
 
   const handlePrintClick = () => {
     const updatedSalesData = [...salesData];
     let splitItems = [];
-  
+
     updatedSalesData.forEach((item, idx) => {
       if (item.split > 0 && item.pcs >= item.split) {
-
         const splitItem = {
           ...item,
           pcs: item.split,
-          amount: parseFloat(item.split) * parseFloat(item.rate), 
+          amount: parseFloat(item.split) * parseFloat(item.rate),
         };
         // console.log("splitItem: ", splitItem);
-  
+
         const remainingPcs = item.pcs - item.split;
         updatedSalesData[idx].pcs = remainingPcs;
         updatedSalesData[idx].split = 0;
-  
 
-        updatedSalesData[idx].amount = parseFloat(remainingPcs) * parseFloat(item.rate);
+        updatedSalesData[idx].amount =
+          parseFloat(remainingPcs) * parseFloat(item.rate);
         // console.log("updatedSalesData: ", updatedSalesData[idx]);
-  
 
         splitItems.push(splitItem);
       }
     });
 
     const filteredSalesData = updatedSalesData.filter((item) => item.pcs > 0);
-  
-    if (splitItems.length > 0) {
 
+    if (splitItems.length > 0) {
       setSalesData(filteredSalesData);
       sessionStorage.setItem("salesData", JSON.stringify(filteredSalesData));
-  
+
       setPrintData(splitItems);
-  
+
       const printTotalVal = calculatePrintTotalValues(splitItems);
       setPrintTotalValues(printTotalVal);
-  
+
       setIsSplitPrinted(true);
     }
   };
@@ -2164,14 +2160,12 @@ const SaleBill = () => {
     let discountAmt = 0;
     let splDiscAmount = 0;
     let netAmt = 0;
-  
-    splitItems.forEach((item) => {
 
+    splitItems.forEach((item) => {
       const itemGrossAmt = item.rate * item.pcs;
       const itemDiscountAmt = item.discount || 0;
       const itemSplDiscAmount = item.splDiscAmount || 0;
       const itemNetAmt = itemGrossAmt - itemDiscountAmt - itemSplDiscAmount;
-  
 
       totalVolume += item.volume;
       totalPcs += item.pcs;
@@ -2180,7 +2174,7 @@ const SaleBill = () => {
       splDiscAmount += itemSplDiscAmount;
       netAmt += itemNetAmt;
     });
-  
+
     return {
       totalVolume: totalVolume.toFixed(2),
       totalPcs: totalPcs,
@@ -2190,7 +2184,7 @@ const SaleBill = () => {
       netAmt: netAmt.toFixed(2),
     };
   };
-  
+
   useEffect(() => {
     if (isSplitPrinted) {
       handleCreateSale(printData);
@@ -3025,11 +3019,7 @@ const SaleBill = () => {
             padding: "4px 10px",
             fontSize: "11px",
           }}
-          disabled={
-            !billNumber && !billNoEditable
-              ? role !== "admin" && !canCreate
-              : !canUpdate && role === "admin"
-          }
+          disabled={!billNumber && !billNoEditable}
         >
           SAVE
         </Button>
