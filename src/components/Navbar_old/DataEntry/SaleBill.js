@@ -3019,7 +3019,7 @@ const SaleBill = () => {
             padding: "4px 10px",
             fontSize: "11px",
           }}
-          disabled={!billNumber && !billNoEditable}
+          // disabled={!billNumber && !billNoEditable}
         >
           SAVE
         </Button>
