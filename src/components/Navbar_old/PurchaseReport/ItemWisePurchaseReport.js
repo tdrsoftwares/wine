@@ -57,7 +57,7 @@ const ItemWisePurchaseReport = () => {
 
   const [loading, setLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
-    page: 1,
+    page: 0,
     pageSize: 10,
   });
   const { permissions, role } = usePermissions();
@@ -246,10 +246,7 @@ const ItemWisePurchaseReport = () => {
     setLoading(true);
     try {
       const filterOptions = {
-        page:
-          paginationModel.page === 0
-            ? paginationModel.page + 1
-            : paginationModel.page,
+        page: paginationModel.page + 1,
         pageSize: paginationModel.pageSize,
         fromDate: fromDate,
         toDate: toDate,
@@ -265,8 +262,8 @@ const ItemWisePurchaseReport = () => {
       // console.log("Response: ", response);
 
       if (response.status === 200) {
-        setAllPurchases(response?.data?.data || []);
-        setTotalCount(response.data.data.length || 0);
+        setAllPurchases(response?.data?.data?.items || []);
+        setTotalCount(response?.data?.data?.totalItems || 0);
       } else {
         console.log("Error", response);
         // NotificationManager.error("No items found.", "Error");
@@ -634,7 +631,7 @@ const ItemWisePurchaseReport = () => {
               setBrandName("");
               setItemNameOptions([]);
               setBrandNameOptions([]);
-              setPaginationModel({ page: 1, pageSize: 10 });
+              setPaginationModel({ page: 0, pageSize: 10 });
             }}
             // sx={{ borderRadius: 8 }}
           >
@@ -675,7 +672,8 @@ const ItemWisePurchaseReport = () => {
             <DataGrid
               rows={(allPurchases || [])?.map((item, index) => ({
                 id: index,
-                sNo: index + 1,
+                sNo:
+                  index + paginationModel.page * paginationModel.pageSize + 1,
                 // createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
                 billDate: item.billDate || "No Data",
                 entryNo: item.entryNo || "No Data",
@@ -720,13 +718,6 @@ const ItemWisePurchaseReport = () => {
                 toolbar: GridToolbar,
               }}
               initialState={{
-                pagination: {
-                  paginationModel: {
-                    page: paginationModel.page,
-                    pageSize: paginationModel.pageSize,
-                  },
-                  rowCount: totalCount,
-                },
                 density: "compact",
               }}
             />
