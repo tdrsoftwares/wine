@@ -723,7 +723,6 @@ const DailyItemStatus = () => {
             size="small"
             variant="contained"
             onClick={handlePrint}
-            // sx={{ marginLeft: 2 }}
             disabled={!canRead && role !== "admin"}
           >
             Print
@@ -733,7 +732,6 @@ const DailyItemStatus = () => {
             size="small"
             variant="contained"
             onClick={fetchAllItemStatus}
-            // sx={{ marginLeft: 2 }}
             disabled={!canRead && role !== "admin"}
           >
             Display
