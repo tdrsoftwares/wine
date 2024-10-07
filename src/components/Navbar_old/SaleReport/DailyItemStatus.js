@@ -769,6 +769,9 @@ const DailyItemStatus = () => {
               }
               initialState={{
                 density: "compact",
+                sorting: {
+                  sortModel: [{ field: "item", sort: "asc" }],
+                },
               }}
               slots={{
                 footer: CustomItemStatusFooter,
