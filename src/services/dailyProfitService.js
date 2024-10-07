@@ -1,10 +1,10 @@
 import axiosInstance from "../utils/axiosInstance";
 
 export const getDailyProfitDetails = async (filterOptions) => {
-  const { fromDate, toDate } = filterOptions;
+  const { page, pageSize, fromDate, toDate } = filterOptions;
 
   try {
-    let apiURL = `/reports/daily-profit-reports`;
+    let apiURL = `/reports/daily-profit-reports?page=${page}&pageSize=${pageSize}`;
 
     const filters = { fromDate, toDate };
 

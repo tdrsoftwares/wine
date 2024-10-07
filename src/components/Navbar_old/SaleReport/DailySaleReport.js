@@ -577,7 +577,7 @@ const DailySaleReport = () => {
               setBrandName("");
               setItemNameOptions([]);
               setBrandNameOptions([]);
-              setPaginationModel({ page: 1, pageSize: 10 });
+              setPaginationModel({ page: 0, pageSize: 10 });
             }}
           >
             Clear Filters
@@ -647,13 +647,6 @@ const DailySaleReport = () => {
                 toolbar: GridToolbar,
               }}
               initialState={{
-                pagination: {
-                  paginationModel: {
-                    page: paginationModel.page,
-                    pageSize: paginationModel.pageSize,
-                  },
-                  rowCount: totalCount,
-                },
                 density: "compact",
               }}
             />
