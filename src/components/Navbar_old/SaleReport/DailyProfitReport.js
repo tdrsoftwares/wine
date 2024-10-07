@@ -24,7 +24,7 @@ const DailyProfitReport = () => {
   const [loading, setLoading] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
   const [paginationModel, setPaginationModel] = useState({
-    page: 1,
+    page: 0,
     pageSize: 10,
   });
   const [filterData, setFilterData] = useState({
@@ -86,6 +86,8 @@ const DailyProfitReport = () => {
 
   const fetchAllProfits = async () => {
     const filterOptions = {
+      page: paginationModel.page + 1,
+      pageSize: paginationModel.pageSize,
       fromDate: filterData.dateFrom ? dayjs(filterData.dateFrom).format("DD/MM/YYYY") : null,
       toDate: filterData.dateTo ? dayjs(filterData.dateTo).format("DD/MM/YYYY") : null,
     };
@@ -95,8 +97,8 @@ const DailyProfitReport = () => {
       const response = await getDailyProfitDetails(filterOptions);
 
       if (response.status === 200) {
-        setAllProfitData(response?.data?.data || []);
-        setTotalCount(response.data.data.length || 0);
+        setAllProfitData(response?.data?.data?.items || []);
+        setTotalCount(response?.data?.data?.totalItems || 0);
       } else {
         console.log("Error", response);
         // NotificationManager.error("No records found.", "Error");
@@ -127,7 +129,7 @@ const DailyProfitReport = () => {
     return () => {
       debouncedFetch.cancel();
     };
-  }, [filterData]);
+  }, [paginationModel, filterData]);
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -204,7 +206,7 @@ const DailyProfitReport = () => {
                 dateFrom: null,
                 dateTo: null,
               });
-              setPaginationModel({ page: 1, pageSize: 10 });
+              setPaginationModel({ page: 0, pageSize: 10 });
             }}
           >
             Clear Filters
@@ -240,7 +242,7 @@ const DailyProfitReport = () => {
           {canRead || role === "admin" ? <DataGrid
             rows={(allProfitData || [])?.map((item, index) => ({
               id: index,
-              sNo: index + 1,
+              sNo: index + paginationModel.page * paginationModel.pageSize + 1,
               itemName: item.itemName || "No Data",
               TotalQuantity: item.TotalQuantity || 0,
               salesAmount: item.salesAmount || 0,
@@ -250,9 +252,12 @@ const DailyProfitReport = () => {
             columns={columns}
             rowCount={totalCount}
             pagination
+            paginationMode="server"
             paginationModel={paginationModel}
-            pageSizeOptions={[10, 25, 50, 100]}
-            onPaginationModelChange={setPaginationModel}
+            pageSizeOptions={[5, 10, 25, 50, 100]}
+            onPaginationModelChange={(newPaginationModel) =>
+              setPaginationModel(newPaginationModel)
+            }
             sx={{ backgroundColor: "#fff" }}
             disableRowSelectionOnClick
             loading={loading}

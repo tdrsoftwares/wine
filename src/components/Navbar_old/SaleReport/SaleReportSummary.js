@@ -200,12 +200,8 @@ const SaleReportSummary = () => {
     // console.log("Fetching data...");
     try {
       const filterOptions = {
-        // page:
-        //   paginationModel.page === 0
-        //     ? paginationModel.page + 1
-        //     : paginationModel.page,
         page: paginationModel.page + 1,
-        limit: paginationModel.pageSize,
+        pageSize: paginationModel.pageSize,
         customerName: filterData.customerName,
         fromDate: fromDate,
         toDate: toDate,
@@ -216,8 +212,8 @@ const SaleReportSummary = () => {
       const allSalesResponse = await getAllSales(filterOptions);
       // console.log("allSalesResponse ---> ", allSalesResponse?.data?.data);
       if (allSalesResponse.status === 200) {
-        setAllSalesData(allSalesResponse?.data?.data);
-        setTotalCount(allSalesResponse?.data.data?.length);
+        setAllSalesData(allSalesResponse?.data?.data?.items);
+        setTotalCount(allSalesResponse?.data.data?.totalItems);
       } else {
         // NotificationManager.error("No sales found.", "Error");
         setAllSalesData([]);
@@ -484,7 +480,7 @@ const SaleReportSummary = () => {
             <DataGrid
               rows={(allSalesData || [])?.map((sale, index) => ({
                 id: index,
-                sNo: index + 1,
+                sNo: index + paginationModel.page * paginationModel.pageSize + 1,
                 billNo: sale.billNo || 0,
                 billDate: sale.billDate || "No Data",
                 // new Date(sale.billDate).toLocaleDateString("en-GB"),

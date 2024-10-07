@@ -242,8 +242,8 @@ const ItemWiseSaleReport = () => {
       // console.log("Response salesData: ", response);
 
       if (response.status === 200) {
-        setAllSalesData(response?.data?.data || []);
-        setTotalCount(response.data.data.length || 0);
+        setAllSalesData(response?.data?.data?.items || []);
+        setTotalCount(response?.data?.data?.totalItems || 0);
       } else {
         console.log("Error", response);
         // NotificationManager.error("No items found.", "Error");
@@ -736,7 +736,7 @@ const ItemWiseSaleReport = () => {
             <DataGrid
               rows={(allSalesData || [])?.map((item, index) => ({
                 id: index,
-                sNo: index + 1,
+                sNo: index + paginationModel.page * paginationModel.pageSize + 1,
                 // createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
                 billDate: item.billDate || "No Data",
                 billNo: item.billNo || "No Data",

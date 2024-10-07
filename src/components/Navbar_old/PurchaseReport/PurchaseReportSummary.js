@@ -202,10 +202,7 @@ const PurchaseReportSummary = () => {
     setLoading(true);
     try {
       const filterOptions = {
-        page:
-          paginationModel.page === 0
-            ? paginationModel.page + 1
-            : paginationModel.page,
+        page: paginationModel.page + 1,
         pageSize: paginationModel.pageSize,
         fromDate: fromDate,
         toDate: toDate,
@@ -214,8 +211,8 @@ const PurchaseReportSummary = () => {
       };
       const response = await getAllPurchases(filterOptions);
       // console.log("Purchases fetched", response?.data?.data)
-      setAllPurchases(response?.data?.data || []);
-      setTotalCount(response?.data?.data?.length || 0);
+      setAllPurchases(response?.data?.data?.items || []);
+      setTotalCount(response?.data?.data?.totalItems || 0);
     } catch (error) {
       // NotificationManager.error(
       //   "Error fetching purchases. Please try again later.",
@@ -446,7 +443,7 @@ const PurchaseReportSummary = () => {
             <DataGrid
               rows={(allPurchases || []).map((purchase, index) => ({
                 id: index,
-                sNo: index + 1,
+                sNo: index + paginationModel.page * paginationModel.pageSize + 1,
                 billDate: purchase.billDate || "No Data",
                 passDate: purchase.passDate || "No Data",
                 entryNo: purchase.entryNo || 0,
@@ -477,7 +474,9 @@ const PurchaseReportSummary = () => {
               paginationMode="server"
               pageSizeOptions={[10, 25, 50, 100]}
               paginationModel={paginationModel}
-              onPaginationModelChange={setPaginationModel}
+              onPaginationModelChange={(newPaginationModel) =>
+                setPaginationModel(newPaginationModel)
+              }
               sx={{ backgroundColor: "#fff" }}
               loading={loading}
               components={{

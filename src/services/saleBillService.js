@@ -54,7 +54,7 @@ export const getAllSales = async (filterOptions) => {
   try {
     const {
       page,
-      limit,
+      pageSize,
       fromDate,
       toDate,
       customerName,
@@ -63,7 +63,7 @@ export const getAllSales = async (filterOptions) => {
       customerType,
     } = filterOptions;
 
-    let apiURL = `/sales/reports?page=${page}&limit=${limit}`;
+    let apiURL = `/sales/reports?page=${page}&pageSize=${pageSize}`;
 
     const filters = {
       fromDate,

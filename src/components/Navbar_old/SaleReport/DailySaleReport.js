@@ -54,7 +54,7 @@ const DailySaleReport = () => {
   // console.log(filterData)
   const [loading, setLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
-    page: 1,
+    page: 0,
     pageSize: 10,
   });
   const [totalCount, setTotalCount] = useState(0);
@@ -177,10 +177,7 @@ const DailySaleReport = () => {
     setLoading(true);
     try {
       const filterOptions = {
-        page:
-          paginationModel.page === 0
-            ? paginationModel.page + 1
-            : paginationModel.page,
+        page: paginationModel.page + 1,
         pageSize: paginationModel.pageSize,
         fromDate: fromDate,
         toDate: toDate,
@@ -192,11 +189,11 @@ const DailySaleReport = () => {
         mode: filterData.mode,
       };
       const response = await getDailySalesDetails(filterOptions);
-      // console.log("Response salesData: ", response);
+      console.log("Response salesData: ", response);
 
       if (response.status === 200) {
-        setAllSalesData(response?.data?.data || []);
-        setTotalCount(response.data.data.length || 0);
+        setAllSalesData(response?.data?.data?.items || []);
+        setTotalCount(response?.data?.data?.totalItems || 0);
       } else {
         console.log("Error", response);
         // NotificationManager.error("No items found.", "Error");
@@ -580,7 +577,7 @@ const DailySaleReport = () => {
               setBrandName("");
               setItemNameOptions([]);
               setBrandNameOptions([]);
-              setPaginationModel({ page: 1, pageSize: 10 });
+              setPaginationModel({ page: 0, pageSize: 10 });
             }}
           >
             Clear Filters
@@ -620,7 +617,7 @@ const DailySaleReport = () => {
             <DataGrid
               rows={(allSalesData || [])?.map((item, index) => ({
                 id: index,
-                sNo: index + 1,
+                sNo: index + paginationModel.page * paginationModel.pageSize + 1,
                 itemName: item._id || "No Data",
                 totalPcs: item.totalPcs || "No Data",
                 rate: item.rate || "No Data",
@@ -634,7 +631,9 @@ const DailySaleReport = () => {
               paginationMode="server"
               paginationModel={paginationModel}
               pageSizeOptions={[10, 25, 50, 100]}
-              onPaginationModelChange={setPaginationModel}
+              onPaginationModelChange={(newPaginationModel) =>
+                setPaginationModel(newPaginationModel)
+              }
               sx={{ backgroundColor: "#fff" }}
               disableRowSelectionOnClick
               loading={loading}
@@ -648,13 +647,6 @@ const DailySaleReport = () => {
                 toolbar: GridToolbar,
               }}
               initialState={{
-                pagination: {
-                  paginationModel: {
-                    page: paginationModel.page,
-                    pageSize: paginationModel.pageSize,
-                  },
-                  rowCount: totalCount,
-                },
                 density: "compact",
               }}
             />
