@@ -362,6 +362,11 @@ const StockReport = () => {
     setItemNameOptions([]);
     setBrandNameOptions([]);
     setAllStocks([]);
+    setTotalCount(0);
+    setTotalMRP(0);
+    setTotalPurRate(0);
+    setTotalStock(0);
+    setTotalVolume(0);
     setPaginationModel({ page: 0, pageSize: 10 });
   };
 
