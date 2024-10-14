@@ -209,8 +209,8 @@ const Epos = () => {
       };
       const response = await getAllEpos(filterOptions);
       // console.log("sales fetched", response?.data?.data);
-      setAllEposData(response?.data?.data || []);
-      setTotalCount(response?.data?.data?.length || 0);
+      setAllEposData(response?.data?.data?.items || []);
+      setTotalCount(response?.data?.data?.totalItems || 0);
     } catch (error) {
       // NotificationManager.error(
       //   "Error fetching sales. Please try again later.",
