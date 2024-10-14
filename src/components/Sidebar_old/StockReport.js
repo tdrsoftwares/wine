@@ -216,10 +216,14 @@ const StockReport = () => {
       // console.log("filterOptions: ", filterOptions);
       // console.log("paginationModel: ", paginationModel);
       const allStocksResponse = await getAllStocks(filterOptions);
-      // console.log("allStocksResponse: ", allStocksResponse);
+      console.log("allStocksResponse: ", allStocksResponse);
       const allStocksData = allStocksResponse?.data?.data;
 
       setAllStocks(allStocksData?.items || []);
+      setTotalMRP(allStocksData?.totalOf?.totalMRP);
+      setTotalPurRate(allStocksData?.totalOf?.totalPurchaseRate);
+      setTotalVolume(allStocksData?.totalOf?.totalVolume);
+      setTotalStock(allStocksData?.totalOf?.totalStock);
       setTotalCount(allStocksData?.totalItems || 0);
     } catch (error) {
       // NotificationManager.error(
@@ -361,30 +365,30 @@ const StockReport = () => {
     setPaginationModel({ page: 0, pageSize: 10 });
   };
 
-  useEffect(() => {
-    const calculateSums = (data) => {
-      let totalPurRate = 0;
-      let totalVolume = 0;
-      let totalStock = 0;
-      let totalMRP = 0;
+  // useEffect(() => {
+  //   const calculateSums = (data) => {
+  //     let totalPurRate = 0;
+  //     let totalVolume = 0;
+  //     let totalStock = 0;
+  //     let totalMRP = 0;
 
-      data.forEach((item) => {
-        totalPurRate += item.purchaseRate * item.currentStock || 0;
-        totalVolume += item.item?.volume * item.currentStock || 0;
-        totalStock += item.currentStock || 0;
-        totalMRP += item.mrp * item.currentStock || 0;
-      });
+  //     data.forEach((item) => {
+  //       totalPurRate += item.purchaseRate * item.currentStock || 0;
+  //       totalVolume += item.item?.volume * item.currentStock || 0;
+  //       totalStock += item.currentStock || 0;
+  //       totalMRP += item.mrp * item.currentStock || 0;
+  //     });
 
-      return { totalPurRate, totalVolume, totalStock, totalMRP };
-    };
+  //     return { totalPurRate, totalVolume, totalStock, totalMRP };
+  //   };
 
-    const { totalPurRate, totalVolume, totalStock, totalMRP } =
-      calculateSums(allStocks);
-    setTotalPurRate(totalPurRate);
-    setTotalVolume(totalVolume);
-    setTotalStock(totalStock);
-    setTotalMRP(totalMRP);
-  }, [allStocks]);
+  //   const { totalPurRate, totalVolume, totalStock, totalMRP } =
+  //     calculateSums(allStocks);
+  //   setTotalPurRate(totalPurRate);
+  //   setTotalVolume(totalVolume);
+  //   setTotalStock(totalStock);
+  //   setTotalMRP(totalMRP);
+  // }, [allStocks]);
 
   // const exportToExcel = async () => {
   //   setHasExportClicked(true);
