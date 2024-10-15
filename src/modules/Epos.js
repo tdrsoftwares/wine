@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Box,
   Button,
   CircularProgress,
@@ -24,6 +25,8 @@ import { getAllItemCategory } from "../services/categoryService";
 import { getAllEpos, loginEpos, multipleEpos } from "../services/eposService";
 import { getLicenseInfo } from "../services/licenseService";
 import EposReportModal from "./EposReportModal";
+import debounce from "lodash.debounce";
+import { searchByBrandName, searchByItemName } from "../services/saleBillService";
 
 const Epos = () => {
   const [dateFrom, setDateFrom] = useState(null);
@@ -45,6 +48,8 @@ const Epos = () => {
   let todaysDate = new Date();
   const [isLoading, setIsLoading] = useState(false);
   const [licenseDetails, setLicenseDetails] = useState({});
+  const [itemNameOptions, setItemNameOptions] = useState([]);
+  const [brandNameOptions, setBrandNameOptions] = useState([]);
 
   const [openResponseModal, setOpenResponseModal] = useState(false);
 
@@ -209,8 +214,8 @@ const Epos = () => {
       };
       const response = await getAllEpos(filterOptions);
       // console.log("sales fetched", response?.data?.data);
-      setAllEposData(response?.data?.data || []);
-      setTotalCount(response?.data?.data?.length || 0);
+      setAllEposData(response?.data?.data?.items || []);
+      setTotalCount(response?.data?.data?.totalItems || 0);
     } catch (error) {
       // NotificationManager.error(
       //   "Error fetching sales. Please try again later.",
@@ -222,57 +227,48 @@ const Epos = () => {
     }
   };
 
-  const fetchAllItems = async () => {
+  const itemNameSearch = debounce(async (searchText) => {
     try {
-      const allItemsResponse = await getAllItems();
-      if (allItemsResponse) {
-        setAllItems(allItemsResponse?.data?.data);
+      const response = await searchByItemName(searchText);
+      if (response?.data?.data && response.data.data.length > 0) {
+        setItemNameOptions(response.data.data);
       } else {
-        setAllItems([]);
-        // NotificationManager.error("No items found");
+        setItemNameOptions([]);
       }
     } catch (error) {
-      // NotificationManager.error(
-      //   "Error fetching items. Please try again later.",
-      //   "Error"
-      // );
+      console.error("Error searching items:", error);
+      setItemNameOptions([]);
     }
+  }, 500);
+
+
+  const brandNameSearch = debounce(async (searchText) => {
+    try {
+      const response = await searchByBrandName(searchText);
+      if (response?.data?.data && response.data.data.length > 0) {
+        setBrandNameOptions(response.data.data);
+      } else {
+        setBrandNameOptions([]);
+      }
+    } catch (error) {
+      console.error("Error searching brand:", error);
+      setBrandNameOptions([]);
+    }
+  }, 500);
+  
+
+  const handleItemNameChange = (event, newValue) => {
+    setItemName(newValue);
   };
 
-  const fetchAllBrands = async () => {
-    try {
-      const allBrandResponse = await getAllBrands();
-      if (allBrandResponse) {
-        setAllBrands(allBrandResponse?.data?.data);
-      } else {
-        setAllBrands([]);
-        // NotificationManager.error("No brands found");
-      }
-    } catch (error) {
-      // NotificationManager.error(
-      //   "Error fetching brands. Please try again later.",
-      //   "Error"
-      // );
-      setAllBrands([]);
-    }
+  const handleBrandNameChange = (event, newValue) => {
+    setBrandName(newValue);
   };
 
   useEffect(() => {
-    fetchAllBrands();
-    fetchAllItems();
     fetchAllEposData();
     fetchLicenseData();
   }, []);
-
-  const debounce = (func, delay) => {
-    let timeout;
-    return (...args) => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        func(...args);
-      }, delay);
-    };
-  };
 
   useEffect(() => {
     const debouncedFetch = debounce(fetchAllEposData, 300);
@@ -454,14 +450,24 @@ const Epos = () => {
           <Grid item xs={3}>
             <div className="input-wrapper">
               <InputLabel htmlFor="itemName" className="input-label">
-                Item Name:
+                Item:
               </InputLabel>
-              <TextField
-                fullWidth
-                size="small"
-                name="itemName"
+              <Autocomplete
+                options={itemNameOptions.map((option) => option.name)}
                 value={itemName}
-                onChange={(e) => setItemName(e.target.value)}
+                onChange={handleItemNameChange}
+                onInputChange={(event, newInputValue) => {
+                  itemNameSearch(newInputValue);
+                }}
+                className="input-field"
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    fullWidth
+                    size="small"
+                    name="itemName"
+                  />
+                )}
               />
             </div>
           </Grid>
@@ -471,12 +477,22 @@ const Epos = () => {
               <InputLabel htmlFor="brandName" className="input-label">
                 Brand:
               </InputLabel>
-              <TextField
-                fullWidth
-                size="small"
-                name="brandName"
+              <Autocomplete
+                options={brandNameOptions.map((option) => option.name)}
                 value={brandName}
-                onChange={(e) => setBrandName(e.target.value)}
+                onChange={handleBrandNameChange}
+                onInputChange={(event, newInputValue) => {
+                  brandNameSearch(newInputValue);
+                }}
+                className="input-field"
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    fullWidth
+                    size="small"
+                    name="brandName"
+                  />
+                )}
               />
             </div>
           </Grid>
@@ -499,6 +515,8 @@ const Epos = () => {
                 setDateTo(null);
                 setItemName("");
                 setBrandName("");
+                setItemNameOptions([]);
+                setBrandNameOptions([]);
                 setPaginationModel({ page: 0, pageSize: 10 });
                 fetchAllEposData();
               }}

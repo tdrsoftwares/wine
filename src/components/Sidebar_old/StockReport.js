@@ -362,6 +362,11 @@ const StockReport = () => {
     setItemNameOptions([]);
     setBrandNameOptions([]);
     setAllStocks([]);
+    setTotalCount(0);
+    setTotalMRP(0);
+    setTotalPurRate(0);
+    setTotalStock(0);
+    setTotalVolume(0);
     setPaginationModel({ page: 0, pageSize: 10 });
   };
 
@@ -431,10 +436,10 @@ const StockReport = () => {
             // margin: "0 20px",
           }}
         >
-          <span>Total Pur. Rate: {totalPurRate.toFixed(2)}</span>
-          <span>Total Volume: {totalVolume.toFixed(2) + "ltr"}</span>
-          <span>Total Stock: {totalStock.toFixed(0)}</span>
-          <span>Total MRP: {totalMRP.toFixed(2)}</span>
+          <span>Total Pur. Rate: {totalPurRate?.toFixed(2)}</span>
+          <span>Total Volume: {totalVolume?.toFixed(2) + "ltr"}</span>
+          <span>Total Stock: {totalStock?.toFixed(0)}</span>
+          <span>Total MRP: {totalMRP?.toFixed(2)}</span>
         </div>
         <GridFooter />
       </GridFooterContainer>
@@ -694,13 +699,11 @@ const StockReport = () => {
         >
           {canRead || role === "admin" ? (
             <DataGrid
-              rows={(allStocks || [])?.map((stock, index) => ({
+            rows={[
+              ...(allStocks || []).map((stock, index) => ({
                 id: index,
-                sNo:
-                  index + paginationModel.page * paginationModel.pageSize + 1,
-                createdAt: new Date(stock.createdAt).toLocaleDateString(
-                  "en-GB"
-                ),
+                sNo: index + paginationModel.page * paginationModel.pageSize + 1,
+                createdAt: new Date(stock.createdAt).toLocaleDateString("en-GB"),
                 itemCode: stock.itemCode || "No Data",
                 itemName: stock?.item?.name || "No Data",
                 currentStock: stock.currentStock || 0,
@@ -716,7 +719,28 @@ const StockReport = () => {
                 storeType: stock.store?.type || "No Data",
                 openingStock: stock.openingStock || 0,
                 mrp: stock.mrp || 0,
-              }))}
+              })),
+              {
+                id: "totalRow", 
+                sNo: "Total",   
+                createdAt: "",  
+                itemCode: "",
+                itemName: "",
+                currentStock: totalStock,
+                brandName: "",
+                categoryName: "",
+                companyName: "",
+                batchNo: "",
+                volume: totalVolume,
+                saleRate: "",
+                purchaseRate: totalPurRate,
+                stockRate: "",
+                storeName: "",
+                storeType: "",
+                openingStock: "",
+                mrp: totalMRP,
+              },
+            ]}
               keepNonExistentRowsSelected
               columns={columnsData}
               rowCount={totalCount}
@@ -728,9 +752,6 @@ const StockReport = () => {
               }
               initialState={{
                 density: "compact",
-                sorting: {
-                  sortModel: [{ field: "currentStock", sort: "desc" }],
-                },
               }}
               disableRowSelectionOnClick
               loading={loading}

@@ -716,7 +716,6 @@ const ItemWiseSaleReport = () => {
             size="small"
             variant="contained"
             onClick={fetchAllSales}
-            // sx={{ marginLeft: 2 }}
             disabled={!canRead && role !== "admin"}
           >
             Display
