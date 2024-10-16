@@ -99,6 +99,45 @@ export const getAllStocks = async (filterOptions) => {
   }
 };
 
+export const exportAllStocks = async (filterOptions) => {
+  try {
+    const {
+      itemName,
+      categoryName,
+      volume,
+      brandName,
+      batch,
+      storeName,
+      company,
+      itemCode,
+    } = filterOptions;
+
+    let apiURL = `/stock/export-excel?storeName=${encodeURIComponent(storeName)}`;
+
+    const filters = {
+      itemName,
+      categoryName,
+      volume,
+      brandName,
+      batch,
+      company,
+      itemCode,
+    };
+
+    Object.keys(filters).forEach(key => {
+      if (filters[key]) {
+        apiURL += `&${key}=${encodeURIComponent(filters[key])}`;
+      }
+    });
+
+    const allStocksData = await axiosInstance.get(apiURL);
+    return allStocksData;
+  } catch (error) {
+    console.error("Error exporting stocks:", error);
+    return error;
+  }
+};
+
 
 export const getItemPurchaseDetails = async (entryNo) => {
   try {

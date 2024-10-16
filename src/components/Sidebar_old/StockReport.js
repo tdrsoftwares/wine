@@ -17,7 +17,7 @@ import {
   GridToolbar,
 } from "@mui/x-data-grid";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { getAllStocks } from "../../services/stockService";
+import { exportAllStocks, getAllStocks } from "../../services/stockService";
 import { NotificationManager } from "react-notifications";
 import { getAllCompanies } from "../../services/companyService";
 import { getAllItemCategory } from "../../services/categoryService";
@@ -396,34 +396,75 @@ const StockReport = () => {
   // }, [allStocks]);
 
 
-  // const exportToExcel = async () => {
-  //   setHasExportClicked(true);
-  //   await fetchAllStocks();
-  //   const dataToExport = allStocks.map((stock, index) => ({
-  //     "S. No.": index + paginationModel.page * paginationModel.pageSize + 1,
-  //     "Created Date": new Date(stock.createdAt).toLocaleDateString("en-GB"),
-  //     "Item Code": stock.itemCode,
-  //     "Item": stock.item?.name,
-  //     "Current Stock": stock.currentStock,
-  //     "Brand": stock?.item?.brand?.name,
-  //     "Category": stock?.item?.category?.categoryName,
-  //     "Company": stock?.item?.company?.name,
-  //     "Batch No.": stock.batchNo,
-  //     "Sale Rate": stock.saleRate,
-  //     "Purchase Rate": stock.purchaseRate,
-  //     "Stock In": stock.store?.name,
-  //     "Store Type": stock.store?.type,
-  //     "Opening Stock": stock.openingStock,
-  //     "Volume": stock?.item?.volume,
-  //     "MRP": stock.mrp,
-  //   }));
+  const exportToExcel = async () => {
+    setHasExportClicked(true);
 
-  //   const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-  //   const workbook = XLSX.utils.book_new();
-  //   XLSX.utils.book_append_sheet(workbook, worksheet, "Stocks");
+    const filterOptions = {
+      itemName: filterData.itemName,
+      itemCode: filterData.itemCode,
+      categoryName: filterData.category,
+      volume: filterData.volume,
+      brandName: filterData.brandName,
+      batch: filterData.batchNo,
+      storeName: filterData.storeName,
+      company: filterData.company,
+    };
 
-  //   XLSX.writeFile(workbook, "Stock_Report.xlsx");
-  // };
+    try {
+      setLoading(true);
+      const allStocksResponse = await exportAllStocks(filterOptions);
+      const allStocksData = allStocksResponse?.data?.data[0];
+      // console.log("allStocksData: ", allStocksData);
+
+      const dataToExport = (allStocksData?.items || []).map((stock, index) => ({
+        "S. No.": index + 1,
+        "Created Date": new Date(stock.createdAt).toLocaleDateString("en-GB"),
+        "Item Code": stock.itemCode,
+        Item: stock.item?.name,
+        "Current Stock": stock.currentStock,
+        Brand: stock?.item?.brand?.name,
+        Category: stock?.item?.category?.categoryName,
+        Company: stock?.item?.company?.name,
+        "Batch No.": stock.batchNo,
+        "Sale Rate": stock.saleRate,
+        "Purchase Rate": stock.purchaseRate,
+        "Stock In": stock.store?.name,
+        "Store Type": stock.store?.type,
+        "Opening Stock": stock.openingStock,
+        Volume: stock?.item?.volume,
+        MRP: stock.mrp,
+      }));
+
+      dataToExport.push({
+        "S. No.": "Total",
+        "Created Date": "",
+        "Item Code": "",
+        Item: "",
+        "Current Stock": allStocksData.totalStock,
+        Brand: "",
+        Category: "",
+        Company: "",
+        "Batch No.": "",
+        "Sale Rate": "",
+        "Purchase Rate": allStocksData.totalPurchaseRate,
+        "Stock In": "",
+        "Store Type": "",
+        "Opening Stock": "",
+        Volume: allStocksData.totalVolume,
+        MRP: allStocksData.totalMRP,
+      });
+
+      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Stocks");
+
+      XLSX.writeFile(workbook, "Stock_Report.xlsx");
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const CustomFooter = () => {
     return (
@@ -652,39 +693,42 @@ const StockReport = () => {
         <Box
           sx={{
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
             gap: 1,
             "& button": { marginTop: 1 },
           }}
         >
-          {/* <Button
+          <Button
             color="success"
             size="small"
             variant="contained"
             onClick={exportToExcel}
+            disabled={!canRead && role !== "admin"}
           >
             Export to Excel
           </Button>
-          <div> */}
-          <Button
-            color="inherit"
-            size="small"
-            variant="contained"
-            onClick={handleClearFilters}
-          >
-            Clear Filters
-          </Button>
 
-          <Button
-            color="info"
-            size="small"
-            variant="contained"
-            onClick={fetchAllStocks}
-            disabled={!canRead && role !== "admin"}
-          >
-            Display
-          </Button>
-          {/* </div> */}
+          <div>
+            <Button
+              color="inherit"
+              size="small"
+              variant="contained"
+              onClick={handleClearFilters}
+            >
+              Clear Filters
+            </Button>
+
+            <Button
+              color="info"
+              size="small"
+              variant="contained"
+              onClick={fetchAllStocks}
+              disabled={!canRead && role !== "admin"}
+              sx={{ marginLeft: 1 }}
+            >
+              Display
+            </Button>
+          </div>
         </Box>
 
         <Box
@@ -699,48 +743,56 @@ const StockReport = () => {
         >
           {canRead || role === "admin" ? (
             <DataGrid
-            rows={[
-              ...(allStocks || []).map((stock, index) => ({
-                id: index,
-                sNo: index + paginationModel.page * paginationModel.pageSize + 1,
-                createdAt: new Date(stock.createdAt).toLocaleDateString("en-GB"),
-                itemCode: stock.itemCode || "No Data",
-                itemName: stock?.item?.name || "No Data",
-                currentStock: stock.currentStock || 0,
-                brandName: stock?.item?.brand?.name || "No Data",
-                categoryName: stock?.item?.category?.categoryName || "No Data",
-                companyName: stock?.item?.company?.name || "No Data",
-                batchNo: stock.batchNo || "No Data",
-                volume: stock?.item?.volume || 0,
-                saleRate: stock.saleRate || 0,
-                purchaseRate: stock.purchaseRate || 0,
-                stockRate: stock.stockRate || 0,
-                storeName: stock.store?.name || "No Data",
-                storeType: stock.store?.type || "No Data",
-                openingStock: stock.openingStock || 0,
-                mrp: stock.mrp || 0,
-              })),
-              {
-                id: "totalRow", 
-                sNo: "Total",   
-                createdAt: "",  
-                itemCode: "",
-                itemName: "",
-                currentStock: totalStock,
-                brandName: "",
-                categoryName: "",
-                companyName: "",
-                batchNo: "",
-                volume: totalVolume,
-                saleRate: "",
-                purchaseRate: totalPurRate,
-                stockRate: "",
-                storeName: "",
-                storeType: "",
-                openingStock: "",
-                mrp: totalMRP,
-              },
-            ]}
+              rows={[
+                ...(allStocks || []).map((stock, index) => ({
+                  id: index,
+                  sNo:
+                    index + paginationModel.page * paginationModel.pageSize + 1,
+                  createdAt: new Date(stock.createdAt).toLocaleDateString(
+                    "en-GB"
+                  ),
+                  itemCode: stock.itemCode || "No Data",
+                  itemName: stock?.item?.name || "No Data",
+                  currentStock: stock.currentStock || 0,
+                  brandName: stock?.item?.brand?.name || "No Data",
+                  categoryName:
+                    stock?.item?.category?.categoryName || "No Data",
+                  companyName: stock?.item?.company?.name || "No Data",
+                  batchNo: stock.batchNo || "No Data",
+                  volume: stock?.item?.volume || 0,
+                  saleRate: stock.saleRate || 0,
+                  purchaseRate: stock.purchaseRate || 0,
+                  stockRate: stock.stockRate || 0,
+                  storeName: stock.store?.name || "No Data",
+                  storeType: stock.store?.type || "No Data",
+                  openingStock: stock.openingStock || 0,
+                  mrp: stock.mrp || 0,
+                })),
+                ...(allStocks && allStocks.length > 0
+                  ? [
+                      {
+                        id: "totalRow",
+                        sNo: "Total",
+                        createdAt: "",
+                        itemCode: "",
+                        itemName: "",
+                        currentStock: totalStock,
+                        brandName: "",
+                        categoryName: "",
+                        companyName: "",
+                        batchNo: "",
+                        volume: totalVolume,
+                        saleRate: "",
+                        purchaseRate: totalPurRate,
+                        stockRate: "",
+                        storeName: "",
+                        storeType: "",
+                        openingStock: "",
+                        mrp: totalMRP,
+                      },
+                    ]
+                  : []),
+              ]}
               keepNonExistentRowsSelected
               columns={columnsData}
               rowCount={totalCount}
