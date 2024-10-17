@@ -9,7 +9,10 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { getDailyProfitDetails } from "../../../services/dailyProfitService";
+import {
+  exportDailyProfitDetails,
+  getDailyProfitDetails,
+} from "../../../services/dailyProfitService";
 import { NotificationManager } from "react-notifications";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -18,6 +21,7 @@ import { customTheme } from "../../../utils/customTheme";
 import debounce from "lodash/debounce";
 import dayjs from "dayjs";
 import { usePermissions } from "../../../utils/PermissionsContext";
+import * as XLSX from "xlsx";
 
 const DailyProfitReport = () => {
   const [allProfitData, setAllProfitData] = useState([]);
@@ -88,8 +92,12 @@ const DailyProfitReport = () => {
     const filterOptions = {
       page: paginationModel.page + 1,
       pageSize: paginationModel.pageSize,
-      fromDate: filterData.dateFrom ? dayjs(filterData.dateFrom).format("DD/MM/YYYY") : null,
-      toDate: filterData.dateTo ? dayjs(filterData.dateTo).format("DD/MM/YYYY") : null,
+      fromDate: filterData.dateFrom
+        ? dayjs(filterData.dateFrom).format("DD/MM/YYYY")
+        : null,
+      toDate: filterData.dateTo
+        ? dayjs(filterData.dateTo).format("DD/MM/YYYY")
+        : null,
     };
 
     setLoading(true);
@@ -131,6 +139,42 @@ const DailyProfitReport = () => {
     };
   }, [paginationModel, filterData]);
 
+  const exportToExcel = async () => {
+    const filterOptions = {
+      fromDate: filterData.dateFrom
+        ? dayjs(filterData.dateFrom).format("DD/MM/YYYY")
+        : null,
+      toDate: filterData.dateTo
+        ? dayjs(filterData.dateTo).format("DD/MM/YYYY")
+        : null,
+    };
+
+    try {
+      setLoading(true);
+      const response = await exportDailyProfitDetails(filterOptions);
+      const allDprData = response?.data?.data;
+
+      const dataToExport = (allDprData || []).map((item, index) => ({
+        "S. No.": index + 1,
+        "Item Name": item.itemName || "No Data",
+        Quantity: item.TotalQuantity || 0,
+        "Sale Amount": item.salesAmount || 0,
+        "Purchase Rate": item.purchaseRate || 0,
+        "Profit Amount": item.profit?.toFixed(2) || 0,
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "DailyProfitReport");
+
+      XLSX.writeFile(workbook, "Daily_Profit_Report.xlsx");
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, minWidth: "900px" }}>
@@ -150,9 +194,7 @@ const DailyProfitReport = () => {
                   id="dateFrom"
                   format="DD/MM/YYYY"
                   className="input-field date-picker"
-                  value={
-                    filterData.dateFrom ? filterData.dateFrom : null
-                  }
+                  value={filterData.dateFrom ? filterData.dateFrom : null}
                   onChange={(newDate) =>
                     setFilterData({
                       ...filterData,
@@ -192,26 +234,36 @@ const DailyProfitReport = () => {
         <Box
           sx={{
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
             gap: 1,
             "& button": { marginTop: 2 },
           }}
         >
           <Button
-            color="inherit"
+            color="success"
             size="small"
             variant="contained"
-            onClick={() => {
-              setFilterData({
-                dateFrom: null,
-                dateTo: null,
-              });
-              setPaginationModel({ page: 0, pageSize: 10 });
-            }}
+            onClick={exportToExcel}
+            disabled={!canRead && role !== "admin"}
           >
-            Clear Filters
+            Export to Excel
           </Button>
-          {/* <Button
+          <div>
+            <Button
+              color="inherit"
+              size="small"
+              variant="contained"
+              onClick={() => {
+                setFilterData({
+                  dateFrom: null,
+                  dateTo: null,
+                });
+                setPaginationModel({ page: 0, pageSize: 10 });
+              }}
+            >
+              Clear Filters
+            </Button>
+            {/* <Button
             color="warning"
             size="small"
             variant="contained"
@@ -219,15 +271,17 @@ const DailyProfitReport = () => {
           >
             Print
           </Button> */}
-          <Button
-            color="info"
-            size="small"
-            variant="contained"
-            onClick={fetchAllProfits}
-            disabled={!canRead && role !== "admin"}
-          >
-            Display
-          </Button>
+            <Button
+              color="info"
+              size="small"
+              variant="contained"
+              onClick={fetchAllProfits}
+              disabled={!canRead && role !== "admin"}
+              sx={{ marginLeft: 1 }}
+            >
+              Display
+            </Button>
+          </div>
         </Box>
 
         <Box
@@ -239,40 +293,43 @@ const DailyProfitReport = () => {
             "& .custom-cell": { paddingLeft: 4 },
           }}
         >
-          {canRead || role === "admin" ? <DataGrid
-            rows={(allProfitData || [])?.map((item, index) => ({
-              id: index,
-              sNo: index + paginationModel.page * paginationModel.pageSize + 1,
-              itemName: item.itemName || "No Data",
-              TotalQuantity: item.TotalQuantity || 0,
-              salesAmount: item.salesAmount || 0,
-              purchaseRate: item.purchaseRate || 0,
-              profit: item.profit?.toFixed(2) || 0,
-            }))}
-            columns={columns}
-            rowCount={totalCount}
-            pagination
-            paginationMode="server"
-            paginationModel={paginationModel}
-            pageSizeOptions={[5, 10, 25, 50, 100]}
-            onPaginationModelChange={(newPaginationModel) =>
-              setPaginationModel(newPaginationModel)
-            }
-            sx={{ backgroundColor: "#fff" }}
-            disableRowSelectionOnClick
-            loading={loading}
-            loadingOverlay={
-              <Box>
-                <CircularProgress />
-              </Box>
-            }
-            slots={{
-              toolbar: GridToolbar,
-            }}
-            initialState={{
-              density: "compact",
-            }}
-          />: (
+          {canRead || role === "admin" ? (
+            <DataGrid
+              rows={(allProfitData || [])?.map((item, index) => ({
+                id: index,
+                sNo:
+                  index + paginationModel.page * paginationModel.pageSize + 1,
+                itemName: item.itemName || "No Data",
+                TotalQuantity: item.TotalQuantity || 0,
+                salesAmount: item.salesAmount || 0,
+                purchaseRate: item.purchaseRate || 0,
+                profit: item.profit?.toFixed(2) || 0,
+              }))}
+              columns={columns}
+              rowCount={totalCount}
+              pagination
+              paginationMode="server"
+              paginationModel={paginationModel}
+              pageSizeOptions={[10, 25, 50, 100]}
+              onPaginationModelChange={(newPaginationModel) =>
+                setPaginationModel(newPaginationModel)
+              }
+              sx={{ backgroundColor: "#fff" }}
+              disableRowSelectionOnClick
+              loading={loading}
+              loadingOverlay={
+                <Box>
+                  <CircularProgress />
+                </Box>
+              }
+              slots={{
+                toolbar: GridToolbar,
+              }}
+              initialState={{
+                density: "compact",
+              }}
+            />
+          ) : (
             <Typography variant="body1" color="red">
               You do not have permission to view this data.
             </Typography>

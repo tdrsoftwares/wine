@@ -14,6 +14,33 @@ export const getDailyProfitDetails = async (filterOptions) => {
       .join("&");
 
     if (queryString) {
+      apiURL += `&${queryString}`;
+    }
+
+    const response = await axiosInstance.get(apiURL);
+
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const exportDailyProfitDetails = async (filterOptions) => {
+  const { fromDate, toDate } = filterOptions;
+
+  try {
+    let apiURL = `/reports/daily-profit-reports-export`;
+
+    if (fromDate || toDate) {
+      const filters = {};
+
+      if (fromDate) filters.fromDate = fromDate;
+      if (toDate) filters.toDate = toDate;
+
+      const queryString = Object.keys(filters)
+        .map((key) => `${key}=${encodeURIComponent(filters[key])}`)
+        .join("&");
+
       apiURL += `?${queryString}`;
     }
 
