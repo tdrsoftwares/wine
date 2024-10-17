@@ -24,6 +24,7 @@ import {
   useGridApiRef,
 } from "@mui/x-data-grid";
 import {
+  exportDailySalesDetails,
   getDailySalesDetails,
   searchByBrandName,
   searchByItemName,
@@ -34,6 +35,7 @@ import DailySalePrintComponent from "./DailySalePrintComponent";
 import { useReactToPrint } from "react-to-print";
 import debounce from "lodash.debounce";
 import { usePermissions } from "../../../utils/PermissionsContext";
+import * as XLSX from "xlsx";
 
 const DailySaleReport = () => {
   const [allCategory, setAllCategory] = useState([]);
@@ -279,6 +281,65 @@ const DailySaleReport = () => {
     fetchAllCustomers();
     fetchAllSales();
   }, []);
+
+
+  const exportToExcel = async () => {
+    // setHasExportClicked(true);
+    const fromDate = filterData.dateFrom
+      ? formatDate(filterData.dateFrom)
+      : null;
+    const toDate = filterData.dateTo ? formatDate(filterData.dateTo) : null;
+
+    const filterOptions = {
+      fromDate: fromDate,
+      toDate: toDate,
+      brandName: filterData.brandName,
+      customerName: filterData.customerName,
+      categoryName: filterData.categoryName,
+      group: filterData.group,
+      itemName: filterData.itemName,
+      volume: filterData.volume,
+      mode: filterData.mode,
+    };
+    // console.log("filterOptions: ",filterOptions)
+
+    try {
+      setLoading(true);
+      const response = await exportDailySalesDetails(filterOptions);
+      const allDsrData = response?.data?.data[0];
+      // console.log("allDsrData: ", allDsrData);
+
+      const dataToExport = (allDsrData?.items || []).map((item, index) => ({
+        "S. No.": index + 1,
+        "Bill Date": item.billDate,
+        "Item": item._id,
+        "Total Pcs": item.totalPcs,
+        Rate: item.rate,
+        "Total Volume Ltrs": item.totalVolumeLiters,
+        "Total Amount": item.totalAmount,
+      }));
+
+      dataToExport.push({
+        "S. No.": "Total",
+        "Bill Date": "",
+        "Item": "",
+        "Total Pcs": allDsrData.totalPcs,
+        "Rate": "",
+        "Total Volume Ltrs": allDsrData.totalVolume,
+        "Total Amount": allDsrData.totalAmount,
+      });
+
+      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "DailySalesReport");
+
+      XLSX.writeFile(workbook, "Daily_Sales_Report.xlsx");
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const CustomFooter = () => {
     return (
@@ -551,57 +612,69 @@ const DailySaleReport = () => {
         <Box
           sx={{
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
             gap: 1,
             "& button": { marginTop: 2 },
           }}
         >
           <Button
-            color="inherit"
+            color="success"
             size="small"
             variant="contained"
-            onClick={() => {
-              setFilterData({
-                dateFrom: null,
-                dateTo: null,
-                brandName: "",
-                customerName: "",
-                categoryName: "",
-                group: "",
-                itemName: "",
-                billNo: "",
-                volume: "",
-                mode: "",
-              });
-              setItemName("");
-              setBrandName("");
-              setItemNameOptions([]);
-              setBrandNameOptions([]);
-              setPaginationModel({ page: 0, pageSize: 10 });
-            }}
-          >
-            Clear Filters
-          </Button>
-          <Button
-            color="warning"
-            size="small"
-            variant="contained"
-            onClick={handlePrint}
-            // sx={{ marginLeft: 2 }}
+            onClick={exportToExcel}
             disabled={!canRead && role !== "admin"}
           >
-            Print
+            Export to Excel
           </Button>
-          <Button
-            color="info"
-            size="small"
-            variant="contained"
-            onClick={fetchAllSales}
-            // sx={{ marginLeft: 2 }}
-            disabled={!canRead && role !== "admin"}
-          >
-            Display
-          </Button>
+
+          <div>
+            <Button
+              color="inherit"
+              size="small"
+              variant="contained"
+              onClick={() => {
+                setFilterData({
+                  dateFrom: null,
+                  dateTo: null,
+                  brandName: "",
+                  customerName: "",
+                  categoryName: "",
+                  group: "",
+                  itemName: "",
+                  billNo: "",
+                  volume: "",
+                  mode: "",
+                });
+                setItemName("");
+                setBrandName("");
+                setItemNameOptions([]);
+                setBrandNameOptions([]);
+                setPaginationModel({ page: 0, pageSize: 10 });
+              }}
+            >
+              Clear Filters
+            </Button>
+            <Button
+              color="warning"
+              size="small"
+              variant="contained"
+              onClick={handlePrint}
+              sx={{ marginLeft: 1 }}
+              disabled={!canRead && role !== "admin"}
+            >
+              Print
+            </Button>
+            <Button
+              color="info"
+              size="small"
+              variant="contained"
+              onClick={fetchAllSales}
+              sx={{ marginLeft: 1 }}
+              disabled={!canRead && role !== "admin"}
+            >
+              Display
+            </Button>
+          </div>
         </Box>
 
         <Box
@@ -617,7 +690,8 @@ const DailySaleReport = () => {
             <DataGrid
               rows={(allSalesData || [])?.map((item, index) => ({
                 id: index,
-                sNo: index + paginationModel.page * paginationModel.pageSize + 1,
+                sNo:
+                  index + paginationModel.page * paginationModel.pageSize + 1,
                 itemName: item._id || "No Data",
                 totalPcs: item.totalPcs || "No Data",
                 rate: item.rate || "No Data",

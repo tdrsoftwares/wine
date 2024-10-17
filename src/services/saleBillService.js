@@ -32,7 +32,9 @@ export const searchAllSalesByItemName = async (itemName, storeName) => {
 
 export const searchAllSalesByItemCode = async (itemCode, storeName) => {
   try {
-    const apiURL = `/stock/sales-items-code/${storeName}/${encodeURIComponent(itemCode)}`;
+    const apiURL = `/stock/sales-items-code/${storeName}/${encodeURIComponent(
+      itemCode
+    )}`;
     const allSalesData = await axiosInstance.get(apiURL);
     return allSalesData;
   } catch (error) {
@@ -139,7 +141,6 @@ export const getItemWiseSaleDetails = async (filterOptions) => {
   }
 };
 
-
 export const getDailySalesDetails = async (filterOptions) => {
   try {
     const {
@@ -153,7 +154,7 @@ export const getDailySalesDetails = async (filterOptions) => {
       group,
       itemName,
       volume,
-      mode
+      mode,
     } = filterOptions;
 
     let apiURL = `/reports/daily-sales-reports?page=${page}&pageSize=${pageSize}`;
@@ -167,7 +168,7 @@ export const getDailySalesDetails = async (filterOptions) => {
       group,
       itemName,
       volume,
-      mode
+      mode,
     };
 
     Object.keys(filters).forEach((key) => {
@@ -182,16 +183,60 @@ export const getDailySalesDetails = async (filterOptions) => {
   }
 };
 
+export const exportDailySalesDetails = async (filterOptions) => {
+  try {
+    const {
+      fromDate,
+      toDate,
+      brandName,
+      customerName,
+      categoryName,
+      group,
+      itemName,
+      volume,
+      mode,
+    } = filterOptions;
+
+    let apiURL = `/reports/dsr-reports-export`;
+
+    const filters = {
+      fromDate,
+      toDate,
+      brandName,
+      customerName,
+      categoryName,
+      group,
+      itemName,
+      volume,
+      mode,
+    };
+
+    const queryStringParts = Object.keys(filters)
+      .filter((key) => filters[key])
+      .map((key) => `${key}=${encodeURIComponent(filters[key])}`);
+
+    if (queryStringParts.length > 0) {
+      apiURL += `?${queryStringParts.join("&")}`;
+    }
+    // console.log(apiURL);
+
+    const response = await axiosInstance.get(apiURL);
+    return response;
+  } catch (error) {
+    console.error("Error exporting sales data:", error);
+    return error;
+  }
+};
 
 export const getSaleDetailsByEntryNo = async (billNo) => {
   try {
     const apiURL = `/sales/bill/${billNo}`;
     const getSalesData = await axiosInstance.get(apiURL);
     return getSalesData;
-  } catch (error){
-    return error
+  } catch (error) {
+    return error;
   }
-}
+};
 
 export const removeSaleDetails = async (billNo) => {
   try {
@@ -213,7 +258,6 @@ export const getAllBillsBySeries = async (series) => {
   }
 };
 
-
 export const getAllSaleStores = async () => {
   try {
     const apiURL = `/store/sell-counter`;
@@ -222,7 +266,7 @@ export const getAllSaleStores = async () => {
   } catch (error) {
     return error;
   }
-}
+};
 
 export const removeAllSales = async (allSales) => {
   try {
