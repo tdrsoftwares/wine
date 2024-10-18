@@ -19,7 +19,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { getAllItems } from "../../../services/itemService";
 import { getAllItemCategory } from "../../../services/categoryService";
 import { customTheme } from "../../../utils/customTheme";
-import { getItemTransferDetails } from "../../../services/transferService";
+import { exportItemTransferDetails, getItemTransferDetails } from "../../../services/transferService";
 import { getAllStores } from "../../../services/storeService";
 import { getAllBrands } from "../../../services/brandService";
 import debounce from "lodash.debounce";
@@ -28,6 +28,8 @@ import {
   searchByItemName,
 } from "../../../services/saleBillService";
 import { usePermissions } from "../../../utils/PermissionsContext";
+import * as XLSX from "xlsx";
+
 
 const ItemTransferReport = () => {
   const [allTransfers, setAllTransfers] = useState([]);
@@ -316,6 +318,69 @@ const ItemTransferReport = () => {
     }
   }, [paginationModel, filterData]);
 
+  const exportToExcel = async () => {
+    const fromDate = filterData.dateFrom
+      ? formatDate(filterData.dateFrom)
+      : null;
+    const toDate = filterData.dateTo ? formatDate(filterData.dateTo) : null;
+
+    const filterOptions = {
+      fromDate: fromDate,
+      toDate: toDate,
+      itemCode: filterData.itemCode,
+      itemName: filterData.itemName,
+      storeName: filterData.storeName,
+      categoryName: filterData.categoryName,
+      brandName: filterData.brandName,
+      group: filterData.group,
+    };
+    // console.log("filterOptions: ",filterOptions)
+
+    try {
+      const response = await exportItemTransferDetails(filterOptions);
+      const exportData = response?.data?.data;
+      // console.log("exportData: ", exportData);
+
+      const dataToExport = (exportData || []).map((item, index) => ({
+        "S. No": index + 1,
+        "Transfer Date": item.transferDate,
+        "Transfer From": item.transferFrom?.name,
+        "Transfer To": item.transferTo?.name,
+        "Item Code":
+          item.stocktransferitems?.itemDetails?.itemCode ||
+          item.stocktransferitems?.itemCode,
+        "Item Name": item.stocktransferitems?.item?.name,
+        "Transfer No.": item.transferNo,
+        Brand: item.stocktransferitems?.item?.brand?.name,
+        Category:
+          item.stocktransferitems?.item?.category?.categoryName,
+        batch:
+          item.stocktransferitems?.itemDetails?.batchNo ||
+          item.stocktransferitems?.batchNo,
+        "Case No.":
+          item.stocktransferitems?.itemDetails?.case ||
+          item.stocktransferitems?.case,
+        Pcs: item.stocktransferitems?.pcs,
+        Volume: item.stocktransferitems?.item?.volume,
+        "Total Volume Liters": item.totalVolumeLiters,
+        Group: item.stocktransferitems?.item?.group,
+        MRP:
+          item.stocktransferitems?.itemDetails?.mrp ||
+          item.stocktransferitems?.mrp,
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "ItemWiseTransferReport");
+
+      XLSX.writeFile(workbook, "ItemWise_Transfer_Report.xlsx");
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, minWidth: "900px" }}>
@@ -534,46 +599,59 @@ const ItemTransferReport = () => {
         <Box
           sx={{
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
             gap: 1,
             "& button": { marginTop: 1 },
           }}
         >
           <Button
-            color="inherit"
+            color="success"
             size="small"
             variant="contained"
-            onClick={() => {
-              setFilterData({
-                dateFrom: null,
-                dateTo: null,
-                categoryName: "",
-                brandName: "",
-                itemName: "",
-                itemCode: "",
-                group: "",
-                storeName: "",
-              });
-              setItemName("");
-              setBrandName("");
-              setItemNameOptions([]);
-              setBrandNameOptions([]);
-              setPaginationModel({ page: 1, pageSize: 10 });
-            }}
-          >
-            Clear Filters
-          </Button>
-
-          <Button
-            color="info"
-            size="small"
-            variant="contained"
-            onClick={fetchAllTransfer}
-            // sx={{ marginLeft: 2 }}
+            onClick={exportToExcel}
             disabled={!canRead && role !== "admin"}
           >
-            Display
+            Export to Excel
           </Button>
+
+          <div>
+            <Button
+              color="inherit"
+              size="small"
+              variant="contained"
+              onClick={() => {
+                setFilterData({
+                  dateFrom: null,
+                  dateTo: null,
+                  categoryName: "",
+                  brandName: "",
+                  itemName: "",
+                  itemCode: "",
+                  group: "",
+                  storeName: "",
+                });
+                setAllTransfers([])
+                setItemName("");
+                setBrandName("");
+                setItemNameOptions([]);
+                setBrandNameOptions([]);
+                setPaginationModel({ page: 1, pageSize: 10 });
+              }}
+            >
+              Clear Filters
+            </Button>
+
+            <Button
+              color="info"
+              size="small"
+              variant="contained"
+              onClick={fetchAllTransfer}
+              sx={{ marginLeft: 1 }}
+              disabled={!canRead && role !== "admin"}
+            >
+              Display
+            </Button>
+          </div>
         </Box>
 
         <Box

@@ -73,6 +73,48 @@ export const getItemTransferDetails = async (filterOptions) => {
   }
 };
 
+export const exportItemTransferDetails = async (filterOptions) => {
+  try {
+    const {
+      fromDate,
+      toDate,
+      itemCode,
+      itemName,
+      storeName,
+      categoryName,
+      brandName,
+      group,
+    } = filterOptions;
+
+    let apiURL = `/stock-transfer/stock-transfer-report-export`;
+
+    const filters = {
+      fromDate,
+      toDate,
+      itemCode,
+      itemName,
+      storeName,
+      categoryName,
+      brandName,
+      group,
+    };
+
+    const queryStringParts = Object.keys(filters)
+      .filter((key) => filters[key])
+      .map((key) => `${key}=${encodeURIComponent(filters[key])}`);
+
+    if (queryStringParts.length > 0) {
+      apiURL += `?${queryStringParts.join('&')}`;
+    }
+
+    const exportItemSaleData = await axiosInstance.get(apiURL);
+    return exportItemSaleData;
+  } catch (error) {
+    console.error("Error exporting item sales data:", error);
+    return error;
+  }
+};
+
 export const getTransferDetails = async (transferNo) => {
   try {
     const apiURL = `/stock-transfer/bill/${transferNo}`;
