@@ -12,7 +12,10 @@ import {
 } from "@mui/material";
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
-import { getItemWisePurchaseDetails } from "../../../services/purchaseService";
+import {
+  exportItemPurchaseDetails,
+  getItemWisePurchaseDetails,
+} from "../../../services/purchaseService";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -25,6 +28,7 @@ import {
   searchByItemName,
 } from "../../../services/saleBillService";
 import { usePermissions } from "../../../utils/PermissionsContext";
+import * as XLSX from "xlsx";
 
 const ItemWisePurchaseReport = () => {
   const [filterData, setFilterData] = useState({
@@ -366,6 +370,68 @@ const ItemWisePurchaseReport = () => {
     debouncedFetch();
   }, [paginationModel, selectedSupplier, filterData]);
 
+  const exportToExcel = async () => {
+    const fromDate = filterData.dateFrom
+      ? formatDate(filterData.dateFrom)
+      : null;
+    const toDate = filterData.dateTo ? formatDate(filterData.dateTo) : null;
+
+    const filterOptions = {
+      fromDate: fromDate,
+      toDate: toDate,
+      itemName: filterData.itemName,
+      supplierName: selectedSupplier,
+      brandName: filterData.brandName,
+      categoryName: filterData.categoryName,
+      volume: filterData.pack,
+      itemCode: filterData.itemCode,
+      mode: filterData.mode,
+    };
+    // console.log("filterOptions: ",filterOptions)
+
+    try {
+      setLoading(true);
+      const response = await exportItemPurchaseDetails(filterOptions);
+      const exportData = response?.data?.data;
+      console.log("exportData: ", exportData);
+
+      const dataToExport = (exportData || []).map((item, index) => ({
+        "S. No.": index + 1,
+        "Bill Date": item.billDate,
+        "Entry No.": item.entryNo,
+        "Bill No.": item.billNo,
+        "Item Code": item.purchaseItems?.itemCode,
+        "Item Name": item.purchaseItems?.item?.name,
+        "Brand": item.purchaseItems?.item?.brand?.name,
+        "Category": item.purchaseItems?.item?.category?.categoryName,
+        "Batch": item.purchaseItems?.batchNo,
+        "Broken": item.purchaseItems?.brokenNo || 0,
+        "Case No.": item.purchaseItems?.caseNo || 0,
+        "Pcs": item.purchaseItems?.pcs || 0,
+        "Volume": item.purchaseItems?.item?.volume || 0,
+        "MRP": item.purchaseItems?.mrp || 0,
+        "GRO": item.purchaseItems?.gro || 0,
+        "SP": item.purchaseItems?.sp || 0,
+        "BL": item.bl || 0,
+        "Supplier Name": item.supplier?.name,
+        "Store Name": item.store?.name,
+        "Purchase Rate": item.purchaseItems?.purchaseRate || 0,
+        "Sale Rate": item.purchaseItems?.saleRate || 0,
+        "Amount": item.purchaseItems?.itemAmount || 0,
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "ItemWisePurchaseReport");
+
+      XLSX.writeFile(workbook, "ItemWise_Purchase_Report.xlsx");
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, minWidth: "900px" }}>
@@ -599,64 +665,66 @@ const ItemWisePurchaseReport = () => {
         <Box
           sx={{
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
             gap: 1,
             "& button": { marginTop: 1 },
           }}
         >
           <Button
-            color="inherit"
+            color="success"
             size="small"
             variant="contained"
-            onClick={() => {
-              setFilterData({
-                dateFrom: null,
-                dateTo: null,
-                batchNo: "",
-                customerName: "",
-                brandName: "",
-                itemName: "",
-                itemCode: "",
-                supplierName: "",
-                series: "",
-                group: "",
-                userName: "",
-                billNo: "",
-                pack: "",
-                phone: "",
-                mode: "",
-              });
-              setSelectedSupplier("");
-              setItemName("");
-              setBrandName("");
-              setItemNameOptions([]);
-              setBrandNameOptions([]);
-              setPaginationModel({ page: 0, pageSize: 10 });
-            }}
-            // sx={{ borderRadius: 8 }}
+            onClick={exportToExcel}
+            disabled={!canRead && role !== "admin"}
           >
-            Clear Filters
+            Export to Excel
           </Button>
-          {/* <div>
+
+          <div>
             <Button
               color="inherit"
               size="small"
               variant="contained"
-              // sx={{ borderRadius: 8 }}
+              onClick={() => {
+                setFilterData({
+                  dateFrom: null,
+                  dateTo: null,
+                  batchNo: "",
+                  customerName: "",
+                  brandName: "",
+                  itemName: "",
+                  itemCode: "",
+                  supplierName: "",
+                  series: "",
+                  group: "",
+                  userName: "",
+                  billNo: "",
+                  pack: "",
+                  phone: "",
+                  mode: "",
+                });
+                setSelectedSupplier("");
+                setItemName("");
+                setBrandName("");
+                setItemNameOptions([]);
+                setBrandNameOptions([]);
+                setPaginationModel({ page: 0, pageSize: 10 });
+              }}
             >
-              Print
-            </Button> */}
-          <Button
-            color="info"
-            size="small"
-            variant="contained"
-            onClick={() => fetchAllPurchases()}
-            // sx={{ marginLeft: 2 }}
-            disabled={!canRead && role !== "admin"}
-          >
-            Display
-          </Button>
-          {/* </div> */}
+              Clear Filters
+            </Button>
+            
+            <Button
+              color="info"
+              size="small"
+              variant="contained"
+              onClick={() => fetchAllPurchases()}
+              sx={{ marginLeft: 1 }}
+              disabled={!canRead && role !== "admin"}
+            >
+              Display
+            </Button>
+          </div>
         </Box>
 
         <Box
