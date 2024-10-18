@@ -141,6 +141,60 @@ export const getItemWiseSaleDetails = async (filterOptions) => {
   }
 };
 
+export const exportItemSaleDetails = async (filterOptions) => {
+  try {
+    const {
+      fromDate,
+      toDate,
+      customerName,
+      categoryName,
+      brandName,
+      itemName,
+      itemCode,
+      supplierName,
+      batchNo,
+      series,
+      groupName,
+      billNo,
+      volume,
+      mode,
+    } = filterOptions;
+
+    let apiURL = `/sales/sale-item-report-export`;
+
+    const filters = {
+      fromDate,
+      toDate,
+      customerName,
+      categoryName,
+      brandName,
+      itemName,
+      itemCode,
+      supplierName,
+      batchNo,
+      series,
+      groupName,
+      billNo,
+      volume,
+      mode,
+    };
+
+    const queryStringParts = Object.keys(filters)
+      .filter((key) => filters[key])
+      .map((key) => `${key}=${encodeURIComponent(filters[key])}`);
+
+    if (queryStringParts.length > 0) {
+      apiURL += `?${queryStringParts.join('&')}`;
+    }
+
+    const exportItemSaleData = await axiosInstance.get(apiURL);
+    return exportItemSaleData;
+  } catch (error) {
+    console.error("Error exporting item sales data:", error);
+    return error;
+  }
+};
+
 export const getDailySalesDetails = async (filterOptions) => {
   try {
     const {

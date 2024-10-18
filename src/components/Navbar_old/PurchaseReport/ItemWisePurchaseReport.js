@@ -393,7 +393,7 @@ const ItemWisePurchaseReport = () => {
       setLoading(true);
       const response = await exportItemPurchaseDetails(filterOptions);
       const exportData = response?.data?.data;
-      console.log("exportData: ", exportData);
+      // console.log("exportData: ", exportData);
 
       const dataToExport = (exportData || []).map((item, index) => ({
         "S. No.": index + 1,

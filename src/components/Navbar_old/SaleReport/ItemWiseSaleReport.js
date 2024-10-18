@@ -16,11 +16,17 @@ import React, { useEffect, useState } from "react";
 import { getAllCustomer } from "../../../services/customerService";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import dayjs from "dayjs";
-import { getItemWiseSaleDetails, searchByBrandName, searchByItemName } from "../../../services/saleBillService";
+import {
+  exportItemSaleDetails,
+  getItemWiseSaleDetails,
+  searchByBrandName,
+  searchByItemName,
+} from "../../../services/saleBillService";
 import { getAllItemCategory } from "../../../services/categoryService";
 import { customTheme } from "../../../utils/customTheme";
 import debounce from "lodash.debounce";
 import { usePermissions } from "../../../utils/PermissionsContext";
+import * as XLSX from "xlsx";
 
 const ItemWiseSaleReport = () => {
   const [allSalesData, setAllSalesData] = useState([]);
@@ -280,7 +286,6 @@ const ItemWiseSaleReport = () => {
     }
   };
 
-
   const fetchAllCategory = async () => {
     try {
       const getAllCategoryResponse = await getAllItemCategory();
@@ -346,6 +351,75 @@ const ItemWiseSaleReport = () => {
     const debouncedFetch = debounce(fetchAllSales, 300);
     debouncedFetch();
   }, [paginationModel, filterData]);
+
+  const exportToExcel = async () => {
+    const fromDate = filterData.dateFrom
+      ? formatDate(filterData.dateFrom)
+      : null;
+    const toDate = filterData.dateTo ? formatDate(filterData.dateTo) : null;
+
+    const filterOptions = {
+      fromDate: fromDate,
+      toDate: toDate,
+      customerName: filterData.customerName,
+      categoryName: filterData.categoryName,
+      brandName: filterData.brandName,
+      itemName: filterData.itemName,
+      itemCode: filterData.itemCode,
+      supplierName: filterData.supplierName,
+      batchNo: filterData.batchNo,
+      series: filterData.series,
+      groupName: filterData.group,
+      billNo: filterData.billNo,
+      volume: filterData.pack,
+      mode: filterData.mode,
+    };
+    // console.log("filterOptions: ",filterOptions)
+
+    try {
+      const response = await exportItemSaleDetails(filterOptions);
+      const exportData = response?.data?.data;
+      // console.log("exportData: ", exportData);
+
+      const dataToExport = (exportData || []).map((item, index) => ({
+        "S. No": index + 1,
+
+        "Bill Date": item.billDate,
+        "Bill No.": item.billNo,
+        "Bill Type": item.billType,
+        "Item Code":
+          item.salesItems?.itemDetails?.itemCode || item.salesItems?.itemCode,
+        "Item Name": item.salesItems?.item?.name,
+        Brand: item.salesItems?.item?.brand?.name,
+        Category: item.salesItems?.item?.category?.categoryName,
+        Customer: item.customer?.name,
+        Batch:
+          item.salesItems?.itemDetails?.batchNo || item.salesItems?.batchNo,
+        Broken: item.brokenNo || item?.salesItems?.break || 0,
+        // "Case No.": item.caseNo || 0,
+        Pcs: item.salesItems?.pcs || 0,
+        Pack: item.salesItems?.item?.volume || 0,
+        Series: item.billSeries,
+        Group: item.salesItems?.item?.group,
+
+        MRP: item.salesItems?.itemDetails?.mrp || item.salesItems?.mrp || 0,
+        Rate:
+          item.salesItems?.itemDetails?.saleRate || item.salesItems?.rate || 0,
+        Broken: item.salesItems?.break || 0,
+        Amount: item.salesItems?.amount || 0,
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "ItemWiseSaleReport");
+
+      XLSX.writeFile(workbook, "ItemWise_Sale_Report.xlsx");
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -664,63 +738,65 @@ const ItemWiseSaleReport = () => {
         <Box
           sx={{
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
             gap: 1,
             "& button": { marginTop: 1 },
           }}
         >
           <Button
-            color="inherit"
+            color="success"
             size="small"
             variant="contained"
-            onClick={() => {
-              setFilterData({
-                dateFrom: null,
-                dateTo: null,
-                batchNo: "",
-                customerName: "",
-                brandName: "",
-                itemName: "",
-                itemCode: "",
-                supplierName: "",
-                series: "",
-                group: "",
-                userName: "",
-                billNo: "",
-                pack: "",
-                phone: "",
-                mode: "",
-              });
-              setItemName("");
-              setBrandName("");
-              setItemNameOptions([]);
-              setBrandNameOptions([]);
-              setPaginationModel({ page: 0, pageSize: 10 });
-              // fetchAllSales();
-            }}
-            // sx={{ borderRadius: 8 }}
+            onClick={exportToExcel}
+            disabled={!canRead && role !== "admin"}
           >
-            Clear Filters
+            Export to Excel
           </Button>
-          {/* <div>
+
+          <div>
             <Button
               color="inherit"
               size="small"
               variant="contained"
-              // sx={{ borderRadius: 8 }}
+              onClick={() => {
+                setFilterData({
+                  dateFrom: null,
+                  dateTo: null,
+                  batchNo: "",
+                  customerName: "",
+                  brandName: "",
+                  itemName: "",
+                  itemCode: "",
+                  supplierName: "",
+                  series: "",
+                  group: "",
+                  userName: "",
+                  billNo: "",
+                  pack: "",
+                  phone: "",
+                  mode: "",
+                });
+                setItemName("");
+                setBrandName("");
+                setItemNameOptions([]);
+                setBrandNameOptions([]);
+                setPaginationModel({ page: 0, pageSize: 10 });
+                // fetchAllSales();
+              }}
             >
-              Print
-            </Button> */}
-          <Button
-            color="info"
-            size="small"
-            variant="contained"
-            onClick={fetchAllSales}
-            disabled={!canRead && role !== "admin"}
-          >
-            Display
-          </Button>
-          {/* </div> */}
+              Clear Filters
+            </Button>
+            <Button
+              color="info"
+              size="small"
+              variant="contained"
+              onClick={fetchAllSales}
+              disabled={!canRead && role !== "admin"}
+              sx={{ marginLeft: 1 }}
+            >
+              Display
+            </Button>
+          </div>
         </Box>
 
         <Box
@@ -736,7 +812,8 @@ const ItemWiseSaleReport = () => {
             <DataGrid
               rows={(allSalesData || [])?.map((item, index) => ({
                 id: index,
-                sNo: index + paginationModel.page * paginationModel.pageSize + 1,
+                sNo:
+                  index + paginationModel.page * paginationModel.pageSize + 1,
                 // createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
                 billDate: item.billDate || "No Data",
                 billNo: item.billNo || "No Data",
@@ -755,7 +832,7 @@ const ItemWiseSaleReport = () => {
                   item.salesItems?.batchNo ||
                   "No Data",
                 brokenNo: item.brokenNo || item?.salesItems?.break || 0,
-                caseNo: item.caseNo || 0,
+                // caseNo: item.caseNo || 0,
                 pcs: item.salesItems?.pcs || 0,
                 pack: item.salesItems?.item?.volume || 0,
                 series: item.billSeries || "No Data",
