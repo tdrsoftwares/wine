@@ -364,9 +364,7 @@ const ItemWisePurchaseReport = () => {
   }, [paginationModel, selectedSupplier, filterData]);
 
   const exportToExcel = async () => {
-    const fromDate = filterData.dateFrom
-      ? formatDate(filterData.dateFrom)
-      : null;
+    const fromDate = filterData.dateFrom ? formatDate(filterData.dateFrom) : null;
     const toDate = filterData.dateTo ? formatDate(filterData.dateTo) : null;
 
     const filterOptions = {

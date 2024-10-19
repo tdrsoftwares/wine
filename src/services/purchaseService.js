@@ -45,6 +45,37 @@ export const getAllPurchases = async (filterOptions) => {
   }
 };
 
+
+export const exportPurchaseSummaryDetails = async (filterOptions) => {
+  try {
+    const { supplierName, storeName, fromDate, toDate } = filterOptions;
+
+    let apiURL = `/purchases/purchase-report-export`;
+
+    const filters = {
+      supplierName,
+      storeName,
+      fromDate,
+      toDate,
+    };
+
+    const queryStringParts = Object.keys(filters)
+      .filter((key) => filters[key])
+      .map((key) => `${key}=${encodeURIComponent(filters[key])}`);
+
+    if (queryStringParts.length > 0) {
+      apiURL += `?${queryStringParts.join("&")}`;
+    }
+
+    const exportPurchaseData = await axiosInstance.get(apiURL);
+    return exportPurchaseData;
+  } catch (error) {
+    console.error("Error exporting item purchase data:", error);
+    return error;
+  }
+};
+
+
 export const getItemPurchaseDetails = async (entryNo) => {
   try {
     const apiURL = `/purchases/item-reports/${entryNo}`;

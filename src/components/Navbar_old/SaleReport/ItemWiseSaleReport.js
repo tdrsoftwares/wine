@@ -205,9 +205,7 @@ const ItemWiseSaleReport = () => {
   };
 
   const fetchAllSales = async () => {
-    const fromDate = filterData.dateFrom
-      ? formatDate(filterData.dateFrom)
-      : null;
+    const fromDate = filterData.dateFrom ? formatDate(filterData.dateFrom) : null;
     const toDate = filterData.dateTo ? formatDate(filterData.dateTo) : null;
 
     setLoading(true);

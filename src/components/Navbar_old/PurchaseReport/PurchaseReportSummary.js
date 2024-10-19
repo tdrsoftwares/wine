@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
-import { getAllPurchases } from "../../../services/purchaseService";
+import { exportPurchaseSummaryDetails, getAllPurchases } from "../../../services/purchaseService";
 import { NotificationManager } from "react-notifications";
 import { getAllSuppliers } from "../../../services/supplierService";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
@@ -21,6 +21,7 @@ import dayjs from "dayjs";
 import { customTheme } from "../../../utils/customTheme";
 import { getAllStores } from "../../../services/storeService";
 import { usePermissions } from "../../../utils/PermissionsContext";
+import * as XLSX from "xlsx";
 
 const PurchaseReportSummary = () => {
   const [selectedSupplier, setSelectedSupplier] = useState("");
@@ -283,6 +284,63 @@ const PurchaseReportSummary = () => {
       debouncedFetch();
     }
   }, [paginationModel, dateFrom, dateTo, selectedSupplier, stockIn]);
+  
+  const exportToExcel = async () => {
+    try {
+      
+      const fromDate = dateFrom ? formatDate(dateFrom) : null;
+      const toDate = dateTo ? formatDate(dateTo) : null;
+  
+      const filterOptions = {
+        fromDate: fromDate,
+        toDate: toDate,
+        supplierName: selectedSupplier,
+        storeName: stockIn,
+      };
+  
+      
+      const response = await exportPurchaseSummaryDetails(filterOptions);
+      const exportData = response?.data?.data;
+  
+      
+      if (!exportData || exportData.length === 0) {
+        throw new Error("No data returned from API for export.");
+      }
+  
+      
+      const dataToExport = exportData.map((purchase, index) => ({
+        "S No.": index + 1,
+        "Bill Date": purchase.billDate,
+        "Pass Date": purchase.passDate,
+        "Entry No.": purchase.entryNo,
+        "Bill No.": purchase.billNo,
+        "Pass No.": purchase.passNo,
+        Supplier: purchase.supplier?.name,
+        Store: purchase.store?.name,
+        MRP: purchase.mrpValue?.toFixed(2),
+        "Gross Amount": purchase.grossAmount?.toFixed(2),
+        Discount: purchase.discount,
+        "Govt ROff": purchase.govtROff?.toFixed(2),
+        "Special Purpose": purchase.specialPurpose?.toFixed(2),
+        "Tcs Amount": purchase.tcsAmount?.toFixed(2),
+        "Net Amount": purchase.netAmount?.toFixed(2),
+      }));
+  
+      
+      console.log("Data to export: ", dataToExport);
+  
+      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "PurchaseReportSummary");
+  
+      XLSX.writeFile(workbook, "Purchase_Report_Summary.xlsx");
+  
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+    }
+  };
+    
+
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -398,11 +456,22 @@ const PurchaseReportSummary = () => {
         <Box
           sx={{
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
             gap: 1,
             "& button": { marginTop: 1 },
           }}
         >
+          <Button
+            color="success"
+            size="small"
+            variant="contained"
+            onClick={exportToExcel}
+            disabled={!canRead && role !== "admin"}
+          >
+            Export to Excel
+          </Button>
+
+          <div>
           <Button
             color="inherit"
             size="small"
@@ -423,11 +492,12 @@ const PurchaseReportSummary = () => {
             size="small"
             variant="contained"
             onClick={fetchAllPurchases}
-            // sx={{ marginLeft: 2 }}
+            sx={{ marginLeft: 1 }}
             disabled={!canRead && role !== "admin"}
           >
             Display
           </Button>
+          </div>
         </Box>
 
         <Box
