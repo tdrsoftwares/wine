@@ -84,13 +84,6 @@ const ItemWisePurchaseReport = () => {
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
-    // {
-    //   field: "createdAt",
-    //   headerName: "Created Date",
-    //   width: 150,
-    //   cellClassName: "custom-cell",
-    //   headerClassName: "custom-header",
-    // },
     {
       field: "billDate",
       headerName: "Bill Date",
@@ -387,7 +380,6 @@ const ItemWisePurchaseReport = () => {
       itemCode: filterData.itemCode,
       mode: filterData.mode,
     };
-    // console.log("filterOptions: ",filterOptions)
 
     try {
       setLoading(true);
@@ -402,27 +394,31 @@ const ItemWisePurchaseReport = () => {
         "Bill No.": item.billNo,
         "Item Code": item.purchaseItems?.itemCode,
         "Item Name": item.purchaseItems?.item?.name,
-        "Brand": item.purchaseItems?.item?.brand?.name,
-        "Category": item.purchaseItems?.item?.category?.categoryName,
-        "Batch": item.purchaseItems?.batchNo,
-        "Broken": item.purchaseItems?.brokenNo || 0,
+        Brand: item.purchaseItems?.item?.brand?.name,
+        Category: item.purchaseItems?.item?.category?.categoryName,
+        Batch: item.purchaseItems?.batchNo,
+        Broken: item.purchaseItems?.brokenNo || 0,
         "Case No.": item.purchaseItems?.caseNo || 0,
-        "Pcs": item.purchaseItems?.pcs || 0,
-        "Volume": item.purchaseItems?.item?.volume || 0,
-        "MRP": item.purchaseItems?.mrp || 0,
-        "GRO": item.purchaseItems?.gro || 0,
-        "SP": item.purchaseItems?.sp || 0,
-        "BL": item.bl || 0,
+        Pcs: item.purchaseItems?.pcs || 0,
+        Volume: item.purchaseItems?.item?.volume || 0,
+        MRP: item.purchaseItems?.mrp || 0,
+        GRO: item.purchaseItems?.gro || 0,
+        SP: item.purchaseItems?.sp || 0,
+        BL: item.bl || 0,
         "Supplier Name": item.supplier?.name,
         "Store Name": item.store?.name,
         "Purchase Rate": item.purchaseItems?.purchaseRate || 0,
         "Sale Rate": item.purchaseItems?.saleRate || 0,
-        "Amount": item.purchaseItems?.itemAmount || 0,
+        Amount: item.purchaseItems?.itemAmount || 0,
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(dataToExport);
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "ItemWisePurchaseReport");
+      XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        "ItemWisePurchaseReport"
+      );
 
       XLSX.writeFile(workbook, "ItemWise_Purchase_Report.xlsx");
     } catch (error) {
@@ -713,7 +709,7 @@ const ItemWisePurchaseReport = () => {
             >
               Clear Filters
             </Button>
-            
+
             <Button
               color="info"
               size="small"

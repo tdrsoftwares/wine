@@ -77,13 +77,6 @@ const ItemWiseSaleReport = () => {
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
-    // {
-    //   field: "createdAt",
-    //   headerName: "Created Date",
-    //   width: 150,
-    //   cellClassName: "custom-cell",
-    //   headerClassName: "custom-header",
-    // },
     {
       field: "billDate",
       headerName: "Bill Date",
@@ -197,13 +190,6 @@ const ItemWiseSaleReport = () => {
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
-    // {
-    //   field: "split",
-    //   headerName: "Split",
-    //   width: 150,
-    //   cellClassName: "custom-cell",
-    //   headerClassName: "custom-header",
-    // },
     {
       field: "itemAmount",
       headerName: "Amount",
@@ -374,12 +360,10 @@ const ItemWiseSaleReport = () => {
       volume: filterData.pack,
       mode: filterData.mode,
     };
-    // console.log("filterOptions: ",filterOptions)
 
     try {
       const response = await exportItemSaleDetails(filterOptions);
       const exportData = response?.data?.data;
-      // console.log("exportData: ", exportData);
 
       const dataToExport = (exportData || []).map((item, index) => ({
         "S. No": index + 1,
