@@ -184,7 +184,7 @@ const ItemWiseSaleReport = () => {
       headerClassName: "custom-header",
     },
     {
-      field: "broken",
+      field: "brokenNo",
       headerName: "Break",
       width: 120,
       cellClassName: "custom-cell",
@@ -821,17 +821,17 @@ const ItemWiseSaleReport = () => {
                 group: item.salesItems?.item?.group || "No Data",
                 // updatedAt: new Date(item.updatedAt).toLocaleDateString("en-GB"),
                 mrp:
-                  item.salesItems?.itemDetails?.mrp ||
-                  item.salesItems?.mrp ||
+                  item.salesItems?.itemDetails?.mrp?.toFixed(2) ||
+                  item.salesItems?.mrp?.toFixed(2) ||
                   0,
                 // bl: item.salesItems?.itemDetails?.bl || item.salesItems?.bl || 0,
                 rate:
-                  item.salesItems?.itemDetails?.saleRate ||
-                  item.salesItems?.rate ||
+                  item.salesItems?.itemDetails?.saleRate?.toFixed(2) ||
+                  item.salesItems?.rate?.toFixed(2) ||
                   0,
-                broken: item.salesItems?.break || 0,
+                // broken: item.salesItems?.break || 0,
                 // split: item.salesItems?.split || 0,
-                itemAmount: item.salesItems?.amount || 0,
+                itemAmount: item.salesItems?.amount?.toFixed(2) || 0,
               }))}
               columns={columns}
               rowCount={totalCount}

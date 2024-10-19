@@ -301,8 +301,8 @@ const DailyProfitReport = () => {
                   index + paginationModel.page * paginationModel.pageSize + 1,
                 itemName: item.itemName || "No Data",
                 TotalQuantity: item.TotalQuantity || 0,
-                salesAmount: item.salesAmount || 0,
-                purchaseRate: item.purchaseRate || 0,
+                salesAmount: item.salesAmount?.toFixed(2) || 0,
+                purchaseRate: item.purchaseRate?.toFixed(2) || 0,
                 profit: item.profit?.toFixed(2) || 0,
               }))}
               columns={columns}

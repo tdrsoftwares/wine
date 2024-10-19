@@ -694,9 +694,9 @@ const DailySaleReport = () => {
                   index + paginationModel.page * paginationModel.pageSize + 1,
                 itemName: item._id || "No Data",
                 totalPcs: item.totalPcs || "No Data",
-                rate: item.rate || "No Data",
-                totalVolumeLiters: item.totalVolumeLiters || "No Data",
-                totalAmount: item.totalAmount || "No Data",
+                rate: item.rate?.toFixed(2) || "No Data",
+                totalVolumeLiters: item.totalVolumeLiters?.toFixed(3) || "No Data",
+                totalAmount: item.totalAmount?.toFixed(2) || "No Data",
               }))}
               columns={columns}
               rowCount={totalCount}

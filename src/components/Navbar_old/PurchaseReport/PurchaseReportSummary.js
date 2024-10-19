@@ -285,23 +285,22 @@ const PurchaseReportSummary = () => {
     }
   }, [paginationModel, dateFrom, dateTo, selectedSupplier, stockIn]);
   
+
   const exportToExcel = async () => {
+    const fromDate = dateFrom ? formatDate(dateFrom) : null;
+    const toDate = dateTo ? formatDate(dateTo) : null;
+    
+    const filterOptions = {
+      fromDate: fromDate,
+      toDate: toDate,
+      supplierName: selectedSupplier,
+      storeName: stockIn,
+    };
+    
     try {
-      
-      const fromDate = dateFrom ? formatDate(dateFrom) : null;
-      const toDate = dateTo ? formatDate(dateTo) : null;
-  
-      const filterOptions = {
-        fromDate: fromDate,
-        toDate: toDate,
-        supplierName: selectedSupplier,
-        storeName: stockIn,
-      };
-  
-      
       const response = await exportPurchaseSummaryDetails(filterOptions);
       const exportData = response?.data?.data;
-  
+      console.log("exportData: ", exportData)
       
       if (!exportData || exportData.length === 0) {
         throw new Error("No data returned from API for export.");
@@ -325,7 +324,6 @@ const PurchaseReportSummary = () => {
         "Tcs Amount": purchase.tcsAmount?.toFixed(2),
         "Net Amount": purchase.netAmount?.toFixed(2),
       }));
-  
       
       console.log("Data to export: ", dataToExport);
   
