@@ -1279,7 +1279,6 @@ const PurchaseEntry = () => {
   //   totalValues.adjustment,
   // ]);
 
-
   useEffect(() => {
     const grossAmount = purchases.reduce(
       (total, purchase) => total + parseFloat(purchase.amount),
@@ -1320,10 +1319,11 @@ const PurchaseEntry = () => {
     totalValues.adjustment,
   ]);
 
-  
   useEffect(() => {
     const updatedPurchases = purchases.map((purchase) => {
       const pcs = parseFloat(purchase.pcs) || 0;
+      const caseNo = parseFloat(purchase.case) || 0;
+
       const purchaseRate = parseFloat(purchase.purchaseRate) || 0;
 
       const govtRate = parseFloat(totalValues.govtRate) || 0;
@@ -1334,6 +1334,12 @@ const PurchaseEntry = () => {
         0
       );
 
+      const caseGrossAmount = purchases.reduce(
+        (total, purchase) => total + parseFloat(purchaseRate * pcs),
+        0
+      );
+      console.log("caseGrossAmount: ", caseGrossAmount);
+
       if (pcs === 0 || purchaseRate === 0) {
         console.warn(
           `Skipping purchase item due to zero pcs or purchaseRate: `,
@@ -1343,10 +1349,14 @@ const PurchaseEntry = () => {
       }
 
       const itemTotal = purchaseRate * pcs;
-      const perPcsPercentage = (itemTotal / grossAmount) * 100;
+      const perPcsPercentage = caseNo
+        ? (itemTotal / caseGrossAmount) * 100
+        : (itemTotal / grossAmount) * 100;
 
       const itemsTotalGovtRate = (govtRate * (perPcsPercentage / 100)) / pcs;
+      console.log("itemsTotalGovtRate: ", itemsTotalGovtRate);
       const itemsTotalSP = (spcPurpose * (perPcsPercentage / 100)) / pcs;
+      console.log("itemsTotalSP: ", itemsTotalSP);
 
       return {
         ...purchase,
@@ -1358,7 +1368,6 @@ const PurchaseEntry = () => {
     setPurchases(updatedPurchases);
     sessionStorage.setItem("purchases", JSON.stringify(updatedPurchases));
   }, [totalValues.govtRate, totalValues.spcPurpose, totalValues.grossAmt]);
-
 
   // useEffect(() => {
   //   const tcsPercentage = parseFloat(totalValues.tcs) || 1;
@@ -1413,9 +1422,9 @@ const PurchaseEntry = () => {
     }
   }, [formData.gro, formData.sp, isRowUpdated, entryNumber]);
 
-  useEffect(() => {
-    setIsManualGovtRateChange(false);
-  }, [totalValues.govtRate, totalValues.spcPurpose]);
+  // useEffect(() => {
+  //   setIsManualGovtRateChange(false);
+  // }, [totalValues.govtRate, totalValues.spcPurpose]);
 
   useEffect(() => {
     if (passDateRef.current) {
