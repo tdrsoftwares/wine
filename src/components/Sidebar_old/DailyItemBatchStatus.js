@@ -250,7 +250,7 @@ const DailyItemBatchStatus = () => {
                   },
                 }}
               >
-                <MenuItem value="">None</MenuItem>
+                <MenuItem value="all">All</MenuItem>
                 {allStores?.map((store) => (
                   <MenuItem key={store._id} value={store.name}>
                     {store.name}
