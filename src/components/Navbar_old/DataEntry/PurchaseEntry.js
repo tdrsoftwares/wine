@@ -1338,7 +1338,7 @@ const PurchaseEntry = () => {
         (total, purchase) => total + parseFloat(purchaseRate * pcs),
         0
       );
-      console.log("caseGrossAmount: ", caseGrossAmount);
+      // console.log("caseGrossAmount: ", caseGrossAmount);
 
       if (pcs === 0 || purchaseRate === 0) {
         console.warn(
@@ -1354,9 +1354,9 @@ const PurchaseEntry = () => {
         : (itemTotal / grossAmount) * 100;
 
       const itemsTotalGovtRate = (govtRate * (perPcsPercentage / 100)) / pcs;
-      console.log("itemsTotalGovtRate: ", itemsTotalGovtRate);
+      // console.log("itemsTotalGovtRate: ", itemsTotalGovtRate);
       const itemsTotalSP = (spcPurpose * (perPcsPercentage / 100)) / pcs;
-      console.log("itemsTotalSP: ", itemsTotalSP);
+      // console.log("itemsTotalSP: ", itemsTotalSP);
 
       return {
         ...purchase,
