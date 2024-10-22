@@ -5,8 +5,6 @@ import { toWords } from "number-to-words";
 const SaleBillPrintModal = forwardRef(
   (
     {
-      open,
-      handleClose,
       salesData,
       formData,
       totalValues,
@@ -18,6 +16,9 @@ const SaleBillPrintModal = forwardRef(
     },
     ref
   ) => {
+
+    // console.log("bill number: ", billNumber);
+    // console.log("formdata: ", formData);
   
     const dataToPrint = isSplitPrinted ? printData : salesData;
     const valuesToPrint = isSplitPrinted ? printTotalValues : totalValues;
@@ -33,7 +34,7 @@ const SaleBillPrintModal = forwardRef(
 
     const saleBillData = {
       customer: formData?.customerName?.name,
-      billNo: formData.billNo ? formData.billNo : billNumber,
+      billNo: billNumber,
       discount: parseFloat(splDiscAmount),
       adjustment: parseFloat(valuesToPrint?.adjustment),
       date: new Date(formData?.billDate).toLocaleDateString(),

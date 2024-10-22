@@ -122,6 +122,8 @@ const SaleBill = () => {
 
   const [printData, setPrintData] = useState([]);
   const [printTotalValues, setPrintTotalValues] = useState([]);
+  const [isAutoBillPrint, setIsAutoBillPrint] = useState(false);
+  // console.log("isAutoBillPrint", isAutoBillPrint)
 
   const tableRef = useRef(null);
   const customerNameRef = useRef(null);
@@ -1159,6 +1161,13 @@ const SaleBill = () => {
   const handleSubmitIntoDataTable = async (e) => {
     e.preventDefault();
 
+
+    const pcsAfterBrk =
+      parseFloat(formData.pcs) - parseFloat(formData.brk) || 0;
+    const rate = parseFloat(formData.rate) || 1;
+    const amount = pcsAfterBrk * rate || 0;
+
+
     if (
       !formData.itemCode ||
       !formData.itemName ||
@@ -1166,7 +1175,7 @@ const SaleBill = () => {
       !formData.pcs ||
       formData.pcs > formData.currentStock ||
       !formData.rate ||
-      !formData.amount
+      !formData.amount 
     ) {
       NotificationManager.warning("Please fill all required fields correctly");
       return;
@@ -1254,8 +1263,8 @@ const SaleBill = () => {
           discount: formData.discount || 0,
           brk: formData.brk || 0,
           split: formData.split || 0,
-          amount: formData.amount || 0,
-          // stockAt: formData.stockAt,
+          // amount: formData.amount || 0
+          amount: amount || 0,
         };
 
         if (formData.itemDetailsId) {
@@ -1342,7 +1351,7 @@ const SaleBill = () => {
 
         for (let i = 0; i < remainingItems.length; ) {
           const item = remainingItems[i];
-          const itemVolume = item.volume * item.pcs;
+          const itemVolume = item.volume * (parseFloat(item.pcs) - parseFloat(item.brk));
 
           if (currentVolume + itemVolume <= volumeLimit) {
             currentVolume += itemVolume;
@@ -1389,7 +1398,7 @@ const SaleBill = () => {
             pcs: parseFloat(item.pcs),
             rate: parseFloat(item.rate),
             discount: parseFloat(item.discount),
-            amount: parseFloat(item.pcs) * parseFloat(item.rate),
+            amount: (parseFloat(item.pcs) - parseFloat(item.brk)) * parseFloat(item.rate),
             split: parseFloat(item.split),
             break: parseFloat(item.brk),
           })),
@@ -1436,6 +1445,10 @@ const SaleBill = () => {
           handlePrint();
         }
 
+        // if (licenseDetails?.autoBillPrint === "YES") {
+        //   setIsAutoBillPrint(true);
+        // }
+
         // console.log("isSplitPrinted: ", isSplitPrinted)
         if (!isSplitPrinted) {
           resetTopFormData();
@@ -1456,6 +1469,7 @@ const SaleBill = () => {
           "Error"
         );
       }
+      
     } catch (error) {
       console.error("Error creating sale:", error);
     }
@@ -1742,9 +1756,10 @@ const SaleBill = () => {
   const handleAmountChange = (e) => {
     const amount = parseFloat(e.target.value) || 0;
     const pcs = parseFloat(formData.pcs) || 1;
+    const brk = parseFloat(formData.brk) || 1;
     let rate;
     if (amount && pcs) {
-      rate = amount / pcs;
+      rate = amount / (pcs - brk);
     } else {
       rate = 0;
     }
@@ -1771,6 +1786,12 @@ const SaleBill = () => {
     if (e.key === "Enter" || e.key === "Tab") {
       handleDiscountChange(e);
     }
+  };
+
+  const handleBrkChange = (e) => {
+    const value = e.target.value;
+
+    setFormData({ ...formData, brk: value });
   };
 
   const calculatePcs = () => {
@@ -2001,38 +2022,38 @@ const SaleBill = () => {
     totalValues.adjustment,
   ]);
 
-  const calculatePrintDataTotalValues = (printData) => {
-    const calculatedTotalVolume = printData.reduce((total, item) => {
-      return total + parseFloat(item.volume || 0) * parseInt(item.pcs || 1);
-    }, 0);
+  // const calculatePrintDataTotalValues = (printData) => {
+  //   const calculatedTotalVolume = printData.reduce((total, item) => {
+  //     return total + parseFloat(item.volume || 0) * parseInt(item.pcs || 1);
+  //   }, 0);
 
-    const calculatedTotalPcs = printData.reduce((total, item) => {
-      return total + parseInt(item.pcs || 0);
-    }, 0);
+  //   const calculatedTotalPcs = printData.reduce((total, item) => {
+  //     return total + parseInt(item.pcs || 0);
+  //   }, 0);
 
-    const calculatedGrossAmt = printData.reduce((total, item) => {
-      return total + parseFloat(item.amount || 0) * parseInt(item.pcs || 1);
-    }, 0);
+  //   const calculatedGrossAmt = printData.reduce((total, item) => {
+  //     return total + parseFloat(item.amount || 0) * parseInt(item.pcs || 1);
+  //   }, 0);
 
-    const totalDiscount = printData.reduce((total, item) => {
-      return total + parseFloat(item.discount * item.pcs || 0);
-    }, 0);
+  //   const totalDiscount = printData.reduce((total, item) => {
+  //     return total + parseFloat(item.discount * item.pcs || 0);
+  //   }, 0);
 
-    const splDiscAmount =
-      (calculatedGrossAmt * parseFloat(totalValues.splDiscount || 0)) / 100;
+  //   const splDiscAmount =
+  //     (calculatedGrossAmt * parseFloat(totalValues.splDiscount || 0)) / 100;
 
-    const netAmt =
-      parseFloat(calculatedGrossAmt || 0) - parseFloat(splDiscAmount || 0);
+  //   const netAmt =
+  //     parseFloat(calculatedGrossAmt || 0) - parseFloat(splDiscAmount || 0);
 
-    return {
-      totalVolume: calculatedTotalVolume.toFixed(2),
-      totalPcs: calculatedTotalPcs,
-      grossAmt: calculatedGrossAmt.toFixed(2),
-      discountAmt: totalDiscount.toFixed(2),
-      splDiscAmount: (splDiscAmount + totalDiscount).toFixed(0),
-      netAmt: netAmt.toFixed(2),
-    };
-  };
+  //   return {
+  //     totalVolume: calculatedTotalVolume.toFixed(2),
+  //     totalPcs: calculatedTotalPcs,
+  //     grossAmt: calculatedGrossAmt.toFixed(2),
+  //     discountAmt: totalDiscount.toFixed(2),
+  //     splDiscAmount: (splDiscAmount + totalDiscount).toFixed(0),
+  //     netAmt: netAmt.toFixed(2),
+  //   };
+  // };
 
   useEffect(() => {
     if (billDateRef.current) {
@@ -2081,11 +2102,13 @@ const SaleBill = () => {
   }, [billNumber, billNoEditable]);
 
   // useEffect(() => {
-  //   if (formData.billno && licenseDetails?.autoBillPrint === "YES") {
-  //     // setShowSaleBillPrintModal(true);
+  //   if (isAutoBillPrint) {
+  //     console.log("executing")
   //     handlePrint();
+  //   } else {
+  //     setIsAutoBillPrint(false);
   //   }
-  // }, [formData.billno, licenseDetails?.autoBillPrint]);
+  // }, [isAutoBillPrint]);
 
   useEffect(() => {
     // console.log("Connecting to WebSocket...");
@@ -2560,9 +2583,7 @@ const SaleBill = () => {
                   size="small"
                   fullWidth
                   value={formData.brk}
-                  onChange={(e) =>
-                    setFormData({ ...formData, brk: e.target.value })
-                  }
+                  onChange={handleBrkChange}
                   onKeyDown={(e) => handleEnterKey(e, splitRef)}
                 />
               </Grid>
@@ -2921,6 +2942,7 @@ const SaleBill = () => {
             setSeriesEditable(false);
             setShowSaleBillPrintModal(false);
             setSearchMode(false);
+            setIsAutoBillPrint(false);
           }}
           sx={{
             marginRight: 1,
@@ -3027,13 +3049,11 @@ const SaleBill = () => {
 
       <SaleBillPrintModal
         ref={printModalRef}
-        open={false}
-        handleClose={() => {}}
         salesData={salesData}
         formData={formData}
         totalValues={totalValues}
         licenseDetails={licenseDetails}
-        billNumber={billNumber}
+        billNumber={formData.billno || billNumber}
         printData={printData}
         isSplitPrinted={isSplitPrinted}
         printTotalValues={printTotalValues}
