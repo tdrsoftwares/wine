@@ -31,6 +31,12 @@ const SidebarOld = ({handleSignout, sidebarVisible}) => {
         </div>
         <hr />
         <div className="sidebar-item">
+          <Link to="/expenses" className="nav-link">
+            Expenses
+          </Link>
+        </div>
+        <hr />
+        <div className="sidebar-item">
           <Link to="/previous-year-dsr" className="nav-link">
             Previous Year DSR
           </Link>

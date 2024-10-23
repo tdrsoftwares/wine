@@ -116,6 +116,7 @@ import StockUpdation from "./modules/StockUpdation";
 import BrandRegisterReport from "./components/Navbar_old/ExciseReport/BrandRegisterReport";
 import UserControl from "./modules/UserControl";
 import StockModify from "./modules/StockModify";
+import Expenses from "./components/Sidebar_old/Expenses";
 
 const PrivateRoute = ({ element, authenticatedUser }) => {
   return authenticatedUser ? element : <Navigate to="/login" />;
@@ -608,6 +609,10 @@ const AppRoutes = ({
       <Route
         path="/company-register"
         element={authenticatedUser ? <CompanyRegister /> : <UnAuthorized />}
+      />
+      <Route
+        path="/expenses"
+        element={authenticatedUser ? <Expenses /> : <UnAuthorized />}
       />
       <Route
         path="/previous-year-dsr"
