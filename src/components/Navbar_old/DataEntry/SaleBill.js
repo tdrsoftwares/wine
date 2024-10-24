@@ -1161,9 +1161,8 @@ const SaleBill = () => {
   const handleSubmitIntoDataTable = async (e) => {
     e.preventDefault();
 
-
     const pcsAfterBrk =
-      parseFloat(formData.pcs) - parseFloat(formData.brk) || 0;
+      parseFloat(formData.pcs) - parseFloat(formData.brk || 0);
     const rate = parseFloat(formData.rate) || 1;
     const amount = pcsAfterBrk * rate || 0;
 
@@ -1757,6 +1756,7 @@ const SaleBill = () => {
     const amount = parseFloat(e.target.value) || 0;
     const pcs = parseFloat(formData.pcs) || 1;
     const brk = parseFloat(formData.brk) || 1;
+    // console.log("brk: " , brk);
     let rate;
     if (amount && pcs) {
       rate = amount / (pcs - brk);
