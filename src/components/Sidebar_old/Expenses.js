@@ -52,6 +52,7 @@ const Expenses = () => {
   const [date, setDate] = useState(todaysDate);
   const [expenseType, setExpenseType] = useState("");
   const [allExpenseTypes, setAllExpenseTypes] = useState([]);
+  console.log("allExpenseTypes: ",allExpenseTypes)
   const [allExpenseData, setAllExpenseData] = useState({});
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
   const [newExpenseType, setNewExpenseType] = useState("");
@@ -70,7 +71,7 @@ const Expenses = () => {
   const [loading, setLoading] = useState(false);
   const [allLedgers, setAllLedgers] = useState([]);
 
-  console.log("allExpenseData: ",allExpenseData)
+  // console.log("allExpenseData: ",allExpenseData)
   const tableRef = useRef(null);
   const { permissions, role } = usePermissions();
 
@@ -128,6 +129,7 @@ const Expenses = () => {
           "Expense type created successfully",
           "Success"
         );
+        fetchAllExpenseTypes()
         setAllExpenseTypes((prev) => [...prev, response.data]);
 
         setNewExpenseType("");
@@ -141,10 +143,13 @@ const Expenses = () => {
     }
   };
 
+
   const handleCreateExpense = async () => {
+    const formattedDate = dayjs(date).format("DD/MM/YYYY");
+
     try {
       const payload = {
-        date,
+        date: formattedDate,
         expenseTypeId: expenseType,
         amount,
         payModeId: payMode,
@@ -381,9 +386,9 @@ const Expenses = () => {
                   id="date"
                   format="DD/MM/YYYY"
                   value={date}
-                  className="date-picker"
                   onChange={(newDate) => setDate(newDate)}
                   renderInput={(params) => <TextField {...params} />}
+                  sx={{ width: "100%" }}
                 />
               </LocalizationProvider>
             </div>
@@ -672,7 +677,7 @@ const Expenses = () => {
                                   id="date"
                                   format="DD/MM/YYYY"
                                   value={dayjs(editedRow.date)}
-                                  className="date-picker"
+                                  className="date-picker input-field"
                                   onChange={(newDate) => {
                                     setEditedRow({
                                       ...editedRow,
@@ -685,29 +690,45 @@ const Expenses = () => {
                                 />
                               </LocalizationProvider>
                             ) : (
-                              item.date
+                              item.date || ""
                             )}
                           </TableCell>
                           <TableCell>
                             {editableIndex === index ? (
-                              <Input
-                                value={editedRow?.expenseTypeId?.name}
+                              <TextField
+                              select
+                              fullWidth
+                                value={editedRow?.expenseTypeId || ""}
                                 onChange={(e) =>
                                   setEditedRow({
                                     ...editedRow,
-                                    expenseTypeId: { name: e.target.value },
+                                    expenseTypeId: e.target.value,
                                   })
                                 }
-                                readOnly
-                              />
+                                SelectProps={{
+                                  MenuProps: {
+                                    PaperProps: {
+                                      sx: {
+                                        maxHeight: 200,
+                                      },
+                                    },
+                                  },
+                                }}
+                              >{allExpenseTypes?.map((item) => (
+                                <MenuItem key={item._id} value={item._id}>
+                                  {item.name}
+                                </MenuItem>
+                              ))}
+                            </TextField>
                             ) : (
-                              item?.expenseTypeId?.name
+                              item?.expenseTypeId?.name || "No Data"
                             )}
                           </TableCell>
                           <TableCell>
                             {editableIndex === index ? (
-                              <Input
-                                value={editedRow.amount}
+                              <TextField
+                              fullWidth
+                                value={editedRow.amount || item.amount}
                                 onChange={(e) =>
                                   setEditedRow({
                                     ...editedRow,
@@ -716,61 +737,77 @@ const Expenses = () => {
                                 }
                               />
                             ) : (
-                              item.amount
+                              item.amount || 0
                             )}
                           </TableCell>
                           <TableCell>
                             {editableIndex === index ? (
-                              <Input
-                                value={editableIndex?.payModeId?.name}
+                              <TextField
+                              select
+                              fullWidth
+                                value={editedRow?.payModeId || ""}
                                 onChange={(e) => {
                                   setEditedRow({
                                     ...editedRow,
-                                    payModeId: { name: e.target.value },
+                                    payModeId: e.target.value,
                                   });
                                 }}
-                                readOnly
-                              />
+                                SelectProps={{
+                                  MenuProps: {
+                                    PaperProps: {
+                                      sx: {
+                                        maxHeight: 200,
+                                      },
+                                    },
+                                  },
+                                }}
+                              >{allLedgers?.map((item) => (
+                                <MenuItem key={item._id} value={item._id}>
+                                  {item.name}
+                                </MenuItem>
+                              ))}
+                            </TextField>
                             ) : (
-                              item?.payModeId?.name
+                              item?.payModeId?.name || "No Data"
                             )}
                           </TableCell>
                           <TableCell>
                             {editableIndex === index ? (
-                              <Input
-                                value={editedRow.paidBy}
+                              <TextField
+                              fullWidth
+                                value={editedRow.paidBy || item.paidBy}
                                 onChange={(e) => {
-                                  const value = e.target.value;
                                   setEditedRow({
                                     ...editedRow,
-                                    paidBy: value,
+                                    paidBy: e.target.value,
                                   });
                                 }}
                               />
                             ) : (
-                              item.paidBy
+                              item.paidBy || "No Data"
                             )}
                           </TableCell>
                           <TableCell>
                             {editableIndex === index ? (
-                              <Input
-                                value={editedRow.paidTo}
+                              <TextField
+                              fullWidth
+                                value={editedRow.paidTo || item.paidTo}
                                 onChange={(e) => {
-                                  const value = e.target.value;
                                   setEditedRow({
                                     ...editedRow,
-                                    paidTo: value,
+                                    paidTo: e.target.value,
                                   });
                                 }}
                               />
                             ) : (
-                              item.paidTo
+                              item.paidTo || "No Data"
                             )}
                           </TableCell>
                           <TableCell>
                             {editableIndex === index ? (
-                              <Input
-                                value={editedRow.remarks}
+                              <TextField
+                              fullWidth
+                                value={editedRow.remarks || item.remarks}
                                 onChange={(e) => {
                                   setEditedRow({
                                     ...editedRow,
@@ -779,7 +816,7 @@ const Expenses = () => {
                                 }}
                               />
                             ) : (
-                              item.remarks
+                              item.remarks || "No Data"
                             )}
                           </TableCell>
 
