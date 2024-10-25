@@ -202,11 +202,11 @@ const Epos = () => {
     setLoading(true);
     try {
       const filterOptions = {
-        page:
-          paginationModel.page === 0
-            ? paginationModel.page + 1
-            : paginationModel.page,
-        pageSize: paginationModel.pageSize,
+        // page:
+        //   paginationModel.page === 0
+        //     ? paginationModel.page + 1
+        //     : paginationModel.page,
+        // pageSize: paginationModel.pageSize,
         fromDate: fromDate,
         toDate: toDate,
         itemName: itemName,
@@ -214,8 +214,8 @@ const Epos = () => {
       };
       const response = await getAllEpos(filterOptions);
       // console.log("sales fetched", response?.data?.data);
-      setAllEposData(response?.data?.data?.items || []);
-      setTotalCount(response?.data?.data?.totalItems || 0);
+      setAllEposData(response?.data?.data || []);
+      setTotalCount(response?.data?.data?.length || 0);
     } catch (error) {
       // NotificationManager.error(
       //   "Error fetching sales. Please try again later.",
@@ -273,7 +273,7 @@ const Epos = () => {
   useEffect(() => {
     const debouncedFetch = debounce(fetchAllEposData, 300);
     debouncedFetch();
-  }, [paginationModel, dateFrom, dateTo, itemName, brandName]);
+  }, [dateFrom, dateTo, itemName, brandName]);
 
   const processRowUpdate = (newRow, oldRow) => {
     setEditedRows((prevEditedRows) => ({
@@ -550,7 +550,6 @@ const Epos = () => {
             columns={columns}
             rowCount={totalCount}
             pagination
-            paginationMode="server"
             pageSizeOptions={[10, 25, 50, 100]}
             paginationModel={paginationModel}
             onPaginationModelChange={setPaginationModel}

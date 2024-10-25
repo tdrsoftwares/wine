@@ -179,8 +179,8 @@ const DailySaleReport = () => {
     setLoading(true);
     try {
       const filterOptions = {
-        page: paginationModel.page + 1,
-        pageSize: paginationModel.pageSize,
+        // page: paginationModel.page + 1,
+        // pageSize: paginationModel.pageSize,
         fromDate: fromDate,
         toDate: toDate,
         brandName: filterData.brandName,
@@ -191,11 +191,11 @@ const DailySaleReport = () => {
         mode: filterData.mode,
       };
       const response = await getDailySalesDetails(filterOptions);
-      console.log("Response salesData: ", response);
+      // console.log("Response salesData: ", response);
 
       if (response.status === 200) {
-        setAllSalesData(response?.data?.data?.items || []);
-        setTotalCount(response?.data?.data?.totalItems || 0);
+        setAllSalesData(response?.data?.data || []);
+        setTotalCount(response?.data?.data?.length || 0);
       } else {
         console.log("Error", response);
         // NotificationManager.error("No items found.", "Error");
@@ -253,7 +253,7 @@ const DailySaleReport = () => {
   useEffect(() => {
     const debouncedFetch = debounce(fetchAllSales, 300);
     debouncedFetch();
-  }, [paginationModel, filterData]);
+  }, [filterData]);
 
   useEffect(() => {
     const calculateSums = (data) => {
@@ -691,7 +691,7 @@ const DailySaleReport = () => {
               rows={(allSalesData || [])?.map((item, index) => ({
                 id: index,
                 sNo:
-                  index + paginationModel.page * paginationModel.pageSize + 1,
+                  index + 1,
                 itemName: item._id || "No Data",
                 totalPcs: item.totalPcs || "No Data",
                 rate: item.rate?.toFixed(2) || "No Data",
@@ -700,9 +700,9 @@ const DailySaleReport = () => {
               }))}
               columns={columns}
               rowCount={totalCount}
-              apiRef={apiRef}
+              // apiRef={apiRef}
               pagination
-              paginationMode="server"
+              // paginationMode="server"
               paginationModel={paginationModel}
               pageSizeOptions={[10, 25, 50, 100]}
               onPaginationModelChange={(newPaginationModel) =>

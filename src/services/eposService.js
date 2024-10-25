@@ -5,13 +5,18 @@ export const getAllEpos = async (filterOptions) => {
   try {
     const { page, pageSize, fromDate, toDate, brandName, itemName } =
       filterOptions;
-    let apiURL = `/reports/daily-sales-reports?page=${page}&pageSize=${pageSize}`;
+    let apiURL = `/reports/daily-sales-reports`;
 
     const filters = { fromDate, toDate, brandName, itemName };
-    Object.keys(filters).forEach((key) => {
-      if (filters[key]) {
-        apiURL += `&${key}=${encodeURIComponent(filters[key])}`;
-      }
+    const filterKeys = Object.keys(filters).filter((key) => filters[key]);
+    if (filterKeys.length > 0) {
+      apiURL += "?";
+    }
+
+    filterKeys.forEach((key, index) => {
+      apiURL += `${index === 0 ? "" : "&"}${key}=${encodeURIComponent(
+        filters[key]
+      )}`;
     });
     const response = await axiosInstance.get(apiURL);
     return response;

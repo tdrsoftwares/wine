@@ -346,14 +346,15 @@ const ItemLedgerStatus = () => {
   const brandNameSearch = debounce(async (searchText) => {
     try {
       const response = await searchByBrandName(searchText);
-      if (response?.data?.data && response.data.data.length > 0) {
-        setBrandNameOptions(response.data.data);
-      } else {
-        setBrandNameOptions([]);
-      }
+      const brandsData = response?.data?.data || [];
+  
+      const allBrandsOption = { name: "All Brands" };
+      const updatedBrandsData = [allBrandsOption, ...brandsData];
+  
+      setBrandNameOptions(updatedBrandsData);
     } catch (error) {
       console.error("Error searching brand:", error);
-      setBrandNameOptions([]);
+      setBrandNameOptions([{ name: "All Brands" }]);
     }
   }, 500);
 
@@ -364,7 +365,12 @@ const ItemLedgerStatus = () => {
 
   const handleBrandNameChange = (event, newValue) => {
     setBrandName(newValue);
-    setFilterData((prevData) => ({ ...prevData, brandName: newValue }));
+    
+    if (newValue === "All Brands") {
+      setFilterData((prevData) => ({ ...prevData, brandName: "All Brands" }));
+    } else {
+      setFilterData((prevData) => ({ ...prevData, brandName: newValue }));
+    }
   };
 
   const flattenItemStatusData = (data) => {
@@ -808,7 +814,7 @@ const ItemLedgerStatus = () => {
           sx={{
             height: 500,
             width: "100%",
-            marginTop: 2,
+            marginTop: 1,
             "& .custom-header": {
               backgroundColor: "#dae4ed",
               paddingLeft: 4,
