@@ -38,7 +38,10 @@ import {
   createExpense,
   createExpenseType,
   deleteExpense,
+  exportAllExpenses,
   getAllExpenses,
+  getAllPaymentRefNumbers,
+  getExpenseByPaymentRefNo,
   searchAllExpenseTypes,
   updateExpense,
 } from "../../services/expensesService";
@@ -46,49 +49,47 @@ import { getAllLedgers } from "../../services/ledgerService";
 import dayjs from "dayjs";
 import { AddBox } from "@mui/icons-material";
 import debounce from "lodash.debounce";
+import * as XLSX from "xlsx";
 
 const Expenses = () => {
   const todaysDate = dayjs();
   const [date, setDate] = useState(todaysDate);
   const [expenseType, setExpenseType] = useState("");
   const [allExpenseTypes, setAllExpenseTypes] = useState([]);
-  console.log("allExpenseTypes: ",allExpenseTypes)
-  const [allExpenseData, setAllExpenseData] = useState({});
-  const [openCreateDialog, setOpenCreateDialog] = useState(false);
+  // console.log("allExpenseTypes: ",allExpenseTypes)
+  const [allExpenseData, setAllExpenseData] = useState([]);
+  const [openExpenseTypeCreateDialog, setOpenExpenseTypeCreateDialog] =
+    useState(false);
   const [newExpenseType, setNewExpenseType] = useState("");
   const [amount, setAmount] = useState("");
   const [paidTo, setPaidTo] = useState("");
   const [payMode, setPayMode] = useState([]);
   const [paymentRefNo, setPaymentRefNo] = useState([]);
+  const [paymentRefNoEditable, setPaymentRefNoEditable] = useState(false);
+  const [allPaymentRefNo, setAllPaymentRefNo] = useState([]);
   const [paidBy, setPaidBy] = useState("");
   const [remarks, setRemarks] = useState("");
-  const [editableIndex, setEditableIndex] = useState(null);
-  const [editedRow, setEditedRow] = useState({});
   const [sortBy, setSortBy] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [loading, setLoading] = useState(false);
   const [allLedgers, setAllLedgers] = useState([]);
+  const [expenseId, setExpenseId] = useState("");
+  const [totalExpenseCount, setTotalExpenseCount] = useState(0);
 
   // console.log("allExpenseData: ",allExpenseData)
-  const tableRef = useRef(null);
+
+  const paymentRefNoRef = useRef(null);
   const { permissions, role } = usePermissions();
 
   const companyPermissions =
-    permissions?.find((permission) => permission.moduleName === "Expense")
+    permissions?.find((permission) => permission.moduleName === "expense")
       ?.permissions || [];
   const canCreate = companyPermissions.includes("create");
   const canRead = companyPermissions.includes("read");
   const canUpdate = companyPermissions.includes("update");
   const canDelete = companyPermissions.includes("delete");
-
-  const handleClickOutside = (event) => {
-    if (tableRef.current && !tableRef.current.contains(event.target)) {
-      setEditableIndex(null);
-      setEditedRow({});
-    }
-  };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -99,13 +100,6 @@ const Expenses = () => {
     setPage(0);
   };
 
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
   const clearForm = () => {
     setDate(todaysDate);
     setExpenseType("");
@@ -114,8 +108,7 @@ const Expenses = () => {
     setPaidBy("");
     setPaidTo("");
     setRemarks("");
-    setEditableIndex(null);
-    setEditedRow({});
+    setPaymentRefNoEditable(false);
   };
 
   const handleCreateExpenseType = async () => {
@@ -129,11 +122,11 @@ const Expenses = () => {
           "Expense type created successfully",
           "Success"
         );
-        fetchAllExpenseTypes()
+        fetchAllExpenseTypes();
         setAllExpenseTypes((prev) => [...prev, response.data]);
 
         setNewExpenseType("");
-        setOpenCreateDialog(false);
+        setOpenExpenseTypeCreateDialog(false);
       } else {
         console.error("Failed to create expense type", response.message);
       }
@@ -142,7 +135,6 @@ const Expenses = () => {
       console.error("Error creating expense type", error);
     }
   };
-
 
   const handleCreateExpense = async () => {
     const formattedDate = dayjs(date).format("DD/MM/YYYY");
@@ -159,48 +151,51 @@ const Expenses = () => {
       };
 
       const response = await createExpense(payload);
+      // console.log("created expense", response)
 
       if (response.status === 200 || response.status === 201) {
-        NotificationManager.success(
-          "Expense type created successfully",
-          "Success"
-        );
+        NotificationManager.success("Expense created successfully", "Success");
+        setPaymentRefNo(response?.data?.data?.paymentRefNo);
         clearForm();
         fetchAllExpenseData();
       } else {
-        NotificationManager.error("Error creating expense type", "Error");
+        NotificationManager.error("Error creating expense", "Error");
       }
     } catch (error) {
-      NotificationManager.error("Error creating expense type", "Error");
+      NotificationManager.error("Error creating expense", "Error");
     }
   };
 
-  const handleUpdateExpense = async (ExpenseId) => {
-    const formattedDate = dayjs(editedRow.date).format("DD/MM/YYYY");
-    console.log("editedRow: ",editedRow);
+  const handleSaveExpense = async () => {
+    const formattedDate = dayjs(date).format("DD/MM/YYYY");
+    // console.log("editedRow: ",editedRow);
 
     const payload = {
       date: formattedDate,
-      expenseTypeId: editedRow.expenseTypeId?._id || editedRow.expenseTypeId,
-      amount: editedRow.amount,
-      payModeId: editedRow.payModeId?._id || editedRow.payModeId,
-      paidBy: editedRow.paidBy,
-      paidTo: editedRow.paidTo,
-      remarks: editedRow.remarks,
+      expenseTypeId: expenseType,
+      amount,
+      payModeId: payMode,
+      paidBy,
+      paidTo,
+      remarks,
     };
+
     try {
-      const updateExpenseResponse = await updateExpense(payload, ExpenseId);
-      if (updateExpenseResponse.status === 200) {
-        NotificationManager.success("Expense updated successfully", "Success");
-        setEditableIndex(null);
-        setEditedRow({});
-        fetchAllExpenseData();
-      } else {
-        NotificationManager.error(
-          "Error updating Expense. Please try again later.",
-          "Error"
-        );
-        console.error("Error updating Expense:", updateExpenseResponse);
+      if (paymentRefNo && paymentRefNoEditable) {
+        const updateExpenseResponse = await updateExpense(payload, expenseId);
+        if (updateExpenseResponse.status === 200) {
+          NotificationManager.success(
+            "Expense updated successfully",
+            "Success"
+          );
+          fetchAllExpenseData();
+        } else {
+          NotificationManager.error(
+            "Error updating Expense. Please try again later.",
+            "Error"
+          );
+          console.error("Error updating Expense:", updateExpenseResponse);
+        }
       }
     } catch (error) {
       NotificationManager.error(
@@ -231,6 +226,46 @@ const Expenses = () => {
       );
       console.error("Error deleting Expense:", error);
     }
+  };
+
+  const expenseDataSearch = debounce(async () => {
+    try {
+      if (paymentRefNoEditable && paymentRefNo) {
+        const response = await getExpenseByPaymentRefNo(paymentRefNo);
+
+        if (response?.data?.data) {
+          const receivedData = response.data.data[0];
+
+          const dateObject = dayjs(receivedData.date, "DD/MM/YYYY");
+          // console.log("date obj: ", dateObject);
+
+          setDate(dateObject);
+          setExpenseType(receivedData.expenseTypeId);
+          setAmount(receivedData.amount);
+          setPayMode(receivedData.payModeId?._id);
+          setPaidBy(receivedData.paidBy);
+          setPaidTo(receivedData.paidTo);
+          setRemarks(receivedData.remarks);
+          setPaymentRefNo(receivedData.paymentRefNo || "");
+          setExpenseId(receivedData._id);
+        } else {
+          NotificationManager.error("No expense data found to open!", "Error");
+        }
+      }
+    } catch (error) {
+      NotificationManager.error("No expense data found to open!", "Error");
+      console.error("Error fetching sales:", error);
+    }
+  }, 700);
+
+  const handlePreviousPaymentRefNo = () => {
+    if (paymentRefNo && paymentRefNoEditable)
+      setPaymentRefNo(parseInt(paymentRefNo) - 1);
+  };
+
+  const handleNextPaymentRefNo = () => {
+    if (paymentRefNo && paymentRefNoEditable)
+      setPaymentRefNo(parseInt(paymentRefNo) + 1);
   };
 
   const fetchAllLedger = async () => {
@@ -273,14 +308,15 @@ const Expenses = () => {
 
   const fetchAllExpenseData = async () => {
     try {
-      const response = await getAllExpenses(page+1, rowsPerPage);
+      const response = await getAllExpenses();
       // console.log("expense data response ---> ", response);
-      
+
       if (response.status === 200) {
         setAllExpenseData(response?.data?.data);
+        setTotalExpenseCount(response?.data?.data?.length || 0);
       } else {
         // NotificationManager.error("No expense data found!" , "Error");
-        setAllExpenseData({});
+        setAllExpenseData([]);
       }
     } catch (error) {
       // NotificationManager.error(
@@ -288,6 +324,26 @@ const Expenses = () => {
       //   "Error"
       // );
       console.error("Error fetching expense!", error);
+    }
+  };
+
+  const fetchAllPaymentRefNo = async () => {
+    try {
+      const allPaymentRefNo = await getAllPaymentRefNumbers();
+      // console.log("paymentRefNo response ---> ", allPaymentRefNo);
+      if (allPaymentRefNo.status === 200 || allPaymentRefNo.status === 201) {
+        setAllPaymentRefNo(allPaymentRefNo?.data?.data);
+      } else if (allPaymentRefNo.status === 404) {
+        NotificationManager.error("No ref no. found", "Error");
+        // setAllPaymentRefNo([]);
+      }
+    } catch (error) {
+      NotificationManager.error(
+        "Error fetching ref no.. Please try again later.",
+        "Error"
+      );
+      setAllPaymentRefNo([]);
+      console.error("Error fetching ref no.:", error);
     }
   };
 
@@ -308,16 +364,6 @@ const Expenses = () => {
     fetchAllLedger();
   }, []);
 
-  const handleEditClick = (index, expenseId) => {
-    setEditableIndex(index);
-    const selectedExpense = allExpenseData?.expenses?.find((item) => item._id === expenseId);
-    setEditedRow(selectedExpense);
-  };
-
-  const handleSaveClick = (expenseId) => {
-    handleUpdateExpense(expenseId);
-  };
-
   const handleRemoveExpense = (expenseId) => {
     handleDeleteExpense(expenseId);
   };
@@ -332,14 +378,13 @@ const Expenses = () => {
   };
 
   const sortedData = () => {
-    const expenses = allExpenseData?.expenses;
-    let sorted = expenses ? [...expenses] : [];
-  
+    let sorted = allExpenseData ? [...allExpenseData] : [];
+
     if (sortBy) {
       sorted.sort((a, b) => {
         let firstValue;
         let secondValue;
-  
+
         if (sortBy === "date") {
           firstValue = a.date ? dayjs(a.date) : dayjs(0);
           secondValue = b.date ? dayjs(b.date) : dayjs(0);
@@ -350,10 +395,12 @@ const Expenses = () => {
           firstValue = a.payModeId?.name?.toLowerCase() || "";
           secondValue = b.payModeId?.name?.toLowerCase() || "";
         } else {
-          firstValue = typeof a[sortBy] === "string" ? a[sortBy].toLowerCase() : a[sortBy];
-          secondValue = typeof b[sortBy] === "string" ? b[sortBy].toLowerCase() : b[sortBy];
+          firstValue =
+            typeof a[sortBy] === "string" ? a[sortBy].toLowerCase() : a[sortBy];
+          secondValue =
+            typeof b[sortBy] === "string" ? b[sortBy].toLowerCase() : b[sortBy];
         }
-  
+
         if (firstValue < secondValue) {
           return sortOrder === "asc" ? -1 : 1;
         }
@@ -363,10 +410,48 @@ const Expenses = () => {
         return 0;
       });
     }
-  
-    return sorted;
-  };  
 
+    return sorted;
+  };
+
+  useEffect(() => {
+    fetchAllPaymentRefNo();
+  }, [paymentRefNo, paymentRefNoEditable]);
+
+  useEffect(() => {
+    if (paymentRefNo > 0 && paymentRefNoEditable) {
+      expenseDataSearch(paymentRefNo);
+    }
+  }, [paymentRefNo]);
+
+  const exportToExcel = async () => {
+    try {
+      setLoading(true);
+      const allExpensesResponse = await exportAllExpenses();
+      const allExpensesData = allExpensesResponse?.data?.data || [];
+
+      const dataToExport = allExpensesData.map((expense, index) => ({
+        "S. No.": index + 1,
+        Date: expense.date || "",
+        "Expense Type": expense.expenseTypeId?.name || "",
+        Amount: expense.amount || 0,
+        "Pay Mode": expense.payModeId?.name || "",
+        "Paid By": expense.paidBy || "",
+        "Paid To": expense.paidTo || "",
+        Remarks: expense.remarks || "",
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Expenses");
+
+      XLSX.writeFile(workbook, "Expense_Report.xlsx");
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -417,7 +502,7 @@ const Expenses = () => {
               />
 
               <IconButton
-                onClick={() => setOpenCreateDialog(true)}
+                onClick={() => setOpenExpenseTypeCreateDialog(true)}
                 size="small"
                 color="primary"
                 style={{ marginLeft: 1 }}
@@ -437,7 +522,10 @@ const Expenses = () => {
                 size="small"
                 name="amount"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (!isNaN(value)) setAmount(value);
+                }}
               />
             </div>
           </Grid>
@@ -485,14 +573,22 @@ const Expenses = () => {
                 Payment Ref No. :
               </InputLabel>
               <TextField
+                select
                 fullWidth
+                ref={paymentRefNoRef}
                 size="small"
                 type="number"
                 name="paymentRefNo"
                 value={paymentRefNo}
                 onChange={(e) => setPaymentRefNo(e.target.value)}
-                disabled={true}
-              />
+                disabled={!paymentRefNoEditable}
+              >
+                {allPaymentRefNo?.map((item) => (
+                  <MenuItem key={item._id} value={item.paymentRefNo}>
+                    {item.paymentRefNo}
+                  </MenuItem>
+                ))}
+              </TextField>
             </div>
           </Grid>
 
@@ -530,39 +626,129 @@ const Expenses = () => {
         <Box
           sx={{
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
           }}
         >
           <Button
-            color="primary"
-            size="medium"
+            color="success"
+            size="small"
             variant="contained"
-            onClick={handleCreateExpense}
+            onClick={exportToExcel}
+            disabled={!canRead && role !== "admin"}
             sx={{
               marginTop: 1,
-              marginRight: 1,
-              borderRadius: 8,
-              padding: "4px 10px",
-              fontSize: "11px",
-            }}
-            disabled={role !== "admin" && !canCreate}
-          >
-            Create
-          </Button>
-          <Button
-            color="warning"
-            size="medium"
-            variant="outlined"
-            onClick={clearForm}
-            sx={{
-              marginTop: 1,
-              borderRadius: 8,
+
               padding: "4px 10px",
               fontSize: "11px",
             }}
           >
-            Clear
+            Export to Excel
           </Button>
+
+          <div>
+            <Button
+              color="inherit"
+              size="small"
+              variant="outlined"
+              onClick={() => {
+                clearForm();
+                setPaymentRefNo("");
+              }}
+              sx={{
+                marginTop: 1,
+                marginRight: 1,
+
+                padding: "4px 10px",
+                fontSize: "11px",
+              }}
+            >
+              Clear
+            </Button>
+            <Button
+              color="success"
+              size="small"
+              variant="outlined"
+              onClick={handlePreviousPaymentRefNo}
+              sx={{
+                marginTop: 1,
+                marginRight: 1,
+
+                padding: "4px 10px",
+                fontSize: "11px",
+              }}
+              disabled={role !== "admin" && !canUpdate}
+            >
+              Prev
+            </Button>
+            <Button
+              color="secondary"
+              size="small"
+              variant="outlined"
+              onClick={handleNextPaymentRefNo}
+              sx={{
+                marginTop: 1,
+                marginRight: 1,
+
+                padding: "4px 10px",
+                fontSize: "11px",
+              }}
+              disabled={role !== "admin" && !canUpdate}
+            >
+              Next
+            </Button>
+            <Button
+              color="primary"
+              size="small"
+              variant="contained"
+              onClick={handleCreateExpense}
+              sx={{
+                marginTop: 1,
+                marginRight: 1,
+
+                padding: "4px 10px",
+                fontSize: "11px",
+              }}
+              disabled={role !== "admin" && !canCreate}
+            >
+              Create
+            </Button>
+
+            <Button
+              color="warning"
+              size="small"
+              variant="contained"
+              onClick={() => {
+                paymentRefNoRef.current.focus();
+                setPaymentRefNoEditable(true);
+              }}
+              sx={{
+                marginRight: 1,
+                marginTop: 1,
+
+                padding: "4px 10px",
+                fontSize: "11px",
+              }}
+            >
+              Open
+            </Button>
+            <Button
+              color="success"
+              size="small"
+              variant="contained"
+              onClick={handleSaveExpense}
+              sx={{
+                marginTop: 1,
+
+                padding: "4px 10px",
+                fontSize: "11px",
+              }}
+              disabled={
+                (role !== "admin" && !canCreate) || !paymentRefNoEditable
+              }
+            >
+              Save
+            </Button>
+          </div>
         </Box>
 
         <Box sx={{ borderRadius: 1, marginTop: 2 }}>
@@ -588,7 +774,7 @@ const Expenses = () => {
                       direction={sortOrder}
                       onClick={() => handleSort("expenseTypeId")}
                     >
-                      expenseTypeId
+                      Expense Type
                     </TableSortLabel>
                   </TableCell>
                   <TableCell sx={{ minWidth: "180px" }}>
@@ -606,7 +792,7 @@ const Expenses = () => {
                       direction={sortOrder}
                       onClick={() => handleSort("payModeId")}
                     >
-                      payModeId
+                      Pay Mode
                     </TableSortLabel>
                   </TableCell>
                   <TableCell sx={{ minWidth: "180px" }}>
@@ -615,7 +801,7 @@ const Expenses = () => {
                       direction={sortOrder}
                       onClick={() => handleSort("paidBy")}
                     >
-                      paidBy
+                      Paid By
                     </TableSortLabel>
                   </TableCell>
                   <TableCell sx={{ minWidth: "180px" }}>
@@ -633,7 +819,7 @@ const Expenses = () => {
                       direction={sortOrder}
                       onClick={() => handleSort("remarks")}
                     >
-                      remarks
+                      Remarks
                     </TableSortLabel>
                   </TableCell>
                   <TableCell sx={{ minWidth: "180px" }}>Action</TableCell>
@@ -654,7 +840,7 @@ const Expenses = () => {
                         <CircularProgress />
                       </TableCell>
                     </TableRow>
-                  ) : allExpenseData && sortedData().length > 0 ? (
+                  ) : allExpenseData.length > 0 ? (
                     sortedData()
                       .slice(
                         page * rowsPerPage,
@@ -670,194 +856,17 @@ const Expenses = () => {
                           <TableCell align="center">
                             {page * rowsPerPage + index + 1}
                           </TableCell>
+                          <TableCell>{item.date || ""}</TableCell>
                           <TableCell>
-                            {editableIndex === index ? (
-                              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <DatePicker
-                                  id="date"
-                                  format="DD/MM/YYYY"
-                                  value={dayjs(editedRow.date)}
-                                  className="date-picker input-field"
-                                  onChange={(newDate) => {
-                                    setEditedRow({
-                                      ...editedRow,
-                                      date: newDate?.format("YYYY-MM-DD"),
-                                    });
-                                  }}
-                                  renderInput={(params) => (
-                                    <TextField {...params} />
-                                  )}
-                                />
-                              </LocalizationProvider>
-                            ) : (
-                              item.date || ""
-                            )}
+                            {item?.expenseTypeId?.name || ""}
                           </TableCell>
-                          <TableCell>
-                            {editableIndex === index ? (
-                              <TextField
-                              select
-                              fullWidth
-                                value={editedRow?.expenseTypeId || ""}
-                                onChange={(e) =>
-                                  setEditedRow({
-                                    ...editedRow,
-                                    expenseTypeId: e.target.value,
-                                  })
-                                }
-                                SelectProps={{
-                                  MenuProps: {
-                                    PaperProps: {
-                                      sx: {
-                                        maxHeight: 200,
-                                      },
-                                    },
-                                  },
-                                }}
-                              >{allExpenseTypes?.map((item) => (
-                                <MenuItem key={item._id} value={item._id}>
-                                  {item.name}
-                                </MenuItem>
-                              ))}
-                            </TextField>
-                            ) : (
-                              item?.expenseTypeId?.name || "No Data"
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {editableIndex === index ? (
-                              <TextField
-                              fullWidth
-                                value={editedRow.amount || item.amount}
-                                onChange={(e) =>
-                                  setEditedRow({
-                                    ...editedRow,
-                                    amount: e.target.value,
-                                  })
-                                }
-                              />
-                            ) : (
-                              item.amount || 0
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {editableIndex === index ? (
-                              <TextField
-                              select
-                              fullWidth
-                                value={editedRow?.payModeId || ""}
-                                onChange={(e) => {
-                                  setEditedRow({
-                                    ...editedRow,
-                                    payModeId: e.target.value,
-                                  });
-                                }}
-                                SelectProps={{
-                                  MenuProps: {
-                                    PaperProps: {
-                                      sx: {
-                                        maxHeight: 200,
-                                      },
-                                    },
-                                  },
-                                }}
-                              >{allLedgers?.map((item) => (
-                                <MenuItem key={item._id} value={item._id}>
-                                  {item.name}
-                                </MenuItem>
-                              ))}
-                            </TextField>
-                            ) : (
-                              item?.payModeId?.name || "No Data"
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {editableIndex === index ? (
-                              <TextField
-                              fullWidth
-                                value={editedRow.paidBy || item.paidBy}
-                                onChange={(e) => {
-                                  setEditedRow({
-                                    ...editedRow,
-                                    paidBy: e.target.value,
-                                  });
-                                }}
-                              />
-                            ) : (
-                              item.paidBy || "No Data"
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {editableIndex === index ? (
-                              <TextField
-                              fullWidth
-                                value={editedRow.paidTo || item.paidTo}
-                                onChange={(e) => {
-                                  setEditedRow({
-                                    ...editedRow,
-                                    paidTo: e.target.value,
-                                  });
-                                }}
-                              />
-                            ) : (
-                              item.paidTo || "No Data"
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {editableIndex === index ? (
-                              <TextField
-                              fullWidth
-                                value={editedRow.remarks || item.remarks}
-                                onChange={(e) => {
-                                  setEditedRow({
-                                    ...editedRow,
-                                    remarks: e.target.value,
-                                  });
-                                }}
-                              />
-                            ) : (
-                              item.remarks || "No Data"
-                            )}
-                          </TableCell>
+                          <TableCell>{item.amount || 0}</TableCell>
+                          <TableCell>{item?.payModeId?.name || ""}</TableCell>
+                          <TableCell>{item.paidBy || ""}</TableCell>
+                          <TableCell>{item.paidTo || ""}</TableCell>
+                          <TableCell>{item.remarks || ""}</TableCell>
 
                           <TableCell>
-                            {editableIndex === index ? (
-                              <SaveIcon
-                                sx={{
-                                  cursor:
-                                    canUpdate || role === "admin"
-                                      ? "pointer"
-                                      : "not-allowed",
-                                  color:
-                                    canUpdate || role === "admin"
-                                      ? "green"
-                                      : "gray",
-                                }}
-                                onClick={
-                                  canUpdate || role === "admin"
-                                    ? () => handleSaveClick(item._id)
-                                    : null
-                                }
-                              />
-                            ) : (
-                              <EditIcon
-                                sx={{
-                                  cursor:
-                                    canUpdate || role === "admin"
-                                      ? "pointer"
-                                      : "not-allowed",
-                                  color:
-                                    canUpdate || role === "admin"
-                                      ? "blue"
-                                      : "gray",
-                                }}
-                                onClick={
-                                  canUpdate || role === "admin"
-                                    ? () => handleEditClick(index, item._id)
-                                    : null
-                                }
-                              />
-                            )}
                             <CloseIcon
                               sx={{
                                 cursor:
@@ -909,19 +918,25 @@ const Expenses = () => {
               <TablePagination
                 rowsPerPageOptions={[10, 25, 50, 100]}
                 component="div"
-                count={allExpenseData?.totalLength}
+                count={totalExpenseCount}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
+                sx={{
+                  "& .MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows":
+                    {
+                      fontSize: "12px",
+                    },
+                }}
               />
             ))}
         </Box>
       </Box>
 
       <Dialog
-        open={openCreateDialog}
-        onClose={() => setOpenCreateDialog(false)}
+        open={openExpenseTypeCreateDialog}
+        onClose={() => setOpenExpenseTypeCreateDialog(false)}
       >
         <DialogTitle>Create Expense Type</DialogTitle>
         <DialogContent>
@@ -936,7 +951,10 @@ const Expenses = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenCreateDialog(false)} color="primary">
+          <Button
+            onClick={() => setOpenExpenseTypeCreateDialog(false)}
+            color="primary"
+          >
             Cancel
           </Button>
           <Button onClick={handleCreateExpenseType} color="primary">

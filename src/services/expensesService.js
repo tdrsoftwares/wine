@@ -31,15 +31,45 @@ export const searchAllExpenseTypes = async (expenseName = '') => {
   }
 };
 
-export const getAllExpenses = async (page, limit) => {
+export const getAllExpenses = async (page, limit) => { // for table data
   try {
-    const apiURL = `/expence/get-all?page=${page}&limit=${limit}`;
-    const allExpenseTypes = await axiosInstance.get(apiURL);
-    return allExpenseTypes;
+    const apiURL = `/expence/expence-reports-export-excel`;
+    const allExpenses = await axiosInstance.get(apiURL);
+    return allExpenses;
   } catch (error) {
     return error;
   }
 };
+
+export const exportAllExpenses = async () => { // for export data
+  try {
+    const apiURL = `/expence/expence-reports-export-excel`;
+    const responseData = await axiosInstance.get(apiURL);
+    return responseData;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const getExpenseByPaymentRefNo = async (paymentRefNo) => { // for open
+  try {
+    const apiURL = `/expence/get-payment-no/${paymentRefNo}`;
+    const response = await axiosInstance.get(apiURL);
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const getAllPaymentRefNumbers = async () => {
+  try{
+    const apiURL = `/expence/get-all-payment-no`;
+    const response = await axiosInstance.get(apiURL);
+    return response;
+  } catch (error) {
+    return error
+  }
+}
 
 export const updateExpense = async (payload, id) => {
   try {
