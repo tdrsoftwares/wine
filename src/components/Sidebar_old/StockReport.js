@@ -204,19 +204,26 @@ const StockReport = () => {
         pageSize: paginationModel.pageSize,
         itemName: filterData.itemName,
         itemCode: filterData.itemCode,
-        categoryName: filterData.category,
         volume: filterData.volume,
-        brandName: filterData.brandName,
         batch: filterData.batchNo,
         storeName: filterData.storeName,
         company: filterData.company,
       };
-      // console.log(hasExportClicked)
 
-      // console.log("filterOptions: ", filterOptions);
-      // console.log("paginationModel: ", paginationModel);
+      if (filterData.brandName === "All Brands") {
+        filterOptions.AllBrand = true;
+      } else {
+        filterOptions.brandName = filterData.brandName;
+      }
+
+      if (filterData.category === "All Categories") {
+        filterOptions.AllCategory = true;
+      } else {
+        filterOptions.categoryName = filterData.category;
+      }
+
       const allStocksResponse = await getAllStocks(filterOptions);
-      console.log("allStocksResponse: ", allStocksResponse);
+      // console.log("allStocksResponse: ", allStocksResponse);
       const allStocksData = allStocksResponse?.data?.data;
 
       setAllStocks(allStocksData?.items || []);
@@ -310,14 +317,15 @@ const StockReport = () => {
   const brandNameSearch = debounce(async (searchText) => {
     try {
       const response = await searchByBrandName(searchText);
-      if (response?.data?.data && response.data.data.length > 0) {
-        setBrandNameOptions(response.data.data);
-      } else {
-        setBrandNameOptions([]);
-      }
+      const brandsData = response?.data?.data || [];
+  
+      const allBrandsOption = { name: "All Brands" };
+      const updatedBrandsData = [allBrandsOption, ...brandsData];
+  
+      setBrandNameOptions(updatedBrandsData);
     } catch (error) {
       console.error("Error searching brand:", error);
-      setBrandNameOptions([]);
+      setBrandNameOptions([{ name: "All Brands" }]);
     }
   }, 500);
 
@@ -328,7 +336,12 @@ const StockReport = () => {
 
   const handleBrandNameChange = (event, newValue) => {
     setBrandName(newValue);
-    setFilterData((prevData) => ({ ...prevData, brandName: newValue }));
+    
+    if (newValue === "All Brands") {
+      setFilterData((prevData) => ({ ...prevData, brandName: "All Brands" }));
+    } else {
+      setFilterData((prevData) => ({ ...prevData, brandName: newValue }));
+    }
   };
 
   useEffect(() => {
@@ -402,13 +415,23 @@ const StockReport = () => {
     const filterOptions = {
       itemName: filterData.itemName,
       itemCode: filterData.itemCode,
-      categoryName: filterData.category,
       volume: filterData.volume,
-      brandName: filterData.brandName,
       batch: filterData.batchNo,
       storeName: filterData.storeName,
       company: filterData.company,
     };
+
+    if (filterData.brandName === "All Brands") {
+      filterOptions.AllBrand = true;
+    } else {
+      filterOptions.brandName = filterData.brandName;
+    }
+
+    if (filterData.category === "All Categories") {
+      filterOptions.AllCategory = true;
+    } else {
+      filterOptions.categoryName = filterData.category;
+    }
 
     try {
       setLoading(true);
