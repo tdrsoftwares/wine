@@ -1082,7 +1082,10 @@ const SaleBill = () => {
     const updatedSales = [...salesData];
     const updatedRow = { ...updatedSales[index] };
 
-    if (updatedRow.pcs > updatedRow.currentStock) {
+    const pcsAfterBrk =
+      parseFloat(updatedRow.pcs) - parseFloat(updatedRow.brk || 0);
+
+    if (pcsAfterBrk > updatedRow.currentStock) {
       NotificationManager.warning(
         `Out of Stock! Currently you have ${
           updatedRow.currentStock || 0
@@ -1097,6 +1100,9 @@ const SaleBill = () => {
       }
     }
 
+    // updatedRow.pcs = pcsAfterBrk;
+    updatedRow.amount = pcsAfterBrk * parseFloat(updatedRow.rate || 1);
+
     updatedSales[index] = updatedRow;
     setSalesData(updatedSales);
     sessionStorage.setItem("salesData", JSON.stringify(updatedSales));
@@ -1104,7 +1110,6 @@ const SaleBill = () => {
     setEditedRow({});
     setEditableIndex(-1);
 
-    // Recalculate total values
     const calculatedTotalVolume = updatedSales.reduce((total, item) => {
       return total + parseFloat(item.volume || 0) * parseInt(item.pcs || 1);
     }, 0);
@@ -1141,14 +1146,14 @@ const SaleBill = () => {
     });
 
     if (
-      updatedRow.pcs <= updatedRow.currentStock &&
+      pcsAfterBrk <= updatedRow.currentStock &&
       formData.billType === "CASHBILL" &&
       (totalValues.flBeerVolume >= licenseDetails?.perBillMaxWine ||
         totalValues.imlVolume >= licenseDetails?.perBillMaxCs)
     ) {
       await autoSaveCashBill();
     }
-  };
+  }; 
 
   const handleRemoveClick = (index) => {
     const updatedSales = [...salesData];
