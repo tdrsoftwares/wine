@@ -77,6 +77,9 @@ const Expenses = () => {
   const [allLedgers, setAllLedgers] = useState([]);
   const [expenseId, setExpenseId] = useState("");
   const [totalExpenseCount, setTotalExpenseCount] = useState(0);
+  const [dateFrom, setDateFrom] = useState(null);
+  const [dateTo, setDateTo] = useState(null);
+  const [totalAmount, setTotalAmount] = useState("");
 
   // console.log("allExpenseData: ",allExpenseData)
 
@@ -307,23 +310,25 @@ const Expenses = () => {
   };
 
   const fetchAllExpenseData = async () => {
+    const fromDate = dateFrom ? dayjs(dateFrom).format("DD/MM/YYYY") : null;
+    const toDate = dateTo ? dayjs(dateTo).format("DD/MM/YYYY") : null;
+
     try {
-      const response = await getAllExpenses();
-      // console.log("expense data response ---> ", response);
+      const filterOptions = { fromDate, toDate };
+      const response = await getAllExpenses(filterOptions);
+
+      // console.log("Expense data response:", response);
 
       if (response.status === 200) {
-        setAllExpenseData(response?.data?.data);
-        setTotalExpenseCount(response?.data?.data?.length || 0);
+        const expenseData = response?.data?.data[0]?.expenses || [];
+        setAllExpenseData(expenseData);
+        setTotalAmount(response?.data?.data[0]?.totalAmount);
+        setTotalExpenseCount(expenseData?.length);
       } else {
-        // NotificationManager.error("No expense data found!" , "Error");
         setAllExpenseData([]);
       }
     } catch (error) {
-      // NotificationManager.error(
-      //   "Error fetching expense data! Please try again later.",
-      //   "Error"
-      // );
-      console.error("Error fetching expense!", error);
+      console.error("Error fetching expense data!", error);
     }
   };
 
@@ -359,10 +364,14 @@ const Expenses = () => {
   };
 
   useEffect(() => {
-    fetchAllExpenseData();
+    // fetchAllExpenseData();
     fetchAllExpenseTypes();
     fetchAllLedger();
   }, []);
+
+  useEffect(() => {
+    fetchAllExpenseData();
+  }, [dateFrom, dateTo]);
 
   const handleRemoveExpense = (expenseId) => {
     handleDeleteExpense(expenseId);
@@ -378,6 +387,7 @@ const Expenses = () => {
   };
 
   const sortedData = () => {
+    // const expenses = allExpenseData?.expenses;
     let sorted = allExpenseData ? [...allExpenseData] : [];
 
     if (sortBy) {
@@ -425,21 +435,37 @@ const Expenses = () => {
   }, [paymentRefNo]);
 
   const exportToExcel = async () => {
+    const fromDate = dateFrom ? dayjs(dateFrom).format("DD/MM/YYYY") : null;
+    const toDate = dateTo ? dayjs(dateTo).format("DD/MM/YYYY") : null;
+
     try {
       setLoading(true);
-      const allExpensesResponse = await exportAllExpenses();
-      const allExpensesData = allExpensesResponse?.data?.data || [];
+      const filterOptions = { fromDate, toDate };
+      const allExpensesResponse = await exportAllExpenses(filterOptions);
+      const allExpensesData =
+        allExpensesResponse?.data?.data[0]?.expenses || [];
 
       const dataToExport = allExpensesData.map((expense, index) => ({
         "S. No.": index + 1,
         Date: expense.date || "",
-        "Expense Type": expense.expenseTypeId?.name || "",
+        "Expense Type": expense.expenceType?.name || "",
         Amount: expense.amount || 0,
-        "Pay Mode": expense.payModeId?.name || "",
+        "Pay Mode": expense.ledger?.name || "",
         "Paid By": expense.paidBy || "",
         "Paid To": expense.paidTo || "",
         Remarks: expense.remarks || "",
       }));
+
+      dataToExport.push({
+        "S. No.": "Total Amount",
+        Date: "",
+        "Expense Type": "",
+        Amount: totalAmount || 0,
+        "Pay Mode": "",
+        "Paid By": "",
+        "Paid To": "",
+        Remarks: "",
+      });
 
       const worksheet = XLSX.utils.json_to_sheet(dataToExport);
       const workbook = XLSX.utils.book_new();
@@ -622,6 +648,49 @@ const Expenses = () => {
             </div>
           </Grid>
         </Grid>
+
+        <Box sx={{ minWidth: "900px" }}>
+          <Typography sx={{ marginTop: 1, fontSize: "13px" }}>
+            Filter By:
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={3}>
+              <div className="input-wrapper">
+                <InputLabel htmlFor="dateFrom" className="input-label">
+                  Date from:
+                </InputLabel>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    id="dateFrom"
+                    format="DD/MM/YYYY"
+                    value={dateFrom}
+                    onChange={(newDate) => setDateFrom(newDate)}
+                    renderInput={(params) => <TextField {...params} />}
+                    sx={{ width: "100%" }}
+                  />
+                </LocalizationProvider>
+              </div>
+            </Grid>
+
+            <Grid item xs={3}>
+              <div className="input-wrapper">
+                <InputLabel htmlFor="dateTo" className="input-label">
+                  Date to:
+                </InputLabel>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    id="dateTo"
+                    format="DD/MM/YYYY"
+                    value={dateTo}
+                    onChange={(newDate) => setDateTo(newDate)}
+                    renderInput={(params) => <TextField {...params} />}
+                    sx={{ width: "100%" }}
+                  />
+                </LocalizationProvider>
+              </div>
+            </Grid>
+          </Grid>
+        </Box>
 
         <Box
           sx={{
@@ -840,60 +909,73 @@ const Expenses = () => {
                         <CircularProgress />
                       </TableCell>
                     </TableRow>
-                  ) : allExpenseData.length > 0 ? (
-                    sortedData()
-                      .slice(
-                        page * rowsPerPage,
-                        page * rowsPerPage + rowsPerPage
-                      )
-                      .map((item, index) => (
-                        <TableRow
-                          key={item._id}
-                          sx={{
-                            backgroundColor: "#fff",
-                          }}
+                  ) : allExpenseData?.length > 0 ? (
+                    <>
+                      {sortedData()
+                        .slice(
+                          page * rowsPerPage,
+                          page * rowsPerPage + rowsPerPage
+                        )
+                        .map((item, index) => (
+                          <TableRow
+                            key={item._id}
+                            sx={{ backgroundColor: "#fff" }}
+                          >
+                            <TableCell align="center">
+                              {page * rowsPerPage + index + 1}
+                            </TableCell>
+                            <TableCell>{item.date || ""}</TableCell>
+                            <TableCell>
+                              {item?.expenceType?.name || ""}
+                            </TableCell>
+                            <TableCell>{item.amount || 0}</TableCell>
+                            <TableCell>{item?.ledger?.name || ""}</TableCell>
+                            <TableCell>{item.paidBy || ""}</TableCell>
+                            <TableCell>{item.paidTo || ""}</TableCell>
+                            <TableCell>{item.remarks || ""}</TableCell>
+                            <TableCell>
+                              <CloseIcon
+                                sx={{
+                                  cursor:
+                                    canDelete || role === "admin"
+                                      ? "pointer"
+                                      : "not-allowed",
+                                  color:
+                                    canDelete || role === "admin"
+                                      ? "red"
+                                      : "gray",
+                                }}
+                                onClick={
+                                  canDelete || role === "admin"
+                                    ? () => handleRemoveExpense(item._id)
+                                    : null
+                                }
+                              />
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      {/* Total Amount Row */}
+                      <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
+                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
+                          Total
+                        </TableCell>
+                        <TableCell colSpan={2} />
+                        <TableCell
+                          colSpan={10}
+                          align="left"
+                          sx={{ fontWeight: "bold" }}
                         >
-                          <TableCell align="center">
-                            {page * rowsPerPage + index + 1}
-                          </TableCell>
-                          <TableCell>{item.date || ""}</TableCell>
-                          <TableCell>
-                            {item?.expenseTypeId?.name || ""}
-                          </TableCell>
-                          <TableCell>{item.amount || 0}</TableCell>
-                          <TableCell>{item?.payModeId?.name || ""}</TableCell>
-                          <TableCell>{item.paidBy || ""}</TableCell>
-                          <TableCell>{item.paidTo || ""}</TableCell>
-                          <TableCell>{item.remarks || ""}</TableCell>
-
-                          <TableCell>
-                            <CloseIcon
-                              sx={{
-                                cursor:
-                                  canDelete || role === "admin"
-                                    ? "pointer"
-                                    : "not-allowed",
-                                color:
-                                  canDelete || role === "admin"
-                                    ? "red"
-                                    : "gray",
-                              }}
-                              onClick={
-                                canDelete || role === "admin"
-                                  ? () => handleRemoveExpense(item._id)
-                                  : null
-                              }
-                            />
-                          </TableCell>
-                        </TableRow>
-                      ))
+                          {totalAmount}
+                        </TableCell>
+                      </TableRow>
+                    </>
                   ) : (
                     <TableRow
                       sx={{
                         backgroundColor: "#fff",
                       }}
                     >
-                      <TableCell colSpan={11} align="center">
+                      <TableCell colSpan={12} align="center">
                         No Data
                       </TableCell>
                     </TableRow>
@@ -904,7 +986,7 @@ const Expenses = () => {
                       backgroundColor: "#fff",
                     }}
                   >
-                    <TableCell colSpan={11} align="center">
+                    <TableCell colSpan={12} align="center">
                       You do not have permission to view item data.
                     </TableCell>
                   </TableRow>

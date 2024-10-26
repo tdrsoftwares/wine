@@ -20,8 +20,7 @@ export const createExpense = async (payload) => {
   }
 };
 
-
-export const searchAllExpenseTypes = async (expenseName = '') => {
+export const searchAllExpenseTypes = async (expenseName = "") => {
   try {
     const apiURL = `/expence-type/search?name=${expenseName}`;
     const allExpenseTypes = await axiosInstance.get(apiURL);
@@ -31,17 +30,34 @@ export const searchAllExpenseTypes = async (expenseName = '') => {
   }
 };
 
-export const getAllExpenses = async (page, limit) => { // for table data
+// for table data
+export const getAllExpenses = async (filterOptions) => {
   try {
-    const apiURL = `/expence/expence-reports-export-excel`;
+    const { fromDate, toDate } = filterOptions;
+
+    let apiURL = `/expence/expence-reports-export-excel`;
+
+    const filters = { fromDate, toDate };
+    const filterKeys = Object.keys(filters).filter((key) => filters[key]);
+
+    if (filterKeys.length > 0) {
+      apiURL +=
+        "?" +
+        filterKeys
+          .map((key) => `${key}=${encodeURIComponent(filters[key])}`)
+          .join("&");
+    }
+
     const allExpenses = await axiosInstance.get(apiURL);
     return allExpenses;
   } catch (error) {
+    console.error("Error fetching expenses:", error);
     return error;
   }
 };
 
-export const exportAllExpenses = async () => { // for export data
+// for export data
+export const exportAllExpenses = async () => {
   try {
     const apiURL = `/expence/expence-reports-export-excel`;
     const responseData = await axiosInstance.get(apiURL);
@@ -51,7 +67,8 @@ export const exportAllExpenses = async () => { // for export data
   }
 };
 
-export const getExpenseByPaymentRefNo = async (paymentRefNo) => { // for open
+// for open
+export const getExpenseByPaymentRefNo = async (paymentRefNo) => {
   try {
     const apiURL = `/expence/get-payment-no/${paymentRefNo}`;
     const response = await axiosInstance.get(apiURL);
@@ -62,14 +79,14 @@ export const getExpenseByPaymentRefNo = async (paymentRefNo) => { // for open
 };
 
 export const getAllPaymentRefNumbers = async () => {
-  try{
+  try {
     const apiURL = `/expence/get-all-payment-no`;
     const response = await axiosInstance.get(apiURL);
     return response;
   } catch (error) {
-    return error
+    return error;
   }
-}
+};
 
 export const updateExpense = async (payload, id) => {
   try {
@@ -90,4 +107,3 @@ export const deleteExpense = async (id) => {
     return error;
   }
 };
-
