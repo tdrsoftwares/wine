@@ -692,7 +692,7 @@ const DailySaleReport = () => {
                 id: index,
                 sNo:
                   index + 1,
-                itemName: item._id || "No Data",
+                itemName: item.itemName || "No Data",
                 totalPcs: item.totalPcs || "No Data",
                 rate: item.rate?.toFixed(2) || "No Data",
                 totalVolumeLiters: item.totalVolumeLiters?.toFixed(3) || "No Data",
