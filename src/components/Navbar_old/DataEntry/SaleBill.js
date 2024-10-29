@@ -1132,7 +1132,7 @@ const SaleBill = () => {
     setEditableIndex(-1);
 
     const calculatedTotalVolume = updatedSales.reduce((total, item) => {
-      return total + parseFloat(item.volume || 0) * parseInt(item.pcs || 1);
+      return total + parseFloat(item.volume || 0) * (parseInt(item.pcs) - parseFloat(item.brk || 0));
     }, 0);
 
     const calculatedTotalPcs = updatedSales.reduce((total, item) => {
@@ -1140,11 +1140,11 @@ const SaleBill = () => {
     }, 0);
 
     const calculatedGrossAmt = updatedSales.reduce((total, item) => {
-      return total + parseFloat(item.amount || 0) * parseInt(item.pcs || 1);
+      return total + parseFloat(item.amount || 0);
     }, 0);
 
     const totalDiscount = updatedSales.reduce((total, item) => {
-      return total + parseFloat(item.discount * item.pcs || 0);
+      return total + parseFloat(item.discount * (parseInt(item.pcs) - parseFloat(item.brk || 0)) || 0);
     }, 0);
 
     const splDiscAmount =
@@ -1156,16 +1156,19 @@ const SaleBill = () => {
       parseFloat(totalValues.adjustment || 0) +
       parseFloat(totalValues.taxAmt || 0);
 
-      // console.log("netAmt: " + netAmt)
-    setTotalValues({
-      ...totalValues,
-      totalVolume: calculatedTotalVolume.toFixed(0),
-      totalPcs: calculatedTotalPcs,
-      grossAmt: calculatedGrossAmt.toFixed(0),
-      discountAmt: totalDiscount.toFixed(0),
-      splDiscAmount: (splDiscAmount + totalDiscount).toFixed(0),
-      netAmt: netAmt.toFixed(2),
-    });
+      // console.log("netAmt---> " + netAmt)
+      setTotalValues({
+        ...totalValues,
+        totalVolume: calculatedTotalVolume.toFixed(0),
+        totalPcs: calculatedTotalPcs,
+        grossAmt: calculatedGrossAmt.toFixed(0),
+        discountAmt: totalDiscount.toFixed(0),
+        splDiscAmount: (splDiscAmount + totalDiscount).toFixed(0),
+        netAmt: netAmt.toFixed(2),
+        receiptMode1: totalValues.receiptMode1 ? netAmt.toFixed(2) : 0,
+        receiptAmt: totalValues.receiptMode2 ? netAmt.toFixed(2) : 0,
+      });
+      // console.log("totalValues ---> " + totalValues);
 
     if (
       pcsAfterBrk <= updatedRow.currentStock &&
@@ -2026,7 +2029,6 @@ const SaleBill = () => {
     const netAmt = grossAmt - splDiscAmount - adjustment;
 
     const newNetAmount = netAmt - totalDiscount;
-    // console.log("newNetAmount: ",newNetAmount)
 
     setTotalValues({
       ...totalValues,
@@ -2035,17 +2037,14 @@ const SaleBill = () => {
       imlVolume: imlVolume.toFixed(2),
       totalPcs: totalPcs,
       grossAmt: grossAmt.toFixed(2),
-      receiptMode1: billNumber ?
-         totalValues.receiptMode1 :  newNetAmount.toFixed(2),
-      // receiptAmt: totalValues.receiptMode2 ? newNetAmount.toFixed(2) : totalValues.receiptAmt,
+      receiptMode1: billNumber
+        ? totalValues.receiptMode1
+        : newNetAmount.toFixed(2),
       splDiscAmount: (splDiscAmount + totalDiscount).toFixed(0),
       discountAmt: totalDiscount.toFixed(0),
       netAmt: newNetAmount.toFixed(2),
     });
   };
-
-  // console.log("billNumber:",billNumber);
-  // console.log("totalValues.receiptMode1: ",totalValues.receiptMode1);
 
   useEffect(() => {
     calculateNetAmount();
