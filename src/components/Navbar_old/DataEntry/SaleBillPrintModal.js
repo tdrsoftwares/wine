@@ -42,7 +42,7 @@ const SaleBillPrintModal = forwardRef(
       items: dataToPrint || [],
       totalQty: totalPcs,
       grossAmt: parseFloat(grossAmt),
-      totalBL: parseFloat(totalVolume) * parseFloat(totalPcs),
+      totalBL: parseFloat(totalVolume),
       netAmount: parseFloat(netAmt),
       amountInWords: amountInWords(parseFloat(netAmt)),
     };
