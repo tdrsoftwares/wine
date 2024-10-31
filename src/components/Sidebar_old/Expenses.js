@@ -482,7 +482,7 @@ const Expenses = () => {
   return (
     <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, minWidth: "900px" }}>
-        <Typography variant="subtitle2" sx={{ marginBottom: 2 }}>
+        <Typography variant="subtitle2" gutterBottom>
           Add Expense:
         </Typography>
 
@@ -706,9 +706,6 @@ const Expenses = () => {
             disabled={!canRead && role !== "admin"}
             sx={{
               marginTop: 1,
-
-              padding: "4px 10px",
-              fontSize: "11px",
             }}
           >
             Export to Excel
@@ -726,9 +723,6 @@ const Expenses = () => {
               sx={{
                 marginTop: 1,
                 marginRight: 1,
-
-                padding: "4px 10px",
-                fontSize: "11px",
               }}
             >
               Clear
@@ -741,9 +735,6 @@ const Expenses = () => {
               sx={{
                 marginTop: 1,
                 marginRight: 1,
-
-                padding: "4px 10px",
-                fontSize: "11px",
               }}
               disabled={role !== "admin" && !canUpdate}
             >
@@ -757,9 +748,6 @@ const Expenses = () => {
               sx={{
                 marginTop: 1,
                 marginRight: 1,
-
-                padding: "4px 10px",
-                fontSize: "11px",
               }}
               disabled={role !== "admin" && !canUpdate}
             >
@@ -773,9 +761,6 @@ const Expenses = () => {
               sx={{
                 marginTop: 1,
                 marginRight: 1,
-
-                padding: "4px 10px",
-                fontSize: "11px",
               }}
               disabled={role !== "admin" && !canCreate}
             >
@@ -793,9 +778,6 @@ const Expenses = () => {
               sx={{
                 marginRight: 1,
                 marginTop: 1,
-
-                padding: "4px 10px",
-                fontSize: "11px",
               }}
             >
               Open
@@ -807,9 +789,6 @@ const Expenses = () => {
               onClick={handleSaveExpense}
               sx={{
                 marginTop: 1,
-
-                padding: "4px 10px",
-                fontSize: "11px",
               }}
               disabled={
                 (role !== "admin" && !canCreate) || !paymentRefNoEditable

@@ -1,239 +1,352 @@
 import {
   Box,
   Button,
-  Checkbox,
-  FormControlLabel,
+  CircularProgress,
   Grid,
   InputLabel,
   MenuItem,
-  Paper,
-  Radio,
-  RadioGroup,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   TextField,
+  ThemeProvider,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { customTheme } from "../../utils/customTheme";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { getAllItemCategory } from "../../services/categoryService";
+import dayjs from "dayjs";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 
 const CatBrandStock = () => {
   const [categoryName, setCategoryName] = useState("");
-  const [date, setDate] = useState("mm/dd/yyyy");
-  const [onlyValue, setOnlyValue] = useState(false);
-  const categoryOptions = [
-    "All",
-    "50 UP IML",
-    "60 UP IML",
-    "70 UP IML",
-    "Beer (India)",
-    "Brandy (IMFL)",
-    "Rum (IMFL)",
-    "Vodka (IMFL)",
-    "Vodka (OS)",
-    "Whisky (IMFL)",
-    "Whisky (OS)",
-    "Wine (IMFL)",
-    "Wine (OS)",
-  ];
+  const [allCategory, setAllCategory] = useState([]);
+  const [allStores, setAllStores] = useState([]);
+  const [dateFrom, setDateFrom] = useState(null);
+  const [dateTo, setDateTo] = useState(null);
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
+  const [allStockData, setAllStockData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 10,
+  });
 
-  const [tableData, setTableData] = useState([
-    {
-      category: "",
-      pack1: "",
-      pack2: "",
-      pack3: "",
-      pack4: "",
-      pack5: "",
-    },
-  ]);
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setTableData({ ...tableData, [name]: value });
+  const formatDate = (date) => {
+    if (!date) return null;
+    return dayjs(date).format("DD/MM/YYYY");
   };
 
+  const columns = [
+    {
+      field: "sNo",
+      headerName: "S. No.",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "item",
+      headerName: "Item Name",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "openingBalance",
+      headerName: "Opening Balance",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "totalRecipt",
+      headerName: "Total Recipt",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "totalSales",
+      headerName: "Total Sales",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "closingBalance",
+      headerName: "Closing Balance",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "purchasedValue",
+      headerName: "Purchased Value",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    }
+  ];
+
+  const fetchAllCategory = async () => {
+    try {
+      const getAllCategoryResponse = await getAllItemCategory();
+      if (getAllCategoryResponse.status === 200) {
+        setAllCategory(getAllCategoryResponse?.data?.data);
+      } else {
+        // NotificationManager.error("No category found.", "Error");
+        setAllCategory([]);
+      }
+    } catch (err) {
+      // NotificationManager.error(
+      //   "Something went Wrong, Please try again later.",
+      //   "Error"
+      // );
+      console.error(err);
+    }
+  };
+
+  const fetchAllStock = async () => {
+    const fromDate = dateFrom
+      ? formatDate(dateFrom)
+      : null;
+    const toDate = dateTo ? formatDate(dateTo) : null;
+
+    setLoading(true);
+    try {
+      const filterOptions = {
+        fromDate,
+        toDate,
+        categoryName,
+      };
+
+      if (categoryName === "all") {
+        filterOptions.AllCategory = true;
+      } else {
+        filterOptions.categoryName = categoryName;
+      }
+
+      // const response = await getCatWiseStockData(filterOptions) || [];
+      const response = [];
+      const stockData = response?.data?.data;
+      // console.log("Response StockData: ", stockData);
+
+      if (stockData) {
+        setAllStockData(stockData || []);
+        setTotalCount(stockData?.length || 0);
+      } else {
+        // console.log("Error", response);
+        // NotificationManager.error("No items found.", "Error");
+        setAllStockData([]);
+      }
+    } catch (error) {
+      // NotificationManager.error(
+      //   "Error fetching items. Please try again later.",
+      //   "Error"
+      // );
+      console.log("Error fetching items", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllCategory();
+  }, []);
+
+  const exportToExcel = () => {
+
+  }
+
   return (
-    <form>
+    <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, minWidth: "900px" }}>
-        <Typography variant="h5" component="div" gutterBottom>
-          Category Wise Stock
-        </Typography>
         <Typography variant="subtitle2" gutterBottom>
-          Category/Brand Stock
+          Category Wise Stock:
         </Typography>
-
-        <Grid container spacing={3}>
+        <Typography sx={{ fontSize: "13px" }}>Filter by:</Typography>
+        <Grid container spacing={2}>
           <Grid item xs={3}>
-            <TextField
-              select
-              fullWidth
-              label="Name of Category"
-              name="categoryName"
-              value={categoryName}
-              onChange={(e) => setCategoryName(e.target.value)}
-            >
-              {categoryOptions.map((item, id) => (
-                <MenuItem key={id} value={item}>
-                  {item}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-
-          <Grid item xs={3}>
-            <TextField
-              fullWidth
-              type="date"
-              label="On Date"
-              name="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-            />
-          </Grid>
-
-          <Grid item xs={3}></Grid>
-
-          <Grid item xs={3}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={onlyValue}
-                  inputProps={{ "aria-label": "controlled" }}
-                  onChange={(e) => setOnlyValue(e.target.checked)}
+            <div className="input-wrapper">
+              <InputLabel htmlFor="dateFrom" className="input-label">
+                Date from:
+              </InputLabel>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  id="dateFrom"
+                  format="DD/MM/YYYY"
+                  value={dateFrom}
+                  onChange={(newDate) => setDateFrom(newDate)}
+                  renderInput={(params) => <TextField {...params} />}
+                  sx={{ width: "100%" }}
                 />
-              }
-              label="Only Value"
-            />
+              </LocalizationProvider>
+            </div>
+          </Grid>
+
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="dateTo" className="input-label">
+                Date to:
+              </InputLabel>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  id="dateTo"
+                  format="DD/MM/YYYY"
+                  value={dateTo}
+                  onChange={(newDate) => setDateTo(newDate)}
+                  renderInput={(params) => <TextField {...params} />}
+                  sx={{ width: "100%" }}
+                />
+              </LocalizationProvider>
+            </div>
+          </Grid>
+
+          <Grid item xs={3}>
+            <div className="input-wrapper">
+              <InputLabel htmlFor="categoryName" className="input-label">
+                Category:
+              </InputLabel>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                name="categoryName"
+                className="input-field"
+                value={categoryName}
+                onChange={(e) => setCategoryName(e.target.value)}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
+                      },
+                    },
+                  },
+                }}
+              >
+                <MenuItem value="all">All Categories</MenuItem>
+                {allCategory?.map((category) => (
+                  <MenuItem key={category._id} value={category.categoryName}>
+                    {category.categoryName}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
           </Grid>
         </Grid>
-
-        <TableContainer
-          component={Paper}
-          sx={{ marginTop: 4, maxHeight: 300, overflowY: "auto" }}
-        >
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>S. No.</TableCell>
-                <TableCell>Category</TableCell>
-                <TableCell>Pack 1</TableCell>
-                <TableCell>Pack 2</TableCell>
-                <TableCell>Pack 3</TableCell>
-                <TableCell>Pack 4</TableCell>
-                <TableCell>Pack 5</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {tableData.map((row, index) => (
-                <TableRow key={index}>
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={index + 1}
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.category || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.pack1}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.pack2}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.pack3 || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.pack4 || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ padding: "8px" }}>
-                    <TextField
-                      size="small"
-                      value={row.pack5 || ""}
-                      fullWidth
-                      InputProps={{ readOnly: true }}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
 
         <Box
           sx={{
             display: "flex",
-            justifyContent: "flex-end",
-            marginTop: 2,
+            justifyContent: "space-between",
+            gap: 1,
+            "& button": { marginTop: 1 },
           }}
         >
           <Button
-            color="primary"
-            size="large"
-            variant="outlined"
-            onClick={() => {}}
-            sx={{ marginTop: 2, marginRight: 2 }}
+            color="success"
+            size="small"
+            variant="contained"
+            onClick={exportToExcel}
+            // disabled={!canRead && role !== "admin"}
+          >
+            Export to Excel
+          </Button>
+          <div>
+          <Button
+            color="inherit"
+            size="small"
+            variant="contained"
+            onClick={() => {
+              setDateFrom(null);
+              setDateTo(null);
+              setCategoryName("");
+              setPaginationModel({ page: 0, pageSize: 10 });
+              setAllStockData([]);
+            }}
+            sx={{
+                marginRight: 1,
+
+            }}
+          >
+            Clear Filters
+          </Button>
+
+          {/* <Button
+            color="warning"
+            size="small"
+            variant="contained"
+            // onClick={handlePrint}
+            // disabled={!canRead && role !== "admin"}
+            sx={{
+                marginRight: 1,
+
+            }}
+          >
+            Print
+          </Button> */}
+          <Button
+            color="info"
+            size="small"
+            variant="contained"
+            onClick={fetchAllStock}
+            // disabled={!canRead && role !== "admin"}
+            
           >
             Display
           </Button>
-          <Button
-            color="secondary"
-            size="large"
-            variant="outlined"
-            onClick={() => {}}
-            sx={{ marginTop: 2, marginRight: 2 }}
-          >
-            Print
-          </Button>
-          <Button
-            color="error"
-            size="large"
-            variant="outlined"
-            onClick={() => {}}
-            sx={{ marginTop: 2 }}
-          >
-            Clear
-          </Button>
+          </div>
+        </Box>
+
+        <Box
+          sx={{
+            height: 450,
+            width: "100%",
+            marginTop: 1,
+            "& .custom-header": { backgroundColor: "#dae4ed", paddingLeft: 4 },
+            "& .custom-cell": { paddingLeft: 4 },
+          }}
+        >
+          <DataGrid
+            rows={(allStockData || [])?.map((item, index) => ({
+              id: index,
+              sNo: index + 1,
+              itemName: item.itemName || "No Data",
+              totalPcs: item.totalPcs || "No Data",
+              rate: item.rate?.toFixed(2) || "No Data",
+              totalVolumeLiters:
+                item.totalVolumeLiters?.toFixed(3) || "No Data",
+              totalAmount: item.totalAmount?.toFixed(2) || "No Data",
+            }))}
+            columns={columns}
+            rowCount={totalCount}
+            pagination
+            paginationModel={paginationModel}
+            pageSizeOptions={[10, 25, 50, 100]}
+            onPaginationModelChange={(newPaginationModel) =>
+              setPaginationModel(newPaginationModel)
+            }
+            sx={{ backgroundColor: "#fff" }}
+            disableRowSelectionOnClick
+            loading={loading}
+            loadingOverlay={
+              <Box>
+                <CircularProgress />
+              </Box>
+            }
+            slots={{
+              // footer: CustomFooter,
+              toolbar: GridToolbar,
+            }}
+            initialState={{
+              density: "compact",
+            }}
+          />
         </Box>
       </Box>
-    </form>
+    </ThemeProvider>
   );
 };
 
