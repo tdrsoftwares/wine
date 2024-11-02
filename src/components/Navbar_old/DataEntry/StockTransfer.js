@@ -766,6 +766,20 @@ const StockTransfer = () => {
       setTransferNo(parseInt(transferNo) + 1);
   };
 
+  const handleClickOutside = (event) => {
+    if (tableRef.current && !tableRef.current.contains(event.target)) {
+      setEditableIndex(null);
+      setEditedRow({});
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, minWidth: "900px" }}>
@@ -1187,17 +1201,39 @@ const StockTransfer = () => {
               <Table size="small">
                 <TableHead className="table-head">
                   <TableRow>
-                    <TableCell>S. No.</TableCell>
-                    <TableCell>Item Code</TableCell>
-                    <TableCell>Item Name</TableCell>
-                    <TableCell>MRP</TableCell>
-                    <TableCell>Batch</TableCell>
-                    <TableCell>Case</TableCell>
-                    <TableCell>Pcs</TableCell>
-                    <TableCell>Brand</TableCell>
-                    <TableCell>Category</TableCell>
-                    <TableCell>Volume</TableCell>
-                    <TableCell>Action</TableCell>
+                    <TableCell align="center" sx={{ minWidth: "80px" }}>
+                      S. No.
+                    </TableCell>
+                    <TableCell align="center" sx={{ minWidth: "100px" }}>
+                      Item Code
+                    </TableCell>
+                    <TableCell align="center" sx={{ minWidth: "120px" }}>
+                      Item Name
+                    </TableCell>
+                    <TableCell align="center" sx={{ minWidth: "60px" }}>
+                      MRP
+                    </TableCell>
+                    <TableCell align="center" sx={{ minWidth: "60px" }}>
+                      Batch
+                    </TableCell>
+                    <TableCell align="center" sx={{ minWidth: "50px" }}>
+                      Case
+                    </TableCell>
+                    <TableCell align="center" sx={{ minWidth: "60px" }}>
+                      Pcs
+                    </TableCell>
+                    <TableCell align="center" sx={{ minWidth: "60px" }}>
+                      Brand
+                    </TableCell>
+                    <TableCell align="center" sx={{ minWidth: "60px" }}>
+                      Category
+                    </TableCell>
+                    <TableCell align="center" sx={{ minWidth: "60px" }}>
+                      Volume
+                    </TableCell>
+                    <TableCell align="center" sx={{ minWidth: "80px" }}>
+                      Action
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody className="purchase-data-table">
@@ -1208,9 +1244,9 @@ const StockTransfer = () => {
                         backgroundColor: "#fff",
                       }}
                     >
-                      <TableCell>{index + 1}</TableCell>
-                      <TableCell>{row.itemCode}</TableCell>
-                      <TableCell>
+                      <TableCell align="center">{index + 1}</TableCell>
+                      <TableCell align="center">{row.itemCode}</TableCell>
+                      <TableCell align="center">
                         {/* {editableIndex === index ? (
                           <Input
                             type="text"
@@ -1223,13 +1259,15 @@ const StockTransfer = () => {
                         {row.itemName}
                         {/* )} */}
                       </TableCell>
-                      <TableCell>{row.mrp}</TableCell>
+                      <TableCell align="center">{row.mrp}</TableCell>
 
-                      <TableCell>{row.batch}</TableCell>
+                      <TableCell align="center">{row.batch}</TableCell>
 
-                      <TableCell>
+                      <TableCell align="center">
                         {editableIndex === index ? (
-                          <Input
+                          <TextField
+                            fullWidth
+                            sx={{ padding: "6px 5px !important" }}
                             value={editedRow.case || row.case}
                             onChange={(e) =>
                               handleEdit(index, "case", e.target.value)
@@ -1240,9 +1278,11 @@ const StockTransfer = () => {
                         )}
                       </TableCell>
 
-                      <TableCell>
+                      <TableCell align="center">
                         {editableIndex === index ? (
-                          <Input
+                          <TextField
+                            fullWidth
+                            sx={{ padding: "6px 5px !important" }}
                             value={editedRow.pcs || row.pcs}
                             onChange={(e) =>
                               handleEdit(index, "pcs", e.target.value)
@@ -1253,13 +1293,13 @@ const StockTransfer = () => {
                         )}
                       </TableCell>
 
-                      <TableCell>{row.brand}</TableCell>
+                      <TableCell align="center">{row.brand}</TableCell>
 
-                      <TableCell>{row.category}</TableCell>
+                      <TableCell align="center">{row.category}</TableCell>
 
-                      <TableCell>{row.volume}</TableCell>
+                      <TableCell align="center">{row.volume}</TableCell>
 
-                      <TableCell>
+                      <TableCell align="center">
                         {editableIndex !== index ? (
                           <EditIcon
                             sx={{ cursor: "pointer", color: "blue" }}
