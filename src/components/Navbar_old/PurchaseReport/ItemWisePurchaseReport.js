@@ -54,6 +54,7 @@ const ItemWisePurchaseReport = () => {
   const [allSuppliers, setAllSuppliers] = useState([]);
   const [allCategory, setAllCategory] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
+  const [totals, setTotals] = useState({});
   const [itemName, setItemName] = useState("");
   const [brandName, setBrandName] = useState("");
   const [itemNameOptions, setItemNameOptions] = useState([]);
@@ -62,7 +63,7 @@ const ItemWisePurchaseReport = () => {
   const [loading, setLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
-    pageSize: 10,
+    pageSize: 100,
   });
   const { permissions, role } = usePermissions();
 
@@ -261,6 +262,7 @@ const ItemWisePurchaseReport = () => {
       if (response.status === 200) {
         setAllPurchases(response?.data?.data?.items || []);
         setTotalCount(response?.data?.data?.totalItems || 0);
+        setTotals(response?.data?.data?.totalOf)
       } else {
         console.log("Error", response);
         // NotificationManager.error("No items found.", "Error");
@@ -425,6 +427,60 @@ const ItemWisePurchaseReport = () => {
       setLoading(false);
     }
   };
+
+  const rows = [
+    ...(allPurchases || []).map((item, index) => ({
+      id: index,
+      sNo: index + paginationModel.page * paginationModel.pageSize + 1,
+      billDate: item.billDate || "No Data",
+      entryNo: item.entryNo || "No Data",
+      billNo: item.billNo || "No Data",
+      itemCode: item.purchaseItems?.itemCode || "No Data",
+      itemName: item.purchaseItems?.item?.name || "No Data",
+      brandName: item.purchaseItems?.item?.brand?.name || "No Data",
+      categoryName:
+        item.purchaseItems?.item?.category?.categoryName || "No Data",
+      batchNo: item.purchaseItems?.batchNo || "No Data",
+      brokenNo: item.purchaseItems?.brokenNo || 0,
+      caseNo: item.purchaseItems?.caseNo || 0,
+      pcs: item.purchaseItems?.pcs || 0,
+      volume: item.purchaseItems?.item?.volume || 0,
+      mrp: item.purchaseItems?.mrp || 0,
+      gro: item.purchaseItems?.gro?.toFixed(2) || 0,
+      sp: item.purchaseItems?.sp?.toFixed(2) || 0,
+      bl: item.bl?.toFixed(2) || 0,
+      supplierName: item.supplier?.name || "No Data",
+      storeName: item.store?.name || "No Data",
+      purchaseRate: item.purchaseItems?.purchaseRate || 0,
+      saleRate: item.purchaseItems?.saleRate || 0,
+      itemAmount: item.purchaseItems?.itemAmount || 0,
+    })),
+    {
+      id: "totals-row",
+      sNo: "Totals",
+      billDate: "",
+      entryNo: "",
+      billNo: "",
+      itemCode: "",
+      itemName: "",
+      brandName: "",
+      categoryName: "",
+      batchNo: "",
+      brokenNo: totals?.totalBroken || 0,
+      caseNo: totals?.totalCaseNo || 0,
+      pcs: totals?.totalPcs || 0,
+      volume: totals?.totalVolume || 0,
+      mrp: totals?.totalMRP || 0,
+      gro: totals?.totalGRO?.toFixed(2) || 0,
+      sp: totals?.totalSP?.toFixed(2) || 0,
+      bl: totals?.totalBl?.toFixed(2) || 0,
+      supplierName: "",
+      storeName: "",
+      purchaseRate: totals?.totalPurchasesRate || 0,
+      saleRate: totals?.totalSaleRate || 0,
+      itemAmount: totals?.totalAmount || 0,
+    },
+  ];
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -702,7 +758,7 @@ const ItemWisePurchaseReport = () => {
                 setBrandName("");
                 setItemNameOptions([]);
                 setBrandNameOptions([]);
-                setPaginationModel({ page: 0, pageSize: 10 });
+                setPaginationModel({ page: 0, pageSize: 100 });
               }}
             >
               Clear Filters
@@ -732,34 +788,7 @@ const ItemWisePurchaseReport = () => {
         >
           {canRead || role === "admin" ? (
             <DataGrid
-              rows={(allPurchases || [])?.map((item, index) => ({
-                id: index,
-                sNo:
-                  index + paginationModel.page * paginationModel.pageSize + 1,
-                // createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
-                billDate: item.billDate || "No Data",
-                entryNo: item.entryNo || "No Data",
-                billNo: item.billNo || "No Data",
-                itemCode: item.purchaseItems?.itemCode || "No Data",
-                itemName: item.purchaseItems?.item?.name || "No Data",
-                brandName: item.purchaseItems?.item?.brand?.name || "No Data",
-                categoryName:
-                  item.purchaseItems?.item?.category?.categoryName || "No Data",
-                batchNo: item.purchaseItems?.batchNo || "No Data",
-                brokenNo: item.purchaseItems?.brokenNo || 0,
-                caseNo: item.purchaseItems?.caseNo || 0,
-                pcs: item.purchaseItems?.pcs || 0,
-                volume: item.purchaseItems?.item?.volume || 0,
-                mrp: item.purchaseItems?.mrp || 0,
-                gro: item.purchaseItems?.gro?.toFixed(2) || 0,
-                sp: item.purchaseItems?.sp?.toFixed(2) || 0,
-                bl: item.bl?.toFixed(2) || 0,
-                supplierName: item.supplier?.name || "No Data",
-                storeName: item.store?.name || "No Data",
-                purchaseRate: item.purchaseItems?.purchaseRate || 0,
-                saleRate: item.purchaseItems?.saleRate || 0,
-                itemAmount: item.purchaseItems?.itemAmount || 0,
-              }))}
+              rows={rows}
               columns={columns}
               rowCount={totalCount}
               pagination

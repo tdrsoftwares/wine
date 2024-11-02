@@ -59,9 +59,10 @@ const ItemWiseSaleReport = () => {
   const [loading, setLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
-    pageSize: 10,
+    pageSize: 100,
   });
   const [totalCount, setTotalCount] = useState(0);
+  const [totals, setTotals] = useState({});
   const { permissions, role } = usePermissions();
 
   const reportsPermissions =
@@ -233,6 +234,7 @@ const ItemWiseSaleReport = () => {
 
       if (response.status === 200) {
         setAllSalesData(response?.data?.data?.items || []);
+        setTotals(response?.data?.data?.totalOf);
         setTotalCount(response?.data?.data?.totalItems || 0);
       } else {
         console.log("Error", response);
@@ -402,6 +404,53 @@ const ItemWiseSaleReport = () => {
       setLoading(false);
     }
   };
+
+  const rows = [
+    ...(allSalesData || []).map((item, index) => ({
+      id: index,
+      sNo: index + paginationModel.page * paginationModel.pageSize + 1,
+      billDate: item.billDate || 'No Data',
+      billNo: item.billNo || 'No Data',
+      billType: item.billType || 'No Data',
+      itemCode: item.salesItems?.itemDetails?.itemCode || item.salesItems?.itemCode || 'No Data',
+      itemName: item.salesItems?.item?.name || 'No Data',
+      brandName: item.salesItems?.item?.brand?.name || 'No Data',
+      categoryName: item.salesItems?.item?.category?.categoryName || 'No Data',
+      customerName: item.customer?.name || 'No Data',
+      batchNo: item.salesItems?.itemDetails?.batchNo || item.salesItems?.batchNo || 'No Data',
+      brokenNo: item.brokenNo || item?.salesItems?.break || 0,
+      pcs: item.salesItems?.pcs || 0,
+      pack: item.salesItems?.item?.volume || 0,
+      series: item.billSeries || 'No Data',
+      group: item.salesItems?.item?.group || 'No Data',
+      mrp: item.salesItems?.itemDetails?.mrp?.toFixed(2) || item.salesItems?.mrp?.toFixed(2) || 0,
+      rate: item.salesItems?.itemDetails?.saleRate?.toFixed(2) || item.salesItems?.rate?.toFixed(2) || 0,
+      itemAmount: item.salesItems?.amount?.toFixed(2) || 0,
+    })),
+    
+    {
+      id: 'totals-row',
+      sNo: 'Totals',
+      billDate: '',
+      billNo: '',
+      billType: '',
+      itemCode: '',
+      itemName: '',
+      brandName: '',
+      categoryName: '',
+      customerName: '',
+      batchNo: '',
+      brokenNo: totals?.totalBrak || 0,
+      pcs: totals?.totalPcs || 0,
+      pack: 0, 
+      series: '',
+      group: '',
+      mrp: totals?.totalMrp?.toFixed(2) || 0,
+      rate: totals?.totalRate?.toFixed(2) || 0,
+      itemAmount: totals?.totalAmount?.toFixed(2) || 0,
+      isTotalsRow: true, 
+    }
+  ];
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -762,7 +811,7 @@ const ItemWiseSaleReport = () => {
                 setBrandName("");
                 setItemNameOptions([]);
                 setBrandNameOptions([]);
-                setPaginationModel({ page: 0, pageSize: 10 });
+                setPaginationModel({ page: 0, pageSize: 100 });
                 // fetchAllSales();
               }}
             >
@@ -792,47 +841,7 @@ const ItemWiseSaleReport = () => {
         >
           {canRead || role === "admin" ? (
             <DataGrid
-              rows={(allSalesData || [])?.map((item, index) => ({
-                id: index,
-                sNo:
-                  index + paginationModel.page * paginationModel.pageSize + 1,
-                // createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
-                billDate: item.billDate || "No Data",
-                billNo: item.billNo || "No Data",
-                billType: item.billType || "No Data",
-                itemCode:
-                  item.salesItems?.itemDetails?.itemCode ||
-                  item.salesItems?.itemCode ||
-                  "No Data",
-                itemName: item.salesItems?.item?.name || "No Data",
-                brandName: item.salesItems?.item?.brand?.name || "No Data",
-                categoryName:
-                  item.salesItems?.item?.category?.categoryName || "No Data",
-                customerName: item.customer?.name || "No Data",
-                batchNo:
-                  item.salesItems?.itemDetails?.batchNo ||
-                  item.salesItems?.batchNo ||
-                  "No Data",
-                brokenNo: item.brokenNo || item?.salesItems?.break || 0,
-                // caseNo: item.caseNo || 0,
-                pcs: item.salesItems?.pcs || 0,
-                pack: item.salesItems?.item?.volume || 0,
-                series: item.billSeries || "No Data",
-                group: item.salesItems?.item?.group || "No Data",
-                // updatedAt: new Date(item.updatedAt).toLocaleDateString("en-GB"),
-                mrp:
-                  item.salesItems?.itemDetails?.mrp?.toFixed(2) ||
-                  item.salesItems?.mrp?.toFixed(2) ||
-                  0,
-                // bl: item.salesItems?.itemDetails?.bl || item.salesItems?.bl || 0,
-                rate:
-                  item.salesItems?.itemDetails?.saleRate?.toFixed(2) ||
-                  item.salesItems?.rate?.toFixed(2) ||
-                  0,
-                // broken: item.salesItems?.break || 0,
-                // split: item.salesItems?.split || 0,
-                itemAmount: item.salesItems?.amount?.toFixed(2) || 0,
-              }))}
+              rows={rows}
               columns={columns}
               rowCount={totalCount}
               pagination
