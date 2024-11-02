@@ -1,7 +1,7 @@
 // saleBill data table:
 import React from "react";
 import {
-  Input,
+  TextField,
   Paper,
   Table,
   TableBody,
@@ -56,18 +56,18 @@ const SalebillDataTable = (props) => {
         <Table size="small">
           <TableHead className="table-head">
             <TableRow>
-              <TableCell>S. No.</TableCell>
-              <TableCell>Item Code</TableCell>
-              <TableCell>Item Name</TableCell>
-              <TableCell>MRP</TableCell>
+              <TableCell align="center" sx={{ minWidth: "50px" }}>S. No.</TableCell>
+              <TableCell align="center" sx={{ minWidth: "100px" }}>Item Code</TableCell>
+              <TableCell align="center" sx={{ minWidth: "150px" }}>Item Name</TableCell>
+              <TableCell align="center" sx={{ minWidth: "80px" }}>MRP</TableCell>
               <TableCell>Batch</TableCell>
-              <TableCell>Pcs</TableCell>
-              <TableCell>Rate</TableCell>
-              <TableCell>Discount</TableCell>
-              <TableCell>Amt (₹)</TableCell>
-              <TableCell>Brk</TableCell>
-              <TableCell>Split</TableCell>
-              <TableCell>Action</TableCell>
+              <TableCell align="center" sx={{ minWidth: "80px" }}>Pcs</TableCell>
+              <TableCell align="center" sx={{ minWidth: "80px" }}>Rate</TableCell>
+              <TableCell align="center" sx={{ minWidth: "80px" }}>Discount</TableCell>
+              <TableCell align="center" sx={{ minWidth: "100px" }}>Amt (₹)</TableCell>
+              <TableCell align="center" sx={{ minWidth: "80px" }}>Brk</TableCell>
+              <TableCell align="center" sx={{ minWidth: "80px" }}>Split</TableCell>
+              <TableCell align="center" sx={{ minWidth: "90px" }}>Action</TableCell>
             </TableRow>
           </TableHead>
           <TableBody className="purchase-data-table">
@@ -78,13 +78,14 @@ const SalebillDataTable = (props) => {
                   backgroundColor: "#fff",
                 }}
               >
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>
+                <TableCell align="center" sx={{padding: "6px 5px !important"}}>{index + 1}</TableCell>
+                <TableCell align="center" sx={{padding: "6px 5px !important"}}>
                   {editableIndex === index ? (
-                    <Input
+                    <TextField
+                    fullWidth
                       type="text"
                       value={editedRow.itemCode || row.itemCode}
-                      readOnly
+                      InputProps={{ readOnly: true }}
                       onChange={(e) =>
                         handleEdit(index, "itemCode", e.target.value)
                       }
@@ -93,7 +94,7 @@ const SalebillDataTable = (props) => {
                     row.itemCode
                   )}
                 </TableCell>
-                <TableCell
+                <TableCell align="center" sx={{padding: "6px 5px !important"}}
                   style={{
                     maxWidth: "150px",
                     whiteSpace: "nowrap",
@@ -103,10 +104,11 @@ const SalebillDataTable = (props) => {
                   title={row.itemName}
                 >
                   {editableIndex === index ? (
-                    <Input
+                    <TextField
+                    fullWidth
                       type="text"
                       value={editedRow.itemName || row.itemName}
-                      readOnly
+                      InputProps={{ readOnly: true }}
                       onChange={(e) =>
                         handleEdit(index, "itemName", e.target.value)
                       }
@@ -122,9 +124,10 @@ const SalebillDataTable = (props) => {
                   )}
                 </TableCell>
 
-                <TableCell>
+                <TableCell align="center" sx={{padding: "6px 5px !important"}}>
                   {editableIndex === index ? (
-                    <Input
+                    <TextField
+                    fullWidth
                       value={editedRow.mrp || row.mrp}
                       onChange={(e) => handleEdit(index, "mrp", e.target.value)}
                     />
@@ -133,9 +136,10 @@ const SalebillDataTable = (props) => {
                   )}
                 </TableCell>
 
-                <TableCell>
+                <TableCell align="center" sx={{padding: "6px 5px !important"}}>
                   {editableIndex === index ? (
-                    <Input
+                    <TextField
+                    fullWidth
                       type="text"
                       value={editedRow.batch || row.batch}
                       onChange={(e) =>
@@ -147,9 +151,10 @@ const SalebillDataTable = (props) => {
                   )}
                 </TableCell>
 
-                <TableCell>
+                <TableCell align="center" sx={{padding: "6px 5px !important"}}>
                   {editableIndex === index ? (
-                    <Input
+                    <TextField
+                    fullWidth
                       value={editedRow.pcs || row.pcs}
                       onChange={(e) => handleEdit(index, "pcs", e.target.value)}
                       inputRef={pcsEditRef}
@@ -159,9 +164,10 @@ const SalebillDataTable = (props) => {
                   )}
                 </TableCell>
 
-                <TableCell>
+                <TableCell align="center" sx={{padding: "6px 5px !important"}}>
                   {editableIndex === index ? (
-                    <Input
+                    <TextField
+                    fullWidth
                       value={editedRow.rate || row.rate}
                       onChange={(e) =>
                         handleEdit(index, "rate", e.target.value)
@@ -172,9 +178,10 @@ const SalebillDataTable = (props) => {
                   )}
                 </TableCell>
 
-                <TableCell>
+                <TableCell align="center" sx={{padding: "6px 5px !important"}}>
                   {editableIndex === index ? (
-                    <Input
+                    <TextField
+                    fullWidth
                       value={editedRow.discount || row.discount}
                       onChange={(e) =>
                         handleEdit(index, "discount", e.target.value)
@@ -185,9 +192,10 @@ const SalebillDataTable = (props) => {
                   )}
                 </TableCell>
 
-                <TableCell>
+                <TableCell align="center" sx={{padding: "6px 5px !important"}}>
                   {editableIndex === index ? (
-                    <Input
+                    <TextField
+                    fullWidth
                       value={editedRow.amount || row.amount}
                       onChange={(e) =>
                         handleEdit(index, "amount", e.target.value)
@@ -198,9 +206,10 @@ const SalebillDataTable = (props) => {
                   )}
                 </TableCell>
 
-                <TableCell>
+                <TableCell align="center" sx={{padding: "6px 5px !important"}}>
                   {editableIndex === index ? (
-                    <Input
+                    <TextField
+                    fullWidth
                       value={editedRow.brk || row.brk}
                       onChange={(e) => handleEdit(index, "brk", e.target.value)}
                     />
@@ -209,9 +218,10 @@ const SalebillDataTable = (props) => {
                   )}
                 </TableCell>
 
-                <TableCell>
+                <TableCell align="center" sx={{padding: "6px 5px !important"}}>
                   {editableIndex === index ? (
-                    <Input
+                    <TextField
+                    fullWidth
                       value={editedRow.split || row.split}
                       onChange={(e) =>
                         handleEdit(index, "split", e.target.value)
@@ -222,7 +232,7 @@ const SalebillDataTable = (props) => {
                   )}
                 </TableCell>
 
-                <TableCell>
+                <TableCell align="center" sx={{padding: "6px 5px !important"}}>
                   {editableIndex !== index ? (
                     <EditIcon
                       sx={{ cursor: "pointer", color: "blue" }}
