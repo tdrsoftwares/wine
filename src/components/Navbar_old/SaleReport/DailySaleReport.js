@@ -57,7 +57,7 @@ const DailySaleReport = () => {
   const [loading, setLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
-    pageSize: 10,
+    pageSize: 100,
   });
   const [totalCount, setTotalCount] = useState(0);
   const [totalVolume, setTotalVolume] = useState(0);
@@ -649,7 +649,7 @@ const DailySaleReport = () => {
                 setBrandName("");
                 setItemNameOptions([]);
                 setBrandNameOptions([]);
-                setPaginationModel({ page: 0, pageSize: 10 });
+                setPaginationModel({ page: 0, pageSize: 100 });
               }}
             >
               Clear Filters

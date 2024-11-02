@@ -35,7 +35,7 @@ const PurchaseReportSummary = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
-    pageSize: 10,
+    pageSize: 100,
   });
 
   const [totalCount, setTotalCount] = useState(0);
@@ -479,7 +479,7 @@ const PurchaseReportSummary = () => {
               setDateTo(null);
               setSelectedSupplier("");
               setStockIn("");
-              setPaginationModel({ page: 0, pageSize: 10 });
+              setPaginationModel({ page: 0, pageSize: 100 });
               setAllPurchases([]);
             }}
           >

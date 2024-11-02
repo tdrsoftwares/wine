@@ -39,7 +39,7 @@ const SaleReportSummary = () => {
   const [selectedRowData, setSelectedRowData] = useState(null);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
-    pageSize: 10,
+    pageSize: 100,
   });
   const [totalCount, setTotalCount] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -442,7 +442,7 @@ const SaleReportSummary = () => {
                     phone: "",
                     isChecked: false,
                   });
-                  setPaginationModel({ page: 0, pageSize: 10 });
+                  setPaginationModel({ page: 0, pageSize: 100 });
                 }}
               >
                 Clear Filters
