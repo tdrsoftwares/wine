@@ -31,9 +31,6 @@ import {
   searchAllPurchasesByItemName,
   updatePurchaseDetailsByEntryNo,
 } from "../../../services/purchaseService";
-import CloseIcon from "@mui/icons-material/Close";
-import EditIcon from "@mui/icons-material/Edit";
-import SaveIcon from "@mui/icons-material/Save";
 import debounce from "lodash.debounce";
 import ItemRegisterModal from "./ItemRegisterModal";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -47,6 +44,8 @@ import PurchaseBillPrintModal from "./PurchaseBillPrintModal";
 import { useLicenseContext } from "../../../utils/licenseContext";
 import * as XLSX from "xlsx";
 import { usePermissions } from "../../../utils/PermissionsContext";
+import PurchaseEntrySearchTable from "./PurchaseEntrySearchTable";
+import PurchaseEntryDataTable from "./PurchaseEntryDataTable";
 
 const PurchaseEntry = () => {
   const [allSuppliers, setAllSuppliers] = useState([]);
@@ -2036,375 +2035,27 @@ const PurchaseEntry = () => {
           </Grid>
 
           {searchMode ? (
-            <TableContainer
-              component={Paper}
-              ref={tableRef}
-              sx={{
-                marginTop: 0.8,
-                height: 300,
-                width: 850,
-                overflowY: "unset",
-                overflowX: "auto",
-                "&::-webkit-scrollbar": {
-                  width: 10,
-                  height: 10,
-                },
-                "&::-webkit-scrollbar-track": {
-                  backgroundColor: "#fff",
-                },
-                "&::-webkit-scrollbar-thumb": {
-                  backgroundColor: "#d5d8df",
-                  borderRadius: 2,
-                },
-              }}
-            >
-              <Table size="small">
-                <TableHead className="table-head">
-                  <TableRow>
-                    <TableCell align="center">S. No.</TableCell>
-                    <TableCell align="center">Item Code</TableCell>
-                    <TableCell align="center">Item Name</TableCell>
-                    <TableCell align="center">MRP</TableCell>
-                    <TableCell align="center">Batch</TableCell>
-                    <TableCell align="center">Case Value</TableCell>
-                    <TableCell align="center">Pur Rate</TableCell>
-                    <TableCell align="center">Btl Rate</TableCell>
-                    <TableCell align="center">GRO</TableCell>
-                    <TableCell align="center">SP</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {canRead || role === "admin" ? (
-                    Array.isArray(searchResults) && searchResults.length > 0 ? (
-                      searchResults.map((row, index) => (
-                        <TableRow
-                          key={index}
-                          onClick={() => {
-                            handleRowClick(index);
-                            setSearchMode(false);
-                          }}
-                          sx={{
-                            cursor: "pointer",
-                            backgroundColor:
-                              index === selectedRowIndex
-                                ? "rgba(25, 118, 210, 0.2) !important"
-                                : "#fff !important",
-                          }}
-                        >
-                          <TableCell
-                            align="center"
-                            sx={{ padding: "14px", paddingLeft: 2 }}
-                          >
-                            {index + 1}
-                          </TableCell>
-                          <TableCell align="center" sx={{ padding: "14px" }}>
-                            {row?.itemCode || "No Data"}
-                          </TableCell>
-                          <TableCell align="center" sx={{ padding: "14px" }}>
-                            {row?.item?.name || "No Data"}
-                          </TableCell>
-                          <TableCell align="center" sx={{ padding: "14px" }}>
-                            {row?.mrp || 0}
-                          </TableCell>
-                          <TableCell align="center" sx={{ padding: "14px" }}>
-                            {row?.batchNo || 0}
-                          </TableCell>
-                          <TableCell align="center" sx={{ padding: "14px" }}>
-                            {row?.item?.caseValue || 0}
-                          </TableCell>
-                          <TableCell align="center" sx={{ padding: "14px" }}>
-                            {row?.purchaseRate || 0}
-                          </TableCell>
-                          <TableCell align="center" sx={{ padding: "14px" }}>
-                            {row?.saleRate || 0}
-                          </TableCell>
-                          <TableCell align="center" sx={{ padding: "14px" }}>
-                            {row?.gro || 0}
-                          </TableCell>
-                          <TableCell align="center" sx={{ padding: "14px" }}>
-                            {row?.sp || 0}
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : isLoading ? (
-                      <TableRow>
-                        <TableCell
-                          colSpan={10}
-                          align="center"
-                          sx={{
-                            backgroundColor: "#fff !important",
-                          }}
-                        >
-                          <CircularProgress />
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      <TableRow>
-                        <TableCell
-                          colSpan={10}
-                          align="center"
-                          sx={{
-                            backgroundColor: "#fff !important",
-                          }}
-                        >
-                          No Data
-                        </TableCell>
-                      </TableRow>
-                    )
-                  ) : (
-                    <TableRow>
-                      <TableCell
-                        colSpan={10}
-                        align="center"
-                        sx={{
-                          backgroundColor: "#fff !important",
-                        }}
-                      >
-                        You do not have permission to view purchase data.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <PurchaseEntrySearchTable
+              tableRef={tableRef}
+              canRead={canRead}
+              role={role}
+              searchResults={searchResults}
+              handleRowClick={handleRowClick}
+              setSearchMode={setSearchMode}
+              selectedRowIndex={selectedRowIndex}
+              isLoading={isLoading}
+            />
           ) : (
-            <TableContainer
-              component={Paper}
-              ref={tableRef}
-              sx={{
-                marginTop: 1,
-                height: 300,
-                width: "100%",
-                overflowY: "auto",
-                "&::-webkit-scrollbar": {
-                  width: 10,
-                  height: 10,
-                },
-                "&::-webkit-scrollbar-track": {
-                  backgroundColor: "#fff",
-                },
-                "&::-webkit-scrollbar-thumb": {
-                  backgroundColor: "#d5d8df",
-                  borderRadius: 2,
-                },
-              }}
-            >
-              <Table size="small">
-                <TableHead className="table-head">
-                  <TableRow>
-                    <TableCell align="center">S. No.</TableCell>
-                    <TableCell align="center">Item Code</TableCell>
-                    <TableCell align="center">Item Name</TableCell>
-                    <TableCell align="center">MRP</TableCell>
-                    <TableCell align="center">Batch</TableCell>
-                    <TableCell align="center">Case</TableCell>
-                    <TableCell align="center">Pcs</TableCell>
-                    <TableCell align="center">Brk</TableCell>
-                    <TableCell align="center">Pur Rate</TableCell>
-                    <TableCell align="center">Btl Rate</TableCell>
-                    <TableCell align="center">GRO</TableCell>
-                    <TableCell align="center">SP</TableCell>
-                    <TableCell align="center">Amt(₹)</TableCell>
-                    <TableCell align="center">Action</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody className="purchase-data-table">
-                  {purchases.map((row, index) => (
-                    <TableRow
-                      key={index}
-                      sx={{
-                        backgroundColor: "#fff",
-                      }}
-                    >
-                      <TableCell align="center">{index + 1}</TableCell>
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            type="text"
-                            value={editedRow.itemCode || row.itemCode}
-                            readOnly
-                            onChange={(e) =>
-                              handleEdit(index, "itemCode", e.target.value)
-                            }
-                          />
-                        ) : (
-                          row.itemCode
-                        )}
-                      </TableCell>
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            type="text"
-                            value={editedRow.itemName || row.itemName}
-                            readOnly
-                            onChange={(e) =>
-                              handleEdit(index, "itemName", e.target.value)
-                            }
-                          />
-                        ) : (
-                          row.itemName
-                        )}
-                      </TableCell>
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.mrp || row.mrp}
-                            onChange={(e) =>
-                              handleEdit(index, "mrp", e.target.value)
-                            }
-                          />
-                        ) : (
-                          row.mrp
-                        )}
-                      </TableCell>
-
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            type="text"
-                            value={editedRow.batch || row.batch}
-                            onChange={(e) =>
-                              handleEdit(index, "batch", e.target.value)
-                            }
-                          />
-                        ) : (
-                          row.batch
-                        )}
-                      </TableCell>
-
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            value={
-                              editedRow.case !== undefined
-                                ? editedRow.case
-                                : row.case
-                            }
-                            onChange={(e) =>
-                              handleEdit(index, "case", e.target.value)
-                            }
-                          />
-                        ) : (
-                          row.case
-                        )}
-                      </TableCell>
-
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.pcs || row.pcs}
-                            onChange={(e) =>
-                              handleEdit(index, "pcs", e.target.value)
-                            }
-                          />
-                        ) : (
-                          row.pcs
-                        )}
-                      </TableCell>
-
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.brk || row.brk}
-                            onChange={(e) =>
-                              handleEdit(index, "brk", e.target.value)
-                            }
-                          />
-                        ) : (
-                          row.brk
-                        )}
-                      </TableCell>
-
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.purchaseRate || row.purchaseRate}
-                            onChange={(e) =>
-                              handleEdit(index, "purchaseRate", e.target.value)
-                            }
-                          />
-                        ) : (
-                          row.purchaseRate
-                        )}
-                      </TableCell>
-
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.btlRate || row.btlRate}
-                            onChange={(e) =>
-                              handleEdit(index, "btlRate", e.target.value)
-                            }
-                          />
-                        ) : (
-                          row.btlRate
-                        )}
-                      </TableCell>
-
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.gro || row.gro}
-                            readOnly
-                            onChange={(e) =>
-                              handleEdit(index, "gro", e.target.value)
-                            }
-                          />
-                        ) : (
-                          row.gro
-                        )}
-                      </TableCell>
-
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            value={editedRow.sp || row.sp}
-                            readOnly
-                            onChange={(e) =>
-                              handleEdit(index, "sp", e.target.value)
-                            }
-                          />
-                        ) : (
-                          row.sp
-                        )}
-                      </TableCell>
-
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <Input
-                            size="medium"
-                            value={editedRow.amount || row.amount}
-                            onChange={(e) =>
-                              handleEdit(index, "amount", e.target.value)
-                            }
-                          />
-                        ) : (
-                          row.amount
-                        )}
-                      </TableCell>
-
-                      <TableCell align="center">
-                        {editableIndex !== index ? (
-                          <EditIcon
-                            sx={{ cursor: "pointer", color: "blue" }}
-                            onClick={() => handleEditClick(index)}
-                          />
-                        ) : (
-                          <SaveIcon
-                            sx={{ cursor: "pointer", color: "green" }}
-                            onClick={() => handleSaveClick(index)}
-                          />
-                        )}
-                        <CloseIcon
-                          sx={{ cursor: "pointer", color: "red" }}
-                          onClick={() => handleRemovePurchasesTableRow(index)}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <PurchaseEntryDataTable
+              tableRef={tableRef}
+              purchases={purchases}
+              editableIndex={editableIndex}
+              handleEdit={handleEdit}
+              handleEditClick={handleEditClick}
+              handleSaveClick={handleSaveClick}
+              handleRemovePurchasesTableRow={handleRemovePurchasesTableRow}
+              editedRow={editedRow}
+            />
           )}
         </Box>
 
