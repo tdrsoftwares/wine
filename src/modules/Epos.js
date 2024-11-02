@@ -185,8 +185,8 @@ const Epos = () => {
         id: index,
         sNo: index + 1,
         itemCode: item.itemCode || "No Data",
-        itemName: item._id || "No Data",
-        brandName: item.brandName || "",
+        itemName: item.itemName || "No Data",
+        brandName: item.brandName || "No Data",
         volume: item.volume || 0,
         mrp: item.mrp || 0,
         sendQty: parseFloat(item.totalPcs) || 0,
@@ -549,10 +549,11 @@ const Epos = () => {
             rows={rows}
             columns={columns}
             rowCount={totalCount}
-            pagination
-            pageSizeOptions={[10, 25, 50, 100]}
-            paginationModel={paginationModel}
-            onPaginationModelChange={setPaginationModel}
+            // pagination={false}
+            hideFooterPagination
+            // pageSizeOptions={[10, 25, 50, 100]}
+            // paginationModel={paginationModel}
+            // onPaginationModelChange={setPaginationModel}
             sx={{ backgroundColor: "#fff" }}
             loading={loading}
             components={{
