@@ -34,11 +34,9 @@ const Epos = () => {
   const [allEposData, setAllEposData] = useState([]);
   const [brandName, setBrandName] = useState("");
   const [itemName, setItemName] = useState("");
-  const [allItems, setAllItems] = useState([]);
-  const [allBrands, setAllBrands] = useState([]);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
-    pageSize: 10,
+    pageSize: 100,
   });
   const [editedRows, setEditedRows] = useState({});
   const [successItems, setSuccessItems] = useState([]);
@@ -517,7 +515,7 @@ const Epos = () => {
                 setBrandName("");
                 setItemNameOptions([]);
                 setBrandNameOptions([]);
-                setPaginationModel({ page: 0, pageSize: 10 });
+                setPaginationModel({ page: 0, pageSize: 100 });
                 fetchAllEposData();
               }}
               // sx={{ borderRadius: 8 }}
@@ -549,12 +547,12 @@ const Epos = () => {
             rows={rows}
             columns={columns}
             rowCount={totalCount}
-            // pagination={false}
-            hideFooterPagination
+            pagination
+            // hideFooterPagination
             // paginationMode="client"
-            // pageSizeOptions={[10, 25, 50, 100]}
-            // paginationModel={paginationModel}
-            // onPaginationModelChange={setPaginationModel}
+            pageSizeOptions={[10, 25, 50, 100]}
+            paginationModel={paginationModel}
+            onPaginationModelChange={setPaginationModel}
             sx={{ backgroundColor: "#fff" }}
             loading={loading}
             components={{
