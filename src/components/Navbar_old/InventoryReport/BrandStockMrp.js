@@ -32,7 +32,7 @@ const BrandStockMrp = () => {
   const [loading, setLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     page: 1,
-    pageSize: 10,
+    pageSize: 100,
   });
   const [totalCount, setTotalCount] = useState(0);
   const [totalVolume, setTotalVolume] = useState(0);
@@ -416,7 +416,7 @@ const BrandStockMrp = () => {
               setBrandName("");
               setBrandNameOptions([]);
               setAllBrandStockMrp([]);
-              setPaginationModel({ page: 1, pageSize: 10 });
+              setPaginationModel({ page: 1, pageSize: 100 });
             }}
           >
             Clear Filters

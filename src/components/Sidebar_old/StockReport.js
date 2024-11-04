@@ -57,7 +57,7 @@ const StockReport = () => {
 
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
-    pageSize: 10,
+    pageSize: 100,
   });
 
   const [itemName, setItemName] = useState("");
@@ -380,7 +380,7 @@ const StockReport = () => {
     setTotalPurRate(0);
     setTotalStock(0);
     setTotalVolume(0);
-    setPaginationModel({ page: 0, pageSize: 10 });
+    setPaginationModel({ page: 0, pageSize: 100 });
   };
 
   // useEffect(() => {

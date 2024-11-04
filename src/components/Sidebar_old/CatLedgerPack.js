@@ -39,7 +39,7 @@ const CatLedgerPack = () => {
   const [loading, setLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
-    pageSize: 10,
+    pageSize: 100,
   });
 
   const [totalPur, setTotalPur] = useState(0);
@@ -449,7 +449,9 @@ const CatLedgerPack = () => {
               setCategoryName("");
               setDateFrom(null);
               setDateTo(null);
-              setPaginationModel({ page: 0, pageSize: 10 });
+              setBlOnly(false);
+              setPaginationModel({ page: 0, pageSize: 100 });
+              setAllRowData([]);
             }}
           >
             Clear Filters

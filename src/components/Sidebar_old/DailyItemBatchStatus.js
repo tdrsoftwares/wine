@@ -27,7 +27,7 @@ const DailyItemBatchStatus = () => {
   const [allStores, setAllStores] = useState([]);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
-    pageSize: 10,
+    pageSize: 100,
   });
   const [licenseDetails, setLicenseDetails] = useState({});
   const [totalCount, setTotalCount] = useState(0);
@@ -276,6 +276,7 @@ const DailyItemBatchStatus = () => {
               onClick={() => {
                 setTodayDate(null);
                 setStoreName("");
+                setPaginationModel({ page: 0, pageSize: 100 });
               }}
             >
               Clear Filters
@@ -335,7 +336,7 @@ const DailyItemBatchStatus = () => {
               pagination
               paginationModel={paginationModel}
               onPaginationModelChange={setPaginationModel}
-              pageSizeOptions={[10, 25, 50]}
+              pageSizeOptions={[10, 25, 50, 100]}
               sx={{ backgroundColor: "#fff" }}
               loading={loading}
               components={{

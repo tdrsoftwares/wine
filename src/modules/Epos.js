@@ -551,6 +551,7 @@ const Epos = () => {
             rowCount={totalCount}
             // pagination={false}
             hideFooterPagination
+            // paginationMode="client"
             // pageSizeOptions={[10, 25, 50, 100]}
             // paginationModel={paginationModel}
             // onPaginationModelChange={setPaginationModel}

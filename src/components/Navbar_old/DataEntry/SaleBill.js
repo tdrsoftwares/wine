@@ -1496,6 +1496,8 @@ const SaleBill = () => {
             fetchAllBills();
             fetchAllBrandWiseItems();
             setSearchMode(false);
+            setIsSaveAndPrintClicked(false);
+            setIsAutoBillPrint(false);
           } else {
             setIsSplitPrinted(false);
           }

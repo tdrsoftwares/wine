@@ -54,7 +54,7 @@ const ItemLedgerStatus = () => {
   const [loading, setLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
-    pageSize: 10,
+    pageSize: 100,
   });
   const [totalCount, setTotalCount] = useState(0);
   const [totalOpeningBalance, setTotalOpeningBalance] = useState(0);
@@ -781,7 +781,7 @@ const ItemLedgerStatus = () => {
                   setBrandName("");
                   setItemNameOptions([]);
                   setBrandNameOptions([]);
-                  setPaginationModel({ page: 0, pageSize: 10 });
+                  setPaginationModel({ page: 0, pageSize: 100 });
                   setAllItemStatusData([]);
                 }}
               >
@@ -828,12 +828,12 @@ const ItemLedgerStatus = () => {
               getRowId={(row) => row.id}
               columns={columns}
               rowCount={totalCount}
-              pagination
-              paginationMode="server"
-              pageSizeOptions={[10, 25, 50, 100]}
-              paginationModel={paginationModel}
-              onPaginationModelChange={setPaginationModel}
-              disableRowSelectionOnClick
+              // pagination
+              // paginationMode="server"
+              // pageSizeOptions={[10, 25, 50, 100]}
+              // paginationModel={paginationModel}
+              // onPaginationModelChange={setPaginationModel}
+              // disableRowSelectionOnClick
               loading={loading}
               loadingOverlay={
                 <Box>

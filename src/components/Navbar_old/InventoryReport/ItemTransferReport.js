@@ -54,7 +54,7 @@ const ItemTransferReport = () => {
 
   const [paginationModel, setPaginationModel] = useState({
     page: 1,
-    pageSize: 10,
+    pageSize: 100,
   });
   const { permissions, role } = usePermissions();
 
@@ -635,7 +635,7 @@ const ItemTransferReport = () => {
                 setBrandName("");
                 setItemNameOptions([]);
                 setBrandNameOptions([]);
-                setPaginationModel({ page: 1, pageSize: 10 });
+                setPaginationModel({ page: 1, pageSize: 100 });
               }}
             >
               Clear Filters
