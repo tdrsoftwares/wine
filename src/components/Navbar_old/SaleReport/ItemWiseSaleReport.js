@@ -206,7 +206,9 @@ const ItemWiseSaleReport = () => {
   };
 
   const fetchAllSales = async () => {
-    const fromDate = filterData.dateFrom ? formatDate(filterData.dateFrom) : null;
+    const fromDate = filterData.dateFrom
+      ? formatDate(filterData.dateFrom)
+      : null;
     const toDate = filterData.dateTo ? formatDate(filterData.dateTo) : null;
 
     setLoading(true);
@@ -363,7 +365,9 @@ const ItemWiseSaleReport = () => {
 
     try {
       const response = await exportItemSaleDetails(filterOptions);
-      const exportData = response?.data?.data;
+      const exportData = response?.data?.data[0]?.items;
+      const totalOf = response?.data?.data[0]?.totalOf;
+      // console.log("exportData: ", exportData);
 
       const dataToExport = (exportData || []).map((item, index) => ({
         "S. No": index + 1,
@@ -393,6 +397,30 @@ const ItemWiseSaleReport = () => {
         Amount: item.salesItems?.amount || 0,
       }));
 
+      dataToExport.push({
+        "S. No": "Totals",
+
+        "Bill Date": "",
+        "Bill No.": "",
+        "Bill Type": "",
+        "Item Code": "",
+        "Item Name": "",
+        Brand: "",
+        Category: "",
+        Customer: "",
+        Batch: "",
+        Broken: totalOf?.totalBrak || 0,
+        // "Case No.": item.caseNo || 0,
+        Pcs: totalOf?.totalPcs || 0,
+        Pack: "",
+        Series: "",
+        Group: "",
+
+        MRP: totalOf?.totalMrp?.toFixed(2) || 0,
+        Rate: totalOf?.totalRate?.toFixed(2) || 0,
+        Amount: totalOf?.totalAmount?.toFixed(2) || 0,
+      });
+
       const worksheet = XLSX.utils.json_to_sheet(dataToExport);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "ItemWiseSaleReport");
@@ -409,47 +437,59 @@ const ItemWiseSaleReport = () => {
     ...(allSalesData || []).map((item, index) => ({
       id: index,
       sNo: index + paginationModel.page * paginationModel.pageSize + 1,
-      billDate: item.billDate || 'No Data',
-      billNo: item.billNo || 'No Data',
-      billType: item.billType || 'No Data',
-      itemCode: item.salesItems?.itemDetails?.itemCode || item.salesItems?.itemCode || 'No Data',
-      itemName: item.salesItems?.item?.name || 'No Data',
-      brandName: item.salesItems?.item?.brand?.name || 'No Data',
-      categoryName: item.salesItems?.item?.category?.categoryName || 'No Data',
-      customerName: item.customer?.name || 'No Data',
-      batchNo: item.salesItems?.itemDetails?.batchNo || item.salesItems?.batchNo || 'No Data',
+      billDate: item.billDate || "No Data",
+      billNo: item.billNo || "No Data",
+      billType: item.billType || "No Data",
+      itemCode:
+        item.salesItems?.itemDetails?.itemCode ||
+        item.salesItems?.itemCode ||
+        "No Data",
+      itemName: item.salesItems?.item?.name || "No Data",
+      brandName: item.salesItems?.item?.brand?.name || "No Data",
+      categoryName: item.salesItems?.item?.category?.categoryName || "No Data",
+      customerName: item.customer?.name || "No Data",
+      batchNo:
+        item.salesItems?.itemDetails?.batchNo ||
+        item.salesItems?.batchNo ||
+        "No Data",
       brokenNo: item.brokenNo || item?.salesItems?.break || 0,
       pcs: item.salesItems?.pcs || 0,
       pack: item.salesItems?.item?.volume || 0,
-      series: item.billSeries || 'No Data',
-      group: item.salesItems?.item?.group || 'No Data',
-      mrp: item.salesItems?.itemDetails?.mrp?.toFixed(2) || item.salesItems?.mrp?.toFixed(2) || 0,
-      rate: item.salesItems?.itemDetails?.saleRate?.toFixed(2) || item.salesItems?.rate?.toFixed(2) || 0,
+      series: item.billSeries || "No Data",
+      group: item.salesItems?.item?.group || "No Data",
+      mrp:
+        item.salesItems?.itemDetails?.mrp?.toFixed(2) ||
+        item.salesItems?.mrp?.toFixed(2) ||
+        0,
+      rate:
+        item.salesItems?.itemDetails?.saleRate?.toFixed(2) ||
+        item.salesItems?.rate?.toFixed(2) ||
+        0,
       itemAmount: item.salesItems?.amount?.toFixed(2) || 0,
     })),
-    
+
     {
-      id: 'totals-row',
-      sNo: 'Totals',
-      billDate: '',
-      billNo: '',
-      billType: '',
-      itemCode: '',
-      itemName: '',
-      brandName: '',
-      categoryName: '',
-      customerName: '',
-      batchNo: '',
+      id: "totals-row",
+      sNo: "Totals",
+      billDate: "",
+      billNo: "",
+      billType: "",
+      itemCode: "",
+      itemName: "",
+      brandName: "",
+      categoryName: "",
+      customerName: "",
+      batchNo: "",
       brokenNo: totals?.totalBrak || 0,
       pcs: totals?.totalPcs || 0,
-      pack: 0, 
-      series: '',
-      group: '',
+      pack: "",
+      series: "",
+      group: "",
       mrp: totals?.totalMrp?.toFixed(2) || 0,
       rate: totals?.totalRate?.toFixed(2) || 0,
       itemAmount: totals?.totalAmount?.toFixed(2) || 0,
-      isTotalsRow: true, 
-    }
+      isTotalsRow: true,
+    },
   ];
 
   return (

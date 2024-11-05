@@ -262,7 +262,7 @@ const ItemWisePurchaseReport = () => {
       if (response.status === 200) {
         setAllPurchases(response?.data?.data?.items || []);
         setTotalCount(response?.data?.data?.totalItems || 0);
-        setTotals(response?.data?.data?.totalOf)
+        setTotals(response?.data?.data?.totalOf);
       } else {
         console.log("Error", response);
         // NotificationManager.error("No items found.", "Error");
@@ -366,7 +366,9 @@ const ItemWisePurchaseReport = () => {
   }, [paginationModel, selectedSupplier, filterData]);
 
   const exportToExcel = async () => {
-    const fromDate = filterData.dateFrom ? formatDate(filterData.dateFrom) : null;
+    const fromDate = filterData.dateFrom
+      ? formatDate(filterData.dateFrom)
+      : null;
     const toDate = filterData.dateTo ? formatDate(filterData.dateTo) : null;
 
     const filterOptions = {
@@ -384,7 +386,8 @@ const ItemWisePurchaseReport = () => {
     try {
       setLoading(true);
       const response = await exportItemPurchaseDetails(filterOptions);
-      const exportData = response?.data?.data;
+      const exportData = response?.data?.data[0]?.items;
+      const totalOf = response?.data?.data[0]?.totalOf;
       // console.log("exportData: ", exportData);
 
       const dataToExport = (exportData || []).map((item, index) => ({
@@ -401,16 +404,41 @@ const ItemWisePurchaseReport = () => {
         "Case No.": item.purchaseItems?.caseNo || 0,
         Pcs: item.purchaseItems?.pcs || 0,
         Volume: item.purchaseItems?.item?.volume || 0,
-        MRP: item.purchaseItems?.mrp || 0,
-        GRO: item.purchaseItems?.gro || 0,
-        SP: item.purchaseItems?.sp || 0,
-        BL: item.bl || 0,
+        MRP: item.purchaseItems?.mrp?.toFixed(2) || 0,
+        GRO: item.purchaseItems?.gro?.toFixed(2) || 0,
+        SP: item.purchaseItems?.sp?.toFixed(2) || 0,
+        BL: item.bl?.toFixed(3) || 0,
         "Supplier Name": item.supplier?.name,
         "Store Name": item.store?.name,
-        "Purchase Rate": item.purchaseItems?.purchaseRate || 0,
-        "Sale Rate": item.purchaseItems?.saleRate || 0,
-        Amount: item.purchaseItems?.itemAmount || 0,
+        "Purchase Rate": item.purchaseItems?.purchaseRate?.toFixed(2) || 0,
+        "Sale Rate": item.purchaseItems?.saleRate?.toFixed(2) || 0,
+        Amount: item.purchaseItems?.itemAmount?.toFixed(2) || 0,
       }));
+
+      dataToExport.push({
+        "S. No.": "Totals",
+        "Bill Date": "",
+        "Entry No.": "",
+        "Bill No.": "",
+        "Item Code": "",
+        "Item Name": "",
+        Brand: "",
+        Category: "",
+        Batch: "",
+        Broken: totalOf?.totalBroken || 0,
+        "Case No.": totalOf?.totalCaseNo || 0,
+        Pcs: totalOf?.totalPcs || 0,
+        Volume: totalOf?.totalVolume || 0,
+        MRP: totalOf?.totalMRP?.toFixed(2) || 0,
+        GRO: totalOf?.totalGRO?.toFixed(2) || 0,
+        SP: totalOf?.totalSP?.toFixed(2) || 0,
+        BL: totalOf?.totalBl?.toFixed(3) || 0,
+        "Supplier Name": "",
+        "Store Name": "",
+        "Purchase Rate": totalOf?.totalPurchasesRate?.toFixed(2) || 0,
+        "Sale Rate": totalOf?.totalSaleRate?.toFixed(2) || 0,
+        Amount: totalOf?.totalAmount?.toFixed(2) || 0,
+      });
 
       const worksheet = XLSX.utils.json_to_sheet(dataToExport);
       const workbook = XLSX.utils.book_new();
