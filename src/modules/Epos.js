@@ -7,6 +7,14 @@ import {
   InputLabel,
   Link,
   MenuItem,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
   TextField,
   ThemeProvider,
   Typography,
@@ -26,7 +34,10 @@ import { getAllEpos, loginEpos, multipleEpos } from "../services/eposService";
 import { getLicenseInfo } from "../services/licenseService";
 import EposReportModal from "./EposReportModal";
 import debounce from "lodash.debounce";
-import { searchByBrandName, searchByItemName } from "../services/saleBillService";
+import {
+  searchByBrandName,
+  searchByItemName,
+} from "../services/saleBillService";
 
 const Epos = () => {
   const [dateFrom, setDateFrom] = useState(null);
@@ -50,6 +61,8 @@ const Epos = () => {
   const [brandNameOptions, setBrandNameOptions] = useState([]);
 
   const [openResponseModal, setOpenResponseModal] = useState(false);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(-1);
 
   const formatDateTimeStamp = (dateTimeString) => {
     const date = new Date(dateTimeString);
@@ -239,7 +252,6 @@ const Epos = () => {
     }
   }, 500);
 
-
   const brandNameSearch = debounce(async (searchText) => {
     try {
       const response = await searchByBrandName(searchText);
@@ -253,7 +265,6 @@ const Epos = () => {
       setBrandNameOptions([]);
     }
   }, 500);
-  
 
   const handleItemNameChange = (event, newValue) => {
     setItemName(newValue);
@@ -312,12 +323,13 @@ const Epos = () => {
 
       if (loginResponse.status === 200) {
         NotificationManager.success("Login successful!", "Success.", 2000);
-        NotificationManager.info("Sending EPOS data...","", 4000);
+        NotificationManager.info("Sending EPOS data...", "", 4000);
         const response = await multipleEpos(payload);
         // console.log("response ", response);
 
-        const { successfulData, unsuccessfulData } = response?.data || response?.response?.data;
-        
+        const { successfulData, unsuccessfulData } =
+          response?.data || response?.response?.data;
+
         if (response.status === 200) {
           setSuccessItems(successfulData || []);
           setFailedItems(
@@ -343,11 +355,14 @@ const Epos = () => {
         }
         setOpenResponseModal(true);
       } else {
-        NotificationManager.error("Problem in login! Please try again.","Error!");
+        NotificationManager.error(
+          "Problem in login! Please try again.",
+          "Error!"
+        );
         setIsLoading(false);
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       setSuccessItems([]);
       setFailedItems(
         payload.map((item) => ({ item, errorMessage: error.message }))
@@ -397,6 +412,15 @@ const Epos = () => {
     setIsLoading(false);
     setSuccessItems([]);
     setFailedItems([]);
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, -1));
+    setPage(0);
   };
 
   return (
@@ -543,41 +567,84 @@ const Epos = () => {
             "& .custom-cell": { paddingLeft: 4 },
           }}
         >
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            rowCount={totalCount}
-            pagination
-            // hideFooterPagination
-            // paginationMode="client"
-            pageSizeOptions={[10, 25, 50, 100]}
-            paginationModel={paginationModel}
-            onPaginationModelChange={setPaginationModel}
-            sx={{ backgroundColor: "#fff" }}
-            loading={loading}
-            components={{
-              LoadingOverlay: () => (
-                <Box
-                  sx={{
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                  }}
-                >
-                  <CircularProgress />
-                </Box>
-              ),
+          <TableContainer
+            component={Paper}
+            sx={{
+              height: 400,
+              width: "100%",
+              overflowY: "auto",
+              "&::-webkit-scrollbar": {
+                width: 10,
+                height: 10,
+              },
+              "&::-webkit-scrollbar-track": {
+                backgroundColor: "#fff",
+              },
+              "&::-webkit-scrollbar-thumb": {
+                backgroundColor: "#d5d8df",
+                borderRadius: 2,
+              },
             }}
-            slots={{
-              toolbar: GridToolbar,
-            }}
-            initialState={{
-              density: "compact",
-            }}
-            processRowUpdate={processRowUpdate}
-          />
-        </Box>
+          >
+            <Table size="small" padding="normal" stickyHeader={true}>
+              <TableHead>
+                <TableRow className="table-head-2">
+                  {columns.map((col) => (
+                    <TableCell key={col.field}>{col.headerName}</TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={columns.length} align="center">
+                      <CircularProgress />
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  rows
+                    .map((row) => (
+                      <TableRow key={row.id}>
+                        {columns.map((col) => (
+                          <TableCell key={col.field}>
+                            {col.editable ? (
+                              <TextField
+                                value={
+                                  editedRows[row.id]?.[col.field] ||
+                                  row[col.field]
+                                }
+                                onChange={(e) =>
+                                  setEditedRows((prev) => ({
+                                    ...prev,
+                                    [row.id]: {
+                                      ...row,
+                                      [col.field]: e.target.value,
+                                    },
+                                  }))
+                                }
+                              />
+                            ) : (
+                              row[col.field]
+                            )}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          {/* <TablePagination
+            rowsPerPageOptions={[10, 25, 50, 100]}
+            component="div"
+            count={totalCount}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          /> */}
+        
 
         <Box
           sx={{
@@ -591,7 +658,6 @@ const Epos = () => {
             variant="contained"
             color="success"
             onClick={handleSend}
-            sx={{ mt: 2 }}
             disabled={isLoading}
           >
             {isLoading ? <CircularProgress size={24} /> : "SEND"}
@@ -606,6 +672,7 @@ const Epos = () => {
           isLoading={isLoading}
           setIsLoading={setIsLoading}
         />
+      </Box>
       </Box>
     </ThemeProvider>
   );
