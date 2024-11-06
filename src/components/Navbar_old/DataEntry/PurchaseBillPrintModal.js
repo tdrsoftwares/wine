@@ -3,11 +3,18 @@ import { Box, Modal, Typography, Divider, Button } from "@mui/material";
 import { useReactToPrint } from "react-to-print";
 import { toWords } from "number-to-words";
 
-const PurchaseBillPrintModal = ({ open, handleClose, purchases, formData, totalValues, licenseDetails }) => {
+const PurchaseBillPrintModal = ({
+  open,
+  handleClose,
+  purchases,
+  formData,
+  totalValues,
+  licenseDetails,
+}) => {
   const printRef = useRef();
-//   console.log("purchases --> ",purchases)
-//   console.log("formData --> ",formData)
-//   console.log("totalValues --> ",totalValues)
+  //   console.log("purchases PurchaseBillPrintModal --> ",purchases)
+  // console.log("formData PurchaseBillPrintModal --> ",formData)
+  //   console.log("totalValues PurchaseBillPrintModal --> ",totalValues)
 
   const handlePrint = useReactToPrint({
     content: () => printRef.current,
@@ -21,22 +28,26 @@ const PurchaseBillPrintModal = ({ open, handleClose, purchases, formData, totalV
   };
 
   const purchaseBillData = {
-    supplierName: formData.supplierName.name || "N/A",
-    storeName: formData.stockIn.name || "N/A",
-    passNo: formData.passNo || "N/A",
-    billNo: formData.billNo || "N/A",
-    passDate: formData.passDate ? new Date(formData.passDate).toLocaleDateString() : null,
-    billDate: formData.billDate ? new Date(formData.billDate).toLocaleDateString() : null,
-    items: purchases,
-    totalMrp: totalValues.totalMrp || 0,
-    grossAmt: parseFloat(totalValues.grossAmt) || 0.0,
-    discountAmt: parseFloat(totalValues.discountAmt) || 0.0,
-    govtRate: parseFloat(totalValues.govtRate) || 0.0,
-    spcPurpose: parseFloat(totalValues.spcPurpose) || 0.0,
-    tcsAmt: parseFloat(totalValues.tcsAmt) || 0.0,
-    otherCharges: parseFloat(totalValues.otherCharges) || 0.0,
-    netAmount: parseFloat(totalValues.netAmt) || 0.0,
-    amountInWords: amountInWords(parseFloat(totalValues.netAmt) || 0.0),
+    supplierName: formData?.supplierName?.name || "N/A",
+    storeName: formData?.stockIn?.name || "N/A",
+    passNo: formData?.passNo || "N/A",
+    billNo: formData?.billNo || "N/A",
+    passDate: formData?.passDate
+      ? new Date(formData?.passDate).toLocaleDateString()
+      : null,
+    billDate: formData?.billDate
+      ? new Date(formData?.billDate).toLocaleDateString()
+      : null,
+    items: purchases.length > 0 ? purchases : [],
+    totalMrp: totalValues?.totalMrp || 0.0,
+    grossAmt: parseFloat(totalValues?.grossAmt) || 0.0,
+    discountAmt: parseFloat(totalValues?.discountAmt) || 0.0,
+    govtRate: parseFloat(totalValues?.govtRate) || 0.0,
+    spcPurpose: parseFloat(totalValues?.spcPurpose) || 0.0,
+    tcsAmt: parseFloat(totalValues?.tcsAmt) || 0.0,
+    otherCharges: parseFloat(totalValues?.otherCharges) || 0.0,
+    netAmount: parseFloat(totalValues?.netAmt) || 0.0,
+    amountInWords: amountInWords(parseFloat(totalValues?.netAmt) || 0.0),
   };
 
   return (
@@ -102,11 +113,11 @@ const PurchaseBillPrintModal = ({ open, handleClose, purchases, formData, totalV
             }}
           >
             <Typography variant="body1" sx={{ fontSize: "11px" }}>
-              Supplier: {purchaseBillData.supplierName}
+              Supplier: {purchaseBillData?.supplierName}
             </Typography>
-            <Typography variant="body1" sx={{ fontSize: "11px" }}>Store: {purchaseBillData.storeName}</Typography>
-
-            
+            <Typography variant="body1" sx={{ fontSize: "11px" }}>
+              Store: {purchaseBillData?.storeName}
+            </Typography>
           </Box>
           <Box
             sx={{
@@ -115,10 +126,10 @@ const PurchaseBillPrintModal = ({ open, handleClose, purchases, formData, totalV
             }}
           >
             <Typography variant="body1" sx={{ fontSize: "11px" }}>
-              Bill No.: {purchaseBillData.billNo}
+              Bill No.: {purchaseBillData?.billNo}
             </Typography>
             <Typography variant="body1" sx={{ fontSize: "11px" }}>
-                Pass No.: {purchaseBillData.passNo}
+              Pass No.: {purchaseBillData?.passNo}
             </Typography>
           </Box>
           <Box
@@ -129,10 +140,10 @@ const PurchaseBillPrintModal = ({ open, handleClose, purchases, formData, totalV
             }}
           >
             <Typography variant="body1" sx={{ fontSize: "10px" }}>
-              Pass date: {purchaseBillData.passDate}
+              Pass date: {purchaseBillData?.passDate}
             </Typography>
             <Typography variant="body1" sx={{ fontSize: "10px" }}>
-              Bill date: {purchaseBillData.billDate}
+              Bill date: {purchaseBillData?.billDate}
             </Typography>
           </Box>
 
@@ -147,7 +158,7 @@ const PurchaseBillPrintModal = ({ open, handleClose, purchases, formData, totalV
               <Box sx={{ width: "15%", fontWeight: "bold" }}>AMT.</Box>
             </Box>
           </Typography>
-          {purchaseBillData.items.map((item, index) => (
+          {purchaseBillData?.items?.map((item, index) => (
             <Typography key={index} variant="body2" sx={{ fontSize: "10px" }}>
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Box sx={{ width: "25%" }}>{item.batch}</Box>
@@ -169,11 +180,11 @@ const PurchaseBillPrintModal = ({ open, handleClose, purchases, formData, totalV
             }}
           >
             <Typography variant="body1" sx={{ fontSize: "11px" }}>
-              TCS Amt.: {purchaseBillData.tcsAmt?.toFixed(2)}
+              TCS Amt.: {purchaseBillData?.tcsAmt?.toFixed(2)}
             </Typography>
-            
+
             <Typography variant="body1" sx={{ fontSize: "11px" }}>
-              Total MRP: {purchaseBillData.totalMrp?.toFixed(2)}
+              Total MRP: {purchaseBillData?.totalMrp?.toFixed(2)}
             </Typography>
           </Box>
 
@@ -185,14 +196,12 @@ const PurchaseBillPrintModal = ({ open, handleClose, purchases, formData, totalV
             }}
           >
             <Typography variant="body1" sx={{ fontSize: "11px" }}>
-              Govt. Rate Off: {purchaseBillData.govtRate?.toFixed(2)}
+              Govt. Rate Off: {purchaseBillData?.govtRate?.toFixed(2)}
             </Typography>
 
             <Typography variant="body1" sx={{ fontSize: "11px" }}>
-              Discount Amt.: {purchaseBillData.discountAmt?.toFixed(2)}
+              Discount Amt.: {purchaseBillData?.discountAmt?.toFixed(2)}
             </Typography>
-            
-            
           </Box>
 
           <Box
@@ -202,16 +211,13 @@ const PurchaseBillPrintModal = ({ open, handleClose, purchases, formData, totalV
               fontSize: "10px",
             }}
           >
-            
             <Typography variant="body1" sx={{ fontSize: "11px" }}>
-              S. Purpose: {purchaseBillData.spcPurpose?.toFixed(2)}
+              S. Purpose: {purchaseBillData?.spcPurpose?.toFixed(2)}
             </Typography>
 
             <Typography variant="body1" sx={{ fontSize: "11px" }}>
-              Gross Amt: {purchaseBillData.grossAmt?.toFixed(2)}
+              Gross Amt: {purchaseBillData?.grossAmt?.toFixed(2)}
             </Typography>
-            
-            
           </Box>
 
           <Box
@@ -221,18 +227,21 @@ const PurchaseBillPrintModal = ({ open, handleClose, purchases, formData, totalV
               fontSize: "10px",
             }}
           >
-            
             <Typography variant="body1" sx={{ fontSize: "11px" }}>
-              Other Chrgs: {purchaseBillData.otherCharges?.toFixed(2)}
+              Other Chrgs: {purchaseBillData?.otherCharges?.toFixed(2)}
             </Typography>
 
             <Typography variant="body1" sx={{ fontSize: "11px" }}>
-              Net Amt.: {purchaseBillData.netAmount?.toFixed(2)}
+              Net Amt.: {purchaseBillData?.netAmount?.toFixed(2)}
             </Typography>
           </Box>
-          
-          <Typography variant="body1" align="center" sx={{ fontSize: "10px", mt:1 }}>
-            Rs.: {purchaseBillData.amountInWords}
+
+          <Typography
+            variant="body1"
+            align="center"
+            sx={{ fontSize: "10px", mt: 1 }}
+          >
+            Rs.: {purchaseBillData?.amountInWords}
           </Typography>
 
           <Divider sx={{ my: 1 }} />
