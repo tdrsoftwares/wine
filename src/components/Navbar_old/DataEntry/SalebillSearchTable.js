@@ -86,7 +86,21 @@ const SalebillSearchTable = (props) => {
                     <TableCell align="center" sx={{ padding: "14px" }}>
                       {row?.itemCode || "No Data"}
                     </TableCell>
-                    <TableCell align="center" sx={{ padding: "14px" }}>
+                    <TableCell
+                      align="center"
+                      sx={{
+                        maxWidth: 150,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        "&:hover": {
+                          overflow: "visible",
+                          whiteSpace: "normal",
+                          backgroundColor: "rgba(25, 118, 210, 0.15)",
+                        },
+                      }}
+                      title={row?.item?.name || "No Data"}
+                    >
                       {row?.item?.name || "No Data"}
                     </TableCell>
                     <TableCell align="center" sx={{ padding: "14px" }}>
