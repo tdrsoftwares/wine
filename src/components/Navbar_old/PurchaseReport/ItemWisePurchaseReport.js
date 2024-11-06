@@ -456,7 +456,7 @@ const ItemWisePurchaseReport = () => {
     }
   };
 
-  const rows = [
+  const rows = allPurchases.length > 0 ? [
     ...(allPurchases || []).map((item, index) => ({
       id: index,
       sNo: index + paginationModel.page * paginationModel.pageSize + 1,
@@ -508,7 +508,7 @@ const ItemWisePurchaseReport = () => {
       saleRate: totals?.totalSaleRate || 0,
       itemAmount: totals?.totalAmount || 0,
     },
-  ];
+  ] : [];
 
   return (
     <ThemeProvider theme={customTheme}>
