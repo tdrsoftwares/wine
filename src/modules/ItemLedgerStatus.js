@@ -828,11 +828,11 @@ const ItemLedgerStatus = () => {
               getRowId={(row) => row.id}
               columns={columns}
               rowCount={totalCount}
-              // pagination
+              pagination
               // paginationMode="server"
-              // pageSizeOptions={[10, 25, 50, 100]}
-              // paginationModel={paginationModel}
-              // onPaginationModelChange={setPaginationModel}
+              pageSizeOptions={[10, 25, 50, 100]}
+              paginationModel={paginationModel}
+              onPaginationModelChange={setPaginationModel}
               // disableRowSelectionOnClick
               loading={loading}
               loadingOverlay={
