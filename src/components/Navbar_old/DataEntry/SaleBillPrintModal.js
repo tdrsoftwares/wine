@@ -66,6 +66,7 @@ const SaleBillPrintModal = forwardRef(
           >
             {licenseDetails?.nameOfLicence}
           </Typography>
+          
           <Typography
             variant="h4"
             component="h2"
@@ -74,6 +75,15 @@ const SaleBillPrintModal = forwardRef(
           >
             {licenseDetails?.businessType}
           </Typography>
+          <Typography
+            variant="h2"
+            component="h1"
+            align="center"
+            sx={{ fontSize: "12px" }}
+          >
+            ID: {licenseDetails?.eposUserId}
+          </Typography>
+          
           <Typography
             variant="h6"
             component="h2"
