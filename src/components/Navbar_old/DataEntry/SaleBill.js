@@ -1740,7 +1740,7 @@ const SaleBill = () => {
   const handleKeyDown = async (e) => {
     const value = e.target.value;
     // console.log("value: " , value);
-    if(value === "") {
+    if(e.ctrlKey) {
       handleSaveAndPrint();
     }
     if (e.key === "Enter") {
