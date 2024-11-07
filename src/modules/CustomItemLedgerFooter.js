@@ -1,6 +1,4 @@
 import React from "react";
-import { Box, ThemeProvider, Typography } from "@mui/material";
-import { customTheme } from "../utils/customTheme";
 import { GridFooter, GridFooterContainer } from "@mui/x-data-grid";
 
 const CustomItemLedgerStatusFooter = ({
@@ -23,7 +21,7 @@ const CustomItemLedgerStatusFooter = ({
         }}
       >
         <span sx={{ flexBasis: "15%", fontSize: "14px" }}>
-          Totals:
+          Totals
         </span>
         
         <span sx={{ flexBasis: "15%", fontSize: "13px" }}>

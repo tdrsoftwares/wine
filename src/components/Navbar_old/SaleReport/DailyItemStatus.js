@@ -55,7 +55,7 @@ const DailyItemStatus = () => {
   const [loading, setLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
-    pageSize: 10,
+    pageSize: 100,
   });
   const [totalCount, setTotalCount] = useState(0);
   const [totalOpeningBalance, setTotalOpeningBalance] = useState("");
@@ -249,6 +249,7 @@ const DailyItemStatus = () => {
         // console.log("Error", response);
         // NotificationManager.error("No items found.", "Error");
         setAllItemStatusData([]);
+        setTotalCount(0);
       }
     } catch (error) {
       // NotificationManager.error(
@@ -713,8 +714,9 @@ const DailyItemStatus = () => {
               setBrandName("");
               setItemNameOptions([]);
               setBrandNameOptions([]);
-              setPaginationModel({ page: 0, pageSize: 10 });
+              setPaginationModel({ page: 0, pageSize: 100 });
               setAllItemStatusData([]);
+              setTotalCount(0);
             }}
           >
             Clear Filters

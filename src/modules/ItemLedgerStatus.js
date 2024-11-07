@@ -287,6 +287,7 @@ const ItemLedgerStatus = () => {
         // console.log("Error", response);
         // NotificationManager.error("No items found.", "Error");
         setAllItemStatusData([]);
+        setTotalCount(0);
       }
     } catch (error) {
       // NotificationManager.error(
@@ -783,6 +784,7 @@ const ItemLedgerStatus = () => {
                   setBrandNameOptions([]);
                   setPaginationModel({ page: 0, pageSize: 100 });
                   setAllItemStatusData([]);
+                  setTotalCount(0);
                 }}
               >
                 Clear Filters
