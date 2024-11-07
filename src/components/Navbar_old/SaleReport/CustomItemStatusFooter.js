@@ -34,13 +34,13 @@ const CustomItemStatusFooter = ({
           {filterData.isBLTrue ? totalPurchased?.toFixed(3) : totalPurchased}
         </span>
         <span variant="body1" sx={{ flexBasis: "15%", fontSize: "13px" }}>
-          Trans. from:
+          Trans. out:
           {filterData.isBLTrue
             ? totalTransferredFrom?.toFixed(3)
             : totalTransferredFrom}
         </span>
         <span variant="body1" sx={{ flexBasis: "15%", fontSize: "13px" }}>
-          Trans. to:
+          Trans. in:
           {filterData.isBLTrue
             ? totalTransferredTo?.toFixed(3)
             : totalTransferredTo}
