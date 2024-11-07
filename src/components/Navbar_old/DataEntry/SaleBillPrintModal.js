@@ -81,9 +81,9 @@ const SaleBillPrintModal = forwardRef(
             align="center"
             sx={{ fontSize: "12px" }}
           >
-            ID: {licenseDetails?.eposUserId}
+            License ID: {licenseDetails?.eposUserId}
           </Typography>
-          
+
           <Typography
             variant="h6"
             component="h2"
