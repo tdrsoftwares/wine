@@ -725,7 +725,7 @@ const SaleBill = () => {
           });
         } else if (event.key === "Enter" && selectedRowIndex !== null) {
           const selectedRow = searchResults[selectedRowIndex];
-          
+
           console.log("Enter click selected row: " , selectedRow?._id);
           let found = false;
 
@@ -754,19 +754,36 @@ const SaleBill = () => {
           });
 
           if (!found) {
-            setFormData({
-              ...formData,
-              itemId: selectedRow.item?._id,
-              itemCode: selectedRow.itemCode || 0,
-              itemName: selectedRow.item?.name || 0,
-              mrp: selectedRow.mrp || 0,
-              batch: selectedRow.batchNo || 0,
-              pcs: selectedRow.pcs || 1,
-              rate: selectedRow.mrp || 0,
-              volume: selectedRow.item?.volume || 0,
-              currentStock: selectedRow.currentStock || 0,
-              group: selectedRow.item?.group,
-            });
+            if (selectedRow?._id) {
+              setFormData({
+                ...formData,
+                itemId: selectedRow.item?._id,
+                itemCode: selectedRow.itemCode || 0,
+                itemDetailsId: selectedRow._id,
+                itemName: selectedRow.item?.name || 0,
+                mrp: selectedRow.mrp || 0,
+                batch: selectedRow.batchNo || 0,
+                pcs: selectedRow.pcs || 1,
+                rate: selectedRow.mrp || 0,
+                volume: selectedRow.item?.volume || 0,
+                currentStock: selectedRow.currentStock || 0,
+                group: selectedRow.item?.group,
+              });
+            } else {
+              setFormData({
+                ...formData,
+                itemId: selectedRow.item?._id,
+                itemCode: selectedRow.itemCode || 0,
+                itemName: selectedRow.item?.name || 0,
+                mrp: selectedRow.mrp || 0,
+                batch: selectedRow.batchNo || 0,
+                pcs: selectedRow.pcs || 1,
+                rate: selectedRow.mrp || 0,
+                volume: selectedRow.item?.volume || 0,
+                currentStock: selectedRow.currentStock || 0,
+                group: selectedRow.item?.group,
+              });
+            }
           }
 
           if (!hasItems) {
@@ -899,7 +916,7 @@ const SaleBill = () => {
 
   const handleRowClick = (index) => {
     const selectedRow = searchResults[index];
-    console.log("selectedRow rowClick", selectedRow._id);
+    // console.log("selectedRow rowClick", selectedRow._id);
 
     let found = false;
 
@@ -928,19 +945,36 @@ const SaleBill = () => {
     });
 
     if (!found) {
-      setFormData({
-        ...formData,
-        itemId: selectedRow.item?._id,
-        itemCode: selectedRow.itemCode || 0,
-        itemName: selectedRow.item?.name || 0,
-        mrp: selectedRow.mrp || 0,
-        batch: selectedRow.batchNo || 0,
-        pcs: selectedRow.pcs || 1,
-        rate: selectedRow.mrp || 0,
-        volume: selectedRow.item?.volume || 0,
-        currentStock: selectedRow.currentStock || 0,
-        group: selectedRow.item?.group,
-      });
+      if (selectedRow?._id) {
+        setFormData({
+          ...formData,
+          itemId: selectedRow.item?._id,
+          itemCode: selectedRow.itemCode || 0,
+          itemDetailsId: selectedRow._id,
+          itemName: selectedRow.item?.name || 0,
+          mrp: selectedRow.mrp || 0,
+          batch: selectedRow.batchNo || 0,
+          pcs: selectedRow.pcs || 1,
+          rate: selectedRow.mrp || 0,
+          volume: selectedRow.item?.volume || 0,
+          currentStock: selectedRow.currentStock || 0,
+          group: selectedRow.item?.group,
+        });
+      } else {
+        setFormData({
+          ...formData,
+          itemId: selectedRow.item?._id,
+          itemCode: selectedRow.itemCode || 0,
+          itemName: selectedRow.item?.name || 0,
+          mrp: selectedRow.mrp || 0,
+          batch: selectedRow.batchNo || 0,
+          pcs: selectedRow.pcs || 1,
+          rate: selectedRow.mrp || 0,
+          volume: selectedRow.item?.volume || 0,
+          currentStock: selectedRow.currentStock || 0,
+          group: selectedRow.item?.group,
+        });
+      }
     }
 
     if (!hasItems) {
@@ -1304,7 +1338,7 @@ const SaleBill = () => {
           amount: amount || 0,
         };
         
-        console.log("formData.itemDetailsId: ",formData.itemDetailsId);
+        // console.log("formData.itemDetailsId: ",formData.itemDetailsId);
 
         if (formData.itemDetailsId) {
           newItem.itemDetailsId = formData.itemDetailsId;
@@ -1956,7 +1990,7 @@ const SaleBill = () => {
           }));
 
           setSalesData([...newSalesItems]);
-          console.log(salesData);
+          // console.log(salesData);
 
           setTotalValues({
             totalVolume: receivedData.volume,
