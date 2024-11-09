@@ -725,6 +725,8 @@ const SaleBill = () => {
           });
         } else if (event.key === "Enter" && selectedRowIndex !== null) {
           const selectedRow = searchResults[selectedRowIndex];
+          
+          console.log("Enter click selected row: " , selectedRow?._id);
           let found = false;
 
           salesData.forEach((item) => {
@@ -897,7 +899,7 @@ const SaleBill = () => {
 
   const handleRowClick = (index) => {
     const selectedRow = searchResults[index];
-    // console.log("selectedRow", selectedRow);
+    console.log("selectedRow rowClick", selectedRow._id);
 
     let found = false;
 
@@ -1301,6 +1303,8 @@ const SaleBill = () => {
           // amount: formData.amount || 0
           amount: amount || 0,
         };
+        
+        console.log("formData.itemDetailsId: ",formData.itemDetailsId);
 
         if (formData.itemDetailsId) {
           newItem.itemDetailsId = formData.itemDetailsId;
