@@ -281,7 +281,7 @@ const NavbarOld = () => {
               <Link to="/party-payment" onClick={closeAllDropdowns}>
                 Party Payment
               </Link>
-              <Link to="/general-payment" onClick={closeAllDropdowns}>
+              <Link to="/expenses" onClick={closeAllDropdowns}>
                 General Payment
               </Link>
               <Link to="/customer-receipt" onClick={closeAllDropdowns}>

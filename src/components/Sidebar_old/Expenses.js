@@ -1004,15 +1004,15 @@ const Expenses = () => {
           setTypeName("");
         }}
       >
-        <DialogTitle>Create Expense Type</DialogTitle>
+        <DialogTitle variant="body1">Create Expense Type</DialogTitle>
         <DialogContent>
           <div className="input-wrapper">
             <InputLabel htmlFor="name" className="input-label">
-              Name :
+              Expense Type :
             </InputLabel>
             <TextField
               autoFocus
-              margin="dense"
+              className="input-field"
               fullWidth
               value={newExpenseType}
               onChange={(e) => setNewExpenseType(e.target.value)}
@@ -1021,11 +1021,11 @@ const Expenses = () => {
 
           <div className="input-wrapper">
             <InputLabel htmlFor="type" className="input-label">
-              Type :
+              Group :
             </InputLabel>
             <TextField
               select
-              margin="dense"
+              className="input-field"
               fullWidth
               value={typeName}
               onChange={(e) => setTypeName(e.target.value)}
