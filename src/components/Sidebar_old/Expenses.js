@@ -61,6 +61,7 @@ const Expenses = () => {
   const [openExpenseTypeCreateDialog, setOpenExpenseTypeCreateDialog] =
     useState(false);
   const [newExpenseType, setNewExpenseType] = useState("");
+  const [typeName, setTypeName] = useState("");
   const [amount, setAmount] = useState("");
   const [paidTo, setPaidTo] = useState("");
   const [payMode, setPayMode] = useState([]);
@@ -115,9 +116,9 @@ const Expenses = () => {
   };
 
   const handleCreateExpenseType = async () => {
-    if (!newExpenseType) return;
+    if (!newExpenseType || !typeName) return;
 
-    const payload = { name: newExpenseType };
+    const payload = { name: newExpenseType, group: typeName };
     try {
       const response = await createExpenseType(payload);
       if (response.status === 200) {
@@ -997,23 +998,53 @@ const Expenses = () => {
 
       <Dialog
         open={openExpenseTypeCreateDialog}
-        onClose={() => setOpenExpenseTypeCreateDialog(false)}
+        onClose={() => {
+          setOpenExpenseTypeCreateDialog(false);
+          setNewExpenseType("");
+          setTypeName("");
+        }}
       >
         <DialogTitle>Create Expense Type</DialogTitle>
         <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Expense Type Name"
-            type="text"
-            fullWidth
-            value={newExpenseType}
-            onChange={(e) => setNewExpenseType(e.target.value)}
-          />
+          <div className="input-wrapper">
+            <InputLabel htmlFor="name" className="input-label">
+              Name :
+            </InputLabel>
+            <TextField
+              autoFocus
+              margin="dense"
+              fullWidth
+              value={newExpenseType}
+              onChange={(e) => setNewExpenseType(e.target.value)}
+            />
+          </div>
+
+          <div className="input-wrapper">
+            <InputLabel htmlFor="type" className="input-label">
+              Type :
+            </InputLabel>
+            <TextField
+              select
+              margin="dense"
+              fullWidth
+              value={typeName}
+              onChange={(e) => setTypeName(e.target.value)}
+            >
+              {["Debit", "Credit"].map((item, id) => (
+                <MenuItem key={id} value={item}>
+                  {item}
+                </MenuItem>
+              ))}
+            </TextField>
+          </div>
         </DialogContent>
         <DialogActions>
           <Button
-            onClick={() => setOpenExpenseTypeCreateDialog(false)}
+            onClick={() => {
+              setOpenExpenseTypeCreateDialog(false);
+              setNewExpenseType("");
+              setTypeName("");
+            }}
             color="primary"
           >
             Cancel
