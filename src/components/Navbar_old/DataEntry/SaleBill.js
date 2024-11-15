@@ -1704,6 +1704,7 @@ const SaleBill = () => {
       } else {
         if (response.response.data.statusCode === 400) {
           NotificationManager.error(response.response.data.message, "Error");
+          fetchAllBrandWiseItems();
         } else {
           NotificationManager.error(
             "Error updating Sale. Please try again later.",
@@ -1734,6 +1735,7 @@ const SaleBill = () => {
           setSelectedRowIndex(null);
           setSearchMode(false);
           setEditableIndex(-1);
+          fetchAllBrandWiseItems()
         } else {
           console.log("error: ", response);
           NotificationManager.error(
