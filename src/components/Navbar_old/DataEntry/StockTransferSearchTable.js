@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import React from "react";
 
-const PurchaseEntrySearchTable = (props) => {
+const StockTransferSearchTable = (props) => {
   const {
     tableRef,
     canRead,
@@ -21,8 +21,7 @@ const PurchaseEntrySearchTable = (props) => {
     selectedRowIndex,
     isLoading,
   } = props;
-
-  // console.log("searchResults: ",searchResults)
+  
   return (
     <TableContainer
       component={Paper}
@@ -54,11 +53,8 @@ const PurchaseEntrySearchTable = (props) => {
             <TableCell align="center">Item Name</TableCell>
             <TableCell align="center">MRP</TableCell>
             <TableCell align="center">Batch</TableCell>
-            <TableCell align="center">Case Value</TableCell>
-            <TableCell align="center">Pur Rate</TableCell>
-            <TableCell align="center">Btl Rate</TableCell>
-            <TableCell align="center">GRO</TableCell>
-            <TableCell align="center">SP</TableCell>
+            <TableCell align="center">Current Stock</TableCell>
+            <TableCell align="center">Volume</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -91,7 +87,6 @@ const PurchaseEntrySearchTable = (props) => {
                   <TableCell align="center" sx={{ padding: "14px" }}>
                     {row?.itemCode || "No Data"}
                   </TableCell>
-
                   <TableCell
                     align="center"
                     sx={{
@@ -115,20 +110,14 @@ const PurchaseEntrySearchTable = (props) => {
                   <TableCell align="center" sx={{ padding: "14px" }}>
                     {row?.batchNo || 0}
                   </TableCell>
+                  {/* <TableCell align="center" sx={{ padding: "14px" }}>
+                          {row?.case || 0}
+                        </TableCell> */}
                   <TableCell align="center" sx={{ padding: "14px" }}>
-                    {row?.item?.caseValue || 0}
+                    {row?.currentStock || 0}
                   </TableCell>
                   <TableCell align="center" sx={{ padding: "14px" }}>
-                    {row?.purchaseRate || 0}
-                  </TableCell>
-                  <TableCell align="center" sx={{ padding: "14px" }}>
-                    {row?.saleRate || 0}
-                  </TableCell>
-                  <TableCell align="center" sx={{ padding: "14px" }}>
-                    {row?.gro || 0}
-                  </TableCell>
-                  <TableCell align="center" sx={{ padding: "14px" }}>
-                    {row?.sp || 0}
+                    {row?.item?.volume || 0}
                   </TableCell>
                 </TableRow>
               ))
@@ -166,7 +155,7 @@ const PurchaseEntrySearchTable = (props) => {
                   backgroundColor: "#fff !important",
                 }}
               >
-                You do not have permission to view purchase data.
+                You do not have permission to view transfer data.
               </TableCell>
             </TableRow>
           )}
@@ -176,4 +165,4 @@ const PurchaseEntrySearchTable = (props) => {
   );
 };
 
-export default PurchaseEntrySearchTable;
+export default StockTransferSearchTable;

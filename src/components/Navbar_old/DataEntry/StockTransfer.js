@@ -5,18 +5,10 @@ import {
   Grid,
   TextField,
   Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   MenuItem,
   InputLabel,
   ThemeProvider,
   Input,
-  CircularProgress,
 } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -34,10 +26,9 @@ import {
   updateTransferDetails,
 } from "../../../services/transferService";
 import debounce from "lodash.debounce";
-import CloseIcon from "@mui/icons-material/Close";
-import EditIcon from "@mui/icons-material/Edit";
-import SaveIcon from "@mui/icons-material/Save";
 import { usePermissions } from "../../../utils/PermissionsContext";
+import StockTransferSearchTable from "./StockTransferSearchTable";
+import StockTransferDataTable from "./StockTransferDataTable";
 
 const StockTransfer = () => {
   const toDaysDate = dayjs();
@@ -1054,273 +1045,18 @@ const StockTransfer = () => {
           </Grid>
 
           {searchMode ? (
-            <TableContainer
-              component={Paper}
-              ref={tableRef}
-              sx={{
-                marginTop: 0.8,
-                height: 300,
-                width: 850,
-                overflowY: "unset",
-                overflowX: "auto",
-                "&::-webkit-scrollbar": {
-                  width: 10,
-                  height: 10,
-                },
-                "&::-webkit-scrollbar-track": {
-                  backgroundColor: "#fff",
-                },
-                "&::-webkit-scrollbar-thumb": {
-                  backgroundColor: "#d5d8df",
-                  borderRadius: 2,
-                },
-              }}
-            >
-              <Table size="small">
-                <TableHead className="table-head">
-                  <TableRow>
-                    <TableCell align="center">S. No.</TableCell>
-                    <TableCell align="center">Item Code</TableCell>
-                    <TableCell align="center">Item Name</TableCell>
-                    <TableCell align="center">MRP</TableCell>
-                    <TableCell align="center">Batch</TableCell>
-                    <TableCell align="center">Current Stock</TableCell>
-                    <TableCell align="center">Volume</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {canRead || role === "admin" ? (
-                    Array.isArray(searchResults) && searchResults.length > 0 ? (
-                      searchResults.map((row, index) => (
-                        <TableRow
-                          key={index}
-                          onClick={() => {
-                            handleRowClick(index);
-                            setSearchMode(false);
-                          }}
-                          sx={{
-                            cursor: "pointer",
-                            backgroundColor:
-                              index === selectedRowIndex
-                                ? "rgba(25, 118, 210, 0.08) !important"
-                                : "#fff !important",
-                          }}
-                        >
-                          <TableCell
-                            align="center"
-                            sx={{ padding: "14px", paddingLeft: 2 }}
-                          >
-                            {index + 1}
-                          </TableCell>
-                          <TableCell align="center" sx={{ padding: "14px" }}>
-                            {row?.itemCode || "No Data"}
-                          </TableCell>
-                          <TableCell align="center" sx={{ padding: "14px" }}>
-                            {row?.item?.name || "No Data"}
-                          </TableCell>
-                          <TableCell align="center" sx={{ padding: "14px" }}>
-                            {row?.mrp || 0}
-                          </TableCell>
-                          <TableCell align="center" sx={{ padding: "14px" }}>
-                            {row?.batchNo || 0}
-                          </TableCell>
-                          {/* <TableCell align="center" sx={{ padding: "14px" }}>
-                          {row?.case || 0}
-                        </TableCell> */}
-                          <TableCell align="center" sx={{ padding: "14px" }}>
-                            {row?.currentStock || 0}
-                          </TableCell>
-                          <TableCell align="center" sx={{ padding: "14px" }}>
-                            {row?.item?.volume || 0}
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : isLoading ? (
-                      <TableRow>
-                        <TableCell
-                          colSpan={10}
-                          align="center"
-                          sx={{
-                            backgroundColor: "#fff !important",
-                          }}
-                        >
-                          <CircularProgress />
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      <TableRow>
-                        <TableCell
-                          colSpan={10}
-                          align="center"
-                          sx={{
-                            backgroundColor: "#fff !important",
-                          }}
-                        >
-                          No Data
-                        </TableCell>
-                      </TableRow>
-                    )
-                  ) : (
-                    <TableRow>
-                      <TableCell
-                        colSpan={10}
-                        align="center"
-                        sx={{
-                          backgroundColor: "#fff !important",
-                        }}
-                      >
-                        You do not have permission to view transfer data.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <StockTransferSearchTable
+              tableRef={tableRef}
+              canRead={canRead}
+              role={role}
+              searchResults={searchResults}
+              handleRowClick={handleRowClick}
+              setSearchMode={setSearchMode}
+              selectedRowIndex={selectedRowIndex}
+              isLoading={isLoading}
+            />
           ) : (
-            <TableContainer
-              ref={tableRef}
-              component={Paper}
-              sx={{
-                marginTop: 1,
-                height: 300,
-                width: "100%",
-                overflowY: "auto",
-                "&::-webkit-scrollbar": {
-                  width: 10,
-                  height: 10,
-                },
-                "&::-webkit-scrollbar-track": {
-                  backgroundColor: "#fff",
-                },
-                "&::-webkit-scrollbar-thumb": {
-                  backgroundColor: "#d5d8df",
-                  borderRadius: 2,
-                },
-              }}
-            >
-              <Table size="small">
-                <TableHead className="table-head">
-                  <TableRow>
-                    <TableCell align="center" sx={{ minWidth: "80px" }}>
-                      S. No.
-                    </TableCell>
-                    <TableCell align="center" sx={{ minWidth: "100px" }}>
-                      Item Code
-                    </TableCell>
-                    <TableCell align="center" sx={{ minWidth: "120px" }}>
-                      Item Name
-                    </TableCell>
-                    <TableCell align="center" sx={{ minWidth: "60px" }}>
-                      MRP
-                    </TableCell>
-                    <TableCell align="center" sx={{ minWidth: "60px" }}>
-                      Batch
-                    </TableCell>
-                    <TableCell align="center" sx={{ minWidth: "50px" }}>
-                      Case
-                    </TableCell>
-                    <TableCell align="center" sx={{ minWidth: "60px" }}>
-                      Pcs
-                    </TableCell>
-                    <TableCell align="center" sx={{ minWidth: "60px" }}>
-                      Brand
-                    </TableCell>
-                    <TableCell align="center" sx={{ minWidth: "60px" }}>
-                      Category
-                    </TableCell>
-                    <TableCell align="center" sx={{ minWidth: "60px" }}>
-                      Volume
-                    </TableCell>
-                    <TableCell align="center" sx={{ minWidth: "80px" }}>
-                      Action
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody className="purchase-data-table">
-                  {transferData?.map((row, index) => (
-                    <TableRow
-                      key={index}
-                      sx={{
-                        backgroundColor: "#fff",
-                      }}
-                    >
-                      <TableCell align="center">{index + 1}</TableCell>
-                      <TableCell align="center">{row.itemCode}</TableCell>
-                      <TableCell align="center">
-                        {/* {editableIndex === index ? (
-                          <Input
-                            type="text"
-                            value={editedRow.itemName || row.itemName}
-                            onChange={(e) =>
-                              handleEdit(index, "itemName", e.target.value)
-                            }
-                          />
-                        ) : ( */}
-                        {row.itemName}
-                        {/* )} */}
-                      </TableCell>
-                      <TableCell align="center">{row.mrp}</TableCell>
-
-                      <TableCell align="center">{row.batch}</TableCell>
-
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <TextField
-                            fullWidth
-                            sx={{ padding: "6px 5px !important" }}
-                            value={editedRow.case || row.case}
-                            onChange={(e) =>
-                              handleEdit(index, "case", e.target.value)
-                            }
-                          />
-                        ) : (
-                          row.case
-                        )}
-                      </TableCell>
-
-                      <TableCell align="center">
-                        {editableIndex === index ? (
-                          <TextField
-                            fullWidth
-                            sx={{ padding: "6px 5px !important" }}
-                            value={editedRow.pcs || row.pcs}
-                            onChange={(e) =>
-                              handleEdit(index, "pcs", e.target.value)
-                            }
-                          />
-                        ) : (
-                          row.pcs
-                        )}
-                      </TableCell>
-
-                      <TableCell align="center">{row.brand}</TableCell>
-
-                      <TableCell align="center">{row.category}</TableCell>
-
-                      <TableCell align="center">{row.volume}</TableCell>
-
-                      <TableCell align="center">
-                        {editableIndex !== index ? (
-                          <EditIcon
-                            sx={{ cursor: "pointer", color: "blue" }}
-                            onClick={() => handleEditClick(index)}
-                          />
-                        ) : (
-                          <SaveIcon
-                            sx={{ cursor: "pointer", color: "green" }}
-                            onClick={() => handleSaveClick(index)}
-                          />
-                        )}
-                        <CloseIcon
-                          sx={{ cursor: "pointer", color: "red" }}
-                          onClick={() => handleRemoveClick(index)}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <StockTransferDataTable transferData={transferData}  />
           )}
         </Box>
 

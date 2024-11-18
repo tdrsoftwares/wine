@@ -61,7 +61,6 @@ const SaleBill = () => {
   const todaysDate = dayjs();
   const [searchMode, setSearchMode] = useState(false);
   const [formData, setFormData] = useState({
-    barCode: "",
     billType: "CASHBILL",
     customerName: "",
     store: allStores.length > 0 ? allStores[0] : { _id: "", name: "" },
@@ -87,6 +86,7 @@ const SaleBill = () => {
     group: "",
     stockAt: "",
   });
+  // const [barCode, setBarCode] = useState("");
   const [billNumber, setBillNumber] = useState("");
   const [editableIndex, setEditableIndex] = useState(-1);
   const [editedRow, setEditedRow] = useState({});
@@ -460,10 +460,25 @@ const SaleBill = () => {
   }, 500);
 
   const itemCodeSearch = async (itemCode, storeName) => {
+    if (isLoading) {
+      console.log("Scan in progress, skipping duplicate scan.");
+      return;
+    }
+  
+    if (!itemCode || itemCode.trim().length === 0) {
+      console.warn("Invalid or empty item code.");
+      return;
+    }
+
     try {
       setIsLoading(true);
       const response = await searchAllSalesByItemCode(itemCode, storeName);
       const items = response?.data?.data || [];
+
+      if (!items.length) {
+        NotificationManager.warning("No matching items found.");
+        return;
+      }
 
       // Calculating the total pcs already used in salesData for each item
       const pcsUsed = salesData.reduce((acc, item) => {
@@ -562,6 +577,7 @@ const SaleBill = () => {
             updatedSalesData[existingItemIndex].rate;
           setSalesData(updatedSalesData);
           itemCodeRef.current.focus();
+          // setFormData({ ...formData, itemCode: "" });
         } else {
           // for new item
           if (availableStock <= 0) {
@@ -1767,6 +1783,7 @@ const SaleBill = () => {
 
   const handleItemCodeChange = (e) => {
     const itemCode = e.target.value;
+    // setBarCode(itemCode);
     setFormData({ ...formData, itemCode });
 
     if (!itemCode) {
@@ -1777,22 +1794,91 @@ const SaleBill = () => {
     setEditableIndex(-1);
   };
 
-  const handleKeyDown = async (e) => {
-    const value = e.target.value;
-    // console.log("value: " , value);
-    if(e.ctrlKey) {
+  let debounceTimeout = null; // Timeout for debouncing
+  const barcodeQueue = []; // Queue to hold barcodes
+  let isProcessingQueue = false;
+
+  const handleKeyDown = (e) => {
+    const inputElement = e.target;
+    const value = inputElement.value.trim();
+
+    if (e.ctrlKey) {
       handleSaveAndPrint();
+      return;
     }
+
     if (e.key === "Enter") {
-      const barcodes = value.split("\n");
-      for (const barcode of barcodes) {
-        if (barcode.trim()) {
-          await itemCodeSearch(barcode.trim(), formData.store?.name);
+      e.preventDefault();
+
+      clearTimeout(debounceTimeout); // Clear any previous debounce
+      debounceTimeout = setTimeout(() => {
+        if (value) {
+          barcodeQueue.push(value); // Add the complete barcode to the queue
+          console.log("Barcode added to queue: ", value);
+
+          // Clear input and form data
+          inputElement.value = "";
+          setFormData({ ...formData, itemCode: "" });
+
+          processBarcodeQueue(); // Start processing the queue
         }
-      }
-      // setFormData({ ...formData, itemCode: "" });
+      }, 100); // Delay to ensure the complete barcode is captured
     }
   };
+
+  const processBarcodeQueue = async () => {
+    if (isProcessingQueue) return; // Prevent simultaneous queue processing
+
+    isProcessingQueue = true;
+
+    while (barcodeQueue.length > 0) {
+      const barcode = barcodeQueue.shift(); // Get the first barcode from the queue
+      console.log("Processing barcode: ", barcode);
+
+      try {
+        await itemCodeSearch(barcode, formData.store?.name);
+      } catch (error) {
+        console.error("Error processing barcode: ", error);
+      }
+    }
+
+    isProcessingQueue = false; // Reset processing flag
+  };
+
+
+  // const handleKeyDown = async (e) => {
+  //   const inputElement = e.target;
+  //   const value = inputElement.value.trim();
+    
+  //   console.log("VALUE: ", value);
+  
+  //   if (e.ctrlKey) {
+  //     handleSaveAndPrint();
+  //     return;
+  //   }
+    
+  //   // setBarCode("")
+  //   if (e.key === "Enter") {
+  //     e.preventDefault();
+      
+  //     setTimeout(async () => {
+  //       if (value) {
+  //         setBarCode(value);
+  //         console.log("Processing barcode: ", value);
+          
+  //         try {
+  //           await itemCodeSearch(barCode, formData.store?.name);
+  //           setBarCode("")
+  //         } catch (error) {
+  //           console.error("Error processing itemCode: ", error);
+  //         }
+  
+  //         // inputElement.value = "";
+  //         setFormData({ ...formData, itemCode: "" });
+  //       }
+  //     }, 100);
+  //   }
+  // };
 
   const handleCustomerNameChange = (e) => {
     const updatedFormData = { ...formData, customerName: e.target.value };
@@ -2473,6 +2559,15 @@ const SaleBill = () => {
                     setBillNumber(e.target.value)
                   }
                   disabled={!seriesEditable}
+                  SelectProps={{
+                    MenuProps: {
+                      PaperProps: {
+                        style: {
+                          maxHeight: 200,
+                        },
+                      },
+                    },
+                  }}
                 >
                   {seriesData?.map((item) => (
                     <MenuItem key={item._id} value={item.billNo}>
