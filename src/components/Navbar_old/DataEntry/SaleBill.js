@@ -86,7 +86,6 @@ const SaleBill = () => {
     group: "",
     stockAt: "",
   });
-  // const [barCode, setBarCode] = useState("");
   const [billNumber, setBillNumber] = useState("");
   const [editableIndex, setEditableIndex] = useState(-1);
   const [editedRow, setEditedRow] = useState({});
@@ -1794,8 +1793,8 @@ const SaleBill = () => {
     setEditableIndex(-1);
   };
 
-  let debounceTimeout = null; // Timeout for debouncing
-  const barcodeQueue = []; // Queue to hold barcodes
+  let debounceTimeout = null;
+  const barcodeQueue = [];
   let isProcessingQueue = false;
 
   const handleKeyDown = (e) => {
@@ -1810,39 +1809,37 @@ const SaleBill = () => {
     if (e.key === "Enter") {
       e.preventDefault();
 
-      clearTimeout(debounceTimeout); // Clear any previous debounce
+      inputElement.value = "";
+      setFormData({ ...formData, itemCode: "" });
+
+      clearTimeout(debounceTimeout);
       debounceTimeout = setTimeout(() => {
         if (value) {
-          barcodeQueue.push(value); // Add the complete barcode to the queue
-          console.log("Barcode added to queue: ", value);
-
-          // Clear input and form data
-          inputElement.value = "";
-          setFormData({ ...formData, itemCode: "" });
-
-          processBarcodeQueue(); // Start processing the queue
+          barcodeQueue.push(value);
+          // console.log("Barcode added to queue: ", value);
+          processBarcodeQueue();
         }
-      }, 100); // Delay to ensure the complete barcode is captured
+      }, 50);
     }
   };
 
   const processBarcodeQueue = async () => {
-    if (isProcessingQueue) return; // Prevent simultaneous queue processing
+    if (isProcessingQueue) return;
 
     isProcessingQueue = true;
 
     while (barcodeQueue.length > 0) {
-      const barcode = barcodeQueue.shift(); // Get the first barcode from the queue
-      console.log("Processing barcode: ", barcode);
+      const barcode = barcodeQueue.shift();
+      // console.log("Processing barcode: ", barcode);
 
       try {
         await itemCodeSearch(barcode, formData.store?.name);
       } catch (error) {
-        console.error("Error processing barcode: ", error);
+        // console.error("Error processing barcode: ", error);
       }
     }
 
-    isProcessingQueue = false; // Reset processing flag
+    isProcessingQueue = false;
   };
 
 
