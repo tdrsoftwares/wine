@@ -1843,40 +1843,6 @@ const SaleBill = () => {
   };
 
 
-  // const handleKeyDown = async (e) => {
-  //   const inputElement = e.target;
-  //   const value = inputElement.value.trim();
-    
-  //   console.log("VALUE: ", value);
-  
-  //   if (e.ctrlKey) {
-  //     handleSaveAndPrint();
-  //     return;
-  //   }
-    
-  //   // setBarCode("")
-  //   if (e.key === "Enter") {
-  //     e.preventDefault();
-      
-  //     setTimeout(async () => {
-  //       if (value) {
-  //         setBarCode(value);
-  //         console.log("Processing barcode: ", value);
-          
-  //         try {
-  //           await itemCodeSearch(barCode, formData.store?.name);
-  //           setBarCode("")
-  //         } catch (error) {
-  //           console.error("Error processing itemCode: ", error);
-  //         }
-  
-  //         // inputElement.value = "";
-  //         setFormData({ ...formData, itemCode: "" });
-  //       }
-  //     }, 100);
-  //   }
-  // };
-
   const handleCustomerNameChange = (e) => {
     const updatedFormData = { ...formData, customerName: e.target.value };
     setFormData(updatedFormData);
