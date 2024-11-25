@@ -4,17 +4,8 @@ import {
   Button,
   Grid,
   TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   MenuItem,
   InputLabel,
-  Input,
-  CircularProgress,
   ThemeProvider,
   Typography,
 } from "@mui/material";
@@ -1207,77 +1198,6 @@ const PurchaseEntry = () => {
     }));
   }, [formData.amount, purchases]);
 
-  // useEffect(() => {
-  //   const grossAmount = purchases.reduce(
-  //     (total, purchase) => total + parseFloat(purchase.amount),
-  //     0
-  //   );
-  //   const sDiscount = parseFloat(totalValues.totalSDiscount) || 0;
-  //   const grossAmt = grossAmount - sDiscount;
-
-  //   const tcsPercentage = parseFloat(totalValues.tcs) || 1;
-  //   const tcsAmt = (grossAmt * tcsPercentage) / 100;
-
-  //   const discount = parseFloat(totalValues.discount) || 0;
-  //   const discountAmt = (grossAmt * discount) / 100;
-
-  //   const govtRate = parseFloat(totalValues.govtRate) || 0;
-  //   const spcPurpose = parseFloat(totalValues.spcPurpose) || 0;
-
-  //   // Code for total GRO and SP changes
-  //   const updatedPurchases = purchases.map((purchase) => {
-  //     const pcs = parseFloat(purchase.pcs) || 0;
-  //     const purchaseRate = parseFloat(purchase.purchaseRate) || 0;
-
-  //     // If pcs or purchaseRate is 0, return without calculating
-  //     if (pcs === 0 || purchaseRate === 0) {
-  //       console.warn(
-  //         `Skipping purchase item due to zero pcs or purchaseRate: `,
-  //         purchase
-  //       );
-  //       return { ...purchase, gro: 0, sp: 0 };
-  //     }
-
-  //     const itemTotal = purchaseRate * pcs;
-  //     const perPcsPercentage = (itemTotal / grossAmount) * 100;
-
-  //     const itemsTotalGovtRate = (govtRate * (perPcsPercentage / 100)) / pcs;
-  //     const itemsTotalSP = (spcPurpose * (perPcsPercentage / 100)) / pcs;
-
-  //     return {
-  //       ...purchase,
-  //       gro: itemsTotalGovtRate?.toFixed(2) || 0,
-  //       sp: itemsTotalSP?.toFixed(2) || 0,
-  //     };
-  //   });
-
-  //   setPurchases(updatedPurchases);
-  //   sessionStorage.setItem("purchases", JSON.stringify(updatedPurchases));
-  //   //
-
-  //   let netAmt = grossAmt + govtRate + spcPurpose + tcsAmt;
-  //   netAmt -= discountAmt;
-
-  //   const adjustment = parseFloat(totalValues.adjustment) || 0;
-  //   netAmt += adjustment;
-
-  //   setTotalValues((prevValues) => ({
-  //     ...prevValues,
-  //     grossAmt,
-  //     netAmt,
-  //     tcsAmt,
-  //     discountAmt,
-  //   }));
-  // }, [
-  //   totalValues.grossAmt,
-  //   totalValues.discount,
-  //   totalValues.totalSDiscount,
-  //   totalValues.govtRate,
-  //   totalValues.tcs,
-  //   totalValues.spcPurpose,
-  //   totalValues.adjustment,
-  // ]);
-
   useEffect(() => {
     const grossAmount = purchases.reduce(
       (total, purchase) => total + parseFloat(purchase.amount),
@@ -1286,14 +1206,14 @@ const PurchaseEntry = () => {
     const sDiscount = parseFloat(totalValues.totalSDiscount) || 0;
     const grossAmt = grossAmount - sDiscount;
 
-    const tcsPercentage = parseFloat(totalValues.tcs) || 1;
-    const tcsAmt = (grossAmt * tcsPercentage) / 100;
-
     const discount = parseFloat(totalValues.discount) || 0;
     const discountAmt = (grossAmt * discount) / 100;
 
     const govtRate = parseFloat(totalValues.govtRate) || 0;
     const spcPurpose = parseFloat(totalValues.spcPurpose) || 0;
+
+    const tcsPercentage = parseFloat(totalValues.tcs) || 1;
+    const tcsAmt = ((grossAmt + govtRate + spcPurpose) * tcsPercentage) / 100;
 
     let netAmt = grossAmt + govtRate + spcPurpose + tcsAmt;
     netAmt -= discountAmt;
@@ -1368,25 +1288,6 @@ const PurchaseEntry = () => {
     sessionStorage.setItem("purchases", JSON.stringify(updatedPurchases));
   }, [totalValues.govtRate, totalValues.spcPurpose, totalValues.grossAmt]);
 
-  // useEffect(() => {
-  //   const tcsPercentage = parseFloat(totalValues.tcs) || 1;
-  //   const grossAmt = parseFloat(totalValues.grossAmt) || 0;
-  //   const tcsAmt = (grossAmt * tcsPercentage) / 100;
-
-  //   const discount = parseFloat(totalValues.discount) || 0;
-  //   const discountAmt = (grossAmt * discount) / 100;
-
-  //   let netAmt = grossAmt + govtRate + spcPurpose + tcsAmt;
-  //   netAmt -= discountAmt;
-
-  //   setTotalValues((prevValues) => ({
-  //     ...prevValues,
-  //     tcsAmt,
-  //     discountAmt,
-  //     netAmt,
-  //   }));
-  // }, [totalValues.tcs, totalValues.grossAmt]);
-
   useEffect(() => {
     if (isManualGovtRateChange) {
       return;
@@ -1420,10 +1321,6 @@ const PurchaseEntry = () => {
       }
     }
   }, [formData.gro, formData.sp, isRowUpdated, entryNumber]);
-
-  // useEffect(() => {
-  //   setIsManualGovtRateChange(false);
-  // }, [totalValues.govtRate, totalValues.spcPurpose]);
 
   useEffect(() => {
     if (passDateRef.current) {
