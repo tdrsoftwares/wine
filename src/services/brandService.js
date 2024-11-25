@@ -40,12 +40,16 @@ export const deleteBrand = async (id) => {
   }
 };
 
-export const getAllBrandsReport = async () => {
+export const getAllBrandsReport = async (filterOptions) => {
+  const { fromDate, toDate } = filterOptions;
   try {
     const apiUrl = `reports/brand-register-reports`;
-    const response = await axiosInstance.get(apiUrl);
+
+    const queryString = `?fromDate=${fromDate}&toDate=${toDate}`;
+    const response = await axiosInstance.get(`${apiUrl}${queryString}`);
     return response;
   } catch (err) {
     return err;
   }
-}
+};
+

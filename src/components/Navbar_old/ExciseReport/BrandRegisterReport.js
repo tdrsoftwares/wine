@@ -1,19 +1,28 @@
-import { Box, Button, CircularProgress, Grid, InputLabel, TextField, ThemeProvider, Typography } from '@mui/material';
-import React, { useEffect, useState } from 'react'
-import { customTheme } from '../../../utils/customTheme';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import debounce from 'lodash.debounce';
-import { getAllBrandsReport } from '../../../services/brandService';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Grid,
+  InputLabel,
+  TextField,
+  ThemeProvider,
+  Typography,
+} from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { customTheme } from "../../../utils/customTheme";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import debounce from "lodash.debounce";
+import { getAllBrandsReport } from "../../../services/brandService";
 
 const BrandRegisterReport = () => {
   const [allProfitData, setAllProfitData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
   const [paginationModel, setPaginationModel] = useState({
-    page: 1,
-    pageSize: 10,
+    page: 0,
+    pageSize: 100,
   });
   const [filterData, setFilterData] = useState({
     dateFrom: null,
@@ -29,36 +38,71 @@ const BrandRegisterReport = () => {
       headerClassName: "custom-header",
     },
     {
-      field: "itemName",
-      headerName: "Item Name",
+      field: "category",
+      headerName: "Category",
       flex: 2,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
-      field: "TotalQuantity",
+      field: "brand",
+      headerName: "Brand",
+      flex: 2,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "ml",
+      headerName: "ML",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "opening",
+      headerName: "Opening",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "quantity",
       headerName: "Quantity",
       flex: 1,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
-      field: "salesAmount",
-      headerName: "Sale Amt.",
+      field: "batch",
+      headerName: "Batch",
       flex: 1,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
-      field: "purchaseRate",
-      headerName: "Purchase Rate",
+      field: "passDate",
+      headerName: "Pass Date",
       flex: 1,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
     {
-      field: "profit",
-      headerName: "Profit Amt.",
+      field: "total",
+      headerName: "Total",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "sale",
+      headerName: "Sale",
+      flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "closing",
+      headerName: "Closing",
       flex: 1,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
@@ -74,34 +118,42 @@ const BrandRegisterReport = () => {
     setLoading(true);
     try {
       const response = await getAllBrandsReport(filterOptions);
-      console.log("response: ", response);
-
+      // console.log("response: ", response);
       if (response.status === 200) {
-        setAllProfitData(response?.data?.data || []);
-        setTotalCount(response.data.data.length || 0);
+        const transformedData = [];
+        response.data.data.forEach((category, categoryIndex) => {
+          category.brands.forEach((brand) => {
+            brand.data.forEach((item, itemIndex) => {
+              transformedData.push({
+                category: itemIndex === 0 ? category.category : "",
+                brand: itemIndex === 0 ? item.brand : "",
+                ml: itemIndex === 0 ? "" : item.volume,
+                opening: itemIndex === 0 ? "" : item.openingBalance,
+                quantity: itemIndex === 0 ? "" : item.totalQuantityReceipts,
+                whereFromReceived: item.allSuppliers.join(", ") || "",
+                batch: item.allBatchNo.join(", ") || "",
+                passDate: item.passDate.join(", ") || "",
+                total: itemIndex === 0 ? "" : item.total,
+                sale: itemIndex === 0 ? "" : item.totalSales,
+                closing: itemIndex === 0 ? "" : item.closingBlance,
+              });
+            });
+          });
+        });
+        setAllProfitData(transformedData);
       } else {
-        console.log("Error", response);
-        // NotificationManager.error("No records found.", "Error");
         setAllProfitData([]);
       }
     } catch (error) {
-      // NotificationManager.error(
-      //   "Error fetching records. Please try again later.",
-      //   "Error"
-      // );
-      console.log("Error fetching records", error);
+      console.error("Error fetching records", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchAllProfits();
-  }, []);
-
-  useEffect(() => {
     const debouncedFetch = debounce(() => {
-      fetchAllProfits();
+      if (filterData.dateFrom && filterData.dateTo) fetchAllProfits();
     }, 300);
 
     debouncedFetch();
@@ -110,6 +162,7 @@ const BrandRegisterReport = () => {
       debouncedFetch.cancel();
     };
   }, [filterData]);
+
   return (
     <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, minWidth: "900px" }}>
@@ -133,7 +186,7 @@ const BrandRegisterReport = () => {
                   onChange={(newDate) =>
                     setFilterData({
                       ...filterData,
-                      dateFrom: newDate ? newDate.format("YYYY/MM/DD") : null,
+                      dateFrom: newDate ? newDate : null,
                     })
                   }
                   renderInput={(params) => <TextField {...params} />}
@@ -157,7 +210,7 @@ const BrandRegisterReport = () => {
                   onChange={(newDate) =>
                     setFilterData({
                       ...filterData,
-                      dateTo: newDate ? newDate.format("YYYY/MM/DD") : null,
+                      dateTo: newDate ? newDate : null,
                     })
                   }
                   renderInput={(params) => <TextField {...params} />}
@@ -183,7 +236,7 @@ const BrandRegisterReport = () => {
                 dateFrom: null,
                 dateTo: null,
               });
-              setPaginationModel({ page: 1, pageSize: 10 });
+              setPaginationModel({ page: 0, pageSize: 100 });
             }}
           >
             Clear Filters
@@ -216,14 +269,10 @@ const BrandRegisterReport = () => {
           }}
         >
           <DataGrid
-            rows={(allProfitData || [])?.map((item, index) => ({
+            rows={allProfitData.map((item, index) => ({
               id: index,
               sNo: index + 1,
-              itemName: item.itemName || "No Data",
-              TotalQuantity: item.TotalQuantity || 0,
-              salesAmount: item.salesAmount || 0,
-              purchaseRate: item.purchaseRate || 0,
-              profit: item.profit || 0,
+              ...item,
             }))}
             columns={columns}
             rowCount={totalCount}
@@ -250,6 +299,6 @@ const BrandRegisterReport = () => {
       </Box>
     </ThemeProvider>
   );
-}
+};
 
-export default BrandRegisterReport
+export default BrandRegisterReport;
