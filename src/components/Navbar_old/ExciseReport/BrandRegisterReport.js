@@ -15,6 +15,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import debounce from "lodash.debounce";
 import { getAllBrandsReport } from "../../../services/brandService";
+import dayjs from "dayjs";
 
 const BrandRegisterReport = () => {
   const [allProfitData, setAllProfitData] = useState([]);
@@ -52,8 +53,8 @@ const BrandRegisterReport = () => {
       headerClassName: "custom-header",
     },
     {
-      field: "ml",
-      headerName: "ML",
+      field: "volume",
+      headerName: "Volume",
       flex: 1,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
@@ -66,8 +67,8 @@ const BrandRegisterReport = () => {
       headerClassName: "custom-header",
     },
     {
-      field: "quantity",
-      headerName: "Quantity",
+      field: "receipts",
+      headerName: "Receipts",
       flex: 1,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
@@ -111,25 +112,29 @@ const BrandRegisterReport = () => {
 
   const fetchAllProfits = async () => {
     const filterOptions = {
-      fromDate: filterData.dateFrom,
-      toDate: filterData.dateTo,
+      page: paginationModel.page + 1,
+      pageSize: paginationModel.pageSize,
+      fromDate: dayjs(filterData.dateFrom).format("DD/MM/YYYY"),
+      toDate: dayjs(filterData.dateTo).format("DD/MM/YYYY"),
     };
 
     setLoading(true);
     try {
       const response = await getAllBrandsReport(filterOptions);
-      // console.log("response: ", response);
+      // console.log("response: ", response?.data?.data);
+
       if (response.status === 200) {
         const transformedData = [];
-        response.data.data.forEach((category, categoryIndex) => {
+        response.data.data.data.forEach((category, categoryIndex) => {
           category.brands.forEach((brand) => {
             brand.data.forEach((item, itemIndex) => {
               transformedData.push({
+                sNo: itemIndex === 0 ? categoryIndex + paginationModel.page * paginationModel.pageSize + 1 : "",
                 category: itemIndex === 0 ? category.category : "",
                 brand: itemIndex === 0 ? item.brand : "",
-                ml: itemIndex === 0 ? "" : item.volume,
+                volume: itemIndex === 0 ? "" : item.volume,
                 opening: itemIndex === 0 ? "" : item.openingBalance,
-                quantity: itemIndex === 0 ? "" : item.totalQuantityReceipts,
+                receipts: itemIndex === 0 ? "" : item.totalQuantityReceipts,
                 whereFromReceived: item.allSuppliers.join(", ") || "",
                 batch: item.allBatchNo.join(", ") || "",
                 passDate: item.passDate.join(", ") || "",
@@ -140,9 +145,12 @@ const BrandRegisterReport = () => {
             });
           });
         });
+        setTotalCount(response?.data?.data?.pagination?.totalItems || 0)
         setAllProfitData(transformedData);
+        
       } else {
         setAllProfitData([]);
+        setTotalCount(0)
       }
     } catch (error) {
       console.error("Error fetching records", error);
@@ -161,7 +169,7 @@ const BrandRegisterReport = () => {
     return () => {
       debouncedFetch.cancel();
     };
-  }, [filterData]);
+  }, [filterData, paginationModel]);
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -271,11 +279,11 @@ const BrandRegisterReport = () => {
           <DataGrid
             rows={allProfitData.map((item, index) => ({
               id: index,
-              sNo: index + 1,
               ...item,
             }))}
             columns={columns}
             rowCount={totalCount}
+            paginationMode="server"
             pagination
             paginationModel={paginationModel}
             pageSizeOptions={[10, 25, 50, 100]}
