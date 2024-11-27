@@ -28,7 +28,10 @@ import CustomItemLedgerStatusFooter from "./CustomItemLedgerFooter";
 import { customTheme } from "../utils/customTheme";
 import debounce from "lodash.debounce";
 import ItemLedgerStatusPrintComponent from "./ItemLedgerStatusPrintComponent";
-import { searchByBrandName, searchByItemName } from "../services/saleBillService";
+import {
+  searchByBrandName,
+  searchByItemName,
+} from "../services/saleBillService";
 import { usePermissions } from "../utils/PermissionsContext";
 
 const ItemLedgerStatus = () => {
@@ -252,8 +255,8 @@ const ItemLedgerStatus = () => {
     setLoading(true);
     try {
       const filterOptions = {
-        // page: paginationModel.page + 1,
-        // pageSize: paginationModel.pageSize,
+        page: paginationModel.page + 1,
+        pageSize: paginationModel.pageSize,
         fromDate: fromDate,
         toDate: toDate,
         company: filterData.company,
@@ -278,11 +281,11 @@ const ItemLedgerStatus = () => {
 
       const response = await getAllItemLedgerStatuses(filterOptions);
       const itemStatusData = response?.data?.data;
-      // console.log("Response itemStatusData: ", itemStatusData);
+      // console.log("Response itemStatusData: ", itemStatusData?.pagination?.totalItems);
 
       if (itemStatusData) {
-        setAllItemStatusData(itemStatusData || []);
-        setTotalCount(itemStatusData?.length || 0);
+        setAllItemStatusData(itemStatusData?.data || []);
+        setTotalCount(itemStatusData?.pagination?.totalItems || 0);
       } else {
         // console.log("Error", response);
         // NotificationManager.error("No items found.", "Error");
@@ -317,14 +320,14 @@ const ItemLedgerStatus = () => {
   useEffect(() => {
     const debouncedFetch = debounce(fetchAllItemLedgerStatus, 300);
     // console.log("debounce effect runs...");
-    if (filterData.storeName) {
+    if (filterData.storeName && filterData.dateFrom && filterData.dateTo) {
       debouncedFetch();
     }
 
     return () => {
       debouncedFetch.cancel();
     };
-  }, [filterData]);
+  }, [filterData, paginationModel]);
 
   const handlePrint = useReactToPrint({
     content: () => printRef.current,
@@ -348,10 +351,10 @@ const ItemLedgerStatus = () => {
     try {
       const response = await searchByBrandName(searchText);
       const brandsData = response?.data?.data || [];
-  
+
       const allBrandsOption = { name: "All Brands" };
       const updatedBrandsData = [allBrandsOption, ...brandsData];
-  
+
       setBrandNameOptions(updatedBrandsData);
     } catch (error) {
       console.error("Error searching brand:", error);
@@ -366,7 +369,7 @@ const ItemLedgerStatus = () => {
 
   const handleBrandNameChange = (event, newValue) => {
     setBrandName(newValue);
-    
+
     if (newValue === "All Brands") {
       setFilterData((prevData) => ({ ...prevData, brandName: "All Brands" }));
     } else {

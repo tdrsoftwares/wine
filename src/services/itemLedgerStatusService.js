@@ -3,8 +3,8 @@ import axiosInstance from "../utils/axiosInstance";
 export const getAllItemLedgerStatuses = async (filterOptions) => {
   try {
     const {
-      //   page,
-      //   pageSize,
+      page,
+      pageSize,
       storeName,
       toDate,
       fromDate,
@@ -19,12 +19,12 @@ export const getAllItemLedgerStatuses = async (filterOptions) => {
     } = filterOptions;
 
     // let apiURL = `/reports/daily-item-status?page=${page}&pageSize=${pageSize}`;
-    let apiURL = `/reports/item-ledger?storeName=${storeName}`;
+    let apiURL = `/reports/item-ledger?fromDate=${fromDate}&toDate=${toDate}&page=${page}&pageSize=${pageSize}&storeName=${storeName}`;
 
     const filters = {
       // storeName,
-      toDate,
-      fromDate,
+      // toDate,
+      // fromDate,
       brandName,
       AllBrand,
       itemName,
