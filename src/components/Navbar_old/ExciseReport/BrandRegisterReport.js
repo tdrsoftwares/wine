@@ -117,47 +117,59 @@ const BrandRegisterReport = () => {
       fromDate: dayjs(filterData.dateFrom).format("DD/MM/YYYY"),
       toDate: dayjs(filterData.dateTo).format("DD/MM/YYYY"),
     };
-
+  
     setLoading(true);
     try {
       const response = await getAllBrandsReport(filterOptions);
-      // console.log("response: ", response?.data?.data);
-
-      if (response.status === 200) {
+      console.log("response: ", response);
+  
+      if (response?.data?.data) {
         const transformedData = [];
         response.data.data.data.forEach((category, categoryIndex) => {
-          category.brands.forEach((brand) => {
-            brand.data.forEach((item, itemIndex) => {
+          category.brand.forEach((brand, brandIndex) => {
+            brand.volume.forEach((item, itemIndex) => {
               transformedData.push({
-                sNo: itemIndex === 0 ? categoryIndex + paginationModel.page * paginationModel.pageSize + 1 : "",
-                category: itemIndex === 0 ? category.category : "",
-                brand: itemIndex === 0 ? item.brand : "",
-                volume: itemIndex === 0 ? "" : item.volume,
-                opening: itemIndex === 0 ? "" : item.openingBalance,
-                receipts: itemIndex === 0 ? "" : item.totalQuantityReceipts,
-                whereFromReceived: item.allSuppliers.join(", ") || "",
-                batch: item.allBatchNo.join(", ") || "",
-                passDate: item.passDate.join(", ") || "",
-                total: itemIndex === 0 ? "" : item.total,
-                sale: itemIndex === 0 ? "" : item.totalSales,
-                closing: itemIndex === 0 ? "" : item.closingBlance,
+                sNo:
+                  itemIndex === 0 && brandIndex === 0
+                    ? categoryIndex + paginationModel.page * paginationModel.pageSize + 1
+                    : "",
+                category:
+                  itemIndex === 0 && brandIndex === 0
+                    ? category.categories
+                    : "",
+                brand: itemIndex === 0 ? brand.name.trim() : "",
+                volume: item.volume || 0,
+                opening: item.openingStock || 0,
+                receipts: item.quantityReceipts || 0,
+                whereFromReceived: item.suppliers.length
+                  ? item.suppliers.join(", ")
+                  : "No Data",
+                batch: item.batches.length
+                  ? item.batches.join(", ")
+                  : "No Data",
+                passDate: item.passDates.length
+                  ? item.passDates.join(", ")
+                  : "No Data",
+                total: item.total || 0,
+                sale: item.totalSold || 0,
+                closing: item.closingStock || 0,
               });
             });
           });
         });
-        setTotalCount(response?.data?.data?.pagination?.totalItems || 0)
+  
+        setTotalCount(response?.data?.data?.pagination?.totalItems || 0);
         setAllProfitData(transformedData);
-        
       } else {
         setAllProfitData([]);
-        setTotalCount(0)
+        setTotalCount(0);
       }
     } catch (error) {
       console.error("Error fetching records", error);
     } finally {
       setLoading(false);
     }
-  };
+  };  
 
   useEffect(() => {
     const debouncedFetch = debounce(() => {

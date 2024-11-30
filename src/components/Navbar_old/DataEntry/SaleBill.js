@@ -527,7 +527,6 @@ const SaleBill = () => {
             //   } pcs in stock.`
             // );
             setSalesData([
-              ...salesData,
               {
                 itemId: searchedItem?.itemId,
                 itemDetailsId: searchedItem?._id,
@@ -545,7 +544,9 @@ const SaleBill = () => {
                 amount: searchedItem?.mrp || 0,
                 group: searchedItem?.item?.group,
               },
+              ...salesData,
             ]);
+            setHighlightedRows([...highlightedRows, existingItemIndex]);
 
             setFormData({ ...formData, itemCode: "" });
             itemCodeRef.current.focus();
@@ -576,6 +577,7 @@ const SaleBill = () => {
             updatedSalesData[existingItemIndex].pcs *
             updatedSalesData[existingItemIndex].rate;
           setSalesData(updatedSalesData);
+          setHighlightedRows([...highlightedRows, existingItemIndex]);
           itemCodeRef.current.focus();
           // setFormData({ ...formData, itemCode: "" });
         } else {
@@ -591,7 +593,6 @@ const SaleBill = () => {
             return;
           }
           setSalesData([
-            ...salesData,
             {
               itemId: searchedItem?.itemId,
               itemDetailsId: searchedItem?._id,
@@ -609,7 +610,9 @@ const SaleBill = () => {
               amount: searchedItem?.mrp || 0,
               group: searchedItem?.item?.group,
             },
+            ...salesData,
           ]);
+          setHighlightedRows([...highlightedRows, 0]);
         }
         setFormData({ ...formData, itemCode: "" });
         itemCodeRef.current.focus();
@@ -642,6 +645,8 @@ const SaleBill = () => {
       setIsLoading(false);
     }
   };
+
+  // console.log("highlightedRows: ",highlightedRows);
 
   useEffect(() => {
     const newPcs = parseInt(formData.pcs) * parseInt(formData.mrp);
