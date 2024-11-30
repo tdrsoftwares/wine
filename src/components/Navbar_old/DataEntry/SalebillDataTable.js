@@ -1,5 +1,5 @@
 // saleBill data table:
-import React from "react";
+import React, { useEffect } from "react";
 import {
   TextField,
   Paper,
@@ -26,9 +26,21 @@ const SalebillDataTable = (props) => {
     handleSaveClick,
     handleRemoveClick,
     handlePrintClick,
-    pcsEditRef
+    pcsEditRef,
+    highlightedRows,
+    setHighlightedRows
   } = props;
   // console.log("salesData: ", salesData)
+
+  useEffect(() => {
+    if (highlightedRows.length > 0) {
+      const timer = setTimeout(() => {
+        setHighlightedRows([]);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [highlightedRows]);
+  
 
   return (
     <>
@@ -75,7 +87,14 @@ const SalebillDataTable = (props) => {
               <TableRow
                 key={index}
                 sx={{
-                  backgroundColor: "#fff",
+                  backgroundColor: highlightedRows.includes(index) ? "rgba(25, 118, 210, 0.15)" : "#fff",
+                  transition: "background-color 0.5s ease",
+                }}
+                onAnimationEnd={() => {
+                  
+                  if (highlightedRows.includes(index)) {
+                    setHighlightedRows((prev) => prev.filter((i) => i !== index));
+                  }
                 }}
               >
                 <TableCell align="center" sx={{padding: "6px 5px !important"}}>{index + 1}</TableCell>

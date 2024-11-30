@@ -129,6 +129,7 @@ const SaleBill = () => {
   const [printTotalValues, setPrintTotalValues] = useState([]);
   const [isAutoBillPrint, setIsAutoBillPrint] = useState(false);
   const [isSaveAndPrintClicked, setIsSaveAndPrintClicked] = useState(false);
+  const [highlightedRows, setHighlightedRows] = useState([]);
   // console.log("isAutoBillPrint", isAutoBillPrint)
 
   const tableRef = useRef(null);
@@ -1324,6 +1325,7 @@ const SaleBill = () => {
               currPcs * currRate
             );
             setSalesData(updatedSalesData);
+            setHighlightedRows([...highlightedRows, existingItemIndex]);
 
             // Save updated salesData to session storage
             sessionStorage.setItem(
@@ -1359,9 +1361,9 @@ const SaleBill = () => {
           newItem.itemDetailsId = formData.itemDetailsId;
         }
 
-        const updatedSalesData = [...salesData, newItem];
+        const updatedSalesData = [newItem, ...salesData];
         setSalesData(updatedSalesData);
-
+        setHighlightedRows([...highlightedRows, 0]);
         // Save updated salesData to session storage
         sessionStorage.setItem("salesData", JSON.stringify(updatedSalesData));
 
@@ -1819,7 +1821,7 @@ const SaleBill = () => {
           // console.log("Barcode added to queue: ", value);
           processBarcodeQueue();
         }
-      }, 50);
+      }, 30);
     }
   };
 
@@ -2783,6 +2785,8 @@ const SaleBill = () => {
                 setSalesData={setSalesData}
                 handlePrintClick={handlePrintClick}
                 pcsEditRef={pcsEditRef}
+                highlightedRows={highlightedRows}
+                setHighlightedRows={setHighlightedRows}
               />
             )}
           </Box>
