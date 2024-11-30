@@ -281,7 +281,7 @@ const ItemLedgerStatus = () => {
 
       const response = await getAllItemLedgerStatuses(filterOptions);
       const itemStatusData = response?.data?.data;
-      // console.log("Response itemStatusData: ", itemStatusData?.pagination?.totalItems);
+      console.log("Response itemStatusData: ", itemStatusData);
 
       if (itemStatusData) {
         setAllItemStatusData(itemStatusData?.data || []);
@@ -384,7 +384,7 @@ const ItemLedgerStatus = () => {
         item.items.forEach((nestedItem, nestedIndex) => {
           flattenedData.push({
             id: `${index}-${nestedIndex}`,
-            sNo: flattenedData.length + 1,
+            sNo: index + paginationModel.page * paginationModel.pageSize + 1,
             item: nestedItem.item,
             openingBalance: filterData.isBLTrue
               ? nestedItem.openingBalance?.toFixed(3)
@@ -436,7 +436,7 @@ const ItemLedgerStatus = () => {
       } else {
         flattenedData.push({
           id: index,
-          sNo: index + 1,
+          sNo: index + paginationModel.page * paginationModel.pageSize + 1,
           item: item.item,
           openingBalance: filterData.isBLTrue
             ? item.openingBalance?.toFixed(3)
@@ -834,7 +834,7 @@ const ItemLedgerStatus = () => {
               columns={columns}
               rowCount={totalCount}
               pagination
-              // paginationMode="server"
+              paginationMode="server"
               pageSizeOptions={[10, 25, 50, 100]}
               paginationModel={paginationModel}
               onPaginationModelChange={setPaginationModel}
