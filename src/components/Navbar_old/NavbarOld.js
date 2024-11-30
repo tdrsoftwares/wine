@@ -198,7 +198,7 @@ const NavbarOld = () => {
         <ul className={`navbar-links ${isSidebarOpen ? "active" : ""}`}>
           <li className="nav-item nav-title">
             <Link to="/" className="nav-link">
-              TDR SOFTWARES
+              WINE APP
             </Link>
           </li>
 
