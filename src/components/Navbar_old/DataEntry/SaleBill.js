@@ -1038,16 +1038,16 @@ const SaleBill = () => {
       let remainingItems = [...items];
       let currentVolume = 0;
       let currentPcs = 0;
-
+    
       while (remainingItems.length > 0) {
         let billItems = [];
         currentVolume = 0;
         currentPcs = 0;
-
+    
         for (let i = 0; i < remainingItems.length; ) {
           const item = remainingItems[i];
           const itemVolume = item.volume * item.pcs;
-
+    
           if (currentVolume + itemVolume <= volumeLimit) {
             currentVolume += itemVolume;
             currentPcs += item.pcs;
@@ -1067,7 +1067,15 @@ const SaleBill = () => {
             break;
           }
         }
-
+    
+        const grossAmount = billItems.reduce((sum, item) => sum + item.pcs * item.rate, 0);
+        const discountAmount = billItems.reduce(
+          (sum, item) => sum + (item.discount || 0) * item.pcs,
+          0
+        );
+        const splDiscAmount = (grossAmount * (totalValues.splDiscount || 0)) / 100;
+        const netAmount = grossAmount - discountAmount - splDiscAmount - (totalValues.adjustment || 0);
+    
         const newPayload = {
           billType: formData.billType,
           customer: formData.customerName?._id || null,
@@ -1077,13 +1085,13 @@ const SaleBill = () => {
           volume: currentVolume,
           totalPcs: currentPcs,
           splDisc: parseFloat(totalValues.splDiscount),
-          splDiscAmount: parseFloat(totalValues.splDiscAmount),
-          grossAmount: parseFloat(totalValues.grossAmt),
-          discAmount: parseFloat(totalValues.discountAmt),
-          adjustment: parseFloat(totalValues.adjustment),
-          netAmount: parseFloat(totalValues.netAmt),
-          receiptMode1: parseFloat(totalValues.receiptMode1),
-
+          splDiscAmount: parseFloat(splDiscAmount.toFixed(2)),
+          grossAmount: parseFloat(grossAmount.toFixed(2)),
+          discAmount: parseFloat(discountAmount.toFixed(2)),
+          adjustment: parseFloat(totalValues.adjustment || 0),
+          netAmount: parseFloat(netAmount.toFixed(2)),
+          receiptMode1: parseFloat(netAmount.toFixed(2)),
+    
           salesItem: billItems.map((item) => ({
             itemDetailsId: item.itemDetailsId,
             itemCode: item.itemCode,
@@ -1096,23 +1104,23 @@ const SaleBill = () => {
             amount: parseFloat(item.pcs) * parseFloat(item.rate),
             split: parseFloat(item.split),
             break: parseFloat(item.brk),
-            // stockAt: item.stockAt,
           })),
         };
-
+    
         if (totalValues.receiptMode2) {
           newPayload.receiptMode2 = totalValues.receiptMode2;
         }
-
+    
         if (totalValues.receiptAmt && totalValues.receiptAmt !== 0) {
           newPayload.receiptAmount = parseFloat(totalValues.receiptAmt);
         }
-
+    
         payloads.push(newPayload);
       }
-
+    
       return payloads;
     };
+    
 
     let payload = [];
 
