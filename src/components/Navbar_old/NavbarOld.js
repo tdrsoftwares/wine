@@ -713,8 +713,11 @@ const NavbarOld = () => {
               <Link to="/user-control" onClick={closeAllDropdowns}>
                 User Control
               </Link>
-              <Link to="/stock-updation" onClick={closeAllDropdowns}>
-                Stock Updation
+              <Link to="/itemcode-updation" onClick={closeAllDropdowns}>
+                ItemCode Updation
+              </Link>
+              <Link to="/itemname-updation" onClick={closeAllDropdowns}>
+                ItemName Updation
               </Link>
               <Link to="/3yrs-sale-report" onClick={closeAllDropdowns}>
                 3 Years Sale Report

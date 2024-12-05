@@ -49,3 +49,13 @@ export const updateItemCode = async (itemDetailsId, payload) => {
     return error;
   }
 }
+
+export const updateItemName = async (id, payload) => {
+  try {
+    const apiURL = `/utils/update-item-name?itemCode=${id}`;
+    const response = await axiosInstance.put(apiURL, payload);
+    return response;
+  } catch (error) {
+    return error;
+  }
+}

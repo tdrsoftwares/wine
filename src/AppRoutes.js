@@ -112,11 +112,12 @@ import BalanceSheet from "./components/Navbar_old/AuditAndAccounts/BalanceSheet"
 import Epos from "./modules/Epos";
 import AdminPanel from "./modules/AdminPanel";
 import DailyItemBatchStatus from "./components/Sidebar_old/DailyItemBatchStatus";
-import StockUpdation from "./modules/StockUpdation";
+import ItemCodeUpdate from "./modules/ItemCodeUpdate";
 import BrandRegisterReport from "./components/Navbar_old/ExciseReport/BrandRegisterReport";
 import UserControl from "./modules/UserControl";
 import StockModify from "./modules/StockModify";
 import Expenses from "./components/Sidebar_old/Expenses";
+import ItemNameUpdate from "./modules/ItemNameUpdate";
 
 const PrivateRoute = ({ element, authenticatedUser }) => {
   return authenticatedUser ? element : <Navigate to="/login" />;
@@ -700,8 +701,13 @@ const AppRoutes = ({
       />
 
       <Route
-        path="/stock-updation"
-        element={authenticatedUser ? <StockUpdation /> : <UnAuthorized />}
+        path="/itemcode-updation"
+        element={authenticatedUser ? <ItemCodeUpdate /> : <UnAuthorized />}
+      />
+
+      <Route
+        path="/itemname-updation"
+        element={authenticatedUser ? <ItemNameUpdate /> : <UnAuthorized />}
       />
     </Routes>
   );

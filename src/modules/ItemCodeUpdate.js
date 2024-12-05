@@ -23,7 +23,7 @@ import { customTheme } from "../utils/customTheme";
 import { useEffect } from "react";
 import { usePermissions } from "../utils/PermissionsContext";
 
-const StockUpdation = () => {
+const ItemCodeUpdate = () => {
   const [editableIndex, setEditableIndex] = useState(null);
   const [editedRow, setEditedRow] = useState({});
   // console.log("editedRow: ", editedRow);
@@ -309,4 +309,4 @@ const StockUpdation = () => {
   );
 };
 
-export default StockUpdation;
+export default ItemCodeUpdate;
