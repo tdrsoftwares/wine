@@ -121,8 +121,8 @@ const BrandRegisterReport = () => {
     setLoading(true);
     try {
       const response = await getAllBrandsReport(filterOptions);
-      // console.log("response: ", response);
-      const responseData = response?.data?.data
+      console.log("response: ", response);
+      const responseData = response?.data?.data;
 
       if (responseData?.formattedData) {
         const transformedData = [];
@@ -148,15 +148,9 @@ const BrandRegisterReport = () => {
                 volume: item.volume || 0,
                 opening: item.openingBalance || 0,
                 closing: item.closingBlance || 0,
-                sales: item.totalCurrentSalesPcs || 0,
-                passDate:
-                  Array.isArray(item.passDates) && item.passDates.length
-                    ? item.passDates.join(", ")
-                    : "No Data",
-                receipts:
-                  Array.isArray(item.supplierNames) && item.supplierNames.length
-                    ? item.supplierNames.join(", ")
-                    : "No Data",
+                sale: item.totalCurrentSalesPcs || 0,
+                passDate: item.passDates || "No Data",
+                receipts: item.supplierNames || "No Data",
               });
             });
           });
@@ -171,9 +165,9 @@ const BrandRegisterReport = () => {
           volume: "",
           opening: sumOfAllData.openingBalance || 0,
           closing: sumOfAllData.closingBlance || 0,
-          sales: sumOfAllData.quantityReceipts || 0,
-          passDates: "",
-          supplierNames: "",
+          sale: sumOfAllData.quantityReceipts || 0,
+          passDate: "",
+          receipts: "",
         });
 
         setTotalCount(totalRecords);
