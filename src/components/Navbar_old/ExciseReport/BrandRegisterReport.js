@@ -149,11 +149,11 @@ const BrandRegisterReport = () => {
                 opening: item.openingBalance || 0,
                 closing: item.closingBlance || 0,
                 sales: item.totalCurrentSalesPcs || 0,
-                passDates:
+                passDate:
                   Array.isArray(item.passDates) && item.passDates.length
                     ? item.passDates.join(", ")
                     : "No Data",
-                supplierNames:
+                receipts:
                   Array.isArray(item.supplierNames) && item.supplierNames.length
                     ? item.supplierNames.join(", ")
                     : "No Data",
