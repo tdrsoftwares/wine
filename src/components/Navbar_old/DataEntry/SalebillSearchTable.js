@@ -8,7 +8,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 
 const SalebillSearchTable = (props) => {
   const {
@@ -21,16 +21,42 @@ const SalebillSearchTable = (props) => {
     canRead,
     role,
   } = props;
+  
+  const containerRef = useRef(null);
+  const rowRefs = useRef([]);
+
+  useEffect(() => {
+    if (selectedRowIndex !== null && containerRef.current) {
+      const container = containerRef.current;
+      const selectedRow = rowRefs.current[selectedRowIndex];
+
+      if (selectedRow) {
+        const containerHeight = container.offsetHeight;
+        const scrollTop = container.scrollTop;
+        const rowTop = selectedRow.offsetTop;
+        const rowHeight = selectedRow.offsetHeight;
+
+        if (rowTop < scrollTop) {
+          container.scrollTop = rowTop;
+        }
+
+        else if (rowTop + rowHeight > scrollTop + containerHeight) {
+          container.scrollTop = rowTop + rowHeight - containerHeight;
+        }
+      }
+    }
+  }, [selectedRowIndex]);
+  
   return (
     <>
       <TableContainer
         component={Paper}
-        ref={tableRef}
+        ref={containerRef}
         sx={{
           marginTop: 0.8,
           height: 300,
           width: 850,
-          overflowY: "unset",
+          overflowY: "auto",
           overflowX: "auto",
           "&::-webkit-scrollbar": {
             width: 10,
@@ -62,6 +88,7 @@ const SalebillSearchTable = (props) => {
                 searchResults.map((row, index) => (
                   <TableRow
                     key={index}
+                    ref={(el) => (rowRefs.current[index] = el)}
                     onClick={() => {
                       handleRowClick(index);
                       setSearchMode(false);

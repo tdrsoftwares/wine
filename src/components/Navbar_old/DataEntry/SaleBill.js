@@ -735,9 +735,11 @@ const SaleBill = () => {
           if (event.key === "ArrowDown") {
             nextIndex =
               currentIndex === searchResults.length - 1 ? 0 : currentIndex + 1;
+
           } else {
             nextIndex =
               currentIndex === 0 ? searchResults.length - 1 : currentIndex - 1;
+              
           }
           setSelectedRowIndex(nextIndex);
           setFormData({
@@ -747,7 +749,7 @@ const SaleBill = () => {
         } else if (event.key === "Enter" && selectedRowIndex !== null) {
           const selectedRow = searchResults[selectedRowIndex];
 
-          console.log("Enter click selected row: " , selectedRow?._id);
+          // console.log("Enter click selected row: " , selectedRow?._id);
           let found = false;
 
           salesData.forEach((item) => {

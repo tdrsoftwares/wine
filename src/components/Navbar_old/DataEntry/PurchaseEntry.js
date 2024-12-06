@@ -1138,9 +1138,11 @@ const PurchaseEntry = () => {
           if (event.key === "ArrowDown") {
             nextIndex =
               currentIndex === searchResults.length - 1 ? 0 : currentIndex + 1;
+
           } else {
             nextIndex =
               currentIndex === 0 ? searchResults.length - 1 : currentIndex - 1;
+              
           }
           setSelectedRowIndex(nextIndex);
           setFormData({
@@ -1166,13 +1168,15 @@ const PurchaseEntry = () => {
             sp: selectedRow.sp || 0,
             amount: selectedRow.amount || 0,
           });
-          setSearchMode(false);
-          setSelectedRowIndex(null);
+          
           if (!selectedRow.itemCode) {
             itemCodeRef.current.focus();
           } else {
             batchRef.current.focus();
           }
+
+          setSearchMode(false);
+          setSelectedRowIndex(null);
         }
       }
     };
@@ -1481,7 +1485,7 @@ const PurchaseEntry = () => {
               0,
             volume: rowData.measure || 0,
           };
-          console.log("updatedFormData else: ", updatedFormData);
+          // console.log("updatedFormData else: ", updatedFormData);
 
           setPurchases((prevPurchases) => [...prevPurchases, updatedFormData]);
         }
