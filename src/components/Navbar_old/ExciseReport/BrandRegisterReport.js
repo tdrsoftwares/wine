@@ -48,7 +48,7 @@ const BrandRegisterReport = () => {
     {
       field: "brand",
       headerName: "Brand",
-      flex: 2,
+      flex: 3,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
@@ -83,7 +83,7 @@ const BrandRegisterReport = () => {
     {
       field: "passDate",
       headerName: "Pass Date",
-      flex: 1,
+      flex: 2,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
@@ -105,6 +105,13 @@ const BrandRegisterReport = () => {
       field: "closing",
       headerName: "Closing",
       flex: 1,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "supplier",
+      headerName: "Supplier",
+      flex: 2,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
@@ -145,12 +152,15 @@ const BrandRegisterReport = () => {
                     : "",
 
                 brand: itemIndex === 0 ? brand.name.trim() : "",
-                volume: item.volume || 0,
-                opening: item.openingBalance || 0,
-                closing: item.closingBlance || 0,
-                sale: item.totalCurrentSalesPcs || 0,
-                passDate: item.passDates || "No Data",
-                receipts: item.supplierNames || "No Data",
+                batch: item.batchNo || "",
+                volume: item.volume || "",
+                opening: item.openingBalance || "",
+                closing: item.closingBlance || "",
+                sale: item.totalCurrentSalesPcs || "",
+                supplier: item.supplierNames || "",
+                passDate: item.passDates || "",
+                receipts: item.totalCurrentPurchasesPcs || "",
+                total: item.total || "",
               });
             });
           });
@@ -162,12 +172,15 @@ const BrandRegisterReport = () => {
           sNo: "",
           category: "Totals",
           brand: "",
+          batch: "",
           volume: "",
           opening: sumOfAllData.openingBalance || 0,
           closing: sumOfAllData.closingBlance || 0,
-          sale: sumOfAllData.quantityReceipts || 0,
+          sale: sumOfAllData.totalSales || 0,
+          supplier: "",
           passDate: "",
-          receipts: "",
+          receipts: sumOfAllData.quantityReceipts || 0,
+          total: sumOfAllData.total || 0,
         });
 
         setTotalCount(totalRecords);
