@@ -1,6 +1,7 @@
 import {
   Box,
   CircularProgress,
+  InputLabel,
   Paper,
   Table,
   TableBody,
@@ -9,6 +10,7 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  TableSortLabel,
   TextField,
   ThemeProvider,
   Typography,
@@ -34,6 +36,9 @@ const ItemCodeUpdate = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const tableRef = useRef(null);
   const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState(null);
+  const [sortOrder, setSortOrder] = useState("asc");
 
   const { role } = usePermissions();
 
@@ -50,7 +55,7 @@ const ItemCodeUpdate = () => {
       const allStocksData = response?.data?.data;
 
       setAllStocks(allStocksData?.items || []);
-      setTotalCount(allStocksData?.totalItems || 0);
+      // setTotalCount(allStocksData?.totalItems || 0);
     } catch (error) {
       NotificationManager.error(
         "Error fetching stock. Please try again later.",
@@ -139,12 +144,93 @@ const ItemCodeUpdate = () => {
     setPage(0);
   };
 
+  const handleSort = (column) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(column);
+      setSortOrder("asc");
+    }
+  };
+
+  const sortedData = () => {
+    if (!allStocks || !allStocks.length) return [];
+
+    const sorted = [...allStocks];
+    if (sortBy) {
+      sorted.sort((a, b) => {
+        let firstValue = "",
+          secondValue = "";
+
+        switch (sortBy) {
+          case "itemCode":
+            firstValue = a.itemCode?.toLowerCase() || "";
+            secondValue = b.itemCode?.toLowerCase() || "";
+            break;
+          case "itemName":
+            firstValue = a.item?.name?.toLowerCase() || "";
+            secondValue = b.item?.name?.toLowerCase() || "";
+            break;
+          default:
+            firstValue =
+              typeof a[sortBy] === "string"
+                ? a[sortBy].toLowerCase()
+                : a[sortBy];
+            secondValue =
+              typeof b[sortBy] === "string"
+                ? b[sortBy].toLowerCase()
+                : b[sortBy];
+        }
+
+        if (firstValue < secondValue) return sortOrder === "asc" ? -1 : 1;
+        if (firstValue > secondValue) return sortOrder === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+    return sorted;
+  };
+
+  useEffect(() => {
+    setPage(0);
+  }, [search]);
+
+  const filteredData = sortedData().filter((item) => {
+    const searchLower = search.trim().toLowerCase();
+    if (!searchLower) return true;
+
+    return (
+      String(item?.itemCode || "")
+        .toLowerCase()
+        .includes(searchLower) ||
+      String(item?.item?.name || "")
+        .toLowerCase()
+        .includes(searchLower)
+    );
+  });
+
   return (
     <ThemeProvider theme={customTheme}>
       <Box sx={{ p: 2, minWidth: "900px" }}>
         <Typography variant="subtitle2" sx={{ marginBottom: 1 }}>
           Update ItemCode:
         </Typography>
+        <div
+          className="input-wrapper"
+          style={{ marginRight: "0px !important" }}
+        >
+          <InputLabel htmlFor="searchInput" sx={{ width: "50%" }}>
+            Search Item Here :
+          </InputLabel>
+          <TextField
+            size="small"
+            type="text"
+            name="searchInput"
+            sx={{ width: "50%" }}
+            placeholder="Enter your input..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
         <Box sx={{ borderRadius: 1, marginTop: 1 }}>
           <TableContainer
             ref={tableRef}
@@ -173,13 +259,27 @@ const ItemCodeUpdate = () => {
                     S. No.
                   </TableCell>
                   <TableCell style={{ flex: 1 }}>Created At</TableCell>
-                  <TableCell style={{ flex: 1 }}>Item Code</TableCell>
-                  <TableCell style={{ flex: 1 }}>Item Name</TableCell>
-                  {/* 
-                  <TableCell style={{ flex: 1 }}>Category</TableCell>
 
-                  <TableCell style={{ flex: 1 }}>Company</TableCell>
-                  <TableCell style={{ flex: 1 }}>Brand</TableCell> */}
+                  <TableCell style={{ flex: 1 }}>
+                    <TableSortLabel
+                      active={sortBy === "itemCode"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("itemCode")}
+                    >
+                      Item Code
+                    </TableSortLabel>
+                  </TableCell>
+
+                  <TableCell style={{ flex: 1 }}>
+                    <TableSortLabel
+                      active={sortBy === "name"}
+                      direction={sortOrder}
+                      onClick={() => handleSort("name")}
+                    >
+                      Item Name
+                    </TableSortLabel>
+                  </TableCell>
+
                   <TableCell style={{ flex: 1 }}>Action</TableCell>
                 </TableRow>
               </TableHead>
@@ -198,68 +298,61 @@ const ItemCodeUpdate = () => {
                     </TableCell>
                   </TableRow>
                 ) : role === "admin" ? (
-                  (allStocks || [])?.length > 0 ? (
-                    allStocks.map((item, index) => (
-                      <TableRow
-                        key={index}
-                        sx={{
-                          backgroundColor: "#fff",
-                        }}
-                      >
-                        <TableCell align="center">
-                          {page * rowsPerPage + index + 1}
-                        </TableCell>
-                        <TableCell>
-                          {new Date(item?.createdAt).toLocaleDateString(
-                            "en-GB"
-                          ) || "No Data"}
-                        </TableCell>
-                        <TableCell>
-                          {editableIndex === index ? (
-                            <TextField
-                              fullWidth
-                              value={editedRow.itemCode || ""}
-                              onChange={(e) =>
-                                setEditedRow({
-                                  ...editedRow,
-                                  itemCode: e.target.value,
-                                })
-                              }
-                              onKeyDown={(e) => handleKeyDown(e, item)}
-                            />
-                          ) : (
-                            item.itemCode || "No Data"
-                          )}
-                        </TableCell>
-                        <TableCell>{item?.item?.name || "No Data"}</TableCell>
+                  filteredData.length > 0 ? (
+                    filteredData
+                      .slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
+                      .map((item, index) => (
+                        <TableRow
+                          key={index}
+                          sx={{
+                            backgroundColor: "#fff",
+                          }}
+                        >
+                          <TableCell align="center">
+                            {page * rowsPerPage + index + 1}
+                          </TableCell>
+                          <TableCell>
+                            {new Date(item?.createdAt).toLocaleDateString(
+                              "en-GB"
+                            ) || "No Data"}
+                          </TableCell>
+                          <TableCell>
+                            {editableIndex === index ? (
+                              <TextField
+                                fullWidth
+                                value={editedRow.itemCode || ""}
+                                onChange={(e) =>
+                                  setEditedRow({
+                                    ...editedRow,
+                                    itemCode: e.target.value,
+                                  })
+                                }
+                                onKeyDown={(e) => handleKeyDown(e, item)}
+                              />
+                            ) : (
+                              item.itemCode || "No Data"
+                            )}
+                          </TableCell>
+                          <TableCell>{item?.item?.name || "No Data"}</TableCell>
 
-                        {/* <TableCell>
-                          {item?.item?.category?.categoryName || "No Data"}
-                        </TableCell>
-
-                        <TableCell>
-                          {item?.item?.company?.name || "No Data"}
-                        </TableCell>
-
-                        <TableCell>
-                          {item?.item?.brand?.name || "No Data"}
-                        </TableCell> */}
-
-                        <TableCell>
-                          {editableIndex !== index ? (
-                            <EditIcon
-                              sx={{ cursor: "pointer", color: "blue" }}
-                              onClick={() => handleEditClick(index, item._id)}
-                            />
-                          ) : (
-                            <SaveIcon
-                              sx={{ cursor: "pointer", color: "green" }}
-                              onClick={() => handleSaveClick(item._id)}
-                            />
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))
+                          <TableCell>
+                            {editableIndex !== index ? (
+                              <EditIcon
+                                sx={{ cursor: "pointer", color: "blue" }}
+                                onClick={() => handleEditClick(index, item._id)}
+                              />
+                            ) : (
+                              <SaveIcon
+                                sx={{ cursor: "pointer", color: "green" }}
+                                onClick={() => handleSaveClick(item._id)}
+                              />
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))
                   ) : (
                     <TableRow
                       sx={{
@@ -290,7 +383,7 @@ const ItemCodeUpdate = () => {
             <TablePagination
               rowsPerPageOptions={[10, 25, 50]}
               component="div"
-              count={totalCount}
+              count={filteredData.length}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={handleChangePage}
