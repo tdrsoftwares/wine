@@ -86,7 +86,7 @@ const AppContent = () => {
   return (
     <Router>
       <div className="container">
-        {authenticatedUser && <NavbarOld />}
+        {authenticatedUser && <NavbarOld handleSignout={handleSignout}/>}
         <div className="row">
           {authenticatedUser && (
             <>

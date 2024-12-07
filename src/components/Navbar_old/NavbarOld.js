@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import LogoutIcon from '@mui/icons-material/Logout';
 import "./navbar.css";
 
-const NavbarOld = () => {
+const NavbarOld = ({handleSignout}) => {
   const [isMasterFileDropdownOpen, setIsMasterFileDropdownOpen] =
     useState(false);
   const [isDataEntryDropdownOpen, setIsDataEntryDropdownOpen] = useState(false);
@@ -194,7 +195,6 @@ const NavbarOld = () => {
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        
         <ul className={`navbar-links ${isSidebarOpen ? "active" : ""}`}>
           <li className="nav-item nav-title">
             <Link to="/" className="nav-link">
@@ -548,10 +548,7 @@ const NavbarOld = () => {
               <Link to="/on-date-report" onClick={closeAllDropdowns}>
                 On Date Report
               </Link>
-              <Link
-                to="/brand-mrp-stock-report"
-                onClick={closeAllDropdowns}
-              >
+              <Link to="/brand-mrp-stock-report" onClick={closeAllDropdowns}>
                 Brand Mrp Stock Report
               </Link>
               <Link to="/item-rate-chart" onClick={closeAllDropdowns}>
@@ -693,7 +690,6 @@ const NavbarOld = () => {
               </Link>
             </div>
           </li>
-          
 
           <li className="nav-item dropdown" ref={utilitiesDropdownRef}>
             <span
@@ -738,6 +734,13 @@ const NavbarOld = () => {
                 Backup
               </Link>
             </div>
+          </li>
+
+          <li className="nav-item dropdown">
+            <LogoutIcon
+              sx={{ cursor: "pointer", color: "white", marginLeft: "10px" }}
+              onClick={() => handleSignout()}
+            />
           </li>
         </ul>
       </div>
