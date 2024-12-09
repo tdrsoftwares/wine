@@ -736,12 +736,12 @@ const NavbarOld = ({handleSignout}) => {
             </div>
           </li>
 
-          <li className="nav-item dropdown">
+          {/* <li className="nav-item dropdown"> */}
             <LogoutIcon
               sx={{ cursor: "pointer", color: "white", marginLeft: "10px" }}
               onClick={() => handleSignout()}
             />
-          </li>
+          {/* </li> */}
         </ul>
       </div>
     </nav>
