@@ -22,7 +22,8 @@ export const updatePurchase = async (payload, id) => {
 
 export const getAllPurchases = async (filterOptions) => {
   try {
-    const { page, pageSize, supplierName, storeName, fromDate, toDate } = filterOptions;
+    const { page, pageSize, supplierName, storeName, fromDate, toDate } =
+      filterOptions;
     let apiURL = `/purchases/reports?page=${page}&pageSize=${pageSize}`;
 
     if (supplierName) {
@@ -44,7 +45,6 @@ export const getAllPurchases = async (filterOptions) => {
     return error;
   }
 };
-
 
 export const exportPurchaseSummaryDetails = async (filterOptions) => {
   try {
@@ -75,7 +75,6 @@ export const exportPurchaseSummaryDetails = async (filterOptions) => {
   }
 };
 
-
 export const getItemPurchaseDetails = async (entryNo) => {
   try {
     const apiURL = `/purchases/item-reports/${entryNo}`;
@@ -99,7 +98,7 @@ export const getItemWisePurchaseDetails = async (filterOptions) => {
       categoryName,
       volume,
       itemCode,
-      mode
+      mode,
     } = filterOptions;
 
     let apiURL = `/purchases/all-item-reports?page=${page}&pageSize=${pageSize}`;
@@ -113,7 +112,7 @@ export const getItemWisePurchaseDetails = async (filterOptions) => {
       categoryName,
       volume,
       itemCode,
-      mode
+      mode,
     };
 
     Object.keys(filters).forEach((key) => {
@@ -139,7 +138,7 @@ export const exportItemPurchaseDetails = async (filterOptions) => {
       categoryName,
       volume,
       itemCode,
-      mode
+      mode,
     } = filterOptions;
 
     let apiURL = `/purchases/purchase-item-report-export`;
@@ -153,7 +152,7 @@ export const exportItemPurchaseDetails = async (filterOptions) => {
       categoryName,
       volume,
       itemCode,
-      mode
+      mode,
     };
 
     const queryStringParts = Object.keys(filters)
@@ -161,7 +160,7 @@ export const exportItemPurchaseDetails = async (filterOptions) => {
       .map((key) => `${key}=${encodeURIComponent(filters[key])}`);
 
     if (queryStringParts.length > 0) {
-      apiURL += `?${queryStringParts.join('&')}`;
+      apiURL += `?${queryStringParts.join("&")}`;
     }
 
     const getItemPurchaseData = await axiosInstance.get(apiURL);
@@ -172,16 +171,30 @@ export const exportItemPurchaseDetails = async (filterOptions) => {
   }
 };
 
+// export const searchAllPurchasesByItemName = async (itemName) => {
+//   try {
+//     const apiURL = `/stock/purchases-item?name=${encodeURIComponent(itemName)}`;
+//     const allPurchasesData = await axiosInstance.get(apiURL);
+//     return allPurchasesData;
+//   } catch (error) {
+//     return error;
+//   }
+// };
 
-export const searchAllPurchasesByItemName = async (itemName) => {
+export const searchAllPurchasesByItemName = async (
+  itemName,
+  page,
+  pageSize
+) => {
   try {
     const apiURL = `/stock/purchases-item?name=${encodeURIComponent(
       itemName
-    )}`;
+    )}&page=${page}&pageSize=${pageSize}`;
     const allPurchasesData = await axiosInstance.get(apiURL);
     return allPurchasesData;
   } catch (error) {
-    return error;
+    console.error("Error fetching purchases:", error);
+    return null;
   }
 };
 
@@ -205,16 +218,15 @@ export const deletePurchase = async (id) => {
   }
 };
 
-
 export const getPurchaseDetailsByEntryNo = async (entryNo) => {
   try {
     const apiURL = `/purchases/bill/${entryNo}`;
     const getPurchaseDetailsData = await axiosInstance.get(apiURL);
     return getPurchaseDetailsData;
-  } catch (error){
-    return error
+  } catch (error) {
+    return error;
   }
-}
+};
 
 export const updatePurchaseDetailsByEntryNo = async (payload, entryNo) => {
   try {
@@ -236,16 +248,15 @@ export const removePurchaseDetails = async (entryNo) => {
   }
 };
 
-
 export const getAllEntryNo = async () => {
   try {
     const apiURL = `/purchases/bill-no`;
     const getAllDetails = await axiosInstance.get(apiURL);
     return getAllDetails;
-  } catch (error){
-    return error
+  } catch (error) {
+    return error;
   }
-}
+};
 
 export const removeAllPurchases = async (allPurchases) => {
   try {
@@ -262,7 +273,7 @@ export const getItemDetailsByItemCode = async (itemCode) => {
     const apiURL = `/stock/stock-info/${itemCode}`;
     const getDetails = await axiosInstance.get(apiURL);
     return getDetails;
-  } catch (error){
-    return error
+  } catch (error) {
+    return error;
   }
-}
+};

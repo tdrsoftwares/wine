@@ -103,6 +103,9 @@ const PurchaseEntry = () => {
   const [editedRow, setEditedRow] = useState({});
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
   const [isRowUpdated, setIsRowUpdated] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [loadingMore, setLoadingMore] = useState(false);
   const { permissions, role } = usePermissions();
 
   const companyPermissions =
@@ -146,6 +149,8 @@ const PurchaseEntry = () => {
   const netAmountRef = useRef(null);
   const saveButtonRef = useRef(null);
   const clearButtonRef = useRef(null);
+  const containerRef = useRef(null);
+  const rowRefs = useRef([]);
 
   const handleClosePurchaseBillPrintModal = () => {
     setShowPurchaseBillPrintModal(false);
@@ -244,15 +249,27 @@ const PurchaseEntry = () => {
     }
   };
 
+  const loadMoreData = () => {
+    if (!isLoading) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      itemNameSearch(formData.itemName, nextPage, pageSize);
+    }
+  };
+
   const handleItemNameChange = (event) => {
     const itemNameValue = event.target.value;
+  
+    setSearchResults([]); 
+    setPage(1);
+    itemNameSearch(itemNameValue, 1, pageSize);
 
-    itemNameSearch(itemNameValue);
     setFormData({
       ...formData,
       itemName: itemNameValue,
     });
     setSearchMode(true);
+
     if (!itemNameValue) {
       setSearchMode(false);
       resetMiddleFormData();
@@ -443,13 +460,13 @@ const PurchaseEntry = () => {
     }
   };
 
-  const itemNameSearch = debounce(async (item) => {
+  const itemNameSearch = debounce(async (item, page, pageSize) => {
     try {
       setIsLoading(true);
-      const response = await searchAllPurchasesByItemName(item);
-
-      if (response?.data?.data) {
-        setSearchResults(response?.data?.data);
+      const response = await searchAllPurchasesByItemName(item, page, pageSize);
+  
+      if (response?.data?.data?.items) {
+        setSearchResults((prevResults) => [...prevResults, ...response?.data?.data?.items]);
       } else {
         setSearchResults([]);
         setIsModalOpen(true);
@@ -1945,6 +1962,7 @@ const PurchaseEntry = () => {
               setSearchMode={setSearchMode}
               selectedRowIndex={selectedRowIndex}
               isLoading={isLoading}
+              loadMoreData={loadMoreData}
             />
           ) : (
             <PurchaseEntryDataTable

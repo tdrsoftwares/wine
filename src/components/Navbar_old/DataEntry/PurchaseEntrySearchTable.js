@@ -20,10 +20,33 @@ const PurchaseEntrySearchTable = (props) => {
     setSearchMode,
     selectedRowIndex,
     isLoading,
+    loadMoreData,
   } = props;
 
   const containerRef = useRef(null);
   const rowRefs = useRef([]);
+
+  const handleScroll = () => {
+    if (containerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+
+      if (scrollTop + clientHeight >= scrollHeight - 10) {
+        loadMoreData();
+      }
+    }
+  };
+
+  useEffect(() => {
+    const container = containerRef.current;
+
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+
+      return () => {
+        container.removeEventListener("scroll", handleScroll);
+      };
+    }
+  }, []);
 
   useEffect(() => {
     if (selectedRowIndex !== null && containerRef.current) {
@@ -36,12 +59,9 @@ const PurchaseEntrySearchTable = (props) => {
         const rowTop = selectedRow.offsetTop;
         const rowHeight = selectedRow.offsetHeight;
 
-        
         if (rowTop < scrollTop) {
           container.scrollTop = rowTop;
-        }
-        
-        else if (rowTop + rowHeight > scrollTop + containerHeight) {
+        } else if (rowTop + rowHeight > scrollTop + containerHeight) {
           container.scrollTop = rowTop + rowHeight - containerHeight;
         }
       }
@@ -56,7 +76,7 @@ const PurchaseEntrySearchTable = (props) => {
         marginTop: 0.8,
         height: 300,
         width: 850,
-        overflowY: "auto", 
+        overflowY: "auto",
         overflowX: "auto",
         "&::-webkit-scrollbar": {
           width: 10,
@@ -92,7 +112,7 @@ const PurchaseEntrySearchTable = (props) => {
               searchResults.map((row, index) => (
                 <TableRow
                   key={index}
-                  ref={(el) => (rowRefs.current[index] = el)} 
+                  ref={(el) => (rowRefs.current[index] = el)}
                   onClick={() => {
                     handleRowClick(index);
                     setSearchMode(false);
