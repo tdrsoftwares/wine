@@ -2268,18 +2268,18 @@ const SaleBill = () => {
     const savedTotalCash = sessionStorage.getItem("totalCash");
     const savedTotalOnline = sessionStorage.getItem("totalOnline");
 
-    if (savedTotalSales) setTotalSales(savedTotalSales);
-    if (savedTotalCash) setTotalCash(savedTotalCash);
-    if (savedTotalOnline) setTotalOnline(savedTotalOnline);
+    if (savedTotalSales) setTotalSales(savedTotalSales); else setTotalSales(0);
+    if (savedTotalCash) setTotalCash(savedTotalCash); else setTotalCash(0);
+    if (savedTotalOnline) setTotalOnline(savedTotalOnline); else setTotalOnline(0);
 
     socketService.connect(process.env.REACT_APP_API_URL + "/total-sales");
 
     socketService.onMessage((data) => {
       // console.log("Received data from WebSocket:", data);
 
-      setTotalSales(data.totalAmount);
-      setTotalCash(data.cash);
-      setTotalOnline(data.online);
+      setTotalSales(data.totalAmount || 0);
+      setTotalCash(data.cash || 0);
+      setTotalOnline(data.online || 0);
     });
 
     return () => {
@@ -3038,7 +3038,7 @@ const SaleBill = () => {
                   variant="outlined"
                   size="small"
                   fullWidth
-                  value={totalSales}
+                  value={totalSales || 0}
                   InputProps={{ readOnly: true }}
                 />
               </Grid>
@@ -3048,7 +3048,7 @@ const SaleBill = () => {
                   variant="outlined"
                   size="small"
                   fullWidth
-                  value={totalCash}
+                  value={totalCash || 0}
                   InputProps={{ readOnly: true }}
                 />
               </Grid>
@@ -3058,7 +3058,7 @@ const SaleBill = () => {
                   variant="outlined"
                   size="small"
                   fullWidth
-                  value={totalOnline}
+                  value={totalOnline || 0}
                   InputProps={{ readOnly: true }}
                 />
               </Grid>
