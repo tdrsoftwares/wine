@@ -31,9 +31,8 @@ const ItemCodeUpdate = () => {
   // console.log("editedRow: ", editedRow);
   // console.log("allItems -->  ", allItems);
   const [allStocks, setAllStocks] = useState([]);
-  const [totalCount, setTotalCount] = useState(0);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(100);
   const tableRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
@@ -140,7 +139,7 @@ const ItemCodeUpdate = () => {
   };
 
   const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+    setRowsPerPage(parseInt(event.target.value, 100));
     setPage(0);
   };
 
@@ -381,7 +380,7 @@ const ItemCodeUpdate = () => {
 
           {role === "admin" && (
             <TablePagination
-              rowsPerPageOptions={[10, 25, 50]}
+              rowsPerPageOptions={[10, 25, 50, 100]}
               component="div"
               count={filteredData.length}
               rowsPerPage={rowsPerPage}
