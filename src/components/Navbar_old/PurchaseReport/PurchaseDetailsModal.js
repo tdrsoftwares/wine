@@ -65,7 +65,7 @@ const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
       width: 120,
       headerClassName: "custom-header",
     },
-    
+
     // {
     //   field: "updatedAt",
     //   headerName: "Updated Date",
@@ -124,7 +124,9 @@ const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
         rowData.entryNo
       );
       // console.log("allItemPurchasesResponse: ", allItemPurchasesResponse);
-      setItemPurchaseDetails(allItemPurchasesResponse?.data?.data?.purchaseItems);
+      setItemPurchaseDetails(
+        allItemPurchasesResponse?.data?.data?.purchaseItems
+      );
     } catch (error) {
       // NotificationManager.error(
       //   "Error fetching ItemPurchases. Please try again later.",
@@ -174,7 +176,7 @@ const PurchaseDetailsModal = ({ open, handleClose, rowData }) => {
 
         {itemPurchaseDetails.length > 0 ? (
           <DataGrid
-            rows={(itemPurchaseDetails)?.map((item, index) => ({
+            rows={itemPurchaseDetails?.map((item, index) => ({
               id: index,
               sNo: index + 1,
               createdAt: new Date(item.createdAt).toLocaleDateString("en-GB"),
