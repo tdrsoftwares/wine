@@ -104,7 +104,7 @@ const PurchaseEntry = () => {
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
   const [isRowUpdated, setIsRowUpdated] = useState(false);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(15);
   const [loadingMore, setLoadingMore] = useState(false);
   const { permissions, role } = usePermissions();
 
@@ -251,33 +251,36 @@ const PurchaseEntry = () => {
 
   const loadMoreData = () => {
     if (!isLoading) {
-      const nextPage = page + 1;
-      setPage(nextPage);
-      itemNameSearch(formData.itemName, nextPage, pageSize);
+      setPage((prevPage) => {
+        const nextPage = prevPage + 1;
+        itemNameSearch(formData.itemName, nextPage, pageSize);
+        return nextPage;
+      });
     }
   };
+  
 
   const handleItemNameChange = (event) => {
     const itemNameValue = event.target.value;
   
-    setSearchResults([]); 
+    setSearchResults([]);
     setPage(1);
     itemNameSearch(itemNameValue, 1, pageSize);
-
+  
     setFormData({
       ...formData,
       itemName: itemNameValue,
     });
     setSearchMode(true);
-
+  
     if (!itemNameValue) {
       setSearchMode(false);
       resetMiddleFormData();
     }
-
+  
     setEditedRow({});
     setEditableIndex(-1);
-  };
+  };  
 
   const handleSupplierNameChange = (e) => {
     setFormData({ ...formData, supplierName: e.target.value });
@@ -466,20 +469,22 @@ const PurchaseEntry = () => {
       const response = await searchAllPurchasesByItemName(item, page, pageSize);
   
       if (response?.data?.data?.items) {
-        setSearchResults((prevResults) => [...prevResults, ...response?.data?.data?.items]);
+        setSearchResults((prevResults) => [
+          ...prevResults,
+          ...response?.data?.data?.items,
+        ]);
       } else {
         setSearchResults([]);
         setIsModalOpen(true);
         setItemName(item);
       }
-      setIsLoading(false);
     } catch (error) {
       console.error("Error searching items:", error);
       setSearchResults([]);
     } finally {
       setIsLoading(false);
     }
-  }, 500);
+  }, 500);  
 
   const itemCodeSearch = async (itemCode) => {
     try {
