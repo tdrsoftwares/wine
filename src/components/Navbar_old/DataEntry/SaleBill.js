@@ -1448,7 +1448,6 @@ const SaleBill = () => {
       );
       return;
     }
-    // console.log("itemsToSale", itemsToSale);
 
     if (items.length === 0) {
       NotificationManager.warning("Enter some item in table.", "Warning");
@@ -1476,7 +1475,8 @@ const SaleBill = () => {
 
         for (let i = 0; i < remainingItems.length; ) {
           const item = remainingItems[i];
-          const itemVolume = item.volume * (parseFloat(item.pcs) - parseFloat(item.brk));
+          const itemVolume =
+            item.volume * (parseFloat(item.pcs) - parseFloat(item.brk));
 
           if (currentVolume + itemVolume <= volumeLimit) {
             currentVolume += itemVolume;
@@ -1496,6 +1496,13 @@ const SaleBill = () => {
             }
             break;
           }
+        }
+
+        console.log("volumeLimit: ",volumeLimit)
+        console.log("billItems: ",billItems)
+
+        if (billItems.length === 0 || volumeLimit <= 0) {
+          break;
         }
 
         const newPayload = {
@@ -1523,7 +1530,9 @@ const SaleBill = () => {
             pcs: parseFloat(item.pcs),
             rate: parseFloat(item.rate),
             discount: parseFloat(item.discount),
-            amount: (parseFloat(item.pcs) - parseFloat(item.brk)) * parseFloat(item.rate),
+            amount:
+              (parseFloat(item.pcs) - parseFloat(item.brk)) *
+              parseFloat(item.rate),
             split: parseFloat(item.split),
             break: parseFloat(item.brk),
           })),
@@ -1566,15 +1575,6 @@ const SaleBill = () => {
         NotificationManager.success("Sale created successfully", "Success");
         setFormData({ ...formData, billno: billNo });
 
-        // if (licenseDetails?.autoBillPrint === "YES") {
-        //   handlePrint();
-        // }
-
-        // if(isSaveAndPrintClicked){
-        //   // alert("triggered save and print...")
-        //   handlePrint();
-        // };
-
         setTimeout(() => {
           if (!isSplitPrinted) {
             resetTopFormData();
@@ -1598,11 +1598,11 @@ const SaleBill = () => {
           "Error"
         );
       }
-      
     } catch (error) {
       console.error("Error creating sale:", error);
     }
   };
+
 
   // console.log("salesData --> ",salesData)
 
