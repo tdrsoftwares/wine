@@ -712,10 +712,10 @@ const SaleBill = () => {
     fetchAllLedger();
     fetchAllStores();
 
-    const savedSalesData = sessionStorage.getItem("salesData");
-    if (savedSalesData) {
-      setSalesData(JSON.parse(savedSalesData));
-    }
+    // const savedSalesData = sessionStorage.getItem("salesData");
+    // if (savedSalesData) {
+    //   setSalesData(JSON.parse(savedSalesData));
+    // }
   }, []);
 
   useEffect(() => {
@@ -1361,6 +1361,7 @@ const SaleBill = () => {
             setSalesData(updatedSalesData);
             setHighlightedRows([...highlightedRows, existingItemIndex]);
 
+            // console.log("updatedSalesData:",updatedSalesData)
             // Save updated salesData to session storage
             sessionStorage.setItem(
               "salesData",
@@ -2256,14 +2257,15 @@ const SaleBill = () => {
     [formData.billType, totalValues, licenseDetails]
   );
 
-  useEffect(() => {
-    if (licenseDetails?.perBillMaxWine && licenseDetails?.perBillMaxCs) {
-      debounceAutoSave();
-    }
-    return () => {
-      debounceAutoSave.cancel();
-    };
-  }, [totalValues.flBeerVolume, totalValues.imlVolume, debounceAutoSave]);
+  //hanging issue here
+  // useEffect(() => {
+  //   if (licenseDetails?.perBillMaxWine && licenseDetails?.perBillMaxCs) {
+  //     debounceAutoSave();
+  //   }
+  //   return () => {
+  //     debounceAutoSave.cancel();
+  //   };
+  // }, [totalValues.flBeerVolume, totalValues.imlVolume, debounceAutoSave]);
 
   useEffect(() => {
     if ((billNumber && billNoEditable) || (billNumber && seriesData)) {
@@ -2294,7 +2296,7 @@ const SaleBill = () => {
     socketService.connect(process.env.REACT_APP_API_URL + "/total-sales");
 
     socketService.onMessage((data) => {
-      // console.log("Received data from WebSocket:", data);
+      console.log("Received data from WebSocket:", data);
 
       setTotalSales(data.totalAmount || 0);
       setTotalCash(data.cash || 0);

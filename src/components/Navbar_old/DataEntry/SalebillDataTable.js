@@ -36,7 +36,8 @@ const SalebillDataTable = (props) => {
     if (highlightedRows.length > 0) {
       const timer = setTimeout(() => {
         setHighlightedRows([]);
-      }, 2000);
+      }, 1000);
+      
       return () => clearTimeout(timer);
     }
   }, [highlightedRows]);

@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Box,
   CircularProgress,
   Grid,
@@ -14,8 +15,9 @@ import {
   TextField,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { getAllBrands } from "../../../services/brandService";
 import { NotificationManager } from "react-notifications";
+import { searchByBrandName } from "../../../services/saleBillService";
+import debounce from "lodash.debounce";
 
 const SaleBrandPanel = ({
   storeName,
@@ -32,43 +34,54 @@ const SaleBrandPanel = ({
   canRead,
   role,
 }) => {
-  const [allBrands, setAllBrands] = useState([]);
 
-  const fetchAllBrands = async () => {
-    setBrandPanelLoading(true);
+  const [brandNameOptions, setBrandNameOptions] = useState([]);
+
+  // const fetchAllBrands = async () => {
+  //   setBrandPanelLoading(true);
+  //   try {
+  // const allBrandsResponse = await getAllBrands();
+  //     const allBrandsResponse = await searchByBrandName(brandName);
+  //     console.log("allBrandsResponse ---> ", allBrandsResponse);
+  //     if (allBrandsResponse.status === 200) {
+  //       setAllBrands(allBrandsResponse?.data?.data);
+  //     } else {
+  //       setAllBrands([]);
+  //       // NotificationManager.error("No brands found.", "Error");
+  //       console.log("No brands Found", "Error");
+  //     }
+  //   } catch (error) {
+  //     // NotificationManager.error(
+  //     //   "Error fetching brands. Please try again later.",
+  //     //   "Error"
+  //     // );
+  //     console.error("Error fetching brands:", error);
+  //   } finally {
+  //     setBrandPanelLoading(false);
+  //   }
+  // };
+
+  // // useEffect(() => {
+  // //   fetchAllBrands();
+  // // }, []);
+
+  const brandNameSearch = debounce(async (searchText) => {
     try {
-      const allBrandsResponse = await getAllBrands();
-      // console.log("allBrandsResponse ---> ", allBrandsResponse);
-      if (allBrandsResponse.status === 200) {
-        setAllBrands(allBrandsResponse?.data?.data);
+      const response = await searchByBrandName(searchText);
+      if (response?.data?.data && response.data.data.length > 0) {
+        setBrandNameOptions(response.data.data);
       } else {
-        setAllBrands([]);
-        // NotificationManager.error("No brands found.", "Error");
-        console.log("No brands Found", "Error");
+        setBrandNameOptions([]);
       }
     } catch (error) {
-      // NotificationManager.error(
-      //   "Error fetching brands. Please try again later.",
-      //   "Error"
-      // );
-      console.error("Error fetching brands:", error);
-    } finally {
-      setBrandPanelLoading(false);
+      console.error("Error searching brand:", error);
+      setBrandNameOptions([]);
     }
-  };
+  }, 500);
 
-  useEffect(() => {
-    fetchAllBrands();
-  }, []);
-
-  const debounce = (func, delay) => {
-    let timeout;
-    return (...args) => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        func(...args);
-      }, delay);
-    };
+  const handleBrandNameChange = (event, newValue) => {
+    setBrandName(newValue);
+    // setFilterData((prevData) => ({ ...prevData, brandName: newValue }));
   };
 
   useEffect(() => {
@@ -121,22 +134,25 @@ const SaleBrandPanel = ({
       <Grid container spacing={1}>
         <Grid item xs={12}>
           <InputLabel className="input-label-2">Select Brand:</InputLabel>
-          <TextField
-            select
-            variant="outlined"
-            type="text"
-            size="small"
-            fullWidth
-            value={brandName}
-            onChange={(e) => setBrandName(e.target.value)}
-          >
-            <MenuItem value="">None</MenuItem>
-            {allBrands?.map((brand) => (
-              <MenuItem key={brand._id} value={brand.name}>
-                {`${brand.name}`}
-              </MenuItem>
-            ))}
-          </TextField>
+          <Autocomplete
+                options={[
+                  ...brandNameOptions.map((option) => option.name),
+                ]}
+                value={brandName}
+                onChange={handleBrandNameChange}
+                onInputChange={(event, newInputValue) => {
+                  brandNameSearch(newInputValue);
+                }}
+                className="input-field"
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    fullWidth
+                    size="small"
+                    name="brandName"
+                  />
+                )}
+              />
         </Grid>
       </Grid>
       <TableContainer
