@@ -52,12 +52,10 @@ import { usePermissions } from "../../../utils/PermissionsContext";
 
 const SaleBill = () => {
   const [allCustomerData, setAllCustomerData] = useState([]);
-
   const [searchResults, setSearchResults] = useState([]);
   const [salesData, setSalesData] = useState([]);
   const [allLedgers, setAllLedgers] = useState([]);
   const [allStores, setAllStores] = useState([]);
-  const [showSaleBillPrintModal, setShowSaleBillPrintModal] = useState(false);
   const todaysDate = dayjs();
   const [searchMode, setSearchMode] = useState(false);
   const [formData, setFormData] = useState({
@@ -130,6 +128,9 @@ const SaleBill = () => {
   const [isAutoBillPrint, setIsAutoBillPrint] = useState(false);
   const [isSaveAndPrintClicked, setIsSaveAndPrintClicked] = useState(false);
   const [highlightedRows, setHighlightedRows] = useState([]);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(7);
+  const [noMoreData, setNoMoreData] = useState(false);
   // console.log("isAutoBillPrint", isAutoBillPrint)
 
   const tableRef = useRef(null);
@@ -355,10 +356,6 @@ const SaleBill = () => {
     }
   };
 
-  const handleCloseSaleBillPrintModal = () => {
-    setShowSaleBillPrintModal(false);
-  };
-
   const handleStoreChange = (event) => {
     const selectedStoreId = event.target.value;
     const selectedStore = allStores.find(
@@ -440,24 +437,31 @@ const SaleBill = () => {
     display: 'none'
   };
 
-  const itemNameSearch = debounce(async (itemName, storeName) => {
-    try {
-      setIsLoading(true);
-      const response = await searchAllSalesByItemName(itemName, storeName);
+  const itemNameSearch = debounce(
+    async (itemName, storeName, page, pageSize) => {
+      try {
+        setIsLoading(true);
+        const response = await searchAllSalesByItemName(itemName, storeName, page, pageSize);
+  
+        if (response?.data?.data?.items?.length > 0) {
+          
+          setSearchResults((prevResults) =>
+            page === 1 ? response?.data?.data?.items : [...prevResults, ...response?.data?.data?.items]
+          );
+        }
 
-      if (response?.data?.data) {
-        setSearchResults(response?.data?.data);
-      } else {
-        setSearchResults([]);
+        if (response.data.data?.items?.length === 0) {
+          setNoMoreData(true); 
+        }
+
+      } catch (error) {
+        console.error("Error searching items:", error);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error searching items:", error);
-      setSearchResults([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, 500);
+    },
+    500
+  );  
 
   const itemCodeSearch = async (itemCode, storeName) => {
     if (isLoading) {
@@ -850,14 +854,29 @@ const SaleBill = () => {
     return formattedDate;
   };
 
+  const loadMoreData = () => {
+    if (!isLoading && !noMoreData) {
+      setPage((prevPage) => {
+        const nextPage = prevPage + 1;
+        itemNameSearch(formData.itemName, formData.store?.name, nextPage, pageSize);
+        return nextPage;
+      });
+    }
+  };
+  
   const handleItemNameChange = (event) => {
     const itemName = event.target.value;
-    itemNameSearch(itemName, formData.store?.name);
+
+    setSearchResults([]);
+    setPage(1);
+    itemNameSearch(itemName, formData.store?.name, 1, pageSize);
+
     setFormData({
       ...formData,
       itemName,
     });
     setSearchMode(true);
+
     if (!itemName) {
       setSearchMode(false);
       resetMiddleFormData();
@@ -2784,6 +2803,12 @@ const SaleBill = () => {
                 isLoading={isLoading}
                 canRead={canRead}
                 role={role}
+                loadMoreData={loadMoreData}
+                itemName={formData.itemName} 
+                storeName={formData.store?.name}
+                page={page}
+                pageSize={pageSize}
+                itemNameSearch={itemNameSearch}
               />
             ) : (
               <SalebillDataTable
@@ -3101,7 +3126,6 @@ const SaleBill = () => {
             handleEnterKey(e, itemCodeRef);
             setBillNoEditable(false);
             setSeriesEditable(false);
-            setShowSaleBillPrintModal(false);
             setSearchMode(false);
             setIsAutoBillPrint(false);
           }}

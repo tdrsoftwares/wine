@@ -20,10 +20,31 @@ const SalebillSearchTable = (props) => {
     isLoading,
     canRead,
     role,
+    loadMoreData,
   } = props;
-  
+
   const containerRef = useRef(null);
   const rowRefs = useRef([]);
+
+  const handleScroll = () => {
+    if (containerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+      if (scrollTop + clientHeight >= scrollHeight - 10) {
+        loadMoreData();
+      }
+    }
+  };
+
+  useEffect(() => {
+    const container = containerRef.current;
+
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+      return () => {
+        container.removeEventListener("scroll", handleScroll);
+      };
+    }
+  }, []);
 
   useEffect(() => {
     if (selectedRowIndex !== null && containerRef.current) {
@@ -38,15 +59,13 @@ const SalebillSearchTable = (props) => {
 
         if (rowTop < scrollTop) {
           container.scrollTop = rowTop;
-        }
-
-        else if (rowTop + rowHeight > scrollTop + containerHeight) {
+        } else if (rowTop + rowHeight > scrollTop + containerHeight) {
           container.scrollTop = rowTop + rowHeight - containerHeight;
         }
       }
     }
   }, [selectedRowIndex]);
-  
+
   return (
     <>
       <TableContainer

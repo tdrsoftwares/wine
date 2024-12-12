@@ -20,15 +20,17 @@ export const updateSaleDetailsByBillNo = async (payload, billNo) => {
   }
 };
 
-export const searchAllSalesByItemName = async (itemName, storeName) => {
+export const searchAllSalesByItemName = async (itemName, storeName, page, pageSize) => {
   try {
-    const apiURL = `/stock/sales-items?name=${itemName}&storeName=${storeName}`;
+    const apiURL = `/stock/sales-items?name=${itemName}&storeName=${storeName}&page=${page}&pageSize=${pageSize}`;
     const allSalesData = await axiosInstance.get(apiURL);
     return allSalesData;
   } catch (error) {
-    return error;
+    console.error("Error fetching sales items:", error);
+    throw error;
   }
 };
+
 
 export const searchAllSalesByItemCode = async (itemCode, storeName) => {
   try {
