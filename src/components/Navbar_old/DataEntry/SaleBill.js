@@ -129,7 +129,7 @@ const SaleBill = () => {
   const [isSaveAndPrintClicked, setIsSaveAndPrintClicked] = useState(false);
   const [highlightedRows, setHighlightedRows] = useState([]);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(7);
+  const [pageSize, setPageSize] = useState(10);
   const [noMoreData, setNoMoreData] = useState(false);
   // console.log("isAutoBillPrint", isAutoBillPrint)
 
@@ -1433,17 +1433,20 @@ const SaleBill = () => {
       return;
     }
 
-    if (!licenseDetails?.perBillMaxCs) {
+    if (!licenseDetails?.perBillMaxCs || licenseDetails?.perBillMaxCs < 1000) {
       NotificationManager.warning(
-        "Per Bill Max CS(ML) is missing",
+        "Per Bill Max CS(ML) is missing or less than 1000ml",
         "Please fill in the license details first"
       );
       return;
     }
 
-    if (!licenseDetails?.perBillMaxWine) {
+    if (
+      !licenseDetails?.perBillMaxWine ||
+      licenseDetails?.perBillMaxWine < 1000
+    ) {
       NotificationManager.warning(
-        "Per Bill Max Wine(ML) is missing",
+        "Per Bill Max Wine(ML) is missing or less than 1000ml",
         "Please fill in the license details first"
       );
       return;
