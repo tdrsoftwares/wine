@@ -70,6 +70,7 @@ const ItemLedgerStatus = () => {
   const [brandName, setBrandName] = useState("");
   const [itemNameOptions, setItemNameOptions] = useState([]);
   const [brandNameOptions, setBrandNameOptions] = useState([]);
+  const [sumOfAllItemStatusData, setSumOfAllItemStatusData] = useState({});
 
   const { permissions, role } = usePermissions();
 
@@ -286,6 +287,7 @@ const ItemLedgerStatus = () => {
       if (itemStatusData) {
         setAllItemStatusData(itemStatusData?.data || []);
         setTotalCount(itemStatusData?.pagination?.totalItems || 0);
+        setSumOfAllItemStatusData(itemStatusData?.sumOfTotalAllData || {});
       } else {
         // console.log("Error", response);
         // NotificationManager.error("No items found.", "Error");
@@ -458,6 +460,30 @@ const ItemLedgerStatus = () => {
             : item.closingBalance,
         });
       }
+    });
+
+    data.length > 0 && flattenedData.push({
+      id: `total`,
+      sNo: `Total`,
+      item: null,
+      openingBalance: filterData.isBLTrue
+        ? sumOfAllItemStatusData?.openingBalance?.toFixed(3)
+        : sumOfAllItemStatusData?.openingBalance,
+      totalPurchased: filterData.isBLTrue
+        ? sumOfAllItemStatusData?.totalPurchased?.toFixed(3)
+        : sumOfAllItemStatusData?.totalPurchased,
+      totalTransferredFrom: filterData.isBLTrue
+        ? sumOfAllItemStatusData?.totalTransferredFrom?.toFixed(3)
+        : sumOfAllItemStatusData?.totalTransferredFrom,
+      totalTransferredTo: filterData.isBLTrue
+        ? sumOfAllItemStatusData?.totalTransferredTo?.toFixed(3)
+        : sumOfAllItemStatusData?.totalTransferredTo,
+      totalSold: filterData.isBLTrue
+        ? sumOfAllItemStatusData?.totalSold?.toFixed(3)
+        : sumOfAllItemStatusData?.totalSold,
+      closingBalance: filterData.isBLTrue
+        ? sumOfAllItemStatusData?.closingBalance?.toFixed(3)
+        : sumOfAllItemStatusData?.closingBalance,
     });
     return flattenedData;
   };
@@ -849,21 +875,21 @@ const ItemLedgerStatus = () => {
                 density: "compact",
               }}
               slots={{
-                footer: CustomItemLedgerStatusFooter,
+                // footer: CustomItemLedgerStatusFooter,
                 toolbar: GridToolbar,
               }}
-              slotProps={{
-                footer: {
-                  allItemStatusData,
-                  filterData,
-                  totalOpeningBalance,
-                  totalClosingBalance,
-                  totalPurchased,
-                  totalSold,
-                  totalTransferredFrom,
-                  totalTransferredTo,
-                },
-              }}
+              // slotProps={{
+              //   footer: {
+              //     allItemStatusData,
+              //     filterData,
+              //     totalOpeningBalance,
+              //     totalClosingBalance,
+              //     totalPurchased,
+              //     totalSold,
+              //     totalTransferredFrom,
+              //     totalTransferredTo,
+              //   },
+              // }}
               sx={{
                 backgroundColor: "#fff",
                 fontSize: "12px",
