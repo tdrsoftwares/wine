@@ -20,7 +20,12 @@ export const updateSaleDetailsByBillNo = async (payload, billNo) => {
   }
 };
 
-export const searchAllSalesByItemName = async (itemName, storeName, page, pageSize) => {
+export const searchAllSalesByItemName = async (
+  itemName,
+  storeName,
+  page,
+  pageSize
+) => {
   try {
     const apiURL = `/stock/sales-items?name=${itemName}&storeName=${storeName}&page=${page}&pageSize=${pageSize}`;
     const allSalesData = await axiosInstance.get(apiURL);
@@ -30,7 +35,6 @@ export const searchAllSalesByItemName = async (itemName, storeName, page, pageSi
     throw error;
   }
 };
-
 
 export const searchAllSalesByItemCode = async (itemCode, storeName) => {
   try {
@@ -186,7 +190,7 @@ export const exportItemSaleDetails = async (filterOptions) => {
       .map((key) => `${key}=${encodeURIComponent(filters[key])}`);
 
     if (queryStringParts.length > 0) {
-      apiURL += `?${queryStringParts.join('&')}`;
+      apiURL += `?${queryStringParts.join("&")}`;
     }
 
     const exportItemSaleData = await axiosInstance.get(apiURL);
@@ -224,13 +228,15 @@ export const getDailySalesDetails = async (filterOptions) => {
       mode,
     };
 
-    const filterKeys = Object.keys(filters).filter(key => filters[key]);
+    const filterKeys = Object.keys(filters).filter((key) => filters[key]);
     if (filterKeys.length > 0) {
-      apiURL += '?';
+      apiURL += "?";
     }
 
     filterKeys.forEach((key, index) => {
-      apiURL += `${index === 0 ? '' : '&'}${key}=${encodeURIComponent(filters[key])}`;
+      apiURL += `${index === 0 ? "" : "&"}${key}=${encodeURIComponent(
+        filters[key]
+      )}`;
     });
 
     const getItemSalesData = await axiosInstance.get(apiURL);
@@ -239,7 +245,6 @@ export const getDailySalesDetails = async (filterOptions) => {
     return error;
   }
 };
-
 
 export const exportDailySalesDetails = async (filterOptions) => {
   try {
@@ -338,11 +343,11 @@ export const removeAllSales = async (allSales) => {
 
 export const getAllBrandWiseItems = async (filterOptions) => {
   try {
-    const { storeName, brandName } = filterOptions;
+    const { storeName, brandName, page, pageSize } = filterOptions;
 
-    let apiURL = `/stock/brand-stock?`;
+    let apiURL = `/stock/brand-stock?storeName=${storeName}&page=${page}&pageSize=${pageSize}`;
 
-    const filters = { storeName, brandName };
+    const filters = { brandName };
 
     Object.keys(filters).forEach((key) => {
       if (filters[key]) {

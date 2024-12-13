@@ -14,7 +14,7 @@ import {
   TableRow,
   TextField,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { NotificationManager } from "react-notifications";
 import { searchByBrandName } from "../../../services/saleBillService";
 import debounce from "lodash.debounce";
@@ -33,37 +33,14 @@ const SaleBrandPanel = ({
   fetchAllBrandWiseItems,
   canRead,
   role,
+  currentPage,
+  setCurrentPage,
+  setCurrentPageSize
 }) => {
 
   const [brandNameOptions, setBrandNameOptions] = useState([]);
-
-  // const fetchAllBrands = async () => {
-  //   setBrandPanelLoading(true);
-  //   try {
-  // const allBrandsResponse = await getAllBrands();
-  //     const allBrandsResponse = await searchByBrandName(brandName);
-  //     console.log("allBrandsResponse ---> ", allBrandsResponse);
-  //     if (allBrandsResponse.status === 200) {
-  //       setAllBrands(allBrandsResponse?.data?.data);
-  //     } else {
-  //       setAllBrands([]);
-  //       // NotificationManager.error("No brands found.", "Error");
-  //       console.log("No brands Found", "Error");
-  //     }
-  //   } catch (error) {
-  //     // NotificationManager.error(
-  //     //   "Error fetching brands. Please try again later.",
-  //     //   "Error"
-  //     // );
-  //     console.error("Error fetching brands:", error);
-  //   } finally {
-  //     setBrandPanelLoading(false);
-  //   }
-  // };
-
-  // // useEffect(() => {
-  // //   fetchAllBrands();
-  // // }, []);
+  const [isFetching, setIsFetching] = useState(false);
+  const tableContainerRef = useRef(null);
 
   const brandNameSearch = debounce(async (searchText) => {
     try {
@@ -84,15 +61,54 @@ const SaleBrandPanel = ({
     // setFilterData((prevData) => ({ ...prevData, brandName: newValue }));
   };
 
+  const handleScroll = () => {
+    if (tableContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = tableContainerRef.current;
+  
+      
+      if (scrollTop + clientHeight >= scrollHeight - 100 && !isFetching && !brandPanelLoading) {
+        setIsFetching(true); 
+        setCurrentPage((prevPage) => prevPage + 1); 
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (currentPage > 1) {
+      fetchAllBrandWiseItems(true);
+    }
+  }, [currentPage]);
+  
+
+  useEffect(() => {
+    if (!brandPanelLoading) {
+      setIsFetching(false);
+    }
+
+    const tableContainer = tableContainerRef.current;
+
+    if (tableContainer) {
+      tableContainer.addEventListener("scroll", handleScroll);
+    }
+
+    return () => {
+      if (tableContainer) {
+        tableContainer.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, [brandPanelLoading]);
+
   useEffect(() => {
     const debouncedFetch = debounce(async () => {
-      setBrandPanelLoading(true);
-      await fetchAllBrandWiseItems();
-      setBrandPanelLoading(false);
+      // setBrandPanelLoading(true);
+      await fetchAllBrandWiseItems(true);
+      // setBrandPanelLoading(false);
     }, 300);
 
-    if (storeName) {
+    if (storeName || brandName) {
       setBrandWiseItemData([]);
+      setCurrentPage(1);
+      setCurrentPageSize(30);
       debouncedFetch();
     }
   }, [storeName, brandName]);
@@ -157,6 +173,7 @@ const SaleBrandPanel = ({
       </Grid>
       <TableContainer
         component={Paper}
+        ref={tableContainerRef}
         sx={{
           marginTop: 1,
           height: 385,

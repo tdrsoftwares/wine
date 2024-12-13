@@ -131,7 +131,9 @@ const SaleBill = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [noMoreData, setNoMoreData] = useState(false);
-  // console.log("isAutoBillPrint", isAutoBillPrint)
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPageSize, setCurrentPageSize] = useState(30);
 
   const tableRef = useRef(null);
   const customerNameRef = useRef(null);
@@ -313,31 +315,31 @@ const SaleBill = () => {
     }
   };
 
-  const fetchAllBrandWiseItems = async () => {
+  const fetchAllBrandWiseItems = async (isLoadMore = false) => {
     setBrandPanelLoading(true);
-    // console.log("Fetching data...");
+  
     try {
       const filterOptions = {
         storeName: formData.store.name,
         brandName,
+        page: currentPage,
+        pageSize: currentPageSize,
       };
       const response = await getAllBrandWiseItems(filterOptions);
-      // console.log("BrandWiseItemData response ---> ", response?.data?.data);
+  
       if (response.status === 200) {
-        setBrandWiseItemData(response?.data?.data);
+        const newData = response?.data?.data?.items || [];
+        setBrandWiseItemData((prevData) => 
+          isLoadMore ? [...prevData, ...newData] : newData
+        );
       } else {
-        // NotificationManager.error("No items found.", "Error");
-        setBrandWiseItemData([]);
+        if (!isLoadMore) setBrandWiseItemData([]);
       }
     } catch (error) {
-      // NotificationManager.error(
-      //   "Error fetching items. Please try again later.",
-      //   "Error"
-      // );
       console.error("Error fetching items:", error);
+      if (!isLoadMore) setBrandWiseItemData([]);
     } finally {
       setBrandPanelLoading(false);
-      // console.log("Data fetching completed.");
     }
   };
 
@@ -3050,6 +3052,9 @@ const SaleBill = () => {
             fetchAllBrandWiseItems={fetchAllBrandWiseItems}
             canRead={canRead}
             role={role}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            setCurrentPageSize={setCurrentPageSize}
           />
           <Box
             component="form"
