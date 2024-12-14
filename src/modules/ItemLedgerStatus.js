@@ -23,7 +23,7 @@ import { getAllBrands } from "../services/brandService";
 import { getAllItemCategory } from "../services/categoryService";
 import { getAllCompanies } from "../services/companyService";
 import { getAllStores } from "../services/storeService";
-import { getAllItemLedgerStatuses } from "../services/itemLedgerStatusService";
+import { exportAllLedgerData, getAllItemLedgerStatuses } from "../services/itemLedgerStatusService";
 import CustomItemLedgerStatusFooter from "./CustomItemLedgerFooter";
 import { customTheme } from "../utils/customTheme";
 import debounce from "lodash.debounce";
@@ -33,6 +33,7 @@ import {
   searchByItemName,
 } from "../services/saleBillService";
 import { usePermissions } from "../utils/PermissionsContext";
+import * as XLSX from "xlsx";
 
 const ItemLedgerStatus = () => {
   const todaysDate = dayjs();
@@ -462,29 +463,30 @@ const ItemLedgerStatus = () => {
       }
     });
 
-    data.length > 0 && flattenedData.push({
-      id: `total`,
-      sNo: `Total`,
-      item: null,
-      openingBalance: filterData.isBLTrue
-        ? sumOfAllItemStatusData?.openingBalance?.toFixed(3)
-        : sumOfAllItemStatusData?.openingBalance,
-      totalPurchased: filterData.isBLTrue
-        ? sumOfAllItemStatusData?.totalPurchased?.toFixed(3)
-        : sumOfAllItemStatusData?.totalPurchased,
-      totalTransferredFrom: filterData.isBLTrue
-        ? sumOfAllItemStatusData?.totalTransferredFrom?.toFixed(3)
-        : sumOfAllItemStatusData?.totalTransferredFrom,
-      totalTransferredTo: filterData.isBLTrue
-        ? sumOfAllItemStatusData?.totalTransferredTo?.toFixed(3)
-        : sumOfAllItemStatusData?.totalTransferredTo,
-      totalSold: filterData.isBLTrue
-        ? sumOfAllItemStatusData?.totalSold?.toFixed(3)
-        : sumOfAllItemStatusData?.totalSold,
-      closingBalance: filterData.isBLTrue
-        ? sumOfAllItemStatusData?.closingBalance?.toFixed(3)
-        : sumOfAllItemStatusData?.closingBalance,
-    });
+    data.length > 0 &&
+      flattenedData.push({
+        id: `total`,
+        sNo: `Total`,
+        item: null,
+        openingBalance: filterData.isBLTrue
+          ? sumOfAllItemStatusData?.openingBalance?.toFixed(3)
+          : sumOfAllItemStatusData?.openingBalance,
+        totalPurchased: filterData.isBLTrue
+          ? sumOfAllItemStatusData?.totalPurchased?.toFixed(3)
+          : sumOfAllItemStatusData?.totalPurchased,
+        totalTransferredFrom: filterData.isBLTrue
+          ? sumOfAllItemStatusData?.totalTransferredFrom?.toFixed(3)
+          : sumOfAllItemStatusData?.totalTransferredFrom,
+        totalTransferredTo: filterData.isBLTrue
+          ? sumOfAllItemStatusData?.totalTransferredTo?.toFixed(3)
+          : sumOfAllItemStatusData?.totalTransferredTo,
+        totalSold: filterData.isBLTrue
+          ? sumOfAllItemStatusData?.totalSold?.toFixed(3)
+          : sumOfAllItemStatusData?.totalSold,
+        closingBalance: filterData.isBLTrue
+          ? sumOfAllItemStatusData?.closingBalance?.toFixed(3)
+          : sumOfAllItemStatusData?.closingBalance,
+      });
     return flattenedData;
   };
 
@@ -527,6 +529,70 @@ const ItemLedgerStatus = () => {
     );
     setTotalClosingBalance(totalClosingBal);
   }, [rows, filterData]);
+
+
+  const exportToExcel = async () => {
+    const fromDate = filterData.dateFrom
+      ? formatDate(filterData.dateFrom)
+      : null;
+    const toDate = filterData.dateTo ? formatDate(filterData.dateTo) : null;
+
+    const filterOptions = {
+      page: paginationModel.page + 1,
+      pageSize: paginationModel.pageSize,
+      fromDate: fromDate,
+      toDate: toDate,
+      company: filterData.company,
+      itemName: filterData.itemName,
+      group: filterData.group,
+      storeName: filterData.storeName,
+      bl: filterData.isBLTrue,
+    };
+
+    try {
+      setLoading(true);
+      const responseData = await exportAllLedgerData(filterOptions);
+      const { result, sumOfTotalAllData } = responseData?.data?.data;
+      // console.log("responseData:", responseData)
+
+      if(responseData.status === 200) {
+      const dataToExport = result.map((item, index) => ({
+        "S. No.": index + 1,
+        Item: item.item,
+        Category: item.category,
+        Brand: item.brand,
+        "Opening Balance": item.openingBalance,
+        "Total Purchased": item.totalPurchased,
+        "Total Transferred From": item.totalTransferredFrom,
+        "Total Transferred To": item.totalTransferredTo,
+        "Total Sold": item.totalSold,
+        "Closing Balance": item.closingBalance,
+      }));
+
+      dataToExport.push({
+        "S. No.": "Total",
+        Item: "",
+        Category: "",
+        Brand: "",
+        "Opening Balance": sumOfTotalAllData.openingBalance,
+        "Total Purchased": sumOfTotalAllData.totalPurchased,
+        "Total Transferred From": sumOfTotalAllData.totalTransferredFrom,
+        "Total Transferred To": sumOfTotalAllData.totalTransferredTo,
+        "Total Sold": sumOfTotalAllData.totalSold,
+        "Closing Balance": sumOfTotalAllData.closingBalance,
+      });
+
+      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "ItemLedgerStatus");
+      XLSX.writeFile(workbook, "Item_Ledger_Status.xlsx");}
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+      NotificationManager.error("Error exporting to Excel", "Error");
+    } finally {
+      setLoading(false);
+    }
+  };  
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -779,9 +845,9 @@ const ItemLedgerStatus = () => {
             </div>
           </Grid>
 
-          <Grid item xs={6}></Grid>
+          <Grid item xs={3}></Grid>
 
-          <Grid item xs={3}>
+          <Grid item xs={6}>
             <Box
               sx={{
                 display: "flex",
@@ -817,6 +883,15 @@ const ItemLedgerStatus = () => {
                 }}
               >
                 Clear Filters
+              </Button>
+              <Button
+                color="success"
+                size="small"
+                variant="contained"
+                onClick={exportToExcel}
+                disabled={!canRead && role !== "admin"}
+              >
+                Export to Excel
               </Button>
 
               <Button
