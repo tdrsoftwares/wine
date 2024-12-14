@@ -381,3 +381,13 @@ export const searchByBrandName = async (brandName) => {
     return error;
   }
 };
+
+export const exportSaleBillPDF = async (payload) => {
+  try {
+    const apiURL = `/sales/send-whatapps-bill`;
+    const response = await axiosInstance.post(apiURL, payload);
+    return response;
+  } catch (error) {
+    return error;
+  }
+};

@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -25,6 +26,7 @@ import { NotificationManager } from "react-notifications";
 import debounce from "lodash.debounce";
 import {
   createSale,
+  exportSaleBillPDF,
   getAllBillsBySeries,
   getAllBrandWiseItems,
   getAllSaleStores,
@@ -49,6 +51,8 @@ import SalebillSearchTable from "./SalebillSearchTable";
 import SalebillDataTable from "./SalebillDataTable";
 import socketService from "../../../utils/socket";
 import { usePermissions } from "../../../utils/PermissionsContext";
+import { styled } from '@mui/material/styles';
+
 
 const SaleBill = () => {
   const [allCustomerData, setAllCustomerData] = useState([]);
@@ -134,7 +138,9 @@ const SaleBill = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPageSize, setCurrentPageSize] = useState(30);
-
+  const [fileLoading, setFileLoading] = useState(false);
+  const [sendingLoading, setSendingLoading] = useState(false);
+  
   const tableRef = useRef(null);
   const customerNameRef = useRef(null);
   const addressRef = useRef(null);
@@ -176,6 +182,61 @@ const SaleBill = () => {
   const canRead = companyPermissions.includes("read");
   const canUpdate = companyPermissions.includes("update");
   const canDelete = companyPermissions.includes("delete");
+
+  const VisuallyHiddenInput = styled('input')({
+    clip: 'rect(0 0 0 0)',
+    clipPath: 'inset(50%)',
+    height: 1,
+    overflow: 'hidden',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    whiteSpace: 'nowrap',
+    width: 1,
+  });
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    setFileLoading(true);
+    const tempFileURL = URL.createObjectURL(file);
+
+    setFileLoading(false);
+
+    sendToWhatsApp(tempFileURL);
+  };
+
+  const sendToWhatsApp = async (fileLink) => {
+    if (!fileLink) {
+      NotificationManager.warning("Please upload a PDF file first!", "Warning", 3000);
+      return;
+    }
+
+    setSendingLoading(true);
+
+    const payload = {
+      phoneNumber: licenseDetails?.phoneNo,
+      pdfLink: fileLink,
+      message: "Hi, here is your sales bill.",
+    };
+
+    try {
+      const response = await exportSaleBillPDF(payload);
+
+      if (response.status === 200) {
+        NotificationManager.success("PDF sent successfully!", "Success", 3000);
+      } else {
+        NotificationManager.error("Failed to send the PDF.", "Error", 3000);
+      }
+    } catch (error) {
+      NotificationManager.error("An error occurred while sending the PDF.", "Error", 3000);
+    } finally {
+      setSendingLoading(false);
+      setFileLoading(false);
+    }
+  };
+
 
   const handlePrint = useReactToPrint({
     content: () => printModalRef.current,
@@ -2403,7 +2464,6 @@ const SaleBill = () => {
           <Grid container>
             <Grid item xs={3}>
               <div className="radio-buttons-wrapper">
-                
                 <RadioGroup
                   row
                   aria-label="billType"
@@ -2811,7 +2871,7 @@ const SaleBill = () => {
                 canRead={canRead}
                 role={role}
                 loadMoreData={loadMoreData}
-                itemName={formData.itemName} 
+                itemName={formData.itemName}
                 storeName={formData.store?.name}
                 page={page}
                 pageSize={pageSize}
@@ -3106,154 +3166,179 @@ const SaleBill = () => {
       <Box
         sx={{
           display: "flex",
-          justifyContent: "flex-end",
-          marginRight: 1,
+          justifyContent: "space-between",
+          // marginRight: 1,
           marginTop: 0,
-          // minWidth: "900px"
         }}
       >
         <Button
-          color="inherit"
-          size="small"
+          component="label"
+          role={undefined}
           variant="outlined"
-          onClick={(e) => {
-            setFormData({
-              billType: "CASHBILL",
-              customerName: "",
-              store:
-                allStores.length > 0 ? allStores[0] : { _id: "", name: "" },
-              address: "",
-              phoneNo: "",
-              billDate: todaysDate,
-              billno: "",
-              storeId: "",
-            });
-            setBillNumber("");
-            resetMiddleFormData();
-            resetTotalValues();
-            setSalesData([]);
-            sessionStorage.setItem("salesData", JSON.stringify([]));
-            handleEnterKey(e, itemCodeRef);
-            setBillNoEditable(false);
-            setSeriesEditable(false);
-            setSearchMode(false);
-            setIsAutoBillPrint(false);
-          }}
+          tabIndex={-1}
           sx={{
-            marginRight: 1,
+            marginLeft: 2,
             padding: "4px 10px",
             fontSize: "11px",
           }}
+          disabled={fileLoading || sendingLoading}
         >
-          CLEAR
+          {fileLoading || sendingLoading ? (
+            <CircularProgress size={24} sx={{ color: "inherit" }} />
+          ) : (
+            "Upload PDF and Send"
+          )}
+          <VisuallyHiddenInput
+            type="file"
+            accept="application/pdf"
+            style={{ display: "none" }}
+            onChange={handleFileChange}
+          />
         </Button>
+        <div>
+          <Button
+            color="inherit"
+            size="small"
+            variant="outlined"
+            onClick={(e) => {
+              setFormData({
+                billType: "CASHBILL",
+                customerName: "",
+                store:
+                  allStores.length > 0 ? allStores[0] : { _id: "", name: "" },
+                address: "",
+                phoneNo: "",
+                billDate: todaysDate,
+                billno: "",
+                storeId: "",
+              });
+              setBillNumber("");
+              resetMiddleFormData();
+              resetTotalValues();
+              setSalesData([]);
+              sessionStorage.setItem("salesData", JSON.stringify([]));
+              handleEnterKey(e, itemCodeRef);
+              setBillNoEditable(false);
+              setSeriesEditable(false);
+              setSearchMode(false);
+              setIsAutoBillPrint(false);
+            }}
+            sx={{
+              marginRight: 1,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
+          >
+            CLEAR
+          </Button>
 
-        <Button
-          color="success"
-          size="small"
-          variant="outlined"
-          onClick={handlePrevClick}
-          sx={{
-            marginRight: 1,
-            padding: "4px 10px",
-            fontSize: "11px",
-          }}
-          disabled={role !== "admin" && !canUpdate}
-        >
-          PREV BILL
-        </Button>
-        <Button
-          color="secondary"
-          size="small"
-          variant="outlined"
-          onClick={handleNextClick}
-          sx={{
-            marginRight: 1,
-            padding: "4px 10px",
-            fontSize: "11px",
-          }}
-          disabled={role !== "admin" && !canUpdate}
-        >
-          NEXT BILL
-        </Button>
+          <Button
+            color="success"
+            size="small"
+            variant="outlined"
+            onClick={handlePrevClick}
+            sx={{
+              marginRight: 1,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
+            disabled={role !== "admin" && !canUpdate}
+          >
+            PREV BILL
+          </Button>
+          <Button
+            color="secondary"
+            size="small"
+            variant="outlined"
+            onClick={handleNextClick}
+            sx={{
+              marginRight: 1,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
+            disabled={role !== "admin" && !canUpdate}
+          >
+            NEXT BILL
+          </Button>
 
-        <Button
-          color="error"
-          size="small"
-          variant="contained"
-          onClick={handleDeleteSale}
-          sx={{
-            marginRight: 1,
-            padding: "4px 10px",
-            fontSize: "11px",
-          }}
-          disabled={role !== "admin" && !canDelete}
-        >
-          DELETE
-        </Button>
-        <Button
-          color="warning"
-          size="small"
-          variant="contained"
-          onClick={() => {
-            billNoRef.current.focus();
-            setBillNoEditable(true);
-            setSeriesEditable(true);
-          }}
-          sx={{
-            marginRight: 1,
-            padding: "4px 10px",
-            fontSize: "11px",
-          }}
-          disabled={role !== "admin" && !canUpdate}
-        >
-          OPEN
-        </Button>
-        <Button
-          color="info"
-          size="small"
-          variant="contained"
-          onClick={handlePrint}
-          sx={{
-            marginRight: 1,
-            padding: "4px 10px",
-            fontSize: "11px",
-          }}
-          disabled={!canRead && role !== "admin"}
-        >
-          PRINT
-        </Button>
-        <Button
-          color="secondary"
-          size="small"
-          variant="contained"
-          onClick={handleSaveAndPrint}
-          sx={{
-            marginRight: 1,
-            padding: "4px 10px",
-            fontSize: "11px",
-          }}
-          // disabled={!billNumber && !billNoEditable}
-        >
-          SAVE & PRINT
-        </Button>
-        <Button
-          ref={saveButtonRef}
-          color="success"
-          size="small"
-          variant="contained"
-          onClick={() => {
-            if (!billNumber && !billNoEditable) handleCreateSale();
-            else if (billNumber && billNoEditable) handleUpdateSale();
-          }}
-          sx={{
-            padding: "4px 10px",
-            fontSize: "11px",
-          }}
-          // disabled={!billNumber && !billNoEditable}
-        >
-          SAVE
-        </Button>
+          <Button
+            color="error"
+            size="small"
+            variant="contained"
+            onClick={handleDeleteSale}
+            sx={{
+              marginRight: 1,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
+            disabled={role !== "admin" && !canDelete}
+          >
+            DELETE
+          </Button>
+          <Button
+            color="warning"
+            size="small"
+            variant="contained"
+            onClick={() => {
+              billNoRef.current.focus();
+              setBillNoEditable(true);
+              setSeriesEditable(true);
+            }}
+            sx={{
+              marginRight: 1,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
+            disabled={role !== "admin" && !canUpdate}
+          >
+            OPEN
+          </Button>
+          <Button
+            color="info"
+            size="small"
+            variant="contained"
+            onClick={handlePrint}
+            sx={{
+              marginRight: 1,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
+            disabled={!canRead && role !== "admin"}
+          >
+            PRINT
+          </Button>
+          <Button
+            color="secondary"
+            size="small"
+            variant="contained"
+            onClick={handleSaveAndPrint}
+            sx={{
+              marginRight: 1,
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
+            // disabled={!billNumber && !billNoEditable}
+          >
+            SAVE & PRINT
+          </Button>
+          <Button
+            ref={saveButtonRef}
+            color="success"
+            size="small"
+            variant="contained"
+            onClick={() => {
+              if (!billNumber && !billNoEditable) handleCreateSale();
+              else if (billNumber && billNoEditable) handleUpdateSale();
+            }}
+            sx={{
+              padding: "4px 10px",
+              fontSize: "11px",
+            }}
+            // disabled={!billNumber && !billNoEditable}
+          >
+            SAVE
+          </Button>
+        </div>
       </Box>
 
       <SaleBillPrintModal
@@ -3267,7 +3352,6 @@ const SaleBill = () => {
         isSplitPrinted={isSplitPrinted}
         printTotalValues={printTotalValues}
       />
-
     </ThemeProvider>
   );
 };
