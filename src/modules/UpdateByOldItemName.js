@@ -52,8 +52,8 @@ const UpdateByOldItemName = () => {
     setLoading(true);
     try {
       const response = await getAllItemsByItemName(itemName);
-      const allStocksData = response?.data?.data;
-      // console.log("allStocksData: ", allStocksData);
+      const allStocksData = response?.data?.data?.data;
+      console.log("allStocksData: ", allStocksData);
 
       setAllItems(allStocksData || []);
       // setTotalCount(allStocksData?.totalItems || 0);
@@ -68,12 +68,12 @@ const UpdateByOldItemName = () => {
     }
   };
 
-  console.log("editedRow: ",editedRow);
+  // console.log("editedRow: ",editedRow);
 
   const handleSaveClick = async () => {
     try {
       const payload = {
-        newItemName: editedRow?.itemId?.name,
+        newItemName: editedRow?.item?.name,
       };
       const response = await updateItemName(editedRow?._id, payload);
       if (response.status === 200) {
@@ -148,18 +148,13 @@ const UpdateByOldItemName = () => {
   const sortedData = () => {
     if (!allItems || !allItems.length) return [];
     return [...allItems].sort((a, b) => {
-      let firstValue = a[sortBy] || "";
-      let secondValue = b[sortBy] || "";
-
-      if (typeof firstValue === "string") firstValue = firstValue.toLowerCase();
-      if (typeof secondValue === "string")
-        secondValue = secondValue.toLowerCase();
-
+      let firstValue = a[sortBy]?.toString().toLowerCase() || "";
+      let secondValue = b[sortBy]?.toString().toLowerCase() || "";
       if (firstValue < secondValue) return sortOrder === "asc" ? -1 : 1;
       if (firstValue > secondValue) return sortOrder === "asc" ? 1 : -1;
       return 0;
     });
-  };
+  };  
 
   const handleItemNameChange = (event, newValue) => {
     setItemName(newValue);
@@ -188,10 +183,9 @@ const UpdateByOldItemName = () => {
   const filteredData = () => {
     const lowerSearch = search.trim().toLowerCase();
     return sortedData().filter((item) => {
-      return (
-        item.itemCode?.toLowerCase().includes(lowerSearch) ||
-        item.item?.name?.toLowerCase().includes(lowerSearch)
-      );
+      const itemName = item.item?.name?.toLowerCase() || "";
+      const itemCode = item.itemCode?.toLowerCase() || "";
+      return itemCode.includes(lowerSearch) || itemName.includes(lowerSearch);
     });
   };
 
@@ -324,7 +318,7 @@ const UpdateByOldItemName = () => {
                     </TableCell>
                   </TableRow>
                 ) : role === "admin" ? (
-                  allItems ? (
+                  allItems.length > 0 ? (
                     allItems
                       .slice(
                         page * rowsPerPage,
@@ -350,17 +344,17 @@ const UpdateByOldItemName = () => {
                             {editableIndex === index ? (
                               <TextField
                                 fullWidth
-                                value={editedRow?.itemId?.name || ""}
+                                value={editedRow?.item?.name || ""}
                                 onChange={(e) =>
                                   setEditedRow({
                                     ...editedRow,
-                                    itemId: { name: e.target.value },
+                                    item: { name: e.target.value },
                                   })
                                 }
                                 onKeyDown={(e) => handleKeyDown(e, item)}
                               />
                             ) : (
-                              item?.itemId?.name || "No Data"
+                              item?.item?.name || "No Data"
                             )}
                           </TableCell>
 
@@ -371,7 +365,7 @@ const UpdateByOldItemName = () => {
                           <TableCell>
                             {item?.currentStock || "No Data"}
                           </TableCell>
-                          <TableCell>{item?.stockAt?.name || "No Data"}</TableCell>
+                          <TableCell>{item?.store?.name || "No Data"}</TableCell>
                           {/* <TableCell>
                             <TextField
                               fullWidth
