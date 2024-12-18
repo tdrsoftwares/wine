@@ -39,7 +39,10 @@ const LicenseeInfo = ({ authenticatedUser }) => {
   const canDelete = companyPermissions.includes("delete");
 
   let [getData, setGetData] = useState([]);
-  let [editEnable, setEditEnable] = useState(true);
+  const [editEnable, setEditEnable] = useState(false);
+  const [createEnable, setCreateEnable] = useState(true);
+  const [isSaveEnabled, setIsSaveEnabled] = useState(false);
+  const [isAnyFieldMissing, setIsAnyFieldMissing] = useState(true);
 
   const [isButtonDisabled, setIsButtonDisabled] = useState(() => {
     // Initialize state from localStorage if it exists
@@ -116,10 +119,30 @@ const LicenseeInfo = ({ authenticatedUser }) => {
     }));
   };
 
-  let obj = {};
+  const validateLicenseData = () => {
+    if (!licenseData) return true; 
+    return Object.keys(licenseData).some(
+      key => licenseData[key] === null || licenseData[key] === undefined || licenseData[key] === ""
+    );
+  };
+  
+  useEffect(() => {
+    const missingFields = validateLicenseData();
+    setIsAnyFieldMissing(missingFields);
+  
+    if (missingFields) {
+      setCreateEnable(true); 
+      setEditEnable(false);
+      setIsSaveEnabled(false);
+    } else {
+      setCreateEnable(false); 
+      setEditEnable(true);    
+      setIsSaveEnabled(false);
+    }
+  }, [licenseData]);
 
   useEffect(() => {
-    localStorage.setItem("isButtonDisabled", JSON.stringify(isButtonDisabled));
+    // localStorage.setItem("isButtonDisabled", JSON.stringify(isButtonDisabled));
     const fetchData = async () => {
       try {
         const getLicenseData = await getLicenseInfo();
@@ -155,10 +178,10 @@ const LicenseeInfo = ({ authenticatedUser }) => {
     };
 
     fetchData();
-  }, [isButtonDisabled, authenticatedUser]);
+  }, [ authenticatedUser]);
 
   const handleCreate = async (e) => {
-    // const updateCategoryData = await axiosInstance.put(apiURL, payload);
+    
     const payload = {
       nameOfLicence: licenseData.nameOfLicence,
       businessType: licenseData.businessType,
@@ -190,13 +213,15 @@ const LicenseeInfo = ({ authenticatedUser }) => {
       if (response.status === 200) {
         // console.log("lic crt response", response)
         NotificationManager.success("License Created Successfully", "Success");
-        setIsButtonDisabled(true);
+        // setIsButtonDisabled(true);
+        setCreateEnable(false);
+        setEditEnable(true); 
       } else {
         NotificationManager.error("Problem creating license", "Error");
       }
     } catch (error) {
       console.log(error);
-      // Extract the error message or relevant information
+      
       let errorMessage = "An error occurred while submitting the data.";
       if (
         error.response &&
@@ -211,16 +236,33 @@ const LicenseeInfo = ({ authenticatedUser }) => {
     }
     // console.log("payload"+payload);
   };
+
+  const handleEdit = () => {
+    setEditEnable(false);  
+    setIsSaveEnabled(true); 
+  };
   // console.log(licenseData);
 
   const handleUpdate = async (e) => {
     e.preventDefault();
+    const hasMissingFields = Object.keys(licenseData).some(
+      key => !licenseData[key] || licenseData[key].toString().trim() === ""
+    );
+  
+    if (hasMissingFields) {
+      NotificationManager.warning(
+        "Please fill in all fields before updating.",
+        "Missing Fields"
+      );
+      return;
+    }
 
     const payload = { ...licenseData };
     try {
       const response = await updateLicenseInfo(payload, licenseData.id);
       NotificationManager.success("License Updated Successfully", "Success");
       setEditEnable(true);
+      setIsSaveEnabled(false);
     } catch (error) {
       console.log(error);
       const errorMessage =
@@ -229,34 +271,6 @@ const LicenseeInfo = ({ authenticatedUser }) => {
         "An error occurred while updating the data.";
       NotificationManager.error(errorMessage);
     }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    // Here you can send formData to your backend server or process it further
-
-    // Reset form after submission
-
-    setLicenseData({
-      nameOfLicence: licenseData.nameOfLicence,
-      businessType: licenseData.businessType,
-      address: licenseData.address,
-      district: licenseData.district,
-      phoneNo: licenseData.phoneNo,
-
-      fiancialPeriodTo: licenseData.fiancialPeriodTo,
-      fiancialPeriodfrom: licenseData.fiancialPeriodfrom,
-      licenceId: licenseData.licenceId,
-      billCategory: licenseData.billCategory,
-      noOfBillCopies: parseFloat(licenseData.noOfBillCopies),
-
-      autoBillPrint: licenseData.autoBillPrint,
-      eposUserId: licenseData.eposUserId,
-      eposPassword: licenseData.eposPassword,
-      noOfItemPerBill: parseFloat(licenseData.noOfItemPerBill),
-      perBillMaxWine: parseFloat(licenseData.perBillMaxWine),
-      perBillMaxCs: parseFloat(licenseData.perBillMaxCs),
-    });
   };
 
   return (
@@ -693,41 +707,41 @@ const LicenseeInfo = ({ authenticatedUser }) => {
               }}
             >
               <Button
-                color="secondary"
-                size="small"
-                variant="contained"
-                onClick={handleCreate}
-                disabled={role !== "admin" && !canCreate}
-              >
-                CREATE
-              </Button>
-              {editEnable ? (
-                <Button
-                  color="primary"
-                  size="small"
-                  variant="contained"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setEditEnable(false);
-                    nameOfLicenceRef.current.focus();
-                  }}
-                  sx={{ marginLeft: 2 }}
-                  disabled={role !== "admin" && !canUpdate}
-                >
-                  EDIT
-                </Button>
-              ) : (
-                <Button
-                  color="success"
-                  size="small"
-                  variant="contained"
-                  onClick={handleUpdate}
-                  sx={{ marginLeft: 2 }}
-                  disabled={role !== "admin" && !canUpdate}
-                >
-                  SAVE
-                </Button>
-              )}
+      color="secondary"
+      size="small"
+      variant="contained"
+      onClick={handleCreate}
+      disabled={!createEnable || !isAnyFieldMissing}
+    >
+      CREATE
+    </Button>
+
+    {licenseData && !isAnyFieldMissing && (
+      <>
+        {!isSaveEnabled ? (
+          <Button
+            color="primary"
+            size="small"
+            variant="contained"
+            onClick={handleEdit}
+            disabled={!editEnable}
+            sx={{ marginLeft: 2 }}
+          >
+            EDIT
+          </Button>
+        ) : (
+          <Button
+            color="success"
+            size="small"
+            variant="contained"
+            onClick={handleUpdate}
+            sx={{ marginLeft: 2 }}
+          >
+            SAVE
+          </Button>
+        )}
+      </>
+    )}
 
               <Button
                 color="inherit"

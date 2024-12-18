@@ -52,10 +52,20 @@ export const updateItemCode = async (itemDetailsId, payload) => {
 
 export const updateItemName = async (id, payload) => {
   try {
-    const apiURL = `/utils/update-item-name?itemCode=${id}`;
+    const apiURL = `/stock/update-stock-item-name/${id}`;
     const response = await axiosInstance.put(apiURL, payload);
     return response;
   } catch (error) {
     return error;
   }
 }
+
+export const getAllItemsByItemName = async (itemName) => {
+  try {
+    const apiURL = `/stock/get-stock-by-name?itemName=${itemName}`;
+    const allItemsData = await axiosInstance.get(apiURL);
+    return allItemsData;
+  } catch (error) {
+    return error;
+  }
+};

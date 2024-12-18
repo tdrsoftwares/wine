@@ -715,6 +715,9 @@ const NavbarOld = ({handleSignout}) => {
               <Link to="/itemname-updation" onClick={closeAllDropdowns}>
                 ItemName Updation
               </Link>
+              <Link to="/old-itemname-updation" onClick={closeAllDropdowns}>
+                Old Item Updation
+              </Link>
               <Link to="/3yrs-sale-report" onClick={closeAllDropdowns}>
                 3 Years Sale Report
               </Link>

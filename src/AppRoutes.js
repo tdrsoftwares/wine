@@ -118,6 +118,7 @@ import UserControl from "./modules/UserControl";
 import StockModify from "./modules/StockModify";
 import Expenses from "./components/Sidebar_old/Expenses";
 import ItemNameUpdate from "./modules/ItemNameUpdate";
+import UpdateByOldItemName from "./modules/UpdateByOldItemName";
 
 const PrivateRoute = ({ element, authenticatedUser }) => {
   return authenticatedUser ? element : <Navigate to="/login" />;
@@ -708,6 +709,11 @@ const AppRoutes = ({
       <Route
         path="/itemname-updation"
         element={authenticatedUser ? <ItemNameUpdate /> : <UnAuthorized />}
+      />
+
+      <Route
+        path="/old-itemname-updation"
+        element={authenticatedUser ? <UpdateByOldItemName /> : <UnAuthorized />}
       />
     </Routes>
   );
