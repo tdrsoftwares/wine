@@ -380,6 +380,7 @@ const DailySaleReport = () => {
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
                   id="dateFrom"
+                  format="DD/MM/YYYY"
                   className="date-picker input-field"
                   value={
                     filterData.dateFrom ? dayjs(filterData.dateFrom) : null
@@ -405,6 +406,7 @@ const DailySaleReport = () => {
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
                   id="dateTo"
+                  format="DD/MM/YYYY"
                   className="date-picker input-field"
                   value={filterData.dateTo ? dayjs(filterData.dateTo) : null}
                   onChange={(newDate) =>
