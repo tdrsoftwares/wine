@@ -1904,7 +1904,7 @@ const SaleBill = () => {
     const inputElement = e.target;
     const value = inputElement.value.trim();
 
-    if (e.ctrlKey) {
+    if (e.keyCode === 119) {
       handleSaveAndPrint();
       return;
     }
@@ -2323,15 +2323,14 @@ const SaleBill = () => {
     [formData.billType, totalValues, licenseDetails]
   );
 
-  //hanging issue here
-  // useEffect(() => {
-  //   if (licenseDetails?.perBillMaxWine && licenseDetails?.perBillMaxCs) {
-  //     debounceAutoSave();
-  //   }
-  //   return () => {
-  //     debounceAutoSave.cancel();
-  //   };
-  // }, [totalValues.flBeerVolume, totalValues.imlVolume, debounceAutoSave]);
+  useEffect(() => {
+    if (licenseDetails?.perBillMaxWine && licenseDetails?.perBillMaxCs) {
+      debounceAutoSave();
+    }
+    return () => {
+      debounceAutoSave.cancel();
+    };
+  }, [totalValues.flBeerVolume, totalValues.imlVolume, debounceAutoSave]);
 
   useEffect(() => {
     if ((billNumber && billNoEditable) || (billNumber && seriesData)) {
