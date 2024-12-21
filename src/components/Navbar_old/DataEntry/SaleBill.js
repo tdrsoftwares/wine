@@ -173,6 +173,7 @@ const SaleBill = () => {
   const saveButtonRef = useRef(null);
   const printModalRef = useRef(null);
   const pcsEditRef = useRef(null);
+  const isSaveAndPrintTriggered = useRef(false);
   const { permissions, role } = usePermissions();
 
   const companyPermissions =
@@ -730,10 +731,25 @@ const SaleBill = () => {
     };
   }, []);
 
+
   useEffect(() => {
     const handleKeyDown = (event) => {
+      // F9 key
       if (event.keyCode === 120) {
         handleCreateSale();
+      }
+
+      // F8 key
+      if (event.keyCode === 119) {
+        if (!isSaveAndPrintTriggered.current) {
+          isSaveAndPrintTriggered.current = true;
+          handleSaveAndPrint();
+
+          setTimeout(() => {
+            isSaveAndPrintTriggered.current = false;
+          }, 1000);
+        }
+        return;
       }
     };
 
@@ -1903,11 +1919,6 @@ const SaleBill = () => {
   const handleKeyDown = (e) => {
     const inputElement = e.target;
     const value = inputElement.value.trim();
-
-    if (e.keyCode === 119) {
-      handleSaveAndPrint();
-      return;
-    }
 
     if (e.key === "Enter") {
       e.preventDefault();
