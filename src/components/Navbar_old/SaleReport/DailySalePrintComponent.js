@@ -9,7 +9,7 @@ const DailySalePrintComponent = forwardRef(
     const todaysDate = new Date().toLocaleDateString();
 
     const [licenseDetails, setLicenseDetails] = useState({});
-    // console.log("LicenseDetailsProvider called", licenseDetails);
+    console.log("allSalesData ---> ", allSalesData);
 
     const fetchLicenseData = async () => {
       try {
@@ -156,7 +156,7 @@ const DailySalePrintComponent = forwardRef(
             sx={{ fontSize: "10px", mb: 1 }}
           >
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-              <Box sx={{ width: "30%" }}>{item._id}</Box>
+              <Box sx={{ width: "30%" }}>{item.itemName}</Box>
               <Box sx={{ width: "10%" }}>{item.totalPcs}</Box>
               <Box sx={{ width: "15%" }}>{item.rate}</Box>
               <Box sx={{ width: "15%" }}>{item.totalAmount?.toFixed(2)}</Box>
