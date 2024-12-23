@@ -9,7 +9,7 @@ const DailySalePrintComponent = forwardRef(
     const todaysDate = new Date().toLocaleDateString();
 
     const [licenseDetails, setLicenseDetails] = useState({});
-    console.log("allSalesData ---> ", allSalesData);
+    // console.log("allSalesData ---> ", allSalesData);
 
     const fetchLicenseData = async () => {
       try {
