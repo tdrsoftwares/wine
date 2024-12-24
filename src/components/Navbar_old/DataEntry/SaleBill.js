@@ -52,6 +52,8 @@ import SalebillDataTable from "./SalebillDataTable";
 import socketService from "../../../utils/socket";
 import { usePermissions } from "../../../utils/PermissionsContext";
 import { styled } from '@mui/material/styles';
+import { WhatsApp } from "@mui/icons-material";
+
 
 
 const SaleBill = () => {
@@ -196,34 +198,49 @@ const SaleBill = () => {
     width: 1,
   });
 
-  const handleFileChange = (event) => {
+  const handleFileChange = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
     setFileLoading(true);
-    const tempFileURL = URL.createObjectURL(file);
 
-    setFileLoading(false);
-
-    sendToWhatsApp(tempFileURL);
+    try {
+      await sendToWhatsApp(file);
+    } catch (error) {
+      NotificationManager.error("Failed to send the file.", "Error", 3000);
+    } finally {
+      setFileLoading(false);
+    }
   };
 
-  const sendToWhatsApp = async (fileLink) => {
-    if (!fileLink) {
-      NotificationManager.warning("Please upload a PDF file first!", "Warning", 3000);
+  const sendToWhatsApp = async (file) => {
+    if (!file) {
+      NotificationManager.warning(
+        "Please upload a PDF file first!",
+        "Warning",
+        2000
+      );
+      return;
+    }
+
+    if(!formData.phoneNo) {
+      NotificationManager.warning(
+        "Please select a Customer!",
+        "Warning",
+        2000
+      );
       return;
     }
 
     setSendingLoading(true);
 
-    const payload = {
-      phoneNumber: licenseDetails?.phoneNo,
-      pdfLink: fileLink,
-      message: "Hi, here is your sales bill.",
-    };
+    const fileData = new FormData();
+    fileData.append("phoneNumber", formData.phoneNo);
+    fileData.append("message", "Hi, here is your sales bill.");
+    fileData.append("pdf", file);
 
     try {
-      const response = await exportSaleBillPDF(payload);
+      const response = await exportSaleBillPDF(fileData);
 
       if (response.status === 200) {
         NotificationManager.success("PDF sent successfully!", "Success", 3000);
@@ -231,10 +248,13 @@ const SaleBill = () => {
         NotificationManager.error("Failed to send the PDF.", "Error", 3000);
       }
     } catch (error) {
-      NotificationManager.error("An error occurred while sending the PDF.", "Error", 3000);
+      NotificationManager.error(
+        "An error occurred while sending the PDF.",
+        "Error",
+        3000
+      );
     } finally {
       setSendingLoading(false);
-      setFileLoading(false);
     }
   };
 
@@ -3185,22 +3205,29 @@ const SaleBill = () => {
           component="label"
           role={undefined}
           variant="outlined"
+          color="success"
           tabIndex={-1}
           sx={{
             marginLeft: 2,
             padding: "4px 10px",
             fontSize: "11px",
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
           }}
           disabled={fileLoading || sendingLoading}
         >
           {fileLoading || sendingLoading ? (
             <CircularProgress size={24} sx={{ color: "inherit" }} />
           ) : (
-            "Upload PDF and Send"
+            <>
+              <WhatsApp fontSize="small" />
+              Send pdf to WhatsApp
+            </>
           )}
           <VisuallyHiddenInput
             type="file"
-            accept="application/pdf"
+            accept=".pdf"
             style={{ display: "none" }}
             onChange={handleFileChange}
           />

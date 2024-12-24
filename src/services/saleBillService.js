@@ -382,10 +382,14 @@ export const searchByBrandName = async (brandName) => {
   }
 };
 
-export const exportSaleBillPDF = async (payload) => {
+export const exportSaleBillPDF = async (formData) => {
   try {
     const apiURL = `/sales/send-whatapps-bill`;
-    const response = await axiosInstance.post(apiURL, payload);
+    const response = await axiosInstance.post(apiURL, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response;
   } catch (error) {
     return error;
