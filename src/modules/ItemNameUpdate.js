@@ -72,9 +72,9 @@ const ItemNameUpdate = () => {
   const handleSaveClick = async () => {
     try {
       const payload = {
-        itemName: editedRow?.item?.name,
+        newItemName: editedRow?.item?.name,
       };
-      const response = await updateItemName(editedRow?.itemCode, payload);
+      const response = await updateItemName(editedRow?._id, payload);
       if (response.status === 200) {
         NotificationManager.success("Itemname updated successfully", "Success");
         await fetchAllStocks();
