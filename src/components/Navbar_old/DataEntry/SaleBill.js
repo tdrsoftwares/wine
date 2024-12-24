@@ -53,6 +53,7 @@ import socketService from "../../../utils/socket";
 import { usePermissions } from "../../../utils/PermissionsContext";
 import { styled } from '@mui/material/styles';
 import { WhatsApp } from "@mui/icons-material";
+import jsPDF from "jspdf";
 
 
 
@@ -140,7 +141,6 @@ const SaleBill = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPageSize, setCurrentPageSize] = useState(30);
-  const [fileLoading, setFileLoading] = useState(false);
   const [sendingLoading, setSendingLoading] = useState(false);
   
   const tableRef = useRef(null);
@@ -184,33 +184,62 @@ const SaleBill = () => {
   const canCreate = companyPermissions.includes("create");
   const canRead = companyPermissions.includes("read");
   const canUpdate = companyPermissions.includes("update");
-  const canDelete = companyPermissions.includes("delete");
-
-  const VisuallyHiddenInput = styled('input')({
-    clip: 'rect(0 0 0 0)',
-    clipPath: 'inset(50%)',
-    height: 1,
-    overflow: 'hidden',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    whiteSpace: 'nowrap',
-    width: 1,
-  });
-
-  const handleFileChange = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    setFileLoading(true);
-
-    try {
-      await sendToWhatsApp(file);
-    } catch (error) {
-      NotificationManager.error("Failed to send the file.", "Error", 3000);
-    } finally {
-      setFileLoading(false);
+  const canDelete = companyPermissions.includes("delete");  
+  
+  const amountInWords = (amount) => {
+    if (isNaN(amount) || amount === undefined || amount === null) {
+      return "Zero Only";
     }
+    return toWords(amount) + " Only";
+  };
+  
+  const generateBillPDF = async () => {
+    const doc = new jsPDF();
+  
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text("CASH MEMO", 105, 15, null, null, "center");
+    doc.setFontSize(12);
+    doc.text(`Name of License/Shop: ${licenseDetails?.nameOfLicence || ""}`, 105, 25, null, null, "center");
+    doc.text(`License ID: ${licenseDetails?.eposUserId || ""}`, 105, 35, null, null, "center");
+    doc.line(10, 40, 200, 40);
+  
+    doc.setFont("helvetica", "normal");
+    doc.text(`Customer: ${formData?.customerName?.name || ""}`, 10, 50);
+    doc.text(`Bill No: ${billNumber || ""}`, 10, 60);
+    doc.text(
+      `Date: ${formData?.billDate ? new Date(formData.billDate).toLocaleDateString() : ""}`,
+      10,
+      70
+    );
+    doc.text(`Total Qty: ${totalValues?.totalPcs || 0}`, 10, 80);
+  
+    doc.setFont("helvetica", "bold");
+    doc.text("Batch", 10, 90);
+    doc.text("Item", 50, 90);
+    doc.text("Pcs", 120, 90);
+    doc.text("Amount (Rs.)", 150, 90);
+    doc.line(10, 92, 200, 92);
+  
+    doc.setFont("helvetica", "normal");
+    salesData.forEach((item, index) => {
+      const yPosition = 100 + index * 10;
+      doc.text(`${item?.batch || ""}`, 10, yPosition);
+      doc.text(`${item?.itemName || ""}`, 50, yPosition);
+      doc.text(`${item?.pcs || 0}`, 120, yPosition);
+      doc.text(`${parseFloat(item?.amount)?.toFixed(2) || "0.00"}`, 150, yPosition);
+    });
+  
+    const netAmount = parseFloat(totalValues?.netAmt)?.toFixed(2) || 0;
+    doc.setFont("helvetica", "bold");
+    doc.text(`Total Amount: Rs. ${netAmount}`, 10, 130);
+    doc.text(`Rs.: ${amountInWords(netAmount)}`, 10, 140);
+    doc.line(10, 145, 200, 145);
+    doc.setFont("helvetica", "italic");
+    doc.text("Thank you for your purchase!", 105, 155, null, null, "center");
+  
+    const pdfBlob = doc.output("blob");
+    return pdfBlob;
   };
 
   const sendToWhatsApp = async (file) => {
@@ -234,10 +263,12 @@ const SaleBill = () => {
 
     setSendingLoading(true);
 
+    const pdfData = await generateBillPDF();
+
     const fileData = new FormData();
     fileData.append("phoneNumber", formData.phoneNo);
     fileData.append("message", "Hi, here is your sales bill.");
-    fileData.append("pdf", file);
+    fileData.append("pdf",pdfData, "Sales-Bill.pdf");
 
     try {
       const response = await exportSaleBillPDF(fileData);
@@ -2392,7 +2423,7 @@ const SaleBill = () => {
     socketService.connect(process.env.REACT_APP_API_URL + "/total-sales");
 
     socketService.onMessage((data) => {
-      console.log("Received data from WebSocket:", data);
+      // console.log("Received data from WebSocket:", data);
 
       setTotalSales(data.totalAmount || 0);
       setTotalCash(data.cash || 0);
@@ -3215,9 +3246,10 @@ const SaleBill = () => {
             alignItems: "center",
             gap: 1,
           }}
-          disabled={fileLoading || sendingLoading}
+          onClick={sendToWhatsApp}
+          disabled={sendingLoading}
         >
-          {fileLoading || sendingLoading ? (
+          {sendingLoading ? (
             <CircularProgress size={24} sx={{ color: "inherit" }} />
           ) : (
             <>
@@ -3225,12 +3257,12 @@ const SaleBill = () => {
               Send pdf to WhatsApp
             </>
           )}
-          <VisuallyHiddenInput
+          {/* <VisuallyHiddenInput
             type="file"
             accept=".pdf"
             style={{ display: "none" }}
             onChange={handleFileChange}
-          />
+          /> */}
         </Button>
         <div>
           <Button
@@ -3259,6 +3291,7 @@ const SaleBill = () => {
               setSeriesEditable(false);
               setSearchMode(false);
               setIsAutoBillPrint(false);
+              setSendingLoading(false);
             }}
             sx={{
               marginRight: 1,
