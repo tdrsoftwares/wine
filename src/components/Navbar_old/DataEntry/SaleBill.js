@@ -3254,7 +3254,7 @@ const SaleBill = () => {
           ) : (
             <>
               <WhatsApp fontSize="small" />
-              Send pdf to WhatsApp
+              Send Bill to WhatsApp
             </>
           )}
           {/* <VisuallyHiddenInput
