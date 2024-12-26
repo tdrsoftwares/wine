@@ -104,14 +104,6 @@ const LicenseeInfo = ({ authenticatedUser }) => {
 
   const nameOfLicenceRef = useRef(null);
 
-  const handleInputChange1 = (e) => {
-    const { name, value } = e.target;
-    setLicenseData({
-      ...licenseData,
-      [name]: value,
-    });
-  };
-
   const handleDateChange = (key, newValue) => {
     setLicenseData((prev) => ({
       ...prev,
@@ -120,26 +112,14 @@ const LicenseeInfo = ({ authenticatedUser }) => {
   };
 
   const validateLicenseData = () => {
-    if (!licenseData) return true; 
+    if (!licenseData) return true;
     return Object.keys(licenseData).some(
-      key => licenseData[key] === null || licenseData[key] === undefined || licenseData[key] === ""
+      (key) =>
+        licenseData[key] === null ||
+        licenseData[key] === undefined ||
+        licenseData[key] === ""
     );
   };
-  
-  useEffect(() => {
-    const missingFields = validateLicenseData();
-    setIsAnyFieldMissing(missingFields);
-  
-    if (missingFields) {
-      setCreateEnable(true); 
-      setEditEnable(false);
-      setIsSaveEnabled(false);
-    } else {
-      setCreateEnable(false); 
-      setEditEnable(true);    
-      setIsSaveEnabled(false);
-    }
-  }, [licenseData]);
 
   useEffect(() => {
     // localStorage.setItem("isButtonDisabled", JSON.stringify(isButtonDisabled));
@@ -178,78 +158,36 @@ const LicenseeInfo = ({ authenticatedUser }) => {
     };
 
     fetchData();
-  }, [ authenticatedUser]);
+  }, [authenticatedUser]);
 
-  const handleCreate = async (e) => {
-    
-    const payload = {
-      nameOfLicence: licenseData.nameOfLicence,
-      businessType: licenseData.businessType,
-      address: licenseData.address,
-      district: licenseData.district,
-      phoneNo: licenseData.phoneNo,
+  const handleCreate = async () => {
+    if (!validateLicenseData(licenseData)) {
+      NotificationManager.warning(
+        "Please fill in all fields before creating.",
+        "Missing Fields"
+      );
+      return;
+    }
 
-      fiancialPeriodTo: licenseData.fiancialPeriodTo,
-      fiancialPeriodfrom: licenseData.fiancialPeriodfrom,
-      licenceId: licenseData.licenceId,
-      billCategory: licenseData.billCategory,
-      noOfBillCopies: parseFloat(licenseData.noOfBillCopies),
-
-      autoBillPrint: licenseData.autoBillPrint,
-      eposUserId: licenseData.eposUserId,
-      eposPassword: licenseData.eposPassword,
-      noOfItemPerBill: parseFloat(licenseData.noOfItemPerBill),
-      perBillMaxWine: parseFloat(licenseData.perBillMaxWine),
-      perBillMaxCs: parseFloat(licenseData.perBillMaxCs),
-      billMessages: licenseData.billMessages,
-      messageMobile: licenseData.messageMobile,
-    };
-
-    // console.log("payload: ", payload)
-    // e.preventDefault();
     try {
-      const response = await createLicenseInfo(payload);
-
+      const response = await createLicenseInfo(licenseData);
       if (response.status === 200) {
-        // console.log("lic crt response", response)
         NotificationManager.success("License Created Successfully", "Success");
-        // setIsButtonDisabled(true);
         setCreateEnable(false);
-        setEditEnable(true); 
-      } else {
-        NotificationManager.error("Problem creating license", "Error");
+        setEditEnable(true);
       }
     } catch (error) {
-      console.log(error);
-      
-      let errorMessage = "An error occurred while submitting the data.";
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        errorMessage = error.response.data.message;
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-      NotificationManager.error(errorMessage);
+      NotificationManager.error("Failed to create license.", "Error");
     }
-    // console.log("payload"+payload);
   };
 
   const handleEdit = () => {
-    setEditEnable(false);  
-    setIsSaveEnabled(true); 
+    setEditEnable(false);
+    setIsSaveEnabled(true);
   };
-  // console.log(licenseData);
 
-  const handleUpdate = async (e) => {
-    e.preventDefault();
-    const hasMissingFields = Object.keys(licenseData).some(
-      key => !licenseData[key] || licenseData[key].toString().trim() === ""
-    );
-  
-    if (hasMissingFields) {
+  const handleUpdate = async () => {
+    if (!validateLicenseData(licenseData)) {
       NotificationManager.warning(
         "Please fill in all fields before updating.",
         "Missing Fields"
@@ -257,21 +195,23 @@ const LicenseeInfo = ({ authenticatedUser }) => {
       return;
     }
 
-    const payload = { ...licenseData };
     try {
-      const response = await updateLicenseInfo(payload, licenseData.id);
-      NotificationManager.success("License Updated Successfully", "Success");
-      setEditEnable(true);
-      setIsSaveEnabled(false);
+      const response = await updateLicenseInfo(licenseData, licenseData.id);
+      if (response.status === 200) {
+        NotificationManager.success("License Updated Successfully", "Success");
+        setEditEnable(true);
+        setIsSaveEnabled(false);
+      }
     } catch (error) {
-      console.log(error);
-      const errorMessage =
-        error.response?.data?.message ||
-        error.message ||
-        "An error occurred while updating the data.";
-      NotificationManager.error(errorMessage);
+      NotificationManager.error("Failed to update license.", "Error");
     }
   };
+
+  useEffect(() => {
+    const isValid = validateLicenseData(licenseData);
+    setCreateEnable(!isValid && !licenseData.id); 
+    setIsSaveEnabled(!isValid && !!licenseData.id);
+  }, [licenseData]);
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -707,41 +647,37 @@ const LicenseeInfo = ({ authenticatedUser }) => {
               }}
             >
               <Button
-      color="secondary"
-      size="small"
-      variant="contained"
-      onClick={handleCreate}
-      disabled={!createEnable || !isAnyFieldMissing}
-    >
-      CREATE
-    </Button>
+                color="secondary"
+                size="small"
+                variant="contained"
+                onClick={handleCreate}
+                disabled={!createEnable}
+              >
+                CREATE
+              </Button>
 
-    {licenseData && !isAnyFieldMissing && (
-      <>
-        {!isSaveEnabled ? (
-          <Button
-            color="primary"
-            size="small"
-            variant="contained"
-            onClick={handleEdit}
-            disabled={!editEnable}
-            sx={{ marginLeft: 2 }}
-          >
-            EDIT
-          </Button>
-        ) : (
-          <Button
-            color="success"
-            size="small"
-            variant="contained"
-            onClick={handleUpdate}
-            sx={{ marginLeft: 2 }}
-          >
-            SAVE
-          </Button>
-        )}
-      </>
-    )}
+              {editEnable ? (
+                <Button
+                  color="primary"
+                  size="small"
+                  variant="contained"
+                  onClick={handleEdit}
+                  sx={{ marginLeft: 2 }}
+                >
+                  EDIT
+                </Button>
+              ) : (
+                <Button
+                  color="success"
+                  size="small"
+                  variant="contained"
+                  onClick={handleUpdate}
+                  sx={{ marginLeft: 2 }}
+                  disabled={!isSaveEnabled}
+                >
+                  SAVE
+                </Button>
+              )}
 
               <Button
                 color="inherit"
