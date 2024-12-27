@@ -2423,7 +2423,7 @@ const SaleBill = () => {
     socketService.connect(process.env.REACT_APP_API_URL + "/total-sales");
 
     socketService.onMessage((data) => {
-      // console.log("Received data from WebSocket:", data);
+      console.log("Received data from WebSocket:", data);
 
       setTotalSales(data.totalAmount || 0);
       setTotalCash(data.cash || 0);

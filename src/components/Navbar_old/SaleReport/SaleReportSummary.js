@@ -117,10 +117,26 @@ const SaleReportSummary = () => {
     {
       field: "volume",
       headerName: "Volume",
-      width: 180,
+      width: 150,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
     },
+
+    {
+      field: "cashAmount",
+      headerName: "Cash Amt.",
+      width: 150,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+    {
+      field: "onlineAmount",
+      headerName: "Online Amt.",
+      width: 150,
+      cellClassName: "custom-cell",
+      headerClassName: "custom-header",
+    },
+
     {
       field: "totalPcs",
       headerName: "Total Pcs.",
@@ -490,6 +506,8 @@ const SaleReportSummary = () => {
                 customerType: sale.customer?.type || "No Data",
                 phoneNumber: sale.customer?.contactNo || "No Data",
                 volume: sale.volume || 0,
+                cashAmount: sale.receiptMode1 || 0,
+                onlineAmount: sale.receiptAmount || 0,
                 totalPcs: sale.totalPcs || 0,
                 grossAmount: sale.grossAmount?.toFixed(2) || 0,
                 // discAmount: sale.discAmount || "No Data",
