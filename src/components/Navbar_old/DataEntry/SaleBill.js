@@ -1025,9 +1025,11 @@ const SaleBill = () => {
 
   const handleEdit = (index, field, value) => {
     const updatedRow = { ...salesData[index] };
-
-    updatedRow[field] = parseFloat(value);
-
+  
+    const parsedValue = value ? parseFloat(value) : 0;
+  
+    updatedRow[field] = parsedValue;
+  
     if (
       field === "rate" ||
       field === "pcs" ||
@@ -1035,43 +1037,41 @@ const SaleBill = () => {
       field === "amount"
     ) {
       if (field === "pcs") {
-        if (updatedRow.pcs > updatedRow.currentStock) {
+        if (parsedValue > updatedRow.currentStock) {
           NotificationManager.warning(
-            `Out of Stock! Currently you have ${
-              updatedRow.currentStock || 0
-            }pcs in stock.`
+            `Out of Stock! Currently you have ${updatedRow.currentStock || 0} pcs in stock.`
           );
           if (pcsEditRef && pcsEditRef.current) {
             pcsEditRef.current.blur();
           }
           return;
         } else {
-          updatedRow.amount = parseFloat(updatedRow.rate) * parseFloat(value);
+          updatedRow.amount = updatedRow.rate * parsedValue || 0;
         }
       } else if (field === "rate") {
-        updatedRow.amount = parseFloat(updatedRow.pcs) * parseFloat(value);
+        updatedRow.amount = updatedRow.pcs * parsedValue || 0;
       }
+
       // else if (field === "discount") {
-      //   const originalAmount =
-      //     parseFloat(updatedRow.rate) * parseFloat(updatedRow.pcs);
-      //   let newAmount = originalAmount - parseFloat(value);
+      //   const originalAmount = updatedRow.rate * updatedRow.pcs || 0;
+      //   let newAmount = originalAmount - parsedValue;
       //   if (newAmount < 0) {
       //     newAmount = 0;
       //   }
       //   updatedRow.amount = newAmount;
       // }
       else if (field === "amount") {
-        if (parseFloat(updatedRow.pcs) !== 0) {
-          updatedRow.rate = parseFloat(value) / parseFloat(updatedRow.pcs);
+        if (updatedRow.pcs !== 0) {
+          updatedRow.rate = parsedValue / updatedRow.pcs || 0;
         }
       }
     }
-
+  
     const updatedSalesData = [...salesData];
     updatedSalesData[index] = updatedRow;
-
+  
     setSalesData(updatedSalesData);
-
+  
     if (
       updatedRow.pcs <= updatedRow.currentStock &&
       formData.billType === "CASHBILL" &&
@@ -1080,7 +1080,7 @@ const SaleBill = () => {
     ) {
       autoSaveCashBill();
     }
-  };
+  };  
 
   const handleBillDateChange = (date) => {
     setFormData({ ...formData, billDate: date });
