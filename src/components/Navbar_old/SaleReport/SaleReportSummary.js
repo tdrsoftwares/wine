@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
 import { getAllSales } from "../../../services/saleBillService";
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { DataGrid, GridToolbar, renderActionsCell } from "@mui/x-data-grid";
 import { NotificationManager } from "react-notifications";
 import SalesDetailsModal from "./SalesDetailsModal";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -42,6 +42,7 @@ const SaleReportSummary = () => {
     pageSize: 100,
   });
   const [totalCount, setTotalCount] = useState(0);
+  const [totals, setTotals] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { permissions, role } = usePermissions();
 
@@ -178,15 +179,21 @@ const SaleReportSummary = () => {
       width: 100,
       cellClassName: "custom-cell",
       headerClassName: "custom-header",
-      renderCell: (params) => (
-        <Button
-          variant="contained"
-          size="small"
-          onClick={() => handleViewClick(params.row)}
-        >
-          View
-        </Button>
-      ),
+      renderCell: (params) => {
+        if (params.row.id === "totals") {
+          return "-";
+        }
+  
+        return (
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => handleViewClick(params.row)}
+          >
+            View
+          </Button>
+        );
+      },
       disableExport: true,
     },
   ];
@@ -205,6 +212,57 @@ const SaleReportSummary = () => {
     setSelectedRowData(row);
     setIsModalOpen(true);
   };
+
+  const rows = [
+    ...(allSalesData || []).map((sale, index) => ({
+      id: index,
+      sNo: index + paginationModel.page * paginationModel.pageSize + 1,
+      billNo: sale.billNo || 0,
+      billDate: sale.billDate || "No Data",
+      billType: sale.billType || "No Data",
+      billSeries: sale.billSeries || "No Data",
+      customer: sale.customer?.name || "No Data",
+      customerType: sale.customer?.type || "No Data",
+      phoneNumber: sale.customer?.contactNo || "No Data",
+      volume: sale.volume || 0,
+      cashAmount: sale.receiptMode1 || 0,
+      onlineAmount: sale.receiptAmount || 0,
+      totalPcs: sale.totalPcs || 0,
+      grossAmount: sale.grossAmount?.toFixed(2) || 0,
+      splDiscAmount: sale.splDiscAmount?.toFixed(2) || 0,
+      adjustment: sale.adjustment?.toFixed(2) || 0,
+      netAmount: sale.netAmount?.toFixed(2) || 0,
+      action: (
+        <Button
+          variant="contained"
+          size="small"
+          onClick={() => handleViewClick(sale)}
+        >
+          View
+        </Button>
+      ),
+    })),
+    {
+      id: "totals",
+      sNo: "Total",
+      billNo: "-",
+      billDate: "-",
+      billType: "-",
+      billSeries: "-",
+      customer: "-",
+      customerType: "-",
+      phoneNumber: "-",
+      volume: totals.totalVolume || 0,
+      cashAmount: totals.totalReceiptMode1 || 0,
+      onlineAmount: 0,
+      totalPcs: totals.totalPcs || 0,
+      grossAmount: totals.grossAmount?.toFixed(2) || 0,
+      splDiscAmount: totals.splDiscAmount?.toFixed(2) || 0,
+      adjustment: totals.adjustment?.toFixed(2) || 0,
+      netAmount: totals.netAmount?.toFixed(2) || 0,
+      action: null,
+    },
+  ];
 
   const fetchAllSales = async () => {
     const fromDate = filterData.dateFrom
@@ -230,6 +288,7 @@ const SaleReportSummary = () => {
       if (allSalesResponse.status === 200) {
         setAllSalesData(allSalesResponse?.data?.data?.items);
         setTotalCount(allSalesResponse?.data.data?.totalItems);
+        setTotals(allSalesResponse?.data.data?.totals);
       } else {
         // NotificationManager.error("No sales found.", "Error");
         setAllSalesData([]);
@@ -494,38 +553,7 @@ const SaleReportSummary = () => {
         >
           {canRead || role === "admin" ? (
             <DataGrid
-              rows={(allSalesData || [])?.map((sale, index) => ({
-                id: index,
-                sNo: index + paginationModel.page * paginationModel.pageSize + 1,
-                billNo: sale.billNo || 0,
-                billDate: sale.billDate || "No Data",
-                // new Date(sale.billDate).toLocaleDateString("en-GB"),
-                billType: sale.billType || "No Data",
-                billSeries: sale.billSeries || "No Data",
-                customer: sale.customer?.name || "No Data",
-                customerType: sale.customer?.type || "No Data",
-                phoneNumber: sale.customer?.contactNo || "No Data",
-                volume: sale.volume || 0,
-                cashAmount: sale.receiptMode1 || 0,
-                onlineAmount: sale.receiptAmount || 0,
-                totalPcs: sale.totalPcs || 0,
-                grossAmount: sale.grossAmount?.toFixed(2) || 0,
-                // discAmount: sale.discAmount || "No Data",
-                // splDisc: sale.splDisc,
-                splDiscAmount: sale.splDiscAmount?.toFixed(2) || 0,
-                // taxAmount: sale.taxAmount || "No Data",
-                adjustment: sale.adjustment?.toFixed(2) || 0,
-                netAmount: sale.netAmount?.toFixed(2) || 0,
-                action: (
-                  <Button
-                    variant="contained"
-                    size="small"
-                    onClick={() => handleViewClick(sale)}
-                  >
-                    View
-                  </Button>
-                ),
-              }))}
+              rows={rows}
               columns={columnsData}
               rowCount={totalCount}
               pagination
