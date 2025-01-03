@@ -5,11 +5,11 @@ import { getLicenseInfo } from "../../../services/licenseService";
 import { NotificationManager } from "react-notifications";
 
 const DailySalePrintComponent = forwardRef(
-  ({ filterData, allSalesData, totalAmount, totalPcs, totalVolume }, ref) => {
+  ({ filterData, allSalesData, totalAmount, totalPcs, totalVolume, allGroups }, ref) => {
     const todaysDate = new Date().toLocaleDateString();
 
     const [licenseDetails, setLicenseDetails] = useState({});
-    // console.log("allSalesData ---> ", allSalesData);
+    // console.log("allGroups ---> ", allGroups);
 
     const fetchLicenseData = async () => {
       try {
@@ -62,130 +62,173 @@ const DailySalePrintComponent = forwardRef(
 
     return (
       <div ref={ref}>
-      <Box
-        // ref={ref}
-        sx={{
-          p: 1,
-          width: "80mm",
-          fontFamily: "monospace",
-          fontSize: "10px",
-          "@media print": {
-            fontSize: "12px",
-            margin: "0.4em",
-          },
-        }}
-      >
-        <Typography
-          variant="h2"
-          component="h1"
-          align="center"
-          sx={{ fontSize: "12px", fontWeight: "bold", mb: 1 }}
-        >
-          DAILY SALE REPORT
-        </Typography>
-
-        <Typography
-          variant="h2"
-          component="h1"
-          align="center"
-          sx={{ fontSize: "12px" }}
-        >
-          {licenseDetails?.nameOfLicence}
-        </Typography>
-        <Typography
-          variant="h4"
-          component="h2"
-          align="center"
-          sx={{ fontSize: "12px" }}
-        >
-          {licenseDetails?.businessType}
-        </Typography>
-        <Typography
-          variant="h6"
-          component="h2"
-          align="center"
-          sx={{ fontSize: "10px" }}
-        >
-          {licenseDetails?.address}
-        </Typography>
-        <Typography
-          variant="h6"
-          component="h2"
-          align="center"
-          sx={{ fontSize: "10px" }}
-        >
-          {licenseDetails?.district || ""}
-        </Typography>
-
-        <Divider sx={{ my: 1 }} />
-
         <Box
+          // ref={ref}
           sx={{
-            display: "flex",
-            justifyContent: "space-between",
+            p: 1,
+            width: "80mm",
+            fontFamily: "monospace",
             fontSize: "10px",
+            "@media print": {
+              fontSize: "12px",
+              margin: "0.4em",
+            },
           }}
         >
-          <Typography variant="body1" sx={{ fontSize: "10px" }}>
-            {filterData.dateFrom
-              ? `Date from: ${dayjs(filterData.dateFrom).format("DD/MM/YYYY")}`
-              : ""}
-          </Typography>
-          <Typography variant="body1" sx={{ fontSize: "10px" }}>
-            {filterData.dateTo
-              ? `Date to: ${dayjs(filterData.dateTo).format("DD/MM/YYYY")}`
-              : ""}
-          </Typography>
-        </Box>
-
-        {filterData.dateFrom ||
-          (filterData.dateTo && <Divider sx={{ my: 1 }} />)}
-
-        <Typography variant="body2" sx={{ fontSize: "10px" }}>
-          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-            <Box sx={{ width: "30%", fontWeight: "bold" }}>ITEM</Box>
-            <Box sx={{ width: "10%", fontWeight: "bold" }}>QTY</Box>
-            <Box sx={{ width: "15%", fontWeight: "bold" }}>RATE</Box>
-            <Box sx={{ width: "15%", fontWeight: "bold" }}>AMT.</Box>
-          </Box>
-        </Typography>
-        {allSalesData.map((item, index) => (
           <Typography
-            key={index}
-            variant="body2"
-            sx={{ fontSize: "10px", mb: 1 }}
+            variant="h2"
+            component="h1"
+            align="center"
+            sx={{ fontSize: "12px", fontWeight: "bold", mb: 1 }}
           >
-            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-              <Box sx={{ width: "30%" }}>{item.itemName}</Box>
-              <Box sx={{ width: "10%" }}>{item.totalPcs}</Box>
-              <Box sx={{ width: "15%" }}>{item.rate}</Box>
-              <Box sx={{ width: "15%" }}>{item.totalAmount?.toFixed(2)}</Box>
+            DAILY SALE REPORT
+          </Typography>
+
+          <Typography
+            variant="h2"
+            component="h1"
+            align="center"
+            sx={{ fontSize: "12px" }}
+          >
+            {licenseDetails?.nameOfLicence}
+          </Typography>
+          <Typography
+            variant="h4"
+            component="h2"
+            align="center"
+            sx={{ fontSize: "12px" }}
+          >
+            {licenseDetails?.businessType}
+          </Typography>
+          <Typography
+            variant="h6"
+            component="h2"
+            align="center"
+            sx={{ fontSize: "10px" }}
+          >
+            {licenseDetails?.address}
+          </Typography>
+          <Typography
+            variant="h6"
+            component="h2"
+            align="center"
+            sx={{ fontSize: "10px" }}
+          >
+            {licenseDetails?.district || ""}
+          </Typography>
+
+          <Divider sx={{ my: 1 }} />
+
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              fontSize: "10px",
+            }}
+          >
+            <Typography variant="body1" sx={{ fontSize: "10px" }}>
+              {filterData.dateFrom
+                ? `Date from: ${dayjs(filterData.dateFrom).format(
+                    "DD/MM/YYYY"
+                  )}`
+                : ""}
+            </Typography>
+            <Typography variant="body1" sx={{ fontSize: "10px" }}>
+              {filterData.dateTo
+                ? `Date to: ${dayjs(filterData.dateTo).format("DD/MM/YYYY")}`
+                : ""}
+            </Typography>
+          </Box>
+
+          {filterData.dateFrom ||
+            (filterData.dateTo && <Divider sx={{ my: 1 }} />)}
+
+          <Typography variant="body2" sx={{ fontSize: "10px" }}>
+            <Box
+              sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}
+            >
+              <Box sx={{ width: "30%", fontWeight: "bold" }}>ITEM</Box>
+              <Box sx={{ width: "10%", fontWeight: "bold" }}>QTY</Box>
+              <Box sx={{ width: "15%", fontWeight: "bold" }}>RATE</Box>
+              <Box sx={{ width: "15%", fontWeight: "bold" }}>AMT.</Box>
             </Box>
           </Typography>
-        ))}
+          {allSalesData.map((item, index) => (
+            <Typography
+              key={index}
+              variant="body2"
+              sx={{ fontSize: "10px", mb: 1 }}
+            >
+              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                <Box sx={{ width: "30%" }}>{item.itemName}</Box>
+                <Box sx={{ width: "10%" }}>{item.totalPcs}</Box>
+                <Box sx={{ width: "15%" }}>{item.rate}</Box>
+                <Box sx={{ width: "15%" }}>{item.totalAmount?.toFixed(2)}</Box>
+              </Box>
+            </Typography>
+          ))}
 
-        <Divider sx={{ my: 1 }} />
+          <Divider sx={{ my: 1 }} />
 
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            fontSize: "10px",
-          }}
-        >
-          <Typography variant="body1" sx={{ fontSize: "10px" }}>
-            Total Qty: {totalPcs}
-          </Typography>
-          <Typography variant="body1" sx={{ fontSize: "10px" }}>
-            Total Volume: {totalVolume?.toFixed(2) + "ltr"}
-          </Typography>
-          <Typography variant="body1" sx={{ fontSize: "10px" }}>
-            Total Amount: {totalAmount?.toFixed(2)}
-          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              fontSize: "10px",
+            }}
+          >
+            <Typography
+              variant="body1"
+              sx={{ fontSize: "10px", fontWeight: "bold", mb: 1 }}
+            >
+              Group Totals:
+            </Typography>
+          </Box>
+
+          {allGroups.map((group, index) => (
+            <Box
+              key={index}
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                fontSize: "10px",
+                mb: 1,
+              }}
+            >
+              <Typography variant="body1" sx={{ fontSize: "10px" }}>
+                {group._id || "None"}:
+              </Typography>
+              <Typography variant="body1" sx={{ fontSize: "10px" }}>
+                Qty: {group.totalPcs}
+              </Typography>
+              <Typography variant="body1" sx={{ fontSize: "10px" }}>
+                Amount: {group.totalAmount.toFixed(2)}
+              </Typography>
+            </Box>
+          ))}
+
+          <Divider sx={{ my: 1 }} />
+
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              fontSize: "10px",
+            }}
+          >
+            <Typography variant="body1" sx={{ fontSize: "10px" }}>
+              Total Qty: {totalPcs}
+            </Typography>
+            <Typography variant="body1" sx={{ fontSize: "10px" }}>
+              Total Volume: {totalVolume?.toFixed(2) + "ltr"}
+            </Typography>
+            <Typography variant="body1" sx={{ fontSize: "10px" }}>
+              Total Amount: {totalAmount?.toFixed(2)}
+            </Typography>
+          </Box>
+
+          <Divider sx={{ my: 1 }} />
         </Box>
-
-        <Divider sx={{ my: 1 }} />
-      </Box>
       </div>
     );
   }

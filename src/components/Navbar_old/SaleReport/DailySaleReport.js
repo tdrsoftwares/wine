@@ -64,6 +64,8 @@ const DailySaleReport = () => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [totalPcs, setTotalPcs] = useState(0);
 
+  const [allGroups, setAllGroups] = useState({});
+
   const [itemName, setItemName] = useState("");
   const [brandName, setBrandName] = useState("");
   const [itemNameOptions, setItemNameOptions] = useState([]);
@@ -191,11 +193,16 @@ const DailySaleReport = () => {
         mode: filterData.mode,
       };
       const response = await getDailySalesDetails(filterOptions);
-      // console.log("Response salesData: ", response);
+      // console.log("Response salesData: ", response?.data?.data[0]);
 
+      const result = response?.data?.data[0]
       if (response.status === 200) {
-        setAllSalesData(response?.data?.data || []);
-        setTotalCount(response?.data?.data?.length || 0);
+        setAllSalesData( result?.items || []);
+        setTotalCount(result?.items?.length || 0);
+        setTotalAmount(result?.calcutedTotalAll?.totalAmount || 0);
+        setTotalPcs(result?.calcutedTotalAll?.totalPcs || 0);
+        setTotalVolume(result?.calcutedTotalAll?.totalVolume || 0);
+        setAllGroups(result?.calcutedGroupTotal)
       } else {
         console.log("Error", response);
         // NotificationManager.error("No items found.", "Error");
@@ -255,26 +262,26 @@ const DailySaleReport = () => {
     debouncedFetch();
   }, [filterData]);
 
-  useEffect(() => {
-    const calculateSums = (data) => {
-      let totalVolume = 0;
-      let totalAmount = 0;
-      let totalPcs = 0;
+  // useEffect(() => {
+  //   const calculateSums = (data) => {
+  //     let totalVolume = 0;
+  //     let totalAmount = 0;
+  //     let totalPcs = 0;
 
-      data.forEach((item) => {
-        totalVolume += item.totalVolumeLiters || 0;
-        totalAmount += item.totalAmount || 0;
-        totalPcs += item.totalPcs || 0;
-      });
+  //     data.forEach((item) => {
+  //       totalVolume += item.totalVolumeLiters || 0;
+  //       totalAmount += item.totalAmount || 0;
+  //       totalPcs += item.totalPcs || 0;
+  //     });
 
-      return { totalVolume, totalAmount, totalPcs };
-    };
+  //     return { totalVolume, totalAmount, totalPcs };
+  //   };
 
-    const { totalVolume, totalAmount, totalPcs } = calculateSums(allSalesData);
-    setTotalVolume(totalVolume);
-    setTotalAmount(totalAmount);
-    setTotalPcs(totalPcs);
-  }, [allSalesData]);
+  //   const { totalVolume, totalAmount, totalPcs } = calculateSums(allSalesData);
+  //   setTotalVolume(totalVolume);
+  //   setTotalAmount(totalAmount);
+  //   setTotalPcs(totalPcs);
+  // }, [allSalesData]);
 
   useEffect(() => {
     fetchAllCategory();
@@ -754,6 +761,7 @@ const DailySaleReport = () => {
             totalAmount={totalAmount}
             totalPcs={totalPcs}
             totalVolume={totalVolume}
+            allGroups={allGroups}
           />
         </div>
       </Box>
