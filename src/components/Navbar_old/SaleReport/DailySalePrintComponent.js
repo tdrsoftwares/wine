@@ -140,8 +140,8 @@ const DailySalePrintComponent = forwardRef(
             </Typography>
           </Box>
 
-          {filterData.dateFrom ||
-            (filterData.dateTo && <Divider sx={{ my: 1 }} />)}
+          {((filterData.dateFrom ||
+            filterData.dateTo) ? <Divider sx={{ my: 1 }}/> : "")}
 
           <Typography variant="body2" sx={{ fontSize: "10px" }}>
             <Box
@@ -185,7 +185,7 @@ const DailySalePrintComponent = forwardRef(
             </Typography>
           </Box>
 
-          {allGroups.map((group, index) => (
+          {allGroups?.map((group, index) => (
             <Box
               key={index}
               sx={{

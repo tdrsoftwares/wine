@@ -64,7 +64,7 @@ const DailySaleReport = () => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [totalPcs, setTotalPcs] = useState(0);
 
-  const [allGroups, setAllGroups] = useState({});
+  const [allGroups, setAllGroups] = useState([]);
 
   const [itemName, setItemName] = useState("");
   const [brandName, setBrandName] = useState("");
@@ -193,7 +193,7 @@ const DailySaleReport = () => {
         mode: filterData.mode,
       };
       const response = await getDailySalesDetails(filterOptions);
-      // console.log("Response salesData: ", response?.data?.data[0]);
+      console.log("Response salesData: ", response?.data?.data[0]);
 
       const result = response?.data?.data[0]
       if (response.status === 200) {
@@ -202,7 +202,7 @@ const DailySaleReport = () => {
         setTotalAmount(result?.calcutedTotalAll?.totalAmount || 0);
         setTotalPcs(result?.calcutedTotalAll?.totalPcs || 0);
         setTotalVolume(result?.calcutedTotalAll?.totalVolume || 0);
-        setAllGroups(result?.calcutedGroupTotal)
+        setAllGroups(result?.calcutedGroupTotal || []);
       } else {
         console.log("Error", response);
         // NotificationManager.error("No items found.", "Error");
