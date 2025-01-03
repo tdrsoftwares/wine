@@ -284,7 +284,6 @@ const DailySaleReport = () => {
 
 
   const exportToExcel = async () => {
-    // setHasExportClicked(true);
     const fromDate = filterData.dateFrom
       ? formatDate(filterData.dateFrom)
       : null;
@@ -301,33 +300,47 @@ const DailySaleReport = () => {
       volume: filterData.volume,
       mode: filterData.mode,
     };
-    // console.log("filterOptions: ",filterOptions)
 
     try {
       setLoading(true);
       const response = await exportDailySalesDetails(filterOptions);
       const allDsrData = response?.data?.data[0];
-      // console.log("allDsrData: ", allDsrData);
 
       const dataToExport = (allDsrData?.items || []).map((item, index) => ({
         "S. No.": index + 1,
         "Bill Date": item.billDate,
-        "Item": item._id,
+        Item: item._id,
         "Total Pcs": item.totalPcs,
         Rate: item.rate,
         "Total Volume Ltrs": item.totalVolumeLiters,
         "Total Amount": item.totalAmount,
       }));
 
-      dataToExport.push({
-        "S. No.": "Total",
-        "Bill Date": "",
-        "Item": "",
-        "Total Pcs": allDsrData.totalPcs,
-        "Rate": "",
-        "Total Volume Ltrs": allDsrData.totalVolume,
-        "Total Amount": allDsrData.totalAmount,
+
+      (allDsrData?.calcutedGroupTotal || []).forEach((groupTotal) => {
+        dataToExport.push({
+          "S. No.": `Group Total (${groupTotal._id})`,
+          "Bill Date": "",
+          Item: "",
+          "Total Pcs": groupTotal.totalPcs,
+          Rate: "",
+          "Total Volume Ltrs": "",
+          "Total Amount": groupTotal.totalAmount,
+        });
       });
+
+      const overallTotal = allDsrData?.calcutedTotalAll;
+      if (overallTotal) {
+        dataToExport.push({
+          "S. No.": "Total",
+          "Bill Date": "",
+          Item: "",
+          "Total Pcs": overallTotal.totalPcs,
+          Rate: "",
+          "Total Volume Ltrs": overallTotal.totalVolume,
+          "Total Amount": overallTotal.totalAmount,
+        });
+      }
 
       const worksheet = XLSX.utils.json_to_sheet(dataToExport);
       const workbook = XLSX.utils.book_new();
@@ -339,7 +352,7 @@ const DailySaleReport = () => {
     } finally {
       setLoading(false);
     }
-  };
+  };  
 
   const CustomFooter = () => {
     return (
