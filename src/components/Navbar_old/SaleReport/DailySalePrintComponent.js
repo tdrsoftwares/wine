@@ -153,7 +153,7 @@ const DailySalePrintComponent = forwardRef(
               <Box sx={{ width: "15%", fontWeight: "bold" }}>AMT.</Box>
             </Box>
           </Typography>
-          {allSalesData.map((item, index) => (
+          {allSalesData?.map((item, index) => (
             <Typography
               key={index}
               variant="body2"

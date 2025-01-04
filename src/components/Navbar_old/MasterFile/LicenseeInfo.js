@@ -112,12 +112,32 @@ const LicenseeInfo = ({ authenticatedUser }) => {
   };
 
   const validateLicenseData = () => {
-    if (!licenseData) return true;
-    return Object.keys(licenseData).some(
-      (key) =>
-        licenseData[key] === null ||
-        licenseData[key] === undefined ||
-        licenseData[key] === ""
+    const requiredFields = [
+      "nameOfLicence",
+      "businessType",
+      "address",
+      "district",
+      "phoneNo",
+      "fiancialPeriodTo",
+      "fiancialPeriodfrom",
+      "licenceId",
+      "billCategory",
+      "noOfBillCopies",
+      "autoBillPrint",
+      "eposUserId",
+      "eposPassword",
+      "noOfItemPerBill",
+      "perBillMaxWine",
+      "perBillMaxCs",
+      "billMessages",
+      "messageMobile",
+    ];
+  
+    return requiredFields.some(
+      (field) =>
+        licenseData[field] === null ||
+        licenseData[field] === undefined ||
+        licenseData[field] === ""
     );
   };
 
@@ -161,14 +181,14 @@ const LicenseeInfo = ({ authenticatedUser }) => {
   }, [authenticatedUser]);
 
   const handleCreate = async () => {
-    if (!validateLicenseData(licenseData)) {
+    if (validateLicenseData()) {
       NotificationManager.warning(
         "Please fill in all fields before creating.",
         "Missing Fields"
       );
       return;
     }
-
+  
     try {
       const response = await createLicenseInfo(licenseData);
       if (response.status === 200) {
@@ -187,28 +207,37 @@ const LicenseeInfo = ({ authenticatedUser }) => {
   };
 
   const handleUpdate = async () => {
-    if (!validateLicenseData(licenseData)) {
+    if (validateLicenseData()) {
       NotificationManager.warning(
         "Please fill in all fields before updating.",
         "Missing Fields"
       );
       return;
     }
-
+    // console.log("licenseData", licenseData);
+  
     try {
       const response = await updateLicenseInfo(licenseData, licenseData.id);
-      if (response.status === 200) {
+      // console.log("update response", response)
+      if (response.statusCode === 200) {
         NotificationManager.success("License Updated Successfully", "Success");
+        setEditEnable(true);
+        setIsSaveEnabled(false);
+      }
+      else {
+        NotificationManager.error("Failed to update license.", "Error");
         setEditEnable(true);
         setIsSaveEnabled(false);
       }
     } catch (error) {
       NotificationManager.error("Failed to update license.", "Error");
+      setEditEnable(true);
+      setIsSaveEnabled(false);
     }
   };
 
   useEffect(() => {
-    const isValid = validateLicenseData(licenseData);
+    const isValid = validateLicenseData();
     setCreateEnable(!isValid && !licenseData.id); 
     setIsSaveEnabled(!isValid && !!licenseData.id);
   }, [licenseData]);
@@ -547,7 +576,7 @@ const LicenseeInfo = ({ authenticatedUser }) => {
                     onChange={(e) =>
                       setLicenseData({
                         ...licenseData,
-                        noOfItemPerBill: e.target.value,
+                        noOfItemPerBill: parseFloat(e.target.value),
                       })
                     }
                     InputProps={{ readOnly: editEnable }}

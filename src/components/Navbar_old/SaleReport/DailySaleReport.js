@@ -193,7 +193,7 @@ const DailySaleReport = () => {
         mode: filterData.mode,
       };
       const response = await getDailySalesDetails(filterOptions);
-      console.log("Response salesData: ", response?.data?.data[0]);
+      // console.log("Response salesData: ", response?.data?.data[0]);
 
       const result = response?.data?.data[0]
       if (response.status === 200) {
