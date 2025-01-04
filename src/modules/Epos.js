@@ -225,8 +225,16 @@ const Epos = () => {
       };
       const response = await getAllEpos(filterOptions);
       // console.log("sales fetched", response?.data?.data);
-      setAllEposData(response?.data?.data || []);
-      setTotalCount(response?.data?.data?.length || 0);
+      
+      const result = response?.data?.data[0];
+      if (response.status === 200) {
+        setAllEposData( result?.items || []);
+        setTotalCount(result?.items?.length || 0);
+      } else {
+        console.log("Error", response);
+        // NotificationManager.error("No items found.", "Error");
+        setAllEposData([]);
+      }
     } catch (error) {
       // NotificationManager.error(
       //   "Error fetching sales. Please try again later.",
