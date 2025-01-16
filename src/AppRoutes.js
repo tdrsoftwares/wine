@@ -119,6 +119,7 @@ import StockModify from "./modules/StockModify";
 import Expenses from "./components/Sidebar_old/Expenses";
 import ItemNameUpdate from "./modules/ItemNameUpdate";
 import UpdateByOldItemName from "./modules/UpdateByOldItemName";
+import BrandCounterReport from "./components/Sidebar_old/BrandCounterReport";
 
 const PrivateRoute = ({ element, authenticatedUser }) => {
   return authenticatedUser ? element : <Navigate to="/login" />;
@@ -619,6 +620,10 @@ const AppRoutes = ({
       <Route
         path="/previous-year-dsr"
         element={authenticatedUser ? <PreviousYearDSR /> : <UnAuthorized />}
+      />
+      <Route
+        path="/brand-counter-report"
+        element={authenticatedUser ? <BrandCounterReport /> : <UnAuthorized />}
       />
       <Route
         path="/fl-beer-cs/ledger-summary"

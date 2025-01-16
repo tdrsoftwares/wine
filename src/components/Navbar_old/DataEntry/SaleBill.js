@@ -1737,29 +1737,198 @@ const SaleBill = () => {
   };
 
 
-  // console.log("salesData --> ",salesData)
+  console.log("salesData --> ",salesData)
+
+  // const handleUpdateSale = async () => {
+  //   let payload = {};
+  //   const billDateObj = formatDate(formData.billDate);
+  //   const todaysDateObj = formatDate(new Date());
+
+  //   if (formData.billType === "CREDITBILL" && !formData.customerName) {
+  //     NotificationManager.warning("Customer name is required", "Warning");
+  //     return;
+  //   }
+
+  //   if (salesData.length === 0) {
+  //     NotificationManager.warning("Enter some item in table.", "Warning");
+  //     itemCodeRef.current.focus();
+  //     return;
+  //   }
+
+  //   let groupedItems = {
+  //     FL_BEER: [],
+  //     IML: [],
+  //   };
+
+  //   salesData.forEach((item) => {
+  //     if (item.group === "FL" || item.group === "BEER") {
+  //       groupedItems.FL_BEER.push(item);
+  //     } else if (item.group === "IML") {
+  //       groupedItems.IML.push(item);
+  //     }
+  //   });
+
+  //   let flBeerBillSeries = "";
+  //   if (groupedItems.FL_BEER.length > 0) {
+  //     flBeerBillSeries = groupedItems.FL_BEER[0].group;
+  //   }
+
+  //   if (groupedItems.FL_BEER.length > 0) {
+  //     let flBeerPayload = {
+  //       billType: formData.billType,
+  //       customer: formData.customerName._id,
+  //       storeId: formData.store?._id,
+  //       billSeries: flBeerBillSeries,
+  //       billDate: formData.billDate ? billDateObj : todaysDateObj,
+  //       volume: parseInt(totalValues.totalVolume),
+  //       totalPcs: parseInt(totalValues.totalPcs),
+  //       splDisc: parseFloat(totalValues.splDiscount || 0),
+  //       splDiscAmount: parseFloat(totalValues.splDiscAmount || 0),
+  //       grossAmount: parseFloat(totalValues.grossAmt),
+  //       discAmount: parseFloat(totalValues.discountAmt || 0),
+  //       // taxAmount: parseFloat(totalValues.taxAmt || 0),
+  //       adjustment: parseFloat(totalValues.adjustment || 0),
+  //       netAmount: parseFloat(totalValues.netAmt),
+  //       receiptMode1: parseFloat(totalValues.receiptMode1),
+  //       salesItem: [],
+  //     };
+
+  //     groupedItems.FL_BEER.forEach((item) => {
+  //       let salesItem = {
+  //         itemCode: item.itemCode,
+  //         itemId: item.itemId,
+  //         batchNo: item.batch,
+  //         mrp: parseFloat(item.mrp),
+  //         pcs: parseFloat(item.pcs),
+  //         rate: parseFloat(item.rate),
+  //         discount: parseFloat(item.discount),
+  //         amount: parseFloat(item.amount),
+  //         split: parseFloat(item.split),
+  //         break: parseFloat(item.brk),
+  //         // stockAt: item.stockAt,
+  //       };
+
+  //       if (item.itemDetailsId) {
+  //         salesItem._id = item.itemDetailsId;
+  //       }
+
+  //       console.log("item.itemDetailsId:", item.itemDetailsId);
+  //       console.log("salesItem: ", salesItem);
+
+  //       flBeerPayload.salesItem.push(salesItem);
+  //     });
+
+  //     if (totalValues.receiptMode2) {
+  //       flBeerPayload.receiptMode2 = totalValues.receiptMode2;
+  //     }
+
+  //     if (totalValues.receiptAmt && totalValues.receiptAmt !== 0) {
+  //       flBeerPayload.receiptAmount = parseFloat(totalValues.receiptAmt);
+  //     }
+
+  //     payload = flBeerPayload;
+  //   }
+
+  //   if (groupedItems.IML.length > 0) {
+  //     let imlPayload = {
+  //       billType: formData.billType,
+  //       customer: formData.customerName._id,
+  //       storeId: formData.store?._id,
+  //       billSeries: "IML",
+  //       billDate: formData.billDate ? billDateObj : todaysDateObj,
+  //       volume: parseInt(totalValues.totalVolume),
+  //       totalPcs: parseInt(totalValues.totalPcs),
+  //       splDisc: parseFloat(totalValues.splDiscount || 0),
+  //       splDiscAmount: parseFloat(totalValues.splDiscAmount || 0),
+  //       grossAmount: parseFloat(totalValues.grossAmt),
+  //       discAmount: parseFloat(totalValues.discountAmt || 0),
+  //       // taxAmount: parseFloat(totalValues.taxAmt || 0),
+  //       adjustment: parseFloat(totalValues.adjustment || 0),
+  //       netAmount: parseFloat(totalValues.netAmt),
+  //       receiptMode1: parseFloat(totalValues.receiptMode1),
+  //       salesItem: [],
+  //     };
+
+  //     groupedItems.IML.forEach((item) => {
+  //       let salesItem = {
+  //         itemCode: item.itemCode,
+  //         itemId: item.itemId,
+  //         batchNo: item.batch,
+  //         mrp: parseFloat(item.mrp),
+  //         pcs: parseFloat(item.pcs),
+  //         rate: parseFloat(item.rate),
+  //         discount: parseFloat(item.discount),
+  //         amount: parseFloat(item.amount),
+  //         split: parseFloat(item.split),
+  //         break: parseFloat(item.brk),
+  //         // stockAt: item.stockAt,
+  //       };
+
+  //       if (item.itemDetailsId) {
+  //         salesItem._id = item.itemDetailsId;
+  //       }
+
+  //       console.log("item.itemDetailsId:", item.itemDetailsId)
+  //       console.log("salesItem: ", salesItem);
+
+  //       imlPayload.salesItem.push(salesItem);
+  //     });
+
+  //     if (totalValues.receiptMode2) {
+  //       imlPayload.receiptMode2 = totalValues.receiptMode2;
+  //     }
+
+  //     if (totalValues.receiptAmt && totalValues.receiptAmt !== 0) {
+  //       imlPayload.receiptAmount = parseFloat(totalValues.receiptAmt);
+  //     }
+
+  //     payload = imlPayload;
+  //   }
+
+  //   try {
+  //     const response = await updateSaleDetailsByBillNo(payload, billNumber);
+
+  //     if (response.status === 200) {
+  //       NotificationManager.success("Sale updated successfully", "Success");
+
+  //       setSearchMode(false);
+  //     } else {
+  //       if (response.response.data.statusCode === 400) {
+  //         NotificationManager.error(response.response.data.message, "Error");
+  //         fetchAllBrandWiseItems();
+  //       } else {
+  //         NotificationManager.error(
+  //           "Error updating Sale. Please try again later.",
+  //           "Error"
+  //         );
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating sale:", error);
+  //   }
+  // };
 
   const handleUpdateSale = async () => {
     let payload = {};
     const billDateObj = formatDate(formData.billDate);
     const todaysDateObj = formatDate(new Date());
-
+  
     if (formData.billType === "CREDITBILL" && !formData.customerName) {
       NotificationManager.warning("Customer name is required", "Warning");
       return;
     }
-
+  
     if (salesData.length === 0) {
       NotificationManager.warning("Enter some item in table.", "Warning");
       itemCodeRef.current.focus();
       return;
     }
-
+  
     let groupedItems = {
       FL_BEER: [],
       IML: [],
     };
-
+  
     salesData.forEach((item) => {
       if (item.group === "FL" || item.group === "BEER") {
         groupedItems.FL_BEER.push(item);
@@ -1767,124 +1936,77 @@ const SaleBill = () => {
         groupedItems.IML.push(item);
       }
     });
-
+  
     let flBeerBillSeries = "";
     if (groupedItems.FL_BEER.length > 0) {
       flBeerBillSeries = groupedItems.FL_BEER[0].group;
     }
-
+  
+    const buildPayload = (group, billSeries) => {
+      let payload = {
+        billType: formData.billType,
+        customer: formData.customerName._id,
+        storeId: formData.store?._id,
+        billSeries: billSeries,
+        billDate: formData.billDate ? billDateObj : todaysDateObj,
+        volume: parseInt(totalValues.totalVolume),
+        totalPcs: parseInt(totalValues.totalPcs),
+        splDisc: parseFloat(totalValues.splDiscount || 0),
+        splDiscAmount: parseFloat(totalValues.splDiscAmount || 0),
+        grossAmount: parseFloat(totalValues.grossAmt),
+        discAmount: parseFloat(totalValues.discountAmt || 0),
+        adjustment: parseFloat(totalValues.adjustment || 0),
+        netAmount: parseFloat(totalValues.netAmt),
+        receiptMode1: parseFloat(totalValues.receiptMode1),
+        salesItem: [],
+      };
+  
+      group.forEach((item) => {
+        let salesItem = {
+          itemCode: item.itemCode,
+          itemId: item.itemId,
+          batchNo: item.batch,
+          mrp: parseFloat(item.mrp),
+          pcs: parseFloat(item.pcs),
+          rate: parseFloat(item.rate),
+          discount: parseFloat(item.discount),
+          amount: parseFloat(item.amount),
+          split: parseFloat(item.split),
+          break: parseFloat(item.brk),
+        };
+  
+        // Include _id only for newly added items
+        if (!item.itemDetailsId) {
+          salesItem._id = item.itemDetailsId;
+        }
+  
+        payload.salesItem.push(salesItem);
+      });
+  
+      if (totalValues.receiptMode2) {
+        payload.receiptMode2 = totalValues.receiptMode2;
+      }
+  
+      if (totalValues.receiptAmt && totalValues.receiptAmt !== 0) {
+        payload.receiptAmount = parseFloat(totalValues.receiptAmt);
+      }
+  
+      return payload;
+    };
+  
     if (groupedItems.FL_BEER.length > 0) {
-      let flBeerPayload = {
-        billType: formData.billType,
-        customer: formData.customerName._id,
-        storeId: formData.store?._id,
-        billSeries: flBeerBillSeries,
-        billDate: formData.billDate ? billDateObj : todaysDateObj,
-        volume: parseInt(totalValues.totalVolume),
-        totalPcs: parseInt(totalValues.totalPcs),
-        splDisc: parseFloat(totalValues.splDiscount || 0),
-        splDiscAmount: parseFloat(totalValues.splDiscAmount || 0),
-        grossAmount: parseFloat(totalValues.grossAmt),
-        discAmount: parseFloat(totalValues.discountAmt || 0),
-        // taxAmount: parseFloat(totalValues.taxAmt || 0),
-        adjustment: parseFloat(totalValues.adjustment || 0),
-        netAmount: parseFloat(totalValues.netAmt),
-        receiptMode1: parseFloat(totalValues.receiptMode1),
-        salesItem: [],
-      };
-
-      groupedItems.FL_BEER.forEach((item) => {
-        let salesItem = {
-          itemCode: item.itemCode,
-          itemId: item.itemId,
-          batchNo: item.batch,
-          mrp: parseFloat(item.mrp),
-          pcs: parseFloat(item.pcs),
-          rate: parseFloat(item.rate),
-          discount: parseFloat(item.discount),
-          amount: parseFloat(item.amount),
-          split: parseFloat(item.split),
-          break: parseFloat(item.brk),
-          // stockAt: item.stockAt,
-        };
-
-        if (item.itemDetailsId) {
-          salesItem._id = item.itemDetailsId;
-        }
-
-        flBeerPayload.salesItem.push(salesItem);
-      });
-
-      if (totalValues.receiptMode2) {
-        flBeerPayload.receiptMode2 = totalValues.receiptMode2;
-      }
-
-      if (totalValues.receiptAmt && totalValues.receiptAmt !== 0) {
-        flBeerPayload.receiptAmount = parseFloat(totalValues.receiptAmt);
-      }
-
-      payload = flBeerPayload;
+      payload = buildPayload(groupedItems.FL_BEER, flBeerBillSeries);
     }
-
+  
     if (groupedItems.IML.length > 0) {
-      let imlPayload = {
-        billType: formData.billType,
-        customer: formData.customerName._id,
-        storeId: formData.store?._id,
-        billSeries: "IML",
-        billDate: formData.billDate ? billDateObj : todaysDateObj,
-        volume: parseInt(totalValues.totalVolume),
-        totalPcs: parseInt(totalValues.totalPcs),
-        splDisc: parseFloat(totalValues.splDiscount || 0),
-        splDiscAmount: parseFloat(totalValues.splDiscAmount || 0),
-        grossAmount: parseFloat(totalValues.grossAmt),
-        discAmount: parseFloat(totalValues.discountAmt || 0),
-        // taxAmount: parseFloat(totalValues.taxAmt || 0),
-        adjustment: parseFloat(totalValues.adjustment || 0),
-        netAmount: parseFloat(totalValues.netAmt),
-        receiptMode1: parseFloat(totalValues.receiptMode1),
-        salesItem: [],
-      };
-
-      groupedItems.IML.forEach((item) => {
-        let salesItem = {
-          itemCode: item.itemCode,
-          itemId: item.itemId,
-          batchNo: item.batch,
-          mrp: parseFloat(item.mrp),
-          pcs: parseFloat(item.pcs),
-          rate: parseFloat(item.rate),
-          discount: parseFloat(item.discount),
-          amount: parseFloat(item.amount),
-          split: parseFloat(item.split),
-          break: parseFloat(item.brk),
-          // stockAt: item.stockAt,
-        };
-
-        if (item.itemDetailsId) {
-          salesItem._id = item.itemDetailsId;
-        }
-
-        imlPayload.salesItem.push(salesItem);
-      });
-
-      if (totalValues.receiptMode2) {
-        imlPayload.receiptMode2 = totalValues.receiptMode2;
-      }
-
-      if (totalValues.receiptAmt && totalValues.receiptAmt !== 0) {
-        imlPayload.receiptAmount = parseFloat(totalValues.receiptAmt);
-      }
-
-      payload = imlPayload;
+      payload = buildPayload(groupedItems.IML, "IML");
     }
-
+  
     try {
       const response = await updateSaleDetailsByBillNo(payload, billNumber);
-
+  
       if (response.status === 200) {
         NotificationManager.success("Sale updated successfully", "Success");
-
         setSearchMode(false);
       } else {
         if (response.response.data.statusCode === 400) {
@@ -1901,6 +2023,7 @@ const SaleBill = () => {
       console.error("Error updating sale:", error);
     }
   };
+  
 
   const handleDeleteSale = async () => {
     try {
@@ -2423,7 +2546,7 @@ const SaleBill = () => {
     socketService.connect(process.env.REACT_APP_API_URL + "/total-sales");
 
     socketService.onMessage((data) => {
-      console.log("Received data from WebSocket:", data);
+      // console.log("Received data from WebSocket:", data);
 
       setTotalSales(data.totalAmount || 0);
       setTotalCash(data.cash || 0);

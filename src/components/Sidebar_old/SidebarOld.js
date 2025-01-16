@@ -43,6 +43,12 @@ const SidebarOld = ({handleSignout, sidebarVisible}) => {
         </div>
         <hr />
         <div className="sidebar-item">
+          <Link to="/brand-counter-report" className="nav-link">
+            Brand Counter Report
+          </Link>
+        </div>
+        <hr />
+        <div className="sidebar-item">
           <Link to="/fl-beer-cs/ledger-summary" className="nav-link">
             Fl, Beer & Cs Ledger Summary
           </Link>
