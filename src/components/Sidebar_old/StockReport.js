@@ -187,7 +187,7 @@ const StockReport = () => {
       headerName: "Total MRP",
       width: 120,
       headerClassName: "custom-header",
-    }
+    },
   ];
 
   const columnsData = useMemo(
@@ -330,10 +330,10 @@ const StockReport = () => {
     try {
       const response = await searchByBrandName(searchText);
       const brandsData = response?.data?.data || [];
-  
+
       const allBrandsOption = { name: "All Brands" };
       const updatedBrandsData = [allBrandsOption, ...brandsData];
-  
+
       setBrandNameOptions(updatedBrandsData);
     } catch (error) {
       console.error("Error searching brand:", error);
@@ -348,7 +348,7 @@ const StockReport = () => {
 
   const handleBrandNameChange = (event, newValue) => {
     setBrandName(newValue);
-    
+
     if (newValue === "All Brands") {
       setFilterData((prevData) => ({ ...prevData, brandName: "All Brands" }));
     } else {
@@ -419,7 +419,6 @@ const StockReport = () => {
   //   setTotalStock(totalStock);
   //   setTotalMRP(totalMRP);
   // }, [allStocks]);
-
 
   const exportToExcel = async () => {
     setHasExportClicked(true);
