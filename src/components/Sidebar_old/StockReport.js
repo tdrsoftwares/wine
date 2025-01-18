@@ -171,11 +171,23 @@ const StockReport = () => {
       headerClassName: "custom-header",
     },
     {
+      field: "totalVolume",
+      headerName: "Total Volume",
+      width: 150,
+      headerClassName: "custom-header",
+    },
+    {
       field: "mrp",
       headerName: "MRP",
       width: 120,
       headerClassName: "custom-header",
     },
+    {
+      field: "totalMrp",
+      headerName: "Total MRP",
+      width: 120,
+      headerClassName: "custom-header",
+    }
   ];
 
   const columnsData = useMemo(
@@ -783,6 +795,7 @@ const StockReport = () => {
                   companyName: stock?.item?.company?.name || "No Data",
                   batchNo: stock.batchNo || "No Data",
                   volume: stock?.item?.volume || 0,
+                  totalVolume: stock?.totalVolume || 0,
                   saleRate: stock.saleRate || 0,
                   purchaseRate: stock.purchaseRate || 0,
                   stockRate: stock.stockRate || 0,
@@ -790,6 +803,7 @@ const StockReport = () => {
                   storeType: stock.store?.type || "No Data",
                   openingStock: stock.openingStock || 0,
                   mrp: stock.mrp || 0,
+                  totalMrp: stock.totalMrp || 0,
                 })),
                 ...(allStocks && allStocks.length > 0
                   ? [
