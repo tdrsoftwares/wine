@@ -10,7 +10,10 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
-import { exportPurchaseSummaryDetails, getAllPurchases } from "../../../services/purchaseService";
+import {
+  exportPurchaseSummaryDetails,
+  getAllPurchases,
+} from "../../../services/purchaseService";
 import { NotificationManager } from "react-notifications";
 import { getAllSuppliers } from "../../../services/supplierService";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
@@ -30,6 +33,7 @@ const PurchaseReportSummary = () => {
   const [dateTo, setDateTo] = useState(null);
   const [allStores, setAllStores] = useState([]);
   const [allPurchases, setAllPurchases] = useState([]);
+  const [totalData, setTotalData] = useState({});
   const [allSuppliers, setAllSuppliers] = useState([]);
   const [selectedRowData, setSelectedRowData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -192,6 +196,7 @@ const PurchaseReportSummary = () => {
   );
 
   const handleViewClick = (row) => {
+    if (row.id === "totals") return;
     setSelectedRowData(row);
     setIsModalOpen(true);
   };
@@ -213,6 +218,7 @@ const PurchaseReportSummary = () => {
       const response = await getAllPurchases(filterOptions);
       // console.log("Purchases fetched", response?.data?.data)
       setAllPurchases(response?.data?.data?.items || []);
+      setTotalData(response?.data?.data?.totals || {});
       setTotalCount(response?.data?.data?.totalItems || 0);
     } catch (error) {
       // NotificationManager.error(
@@ -284,29 +290,27 @@ const PurchaseReportSummary = () => {
       debouncedFetch();
     }
   }, [paginationModel, dateFrom, dateTo, selectedSupplier, stockIn]);
-  
 
   const exportToExcel = async () => {
     const fromDate = dateFrom ? formatDate(dateFrom) : null;
     const toDate = dateTo ? formatDate(dateTo) : null;
-    
+
     const filterOptions = {
       fromDate: fromDate,
       toDate: toDate,
       supplierName: selectedSupplier,
       storeName: stockIn,
     };
-    
+
     try {
       const response = await exportPurchaseSummaryDetails(filterOptions);
       const exportData = response?.data?.data;
-      console.log("exportData: ", exportData)
-      
+      console.log("exportData: ", exportData);
+
       if (!exportData || exportData.length === 0) {
         throw new Error("No data returned from API for export.");
       }
-  
-      
+
       const dataToExport = exportData.map((purchase, index) => ({
         "S No.": index + 1,
         "Bill Date": purchase.billDate,
@@ -324,21 +328,42 @@ const PurchaseReportSummary = () => {
         "Tcs Amount": purchase.tcsAmount?.toFixed(2),
         "Net Amount": purchase.netAmount?.toFixed(2),
       }));
-      
-      console.log("Data to export: ", dataToExport);
-  
+
+      // dataToExport.push({
+      //   "S. No.": "Totals",
+      //   "Bill Date": "",
+      //   "Pass Date": "",
+      //   "Entry No.": "",
+      //   "Bill No.": "",
+      //   "Pass No.": "",
+      //   Supplier: "",
+      //   Store: "",
+      //   MRP: totalOf?.totalMRP?.toFixed(2) || "",
+      //   "Gross Amount": totalOf.grossAmount?.toFixed(2) || 0,
+      //   Discount: totalOf.discAmount?.toFixed(2) || 0,
+      //   "Govt ROff": totalOf.govtROff?.toFixed(2) || "",
+      //   "Special Purpose": totalOf.specialPurpose?.toFixed(2) || "",
+      //   "Tcs Amount": totalOf.tcsAmount?.toFixed(2) || "",
+      //   "Net Amount": totalOf.netAmount?.toFixed(2) || 0,
+      // });
+
+      // console.log("Data to export: ", dataToExport);
+
       const worksheet = XLSX.utils.json_to_sheet(dataToExport);
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "PurchaseReportSummary");
-  
+      XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        "PurchaseReportSummary"
+      );
+
       XLSX.writeFile(workbook, "Purchase_Report_Summary.xlsx");
-  
     } catch (error) {
       console.error("Error exporting to Excel:", error);
     }
   };
-    
 
+  // console.log("totalData: ", totalData);
 
   return (
     <ThemeProvider theme={customTheme}>
@@ -470,31 +495,31 @@ const PurchaseReportSummary = () => {
           </Button>
 
           <div>
-          <Button
-            color="inherit"
-            size="small"
-            variant="contained"
-            onClick={() => {
-              setDateFrom(null);
-              setDateTo(null);
-              setSelectedSupplier("");
-              setStockIn("");
-              setPaginationModel({ page: 0, pageSize: 100 });
-              setAllPurchases([]);
-            }}
-          >
-            Clear Filters
-          </Button>
-          <Button
-            color="info"
-            size="small"
-            variant="contained"
-            onClick={fetchAllPurchases}
-            sx={{ marginLeft: 1 }}
-            disabled={!canRead && role !== "admin"}
-          >
-            Display
-          </Button>
+            <Button
+              color="inherit"
+              size="small"
+              variant="contained"
+              onClick={() => {
+                setDateFrom(null);
+                setDateTo(null);
+                setSelectedSupplier("");
+                setStockIn("");
+                setPaginationModel({ page: 0, pageSize: 100 });
+                setAllPurchases([]);
+              }}
+            >
+              Clear Filters
+            </Button>
+            <Button
+              color="info"
+              size="small"
+              variant="contained"
+              onClick={fetchAllPurchases}
+              sx={{ marginLeft: 1 }}
+              disabled={!canRead && role !== "admin"}
+            >
+              Display
+            </Button>
           </div>
         </Box>
 
@@ -509,33 +534,59 @@ const PurchaseReportSummary = () => {
         >
           {canRead || role === "admin" ? (
             <DataGrid
-              rows={(allPurchases || []).map((purchase, index) => ({
-                id: index,
-                sNo: index + paginationModel.page * paginationModel.pageSize + 1,
-                billDate: purchase.billDate || "No Data",
-                passDate: purchase.passDate || "No Data",
-                entryNo: purchase.entryNo || 0,
-                billNo: purchase.billNo || 0,
-                passNo: purchase.passNo || 0,
-                supplierName: purchase.supplier?.name || "No Data",
-                storeName: purchase.store?.name || "No Data",
-                mrpValue: purchase.mrpValue?.toFixed(2) || 0,
-                grossAmount: purchase.grossAmount?.toFixed(2) || 0,
-                discount: purchase.discount || 0,
-                govtROff: purchase.govtROff?.toFixed(2) || 0,
-                specialPurpose: purchase.specialPurpose?.toFixed(2) || 0,
-                tcsAmount: purchase.tcsAmount?.toFixed(2) || 0,
-                netAmount: purchase.netAmount?.toFixed(2) || 0,
-                action: (
-                  <Button
-                    variant="contained"
-                    size="small"
-                    onClick={() => handleViewClick(purchase)}
-                  >
-                    View
-                  </Button>
-                ),
-              }))}
+              rows={[
+                ...(allPurchases || []).map((purchase, index) => ({
+                  id: index,
+                  sNo:
+                    index + paginationModel.page * paginationModel.pageSize + 1,
+                  billDate: purchase.billDate || "No Data",
+                  passDate: purchase.passDate || "No Data",
+                  entryNo: purchase.entryNo || 0,
+                  billNo: purchase.billNo || 0,
+                  passNo: purchase.passNo || 0,
+                  supplierName: purchase.supplier?.name || "No Data",
+                  storeName: purchase.store?.name || "No Data",
+                  mrpValue: purchase.mrpValue?.toFixed(2) || 0,
+                  grossAmount: purchase.grossAmount?.toFixed(2) || 0,
+                  discount: purchase.discount || 0,
+                  govtROff: purchase.govtROff?.toFixed(2) || 0,
+                  specialPurpose: purchase.specialPurpose?.toFixed(2) || 0,
+                  tcsAmount: purchase.tcsAmount?.toFixed(2) || 0,
+                  netAmount: purchase.netAmount?.toFixed(2) || 0,
+                  action: (
+                    <Button
+                      variant="contained"
+                      size="small"
+                      onClick={() => handleViewClick(purchase)}
+                    >
+                      View
+                    </Button>
+                  ),
+                })),
+                ...(allPurchases && allPurchases.length > 0
+                  ? [
+                      {
+                        id: "totals",
+                        sNo: "Totals",
+                        billDate: "-",
+                        passDate: "-",
+                        entryNo: "-",
+                        billNo: "-",
+                        passNo: "-",
+                        supplierName: "-",
+                        storeName: "-",
+                        mrpValue: totalData.mrpValue?.toFixed(2) || 0,
+                        grossAmount: totalData.grossAmount?.toFixed(2) || 0,
+                        discount: totalData.discount?.toFixed(2) || 0,
+                        govtROff: totalData.govtROff?.toFixed(2) || 0,
+                        specialPurpose: totalData.tcsAmount?.toFixed(2) || 0,
+                        tcsAmount: totalData.tcsAmount?.toFixed(2) || 0,
+                        netAmount: totalData.netAmount?.toFixed(2) || 0,
+                        action: <></>,
+                      },
+                    ]
+                  : []),
+              ]}
               columns={columnsData}
               rowCount={totalCount}
               pagination
@@ -563,7 +614,6 @@ const PurchaseReportSummary = () => {
               }}
               slots={{
                 toolbar: GridToolbar,
-                // pagination: Pagination
               }}
               initialState={{
                 density: "compact",
