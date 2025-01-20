@@ -304,8 +304,9 @@ const PurchaseReportSummary = () => {
 
     try {
       const response = await exportPurchaseSummaryDetails(filterOptions);
-      const exportData = response?.data?.data;
-      console.log("exportData: ", exportData);
+      const exportData = response?.data?.data[0]?.items;
+      const totalOf = response?.data?.data[0]?.totals;
+      // console.log("exportData: ", exportData);
 
       if (!exportData || exportData.length === 0) {
         throw new Error("No data returned from API for export.");
@@ -329,23 +330,23 @@ const PurchaseReportSummary = () => {
         "Net Amount": purchase.netAmount?.toFixed(2),
       }));
 
-      // dataToExport.push({
-      //   "S. No.": "Totals",
-      //   "Bill Date": "",
-      //   "Pass Date": "",
-      //   "Entry No.": "",
-      //   "Bill No.": "",
-      //   "Pass No.": "",
-      //   Supplier: "",
-      //   Store: "",
-      //   MRP: totalOf?.totalMRP?.toFixed(2) || "",
-      //   "Gross Amount": totalOf.grossAmount?.toFixed(2) || 0,
-      //   Discount: totalOf.discAmount?.toFixed(2) || 0,
-      //   "Govt ROff": totalOf.govtROff?.toFixed(2) || "",
-      //   "Special Purpose": totalOf.specialPurpose?.toFixed(2) || "",
-      //   "Tcs Amount": totalOf.tcsAmount?.toFixed(2) || "",
-      //   "Net Amount": totalOf.netAmount?.toFixed(2) || 0,
-      // });
+      dataToExport.push({
+        "S No.": "Totals",
+        "Bill Date": "",
+        "Pass Date": "",
+        "Entry No.": "",
+        "Bill No.": "",
+        "Pass No.": "",
+        Supplier: "",
+        Store: "",
+        MRP: totalOf?.mrpValue?.toFixed(2) || 0,
+        "Gross Amount": totalOf.grossAmount?.toFixed(2) || 0,
+        Discount: totalOf.discount?.toFixed(2) || 0,
+        "Govt ROff": totalOf.govtROff?.toFixed(2) || 0,
+        "Special Purpose": totalOf.specialPurpose?.toFixed(2) || 0,
+        "Tcs Amount": totalOf.tcsAmount?.toFixed(2) || 0,
+        "Net Amount": totalOf.netAmount?.toFixed(2) || 0,
+      });
 
       // console.log("Data to export: ", dataToExport);
 
