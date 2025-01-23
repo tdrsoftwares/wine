@@ -3561,6 +3561,7 @@ const SaleBill = () => {
         isSplitPrinted={isSplitPrinted}
         printTotalValues={printTotalValues}
       />
+      
     </ThemeProvider>
   );
 };
