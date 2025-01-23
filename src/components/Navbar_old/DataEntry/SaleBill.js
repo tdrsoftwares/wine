@@ -3400,12 +3400,7 @@ const SaleBill = () => {
               Send Bill to WhatsApp
             </>
           )}
-          {/* <VisuallyHiddenInput
-            type="file"
-            accept=".pdf"
-            style={{ display: "none" }}
-            onChange={handleFileChange}
-          /> */}
+          
         </Button>
         <div>
           <Button
@@ -3561,7 +3556,7 @@ const SaleBill = () => {
         isSplitPrinted={isSplitPrinted}
         printTotalValues={printTotalValues}
       />
-      
+
     </ThemeProvider>
   );
 };
