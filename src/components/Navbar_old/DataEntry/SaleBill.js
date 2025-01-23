@@ -142,6 +142,7 @@ const SaleBill = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPageSize, setCurrentPageSize] = useState(30);
   const [sendingLoading, setSendingLoading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   
   const tableRef = useRef(null);
   const customerNameRef = useRef(null);
@@ -2278,6 +2279,25 @@ const SaleBill = () => {
     return dayjs(dateStr, "DD/MM/YYYY");
   };
 
+  const handleSave = async () => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+
+    try {
+      if (!billNumber && !billNoEditable) {
+        await handleCreateSale();
+      } else if (billNumber && billNoEditable) {
+        await handleUpdateSale();
+      }
+      // NotificationManager.success("Operation completed successfully", "Success");
+    } catch (error) {
+      console.error("Error during save operation:", error);
+      NotificationManager.error("Error occurred. Please try again later.", "Error");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const billNumberSearch = debounce(async () => {
     try {
       if (billNoEditable && billNumber) {
@@ -3510,7 +3530,6 @@ const SaleBill = () => {
               padding: "4px 10px",
               fontSize: "11px",
             }}
-            // disabled={!billNumber && !billNoEditable}
           >
             SAVE & PRINT
           </Button>
@@ -3519,17 +3538,14 @@ const SaleBill = () => {
             color="success"
             size="small"
             variant="contained"
-            onClick={() => {
-              if (!billNumber && !billNoEditable) handleCreateSale();
-              else if (billNumber && billNoEditable) handleUpdateSale();
-            }}
+            disabled={isProcessing}
+            onClick={handleSave}
             sx={{
               padding: "4px 10px",
               fontSize: "11px",
             }}
-            // disabled={!billNumber && !billNoEditable}
           >
-            SAVE
+            {isProcessing ? "SAVING..." : "SAVE"}
           </Button>
         </div>
       </Box>
