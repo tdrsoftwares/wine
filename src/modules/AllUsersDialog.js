@@ -117,7 +117,7 @@ const AllUsersDialog = ({
                     </TableCell>
                   </TableRow>
                 ) : allUsers?.length > 0 ? (
-                  editableUsers.map((user) => (
+                  editableUsers?.map((user) => (
                     <TableRow key={user._id}>
                       <TableCell>
                         <TextField
@@ -184,7 +184,7 @@ const AllUsersDialog = ({
                         {user.status ? "Active" : "Inactive"}
                       </TableCell>
                       <TableCell>
-                        {user.roleId ? user.roleId.name : "No Role"}
+                        {user.roleId ? user?.roleId?.name : "No Role"}
                       </TableCell>
                       <TableCell>
                         <Stack direction="row" spacing={2}>

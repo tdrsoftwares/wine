@@ -50,7 +50,7 @@ const RolesAndPermissionsDialog = ({
       <DialogTitle>Roles and Permissions</DialogTitle>
       <DialogContent>
         {allRoleAndPermissions && allRoleAndPermissions.length > 0 ? (
-          allRoleAndPermissions.map((role, roleIndex) => (
+          allRoleAndPermissions?.map((role, roleIndex) => (
             <div key={role._id} style={{ marginBottom: "20px" }}>
               {/* Role Header and Delete Button */}
               <div
@@ -93,7 +93,7 @@ const RolesAndPermissionsDialog = ({
                           variant="subtitle1"
                           style={{ fontWeight: "bold", marginTop: "10px" }}
                         >
-                          {module.permission.moduleId.name}
+                          {module?.permission?.moduleId?.name}
                         </Typography>
 
                         <ListItem>
@@ -123,7 +123,7 @@ const RolesAndPermissionsDialog = ({
                               <FormControlLabel
                                 control={
                                   <Checkbox
-                                    checked={permissions.read || false}
+                                    checked={permissions?.read || false}
                                     onChange={(e) =>
                                       handlePermissionChange(
                                         roleIndex,
@@ -143,7 +143,7 @@ const RolesAndPermissionsDialog = ({
                               <FormControlLabel
                                 control={
                                   <Checkbox
-                                    checked={permissions.update || false}
+                                    checked={permissions?.update || false}
                                     onChange={(e) =>
                                       handlePermissionChange(
                                         roleIndex,
@@ -163,7 +163,7 @@ const RolesAndPermissionsDialog = ({
                               <FormControlLabel
                                 control={
                                   <Checkbox
-                                    checked={permissions.delete || false}
+                                    checked={permissions?.delete || false}
                                     onChange={(e) =>
                                       handlePermissionChange(
                                         roleIndex,
