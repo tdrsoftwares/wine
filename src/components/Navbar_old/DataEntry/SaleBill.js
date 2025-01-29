@@ -1599,19 +1599,17 @@ const SaleBill = () => {
     const splitBill = (items, volumeLimit) => {
       let payloads = [];
       let remainingItems = [...items];
-      let currentVolume = 0;
-      let currentPcs = 0;
-
+    
       while (remainingItems.length > 0) {
         let billItems = [];
-        currentVolume = 0;
-        currentPcs = 0;
-
+        let currentVolume = 0;
+        let currentPcs = 0;
+    
         for (let i = 0; i < remainingItems.length; ) {
           const item = remainingItems[i];
           const itemVolume =
             item.volume * (parseFloat(item.pcs) - parseFloat(item.brk));
-
+    
           if (currentVolume + itemVolume <= volumeLimit) {
             currentVolume += itemVolume;
             currentPcs += item.pcs;
@@ -1631,14 +1629,21 @@ const SaleBill = () => {
             break;
           }
         }
-
-        console.log("volumeLimit: ",volumeLimit)
-        console.log("billItems: ",billItems)
-
+    
+        // console.log("volumeLimit: ", volumeLimit);
+        // console.log("billItems: ", billItems);
+    
         if (billItems.length === 0 || volumeLimit <= 0) {
           break;
         }
-
+    
+        
+        const grossAmount = billItems.reduce((sum, item) => sum + item.pcs * item.rate, 0);
+        const discountAmount = billItems.reduce((sum, item) => sum + (item.discount || 0) * item.pcs, 0);
+        const splDiscAmount = (grossAmount * (totalValues.splDiscount || 0)) / 100;
+        const adjustment = (totalValues.adjustment || 0) * (grossAmount / totalValues.grossAmt);
+        const netAmount = grossAmount - discountAmount - splDiscAmount - adjustment;
+    
         const newPayload = {
           billType: formData.billType,
           customer: formData.customerName._id,
@@ -1648,13 +1653,13 @@ const SaleBill = () => {
           volume: currentVolume,
           totalPcs: currentPcs,
           splDisc: parseFloat(totalValues.splDiscount),
-          splDiscAmount: parseFloat(totalValues.splDiscAmount),
-          grossAmount: parseFloat(totalValues.grossAmt),
-          discAmount: parseFloat(totalValues.discountAmt),
-          adjustment: parseFloat(totalValues.adjustment),
-          netAmount: parseFloat(totalValues.netAmt),
-          receiptMode1: parseFloat(totalValues.receiptMode1),
-
+          splDiscAmount: parseFloat(splDiscAmount.toFixed(2)),
+          grossAmount: parseFloat(grossAmount.toFixed(2)),
+          discAmount: parseFloat(discountAmount.toFixed(2)),
+          adjustment: parseFloat(adjustment.toFixed(2)),
+          netAmount: parseFloat(netAmount.toFixed(2)),
+          receiptMode1: parseFloat(netAmount.toFixed(2)), 
+    
           salesItem: billItems.map((item) => ({
             itemDetailsId: item.itemDetailsId,
             itemCode: item.itemCode,
@@ -1671,20 +1676,23 @@ const SaleBill = () => {
             break: parseFloat(item.brk),
           })),
         };
-
+    
         if (totalValues.receiptMode2) {
           newPayload.receiptMode2 = totalValues.receiptMode2;
         }
-
+    
         if (totalValues.receiptAmt && totalValues.receiptAmt !== 0) {
-          newPayload.receiptAmount = parseFloat(totalValues.receiptAmt);
+          newPayload.receiptAmount = parseFloat(
+            (totalValues.receiptAmt * (grossAmount / totalValues.grossAmt)).toFixed(2)
+          );
         }
-
+    
         payloads.push(newPayload);
       }
-
+    
       return payloads;
     };
+    
 
     let payload = [];
 
@@ -1738,7 +1746,7 @@ const SaleBill = () => {
   };
 
 
-  console.log("salesData --> ",salesData)
+  // console.log("salesData --> ",salesData)
 
   // const handleUpdateSale = async () => {
   //   let payload = {};
