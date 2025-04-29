@@ -1,0 +1,1804 @@
+[33mcommit 4d98352596d5015472f1f7bf738439b5d758c8f5[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: tdrsoftware <dibakar63@gmail.com>
+Date:   Tue Apr 29 18:46:22 2025 +0530
+
+    add
+
+[33mcommit e21afae402973b44397f1a6001e781e42cdbbb80[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Jan 29 18:20:22 2025 +0530
+
+    netAmount issue fixed from salebill
+
+[33mcommit 71b64086017bb120be27a83bb55006f51355d7dc[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Jan 28 11:41:52 2025 +0530
+
+    user-control crashing issue resolved
+
+[33mcommit 58689584f7ee6015fca4cab4b92ee5da04742aaf[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Jan 23 15:04:03 2025 +0530
+
+    comment removed
+
+[33mcommit 4990a02918b35558ef8582bcd2519c9451ad74a6[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Jan 23 14:52:17 2025 +0530
+
+    ...chages
+
+[33mcommit 09cd1cc0f30dbbaee55679bf5d235f9af5fdd376[m
+Author: tdrsoftwares <162734451+tdrsoftwares@users.noreply.github.com>
+Date:   Thu Jan 23 14:49:27 2025 +0530
+
+    Delete package-lock.json
+    
+    delete file
+
+[33mcommit d6ab393bab0f94c7baa09079aa26d067e4d6edf2[m
+Author: tdrsoftwares <162734451+tdrsoftwares@users.noreply.github.com>
+Date:   Thu Jan 23 14:49:05 2025 +0530
+
+    Delete .env
+    
+    delete env
+
+[33mcommit 652f6aed83fc2fada4586ef54c07c304a48764ef[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Jan 23 13:53:44 2025 +0530
+
+    salebil double create issue resolved
+
+[33mcommit cf8796cf04636dd22a26b4b897f583ef5e959a7d[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Jan 20 17:51:45 2025 +0530
+
+    totals added in purchase report summary export
+
+[33mcommit 68ac178af605854fc9812a3de6674e1bae40bdc9[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Jan 20 13:54:21 2025 +0530
+
+    totals added in purchase rep summary...
+
+[33mcommit 14512cdb1dd9b80bbb7e9ed53b942f81bf35cacb[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Jan 18 15:26:13 2025 +0530
+
+    code formatted...
+
+[33mcommit 3dfc3d04fe307dedc530be7857a4c2183ce3661f[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Jan 18 15:16:22 2025 +0530
+
+    totalMRP and totalVolume aded in stock report
+
+[33mcommit a8b151758730d6476fdf167d569b139cd3fcae6c[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Jan 16 16:06:08 2025 +0530
+
+    salebill update issue along with brand counter report
+
+[33mcommit 724686a157b8a6779b3ca1ccf4573733f51a55a1[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Jan 4 17:49:36 2025 +0530
+
+    license changes done
+
+[33mcommit ccb11b17db85e45b74cef41ca5568339e157d7d3[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Jan 4 12:05:44 2025 +0530
+
+    epos data issue resolved
+
+[33mcommit 31616b8398924b73941ec3a4a5fe63211c45482c[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Jan 3 23:20:48 2025 +0530
+
+    code changes for dsr print crash
+
+[33mcommit dae1425b7329e7b04aabfe6a02ab7ae5f02299ca[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Jan 3 22:33:22 2025 +0530
+
+    dsr print changes done
+
+[33mcommit 0d7467d620111f31eb5f8859e1313e3d4593c7cb[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Jan 3 13:01:39 2025 +0530
+
+    group total added in dsr export
+
+[33mcommit a9d7d9dcf43227a8adc9ad7a7abad6634d44fc4e[m[33m ([m[1;31morigin/dev[m[33m)[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Dec 30 19:12:55 2024 +0530
+
+    sale report summury changes
+
+[33mcommit 47a20169364f97957a6dfaf14122953517e4dac5[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Dec 27 17:14:51 2024 +0530
+
+    NaN issue resolved
+
+[33mcommit 181d626fde70bd4234530daf184c2d2a0f1f55d1[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Dec 27 16:19:52 2024 +0530
+
+    sale report summary cash n online field added
+
+[33mcommit 094211c3e46c4b3dd94779bf101bbdd68f1912e5[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Dec 26 13:03:16 2024 +0530
+
+    license info code changes pushed
+
+[33mcommit e3e765cd0a0ff5ae2095a9d2616dae4ae7dbce1e[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Dec 24 19:44:30 2024 +0530
+
+    .
+
+[33mcommit fe130065a67a1faedc14cc0284ef016261909ba2[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Dec 24 19:42:38 2024 +0530
+
+    salebill whatsapp pdf send direct in wa - done
+
+[33mcommit 5925a837ec76000de486e7873f19f452dcdebf5b[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Dec 24 14:02:53 2024 +0530
+
+    itemname updte api payload fixed
+
+[33mcommit d258e03063d211ba02c3bac582d8aed6aea7e9db[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Dec 24 12:14:37 2024 +0530
+
+    salebill whatsapp code changes.
+
+[33mcommit 78e267a0edcb6f037c75b4db5b2e40c24ed13eb6[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Dec 23 14:31:26 2024 +0530
+
+    .
+
+[33mcommit 6fdb0c3cf68a41b83e1384b11725865937e98377[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Dec 23 14:31:13 2024 +0530
+
+    item name field issue in dsr print
+
+[33mcommit bda19f29249971b986b8106278a74fcfb0bcd7d0[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Dec 21 18:06:17 2024 +0530
+
+    One bill at a time while pressing F8 - fixed
+
+[33mcommit 47bd428c56f749c3318dd539620f57b484afcc40[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Dec 21 11:44:51 2024 +0530
+
+    salebill fixes - F8 added for save& print, auto bill execution on volume limit
+
+[33mcommit 58efafd93004ecef613d4074cfd2429cfe3e67ac[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Dec 20 12:14:15 2024 +0530
+
+    date format changed in dsr
+
+[33mcommit bf89fe9509fb1b2e1db80d20774e54fc20bdfbf5[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Dec 18 18:17:23 2024 +0530
+
+    old item update api changes
+
+[33mcommit a3a30e4d96e20b9208785e9c09ebc66bbbedb64b[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Dec 18 11:53:53 2024 +0530
+
+    Licens info validation added. and old itemName with stock updation implemented
+
+[33mcommit 68e5a41110dac7ef4e2007312c345d5f324ea941[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Dec 14 20:04:39 2024 +0530
+
+    export added in item ledger status
+
+[33mcommit 964c53819359e36f63cd19f6a776b5fbd2abc682[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Dec 14 16:03:06 2024 +0530
+
+    salebill pdf send to whatsapp - feature added
+
+[33mcommit 62046e41aaa1860861fe0caf833645162951c437[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Dec 13 19:38:25 2024 +0530
+
+    loading on scroll applied on salebill brand panel
+
+[33mcommit 3210cb06dbc88cc0ef309616f96213369f6c45d0[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Dec 13 16:03:32 2024 +0530
+
+    totals added in item ledger status
+
+[33mcommit 18a427d951655c2b789d4a99f88381ca924c071e[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Dec 13 13:06:07 2024 +0530
+
+    salebill ml validation
+
+[33mcommit 4d373d5a16d5f4cf7534e72e37d790e2ebc3df82[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Dec 12 19:43:16 2024 +0530
+
+    sale bill fixes
+
+[33mcommit 2661ccb3e587dbef4dcc1f853526e00af9949a46[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Dec 12 18:53:30 2024 +0530
+
+    salebill hang issue resolved
+
+[33mcommit 05bbfecaa08d5cac6621cb8de5628fa4e4df355e[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Dec 12 14:37:06 2024 +0530
+
+    salebill itemname search scroll paging added
+
+[33mcommit 906cf1322981747516ad361fa6fc8689ac373b07[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Dec 12 13:05:40 2024 +0530
+
+    purchase bill search scroll pagination pushed to main
+
+[33mcommit a9f935a5acc7c7dd2c6dec4652e48cc74f3611ea[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Dec 11 22:49:02 2024 +0530
+
+    changes reverted
+
+[33mcommit 8de0cce91e495baf4bed6a3af88733a03beb3776[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Dec 11 20:07:33 2024 +0530
+
+    scroll pagination added in purchase bill
+
+[33mcommit a29f4b37fb6175e53b4537eaabda4f621cb46d12[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Dec 11 14:20:43 2024 +0530
+
+    undefined issue of total sales panel - fixd
+
+[33mcommit c1855e1fe98be83b0fe695d1f92fdf0263190d34[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Dec 11 12:33:27 2024 +0530
+
+    item code and item names pages updated
+
+[33mcommit 1ef8d14ccc5636117c1c5791540e00ce7b523c5e[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Dec 9 10:24:04 2024 +0530
+
+    alingnment issue fixed
+
+[33mcommit 0935a730466fc7875e1ca8776fecbc65c1bfd0e7[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Dec 7 17:22:59 2024 +0530
+
+    logout icon added.
+
+[33mcommit f85c552430c396479b4d4d82ba0691b35f22389b[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Dec 7 13:54:46 2024 +0530
+
+    search implementation on itemname and itemcode update panel
+
+[33mcommit 2b4a17ff2e63b88ba14e38fd92a375353b8428c7[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Dec 6 18:20:21 2024 +0530
+
+    brand register batch and totals added
+
+[33mcommit d2d65bcbbbb15276a33868f58a7f5b764bd6f14c[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Dec 6 16:42:16 2024 +0530
+
+    brand reg chnaged
+
+[33mcommit 1084b9ad691e0a6a2b655f4b8eb935f4d8e160b0[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Dec 6 15:43:54 2024 +0530
+
+    changes on brand report
+
+[33mcommit 4e802851a4916c64830db112ae7abc831136339d[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Dec 6 15:39:18 2024 +0530
+
+    brand register report format changes, total added
+
+[33mcommit d6912a24f3c9605c3915b611d8b591b323f8b6b1[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Dec 6 14:26:16 2024 +0530
+
+    scroll movement with arraow key - added in purchase, salebill n transfer search windows
+
+[33mcommit 6b96027370a3b99a7e1be67958674270a2d3a7b1[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Dec 5 21:26:00 2024 +0530
+
+    salebill netAmount, grossAmount, and receiptMode1 calculations on bill splitting
+
+[33mcommit c0be859d6bedac6a380817d25d9f74059dd896b7[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Dec 5 19:11:42 2024 +0530
+
+    item name update
+
+[33mcommit 729fa551cbff085b31fccde3c6ffe0b9c249d931[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Dec 2 13:57:25 2024 +0530
+
+    hover effect applied on home page cards
+
+[33mcommit 859310512d1e454c6c22d99330752aa563a84551[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Nov 30 16:25:46 2024 +0530
+
+    pagination added in item ledger status
+
+[33mcommit 649c69017b7c9bcdb55e89ee6e385dde9ceb29b5[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Nov 30 15:15:36 2024 +0530
+
+    brand register report api binded and salebill changes
+
+[33mcommit 8f1e57dbb31bc235f35c888d9d548416421267c6[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Nov 30 11:54:27 2024 +0530
+
+    Sale bill changes - 1. short time duration for bar code search, 2. latest item on top of the table, 3. table item color changes on sale updates.
+
+[33mcommit cc37ede86d4fe8659150f174f922df5225a14900[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Nov 30 11:28:11 2024 +0530
+
+    TDR software name changed to WINE APP
+
+[33mcommit 62864a4158538699e901fe956c519bd765b18889[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Nov 27 11:48:02 2024 +0530
+
+    itemledger status server pagination
+
+[33mcommit 5d6410b7f9ec75a9a1811ded4bd029e7eab37485[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Nov 26 16:52:54 2024 +0530
+
+    ml changed to Volume, quantity changed into Receipts and serverside pagination added
+
+[33mcommit 1103173045d093545f8edddb9a0250d1ec34b342[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Nov 25 18:10:42 2024 +0530
+
+    tcs amount changes on purchase entry
+
+[33mcommit 5aa2447e6da88d55939a7f50871555b2381929b9[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Nov 25 14:49:45 2024 +0530
+
+    brand register category data table implemented
+
+[33mcommit ede2b4c6aed5897067fdf40e6e487217a6151054[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Nov 21 13:56:53 2024 +0530
+
+    ..
+
+[33mcommit 1090e9e452ae736fd7cf5de63055866789bf28d6[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Nov 20 16:50:58 2024 +0530
+
+    salebill barcode splitting done
+
+[33mcommit faf822516f1d42b27aa11074940467efa4907cba[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Nov 18 11:51:10 2024 +0530
+
+    Changes regarding purchasebill, salebill, stock transfer, transfer data table, transfer search table
+
+[33mcommit 96817bd344370fd54f782fdb8869c487438e9514[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Nov 15 17:16:30 2024 +0530
+
+    general receipt added and salebill brand panel data fetching when update or delete - done
+
+[33mcommit d7213d90669809294560aab60a1c709594c70dde[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Nov 11 15:59:49 2024 +0530
+
+    type name changed in expense with general payment router link
+
+[33mcommit 01215cb88714f74dc69632235bed8757335e7a55[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Nov 11 13:29:32 2024 +0530
+
+    expense type group added in expense
+
+[33mcommit 7c8be69ff34eea4dadb069b34568a9c823da4af7[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Nov 9 16:05:53 2024 +0530
+
+    itemdetails id issue - sale bill - fixed
+
+[33mcommit 8b21e63506c204611f53ecbc145ac34da5ae6af5[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Nov 9 14:39:35 2024 +0530
+
+    clogs added to main
+
+[33mcommit 3ab313270755ea8228ac10429160be58dec00dc7[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Nov 7 14:21:59 2024 +0530
+
+    rename id
+
+[33mcommit 85730e3ddeb15fa08c394bafb6ffca26f6bb6ca1[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Nov 7 14:21:19 2024 +0530
+
+    License id added in sale print
+
+[33mcommit d39892d3c4bccc15e858fe5bd5f472262202bd58[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Nov 7 14:09:03 2024 +0530
+
+    save & print execution on ctrl key press
+
+[33mcommit 04a18f83354a51482a80c3becb13a43a45a372fc[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Nov 7 11:08:34 2024 +0530
+
+    adjustment
+
+[33mcommit a44744b80059b8fea87d736f32a14d565585d48e[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Nov 7 11:04:36 2024 +0530
+
+    all data not showing becz of pagination ressolved
+
+[33mcommit 8eeb7317a100ee2481155f7489d84845136f0572[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Nov 6 19:42:10 2024 +0530
+
+    pagination added in item ledger status
+
+[33mcommit 36579c136c4fb58f9f7e8a59949b2fd4d0c9c159[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Nov 6 14:13:39 2024 +0530
+
+    salebill item name desing fix
+
+[33mcommit 378b9d1ad413f4940258fd71a724d682eb4040d7[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Nov 6 14:10:10 2024 +0530
+
+    purchaase bill - item name not showing fixed
+
+[33mcommit 185861a01702fc8ba8e3c513760ec8ef18ba6edc[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Nov 6 12:47:20 2024 +0530
+
+    totals cleared when pur n sale wise report are empty
+
+[33mcommit dccd894df71986da5c3dcab49961dd560d90add6[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Nov 6 12:33:42 2024 +0530
+
+    purchase bill crash issue by entry number 1 - fixed
+
+[33mcommit dc0f66a6b77bd389f073c0cbb5e7f418bf7a6f40[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Nov 5 17:19:13 2024 +0530
+
+    epos all data issue fixed
+
+[33mcommit 91fa90b0f780178cc9cae0bbecf114f2ad184dfa[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Nov 5 13:24:24 2024 +0530
+
+    totals added in item wise purchase and sale excel downloads
+
+[33mcommit 016c2a60d4e05448fc746ef09e4e802d9ae11806[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Nov 4 19:37:49 2024 +0530
+
+    c
+
+[33mcommit 84bb9f97c6862c4a2e969cb12827a621558b722d[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Nov 4 15:26:58 2024 +0530
+
+    initial pagesize increased to 100 in all report with other changes
+
+[33mcommit be43d52c1f699ceaf775a9084083f3f88705dec1[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Nov 2 19:10:09 2024 +0530
+
+    totals added in item wise sale & purchase report
+
+[33mcommit 9a9b5c2821f3a743ddeaf257dab2a047ce3ae32e[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Nov 2 18:49:11 2024 +0530
+
+    page size increased to 100
+
+[33mcommit 88f30bb831f30250cc6c12c74332bfe1144f2e5e[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Nov 2 18:17:54 2024 +0530
+
+    epos pagination removed
+
+[33mcommit d184409c0b2b8e81a68f850e6a114dad6a916f4b[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Nov 2 14:35:41 2024 +0530
+
+    edit changes and outside click : edit cancel - in stock transfer
+
+[33mcommit 8be3c4714a6b5b2077cea49592d1c4ccc3a8383b[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Nov 2 13:24:19 2024 +0530
+
+    salebill edit design changes
+
+[33mcommit 3e2a2e0a8dfe67c9f17eba6dd9257afa8c4c0b6e[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Nov 2 13:00:39 2024 +0530
+
+    purchase entry edit changes, search table & data table component separated
+
+[33mcommit 8d2179881f8b12c23eb51f16af2307bef54b3557[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Oct 31 11:32:28 2024 +0530
+
+    cat brand stock redesigned and data table added
+
+[33mcommit 6b235840644b0d57314084a147d93ed13b462408[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Oct 30 16:35:10 2024 +0530
+
+    cash-online issue, billno issue and save-print issue fixed in salebill, empty barcode enter press save-print execution done
+
+[33mcommit bd593040b80c16e23b4727238917dd60ff4d38ef[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Oct 29 14:04:44 2024 +0530
+
+    cash and online issue fixed in salebill
+
+[33mcommit e611b219eb250e877297cb287a5f94bd38d2c65a[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Oct 28 18:10:30 2024 +0530
+
+    save & print implemented
+
+[33mcommit 00545fda327970f374e808bb88dc05af7c197da9[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Oct 26 17:55:32 2024 +0530
+
+    itemName changes in dsr
+
+[33mcommit eea2ab9e96db4f40930992c264135e849a7570ff[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Oct 26 17:47:03 2024 +0530
+
+    total amount added in table and report, date filters implemented in expense
+
+[33mcommit db130dff2070a881213451422e0045fb632ce74a[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Oct 26 13:26:41 2024 +0530
+
+    breakage calculation in salebill data table edit
+
+[33mcommit 8dcf88bec6f20661a4d3c73b924f22e18f0cc7f1[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Oct 26 11:50:00 2024 +0530
+
+    stock report all brand implemented
+
+[33mcommit 49c575b7051998d0943cafe9bc68c606862e3da9[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Oct 25 18:27:33 2024 +0530
+
+    daily sale report, epos, item ledger status all brands done, pagination removed
+
+[33mcommit 4dfb398bd322c747e47418e943a718ab42d88f71[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Oct 25 18:06:50 2024 +0530
+
+    expense module full done
+
+[33mcommit c5e92b31696c5a268c4e73cf6b1a40c7539728d3[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Oct 24 12:44:13 2024 +0530
+
+    expense update with other fixes done
+
+[33mcommit 4e207041d03b3ab74e990a2eb1f015c71a0579bd[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Oct 24 11:38:15 2024 +0530
+
+    amount issue fixed in sale bill
+
+[33mcommit add9fb62a4d85c080b7b1db038d571ba4ec66104[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Oct 23 19:17:21 2024 +0530
+
+    expense module implemented
+
+[33mcommit 2dd66ee49f80ec4bed5ddd6485a5ba7c543fddff[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Oct 22 17:17:55 2024 +0530
+
+    broken calculation in salebill implemented
+
+[33mcommit d7587aa99350267dc9dc264d7e1ca8482950b5c3[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Oct 21 16:56:49 2024 +0530
+
+    storeName=all impelemented in dailyitem batchstatus and item ledger status
+
+[33mcommit b63c71ec12540475a309adedd88e7267b1534332[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Oct 21 14:23:32 2024 +0530
+
+    storename all added in transfer report and daily item status
+
+[33mcommit 4bdab7fb89f5ce172847e1e5eca98a4293a590c6[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Oct 21 12:52:42 2024 +0530
+
+    storeName=all impelemented in puchase report summary and stockreport
+
+[33mcommit cf03766463ab24218bf40b98310b9b3d4fc72fd4[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Oct 21 11:39:58 2024 +0530
+
+    sp n gro total calculation
+
+[33mcommit 7b9e80eb689f69433b8f977c527ab065d6ef46d2[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Oct 21 11:39:33 2024 +0530
+
+    purchase bill gro n sp calculation fixed
+
+[33mcommit d817456a5cc77cc668e58c511ae525870579832a[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Oct 19 18:42:24 2024 +0530
+
+    some changes
+
+[33mcommit 776935f304990bd47fd8bf38ebdfa2d5efa2309a[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Oct 19 16:42:20 2024 +0530
+
+    purchase summary export
+
+[33mcommit 644ebd307085b98c3154a514bcea16eacdf96bfb[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Oct 19 11:39:13 2024 +0530
+
+    itemwise purchase nd itemwise sale report fixed
+
+[33mcommit e49c7bc49b779d62e303044d95aa9ae521948f27[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Oct 18 18:36:00 2024 +0530
+
+    export addded in transfer report
+
+[33mcommit 5e33f1043811758a5641bce17fcaeab87e34f699[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Oct 18 14:43:09 2024 +0530
+
+    item wise sale report - export added
+
+[33mcommit f385eb97a206ed0f5678d2fcd92234f313ad5786[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Oct 18 12:27:40 2024 +0530
+
+    export added in Item wise purchase report
+
+[33mcommit d5bd2ea8e2403a56203b8e7fc8f7253d95b35853[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Oct 17 18:59:35 2024 +0530
+
+    daily sale report - excel report done
+
+[33mcommit 2258ea6a0f82a763f28cc7e78f64360e4619c466[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Oct 17 15:35:02 2024 +0530
+
+    Manual excel export implemented on daily profit report
+
+[33mcommit f66977f4bea1171b53fb0bafc1ae630231cfa1ab[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Oct 16 17:04:05 2024 +0530
+
+    Export to excel implemented in stock report
+
+[33mcommit 45332770929fe808a2d29be0f813d51e242a149b[m
+Merge: 3d6209c 33d6515
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Oct 15 12:21:20 2024 +0530
+
+    Merge branch 'main' of https://github.com/tdrsoftwares/wine into dev
+
+[33mcommit 33d65159331e769e84f47a1dab323d82aa3508c0[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Oct 14 19:36:53 2024 +0530
+
+    epos item name and brand name refixed
+
+[33mcommit 202d7a94ab8b3c63e486963736a9c6b970074211[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Oct 14 19:26:05 2024 +0530
+
+    epos crashing issue fixed
+
+[33mcommit 0ff8a402bbbbb181ffe2c31c2fdf672cb9fa72fc[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Oct 14 15:35:53 2024 +0530
+
+    reseted the total fields on clear
+
+[33mcommit 3079319a0076296efce081831ba4217e88ae7b5a[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Oct 14 12:51:08 2024 +0530
+
+    total added in csv doc
+
+[33mcommit 08612fdc1eb46c6249820b07c867a84cce0587b2[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Oct 14 12:19:20 2024 +0530
+
+    stock report changes - total values added to main
+
+[33mcommit 3d6209c65fb6bb128299061fde37e4f39cb0b99b[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Oct 14 12:18:32 2024 +0530
+
+    stock report changes - total values added
+
+[33mcommit 77badcd820c861b91514ff4bb7c3aa0d96674152[m
+Merge: fe4155e 067d02f
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Oct 7 19:24:02 2024 +0530
+
+    Merge branch 'dev' of https://github.com/tdrsoftwares/wine
+
+[33mcommit 067d02f5ebb3ac8e3a568009f62c2e2346b7f9ba[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Oct 7 19:18:57 2024 +0530
+
+    .. change
+
+[33mcommit c3158555fca368f58088603d4bf88e2b5c43f537[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Oct 7 18:58:28 2024 +0530
+
+    daily item status in ascending order
+
+[33mcommit f7cf8ca3589d8d7e2a1a010cdfa51b4acc5cbaff[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Oct 7 18:48:50 2024 +0530
+
+    server pagination added in item wise sale report and sale report summary
+
+[33mcommit 8ac75a84106d9cacc3f6769562b8a421c5e6b44b[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Oct 7 16:48:42 2024 +0530
+
+    item wise purchase report - server pagination added
+
+[33mcommit fb3de9cfa89f249da551ebe3d927602424bad3f0[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Oct 7 16:39:32 2024 +0530
+
+    Serverside pagination in purchase report summary implemented
+
+[33mcommit 679c50e3288a3b6bcda2b6e7f30889f09e9ce41b[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Oct 7 15:24:58 2024 +0530
+
+    daily profit report server pagination added
+
+[33mcommit 631a640b723e41d3cd3514d388dfd6582a6d158a[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Oct 7 14:42:37 2024 +0530
+
+    pagination added in dsr
+
+[33mcommit fe4155e8b8a7b9cb10d2e7543c0a331814f9944c[m
+Merge: a03affa badadb9
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sun Oct 6 13:36:20 2024 +0530
+
+    Merge branch 'dev' of https://github.com/tdrsoftwares/wine
+
+[33mcommit badadb9f4097baf35e7369ac4a71ce5f0d27f6ea[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sun Oct 6 13:34:44 2024 +0530
+
+    sale bill save changes
+
+[33mcommit a03affaf578961275658d076f9c84a08fac9aea5[m
+Merge: f1311ab e5ecebd
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Oct 5 18:49:04 2024 +0530
+
+    Merge branch 'dev' of https://github.com/tdrsoftwares/wine
+
+[33mcommit e5ecebd3ad0537eca20870060ca3fa4cccf958af[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Oct 5 18:48:03 2024 +0530
+
+    bill save/update issue fixed
+
+[33mcommit f1311ab3d66dac8fa7e2c7def07140d768590979[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Oct 2 12:02:55 2024 +0530
+
+    a change
+
+[33mcommit 3cda859a3e3cc5e37bd08c780149ef9a467b7f49[m
+Merge: e9793df 7dcee45
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Oct 2 11:38:02 2024 +0530
+
+    Merge branch 'dev' of https://github.com/tdrsoftwares/wine
+
+[33mcommit 7dcee4595f920edf13e530aa199dcc2dcfc0aaaa[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Oct 1 18:35:18 2024 +0530
+
+    created date blocked, bill date added
+
+[33mcommit e9793df6979d3b582969b9177a31550b86e74dfd[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Oct 1 10:39:30 2024 +0530
+
+    url changed
+
+[33mcommit 2b99278219b995a9b79cbda304a7860769c023bd[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Sep 30 19:00:37 2024 +0530
+
+    logic fix for sale split print data
+
+[33mcommit 47092e65555732a10bd8db959d92efc84b1a8d3f[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Sep 28 16:03:54 2024 +0530
+
+    update user implemented
+
+[33mcommit 97d8bc007be7dc7b16df250df1036161cb3dfd56[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Sep 28 12:34:47 2024 +0530
+
+    total values in purchase - fixed
+
+[33mcommit bc8026637cb204d696fd494290d0c221b441fd09[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Sep 28 11:34:43 2024 +0530
+
+    loader added in customer reg, cate reg, store reg, suppl reg and brand reg
+
+[33mcommit c263d46f3d60df2efa21c1322467e4b220c8c379[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Sep 26 21:00:03 2024 +0530
+
+    admin panel loader placed
+
+[33mcommit 905351841c70ab28254a6851bc6239d855dc0a9d[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Sep 26 19:26:37 2024 +0530
+
+    delete user implemented
+
+[33mcommit 8904e4227007ed758cc1c796f9764c161337b7dc[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Sep 26 17:35:14 2024 +0530
+
+    admin wise roles permission implemented in utilities
+
+[33mcommit c4312e0a2c719f0579edc2510e9bbb781fe36810[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Sep 25 15:39:29 2024 +0530
+
+    more changes(3)
+
+[33mcommit 0ec712b8ac3386e50c7bd77f90146240b5033346[m
+Merge: 6f1ee45 51dd4a7
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Sep 25 15:39:03 2024 +0530
+
+    Merge branch 'dev' of https://github.com/tdrsoftwares/wine into dev
+
+[33mcommit 6f1ee453809504b58a76f2b41c3bbc1edd78e731[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Sep 25 15:38:58 2024 +0530
+
+    more changes(2)
+
+[33mcommit 3907dd3a355f88591de5714aa48257d68ffc37c7[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Sep 25 15:38:29 2024 +0530
+
+    more permission changes
+
+[33mcommit 51dd4a76ea7c137a63afb4099346e86dbd1c04b2[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Sep 25 15:37:58 2024 +0530
+
+    more permission changes
+
+[33mcommit a7dc7416bb954864b73e64b365222b3ed84c0f96[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Sep 25 14:34:59 2024 +0530
+
+    roles and permission implementation in itemledger status and monthy statement
+
+[33mcommit 999aec194324d6306b1c40b4249d496de7654180[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Sep 25 12:04:54 2024 +0530
+
+    roles and permission on stock repr and transfer report
+
+[33mcommit ae3c1af874513aeb2b62e771397246c18849d6a5[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Sep 25 11:36:12 2024 +0530
+
+    roles and permission applied on sales and purchase reports
+
+[33mcommit 9833bb3d8d04f6006ef3213bbaa338cc801a996b[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Sep 24 20:43:28 2024 +0530
+
+    roles permisiion applied in user controle and admin panel with other changes
+
+[33mcommit 563f3706e8685de3bfa0c5020e718c89fc35f947[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Sep 24 17:45:15 2024 +0530
+
+    roles and permission changes
+
+[33mcommit dc20ed125e954e2ed58d6ccb721a22546dadaeae[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Sep 24 13:59:49 2024 +0530
+
+    roles and permission implemented on transfer
+
+[33mcommit 34ddc1b836c06d8d54dbc91a5b6ddee5bb450508[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Sep 24 13:31:50 2024 +0530
+
+    permissions implemented on pur entry with other changes
+
+[33mcommit d74fb8635cb3eb3f2867add3d1a6720a970bc09a[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Sep 24 11:58:23 2024 +0530
+
+    permission = null on refresh - issue fixed; roles and permission implemented on salebill
+
+[33mcommit 90fbeddbb0140f84c05e620d4a3c5189493c9f07[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Sep 23 17:48:31 2024 +0530
+
+    code formatting
+
+[33mcommit 757bb013d4a71556be96c9442095b3715d4afd6c[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Sep 23 16:50:22 2024 +0530
+
+    salebill edit fixed
+
+[33mcommit fec689c6f3dcdb098b60de6de7b4c799612a9f96[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Sep 23 15:26:52 2024 +0530
+
+    Admin role adjusted in all register files including lincense info!
+
+[33mcommit 7a4a86d80deeb1c2e6e3b81fa829a924cdd6c52d[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Sep 23 14:39:28 2024 +0530
+
+    changes for admin role - fixed
+
+[33mcommit 53935cca4963f98a4002b151a2e900e50a15cb33[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Sep 21 18:36:15 2024 +0530
+
+    salebill auto ml fixes
+
+[33mcommit 08fa242123df615e8276f55fe48e08e1a34176b3[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Sep 21 14:26:27 2024 +0530
+
+    item ledger status item n brand fixed
+
+[33mcommit 900de34f9d415da94964439cd0cc9b8334191be0[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Sep 21 14:09:02 2024 +0530
+
+    login fixed
+
+[33mcommit 8f9e98f978362fa7d79a55de3d6581eafe4278cb[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Sep 21 13:03:33 2024 +0530
+
+    some correction
+
+[33mcommit b308ab72b9d8183c19824cc7336b8bcccf7c1b8a[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Sep 21 12:57:15 2024 +0530
+
+    roles and permissions implemented in module: customer reg, supplier reg, category reg, ledger creation, store register with other changes
+
+[33mcommit 6868592a620cea9d461a2fb6d31cac64213cc03e[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Sep 20 19:22:25 2024 +0530
+
+    roles and permissions applied on item, brand and company modules
+
+[33mcommit 56417ed2d253ba8780cac3671fb6e8d1769c57cf[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Sep 20 17:19:35 2024 +0530
+
+    amout edit on pur entry fixed
+
+[33mcommit 8d7d702309d703dd0bdc0a76701dcfeac8454469[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Sep 20 17:10:25 2024 +0530
+
+    pur entry pur rate fix
+
+[33mcommit 61a2b4a7834459401de71f1fc9c01614f063c00d[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Sep 20 12:52:34 2024 +0530
+
+    create role fixed
+
+[33mcommit 7c1fca65d712910990875bdf615315730d694e94[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Sep 19 17:43:01 2024 +0530
+
+    All users list implementation
+
+[33mcommit 47f16abc0427ca5798735203e93f6cf9567bfa27[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Sep 19 15:03:40 2024 +0530
+
+    all roles & permission dialog implemented
+
+[33mcommit 74b528fdb6c5eae788a60f64f1beeede634c540f[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Sep 18 21:43:19 2024 +0530
+
+    purchase edit fix
+
+[33mcommit cfef1fcab89d21b171f26bb5bf2cbc82e504020a[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Sep 18 18:46:55 2024 +0530
+
+    pur entry changes
+
+[33mcommit feba5ef5e800db39a6c248e74907a146ca8da8ca[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Sep 18 18:39:46 2024 +0530
+
+    changes
+
+[33mcommit 07d6e96e9ddad6d6bc8ae8ca5d07cd6993fb23c7[m
+Merge: acf1cba 444895b
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Sep 18 17:44:03 2024 +0530
+
+    Revert "purchase edit fixed"
+    
+    This reverts commit 444895bbb8630ae0d5a0115f6b25c5fbac193c65.
+
+[33mcommit acf1cba2bb52afff01fad78fcd9d95178e192ba2[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Sep 18 17:34:23 2024 +0530
+
+    purchase edit code reverted
+
+[33mcommit 444895bbb8630ae0d5a0115f6b25c5fbac193c65[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Sep 18 16:56:29 2024 +0530
+
+    purchase edit fixed
+
+[33mcommit 24739436a75fb23473b82dbbf70e4a1ddf4ef8e3[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Sep 18 15:30:09 2024 +0530
+
+    loader added
+
+[33mcommit 9653f775c55912994bb6d022c4f5762185600018[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Sep 18 15:23:38 2024 +0530
+
+    total purchased fixed
+
+[33mcommit 60c3fb600a7c7afdc037f26a699d4c6c0886095a[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Sep 18 12:24:30 2024 +0530
+
+    create user fixed
+
+[33mcommit 6dcd19ea56f0acb435c9dc2659438f0c46d40e66[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Sep 17 18:22:42 2024 +0530
+
+    some changes
+
+[33mcommit fdb5c3bc1b7a621f94c65d3d1393b02b2e11fce7[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Sep 17 16:42:00 2024 +0530
+
+    sp and gro changes
+
+[33mcommit 4ddb2c841f1534afa71a399aab8b69c64c4c3c2a[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Sep 17 13:12:50 2024 +0530
+
+    sessionstogare set for purchases - gro n sp
+
+[33mcommit 7bd1f718890136c08a8978e275c0c38eae590ded[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Sep 17 12:29:38 2024 +0530
+
+    some changes gro sp code
+
+[33mcommit 4fd9af4768bcc35832da24bdd33dc69fe78da4ad[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Sep 17 12:13:56 2024 +0530
+
+    Total Gro and Sp changes
+
+[33mcommit 1aa690297a21225188a615aab97d571e2e5dedec[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Sep 16 17:59:38 2024 +0530
+
+    Revert "total GRO and SP fixeed in pur entry"
+    
+    This reverts commit 7fae5782746f49cb8be078fa2c853d147834c2f9.
+
+[33mcommit 3c72b3fd7c37b730740f97f2ec1d83c3d41cc4c3[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Sep 16 15:08:31 2024 +0530
+
+    update-closing-stock added
+
+[33mcommit 7fae5782746f49cb8be078fa2c853d147834c2f9[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Sep 16 13:03:40 2024 +0530
+
+    total GRO and SP fixeed in pur entry
+
+[33mcommit 12981cb05a0ca9a01ee584b10a5e744b570e9077[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Sep 14 17:44:22 2024 +0530
+
+    purchase entry changes of dev copied from main
+
+[33mcommit c831fc26dc134d7776ed2dce072cba1559b495c2[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Sep 14 17:19:18 2024 +0530
+
+    main's purchase entry code into dev branch
+
+[33mcommit 847cec9a2caea8ab73aa66a43c624f9f9d7ca5db[m
+Merge: 2c575dc 6ccf214
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Sep 14 15:17:37 2024 +0530
+
+    Merge branch 'main' of https://github.com/tdrsoftwares/wine into dev
+
+[33mcommit 2c575dcd28a872c16da332c4313adbcbcf665242[m
+Merge: 1731e70 4d659b8
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Sep 14 15:10:49 2024 +0530
+
+    Merge branch 'dev' of https://github.com/tdrsoftwares/wine into dev
+
+[33mcommit 1731e708a3e7059d8220fc953df3f35a1ebb5c9f[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Sep 14 15:07:19 2024 +0530
+
+    entry number changes in pur entry
+
+[33mcommit 4d659b84c68392fae22086d885238a969091ba4b[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Sep 14 14:52:03 2024 +0530
+
+    entry number changes in pur entry
+
+[33mcommit 1df17088caf79dce87feb3f92c545fd4e1d4ea33[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Sep 14 14:31:09 2024 +0530
+
+    purchase entry changes
+
+[33mcommit 5281c8aad937a6b73b63ae7a34363ff4345451ad[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Sep 14 11:22:16 2024 +0530
+
+    purchase session storage code blocked
+
+[33mcommit 4bb765dca4b1063f04790b3ec8bb2234959c6a2c[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Sep 13 18:25:54 2024 +0530
+
+    entry number changes
+
+[33mcommit f29545331fc20d18686e0709cd3b3267222bd1ef[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Sep 13 17:23:59 2024 +0530
+
+    some changes
+
+[33mcommit 32c13628152f444214e131a6196a9eee2bbdbb4b[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Sep 13 17:08:31 2024 +0530
+
+    update customer implemented
+
+[33mcommit 8082222c9ba1026de8e73e3136775876c1a2c38c[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Sep 12 12:52:47 2024 +0530
+
+    login endpoint changd
+
+[33mcommit 6434ca5f4a1484b5353a397f1918940649f23d24[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Sep 10 19:21:09 2024 +0530
+
+    create user and create module implemented
+
+[33mcommit 9874d29af1a9f4659768e594f29488d8a25655ad[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Sep 9 12:47:02 2024 +0530
+
+    login code fixed
+
+[33mcommit 3cbedc4cf61fa2624464d232f14ead701e44ef24[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Sep 9 12:11:19 2024 +0530
+
+    brand register report implemented
+
+[33mcommit e0add1a23d88ef275581e6095076e274e5f82251[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Sep 7 15:58:37 2024 +0530
+
+    item name and brand name changes in all reports
+
+[33mcommit c7728ae91eb3ef640134e34e32159e6d1562bca4[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Sep 7 11:55:13 2024 +0530
+
+    reset password implemented
+
+[33mcommit 3e69d1538a0ed13a86f116adf16a93c555f5fa82[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Sep 6 16:08:04 2024 +0530
+
+    All Brands implemetend in brand mrp stock report
+
+[33mcommit 67eae51af1189c01f7d234b88f22de9263647fd9[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Sep 5 18:57:52 2024 +0530
+
+    brand stock mrp implemented with other item name and brand name changes in reports
+
+[33mcommit 62f07e28439e6df2c8602d170ab29c23d6912e53[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Sep 4 15:42:51 2024 +0530
+
+    stock report and item wise sale report changes
+
+[33mcommit 262bf9d2f3fa3853b3a970acd442b202da328161[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Sep 2 19:01:50 2024 +0530
+
+    Govt round of and Special Purpose calculation added
+
+[33mcommit 2751fae26a5f8f45b4108b18c908b598bba66b46[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Aug 30 19:57:33 2024 +0530
+
+    mode added in itemwisepur and itemwisesale reports
+
+[33mcommit b9d7409bcf73ef496853d3f0427139682185df86[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Aug 30 19:11:23 2024 +0530
+
+    dsr
+
+[33mcommit 2eec30ff91859d97fa8a86ceb9f1b49b08d06e54[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Aug 30 18:41:58 2024 +0530
+
+    mode added in dsr
+
+[33mcommit 57d116a8942b4090f589a956c3fd773387f759f4[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Aug 30 18:18:47 2024 +0530
+
+    split print bill functionality on salebill
+
+[33mcommit 3b0fdd07d573de2b2622dc1f872b0962f75b2e18[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Aug 29 15:26:48 2024 +0530
+
+    all errors removed
+
+[33mcommit 5d756d2da353c34c79740261790d303d4462a0dd[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Aug 29 13:08:57 2024 +0530
+
+    purchase error fixed
+
+[33mcommit f88e3eeb5a0ef833c383456db54b9f959cc40b4b[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Aug 27 19:00:10 2024 +0530
+
+    item ledger status print implemented
+
+[33mcommit 54fde01f917c204793bc1d92234b535c4c1e389d[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Aug 27 15:25:15 2024 +0530
+
+    daily profit report & catLedger pack print implemented
+
+[33mcommit bc0675fa001789a3a6e6b671ee7eb56df0404f68[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Aug 26 18:02:59 2024 +0530
+
+    asr crash issue fixed
+
+[33mcommit 67aedaff6373dcc9579dfe2471c33aa02830f910[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Aug 26 16:01:12 2024 +0530
+
+    daily item status print implemented
+
+[33mcommit 02eefadd9c98391769bf3f5c0719eac7f1822771[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Aug 24 21:36:23 2024 +0530
+
+    all adjustments regarding api change
+
+[33mcommit f16f6416e04ae09043ed13c6e0b2171eb9d3785a[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Aug 24 18:36:30 2024 +0530
+
+    dsr print impelemented
+
+[33mcommit ee0b4f0ea24015ee527d471e095c5afc97f9eaa7[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Aug 23 17:50:39 2024 +0530
+
+    itemcode update fixed
+
+[33mcommit ba000cb5c02057fb2edf128a3a5334d55203668f[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Aug 23 16:31:43 2024 +0530
+
+    item code update panel, api bindings, field missings, upload purchase and other code fixes
+
+[33mcommit 664f99451686a318555944d3f9a0d2b272b0ffec[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Aug 23 11:02:35 2024 +0530
+
+    itemcode batch mrp fixed in purchase bill
+
+[33mcommit 80f2a9505336ad9a5f6069a68bc4997c3e0a32c8[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Aug 22 18:06:12 2024 +0530
+
+    .
+
+[33mcommit c5e3405532287b2749772341fa2e649cc0d7d52e[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Aug 22 17:26:40 2024 +0530
+
+    transfer adjustments
+
+[33mcommit 3f2b7eeff6389eae70771534692e8590fb47c0ca[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Aug 22 16:02:34 2024 +0530
+
+    purchase entry and reports adjustments
+
+[33mcommit 5db717fea3fee0e30a0adee76208befac810920f[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Aug 21 15:32:21 2024 +0530
+
+    total sales saved in session storage
+
+[33mcommit b0bb528e09ead582953ee225f2b11f7e9a8f092a[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Aug 21 14:14:03 2024 +0530
+
+    socket code changs
+
+[33mcommit b21da939893a05ce6d197d0d9cd0cf26024ca595[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Aug 21 14:11:33 2024 +0530
+
+    socket to show total sales for sale bill implemented
+
+[33mcommit 6ccf2140f32db17ad8a492893efff3623398ca12[m[33m ([m[1;31morigin/dev_test[m[33m)[m
+Merge: 48da601 c7a55b5
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Aug 21 10:50:40 2024 +0530
+
+    Merge branch 'dev' of https://github.com/tdrsoftwares/wine
+
+[33mcommit c7a55b5643b08c5135e034132edec8d03328bb4d[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Aug 20 12:10:27 2024 +0530
+
+    item wise transfer n purchase report adjustments
+
+[33mcommit aa93b3e7438329ead8ff8963cd4fdd472e30c638[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Aug 19 19:29:31 2024 +0530
+
+    itemcode search on upload purchase done
+
+[33mcommit 786287c27b356312b9c2ddcf8e263a2ece14b857[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Aug 19 15:38:53 2024 +0530
+
+    csv columns refixed, other api endpoint changes, and issues fixed
+
+[33mcommit b0917ed97d4925bf7605f9319070f3228b9dd8c1[m
+Author: unknown <kishortalukdar55@gmail.com>
+Date:   Sat Aug 17 10:01:46 2024 +0530
+
+    navbar code
+
+[33mcommit e134f22161cb750be72b3611e0c0ab50d84a6c7b[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Aug 16 17:42:03 2024 +0530
+
+    customerid added
+
+[33mcommit 404f233b93c6ec4b1ee5b6e522f7699a12130061[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Aug 16 12:52:22 2024 +0530
+
+    new feature: excel upload in purchase entry
+
+[33mcommit f48fd634d4a142457cd62a9be1e1a035a5e195d1[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Aug 14 15:58:45 2024 +0530
+
+    sale bill pane adjustment
+
+[33mcommit 48da6012ed9565ea180592b34d52cd7b88a97e44[m
+Merge: a16be9c 96cf092
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Aug 14 11:36:23 2024 +0530
+
+    Merge branch 'dev' of https://github.com/tdrsoftwares/wine
+
+[33mcommit 96cf092f25960f5cd0f93471efa5c07e22cbb87e[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Aug 13 19:00:32 2024 +0530
+
+    daily item batch report added, api binded and route added
+
+[33mcommit 8b2fedd9fc4403ef1d81fbf13fbf9b1e92e9ea18[m
+Author: kishortalukdar <kishortalukdar55@gmail.com>
+Date:   Tue Aug 13 18:06:12 2024 +0530
+
+    app bar
+
+[33mcommit 7cad0acd3be2a9862a87d30481e750ca85664415[m
+Author: kishortalukdar <kishortalukdar55@gmail.com>
+Date:   Tue Aug 13 16:31:07 2024 +0530
+
+    odify stra
+
+[33mcommit a16be9ceba5a6dd3b5d835f9ad980085b1adad16[m
+Merge: 32fce73 199fd76
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Aug 13 16:29:05 2024 +0530
+
+    Merge branch 'dev' of https://github.com/tdrsoftwares/wine
+
+[33mcommit 199fd761bbc9bdc9280c1a2843b0d836f3c8452f[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Aug 13 12:21:36 2024 +0530
+
+    salebill button adjustment and table data save on pur entry page
+
+[33mcommit b6db9bde7191fb99bde7e606dff951440eb311b8[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Aug 12 19:02:22 2024 +0530
+
+    totals added and bill saving enabled
+
+[33mcommit 809ecac88a1302fe7383be0b8ed08c30f5696b1e[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Aug 10 19:34:04 2024 +0530
+
+    save the data when in table
+
+[33mcommit a89a0e1399ae92c8260bf9ce07565d727650da02[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Aug 10 18:59:52 2024 +0530
+
+    some adjustments
+
+[33mcommit 72c184d35b11362a02e670d42fc26dd4113bde90[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Aug 10 14:31:53 2024 +0530
+
+    salebill brand item pannel fixes
+
+[33mcommit 2604efa3e7e23c6f7e1865c5568ba91a38b3479e[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Aug 9 19:08:17 2024 +0530
+
+    sale bill feature - brand wise selction - implemented
+
+[33mcommit f8aae181a4f3f6ef0017c6f3f4b615001a0f9e70[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Aug 8 19:06:44 2024 +0530
+
+    sorted by currentStock implemented
+
+[33mcommit 7acc274de6757a0db5fb14cb92f3ca5cab102022[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Aug 8 18:03:51 2024 +0530
+
+    category ledger pack implementation
+
+[33mcommit 2f32c1cc7edac5b00747cba2d013aa8278b5e5de[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Aug 8 13:08:49 2024 +0530
+
+    design changes
+
+[33mcommit b5ad9d2708312ad81a5dff729466e4a6c742b909[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Aug 7 12:01:22 2024 +0530
+
+    sale bill new feature of new item addition fixed
+
+[33mcommit f2fecec260cd48bfef2efa3011cbd8d7f7cbdb52[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Aug 6 18:22:59 2024 +0530
+
+    sale bill entry new feature of new stock selection added in itemcode
+
+[33mcommit caf75bd566f2da4bf1e7cd05e6c4223225616c00[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Aug 5 17:08:52 2024 +0530
+
+    some adjustment for select items
+
+[33mcommit 830f9e682f55046c67f0c44de5c2bfffbdf4f1cb[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Aug 5 14:01:23 2024 +0530
+
+    utilities added, admin pannel created, delete moved into admin pannel
+
+[33mcommit 32fce73b1296ed961e39d305e6080bd0505deefc[m
+Merge: 0f19cbc c74f85a
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Aug 5 12:34:32 2024 +0530
+
+    Merge branch 'dev' of https://github.com/tdrsoftwares/wine
+
+[33mcommit c74f85a077d2fb19f4948e2f9ccda708edb36181[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Aug 3 20:21:04 2024 +0530
+
+    total calculations fixed
+
+[33mcommit 0f19cbc9dd7f5ee8992a4491cf7f4885d2c5fdb6[m
+Merge: 98520c1 88ed3c5
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Aug 3 17:50:09 2024 +0530
+
+    Merge branch 'main' of https://github.com/tdrsoftwares/wine
+
+[33mcommit 98520c1569375f663d24e44e0c77060846f0251c[m
+Merge: 3b839e3 cb8ad9a
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Aug 3 17:49:07 2024 +0530
+
+    Merge branch 'dev' of https://github.com/tdrsoftwares/wine
+
+[33mcommit cb8ad9ae7192b3361effecbf39ee0ca1ad4e5d60[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Aug 3 17:47:24 2024 +0530
+
+    license issue fixed
+
+[33mcommit 88ed3c554f422a37229c4843bc03cc983f66cc34[m
+Merge: 3b839e3 f3b7cb8
+Author: kishortalukdar <kishortalukdar55@gmail.com>
+Date:   Sat Aug 3 13:44:07 2024 +0530
+
+    Merge branch 'dev' of https://github.com/tdrsoftwares/wine
+
+[33mcommit f3b7cb8fe2454f5f23ca9719ef05d248799eda66[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Aug 3 12:34:12 2024 +0530
+
+    stock delete added
+
+[33mcommit 10c13bf5c81856316810495e0648a8b0e6055a3e[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Aug 2 19:11:10 2024 +0530
+
+    delete all records implemeted in sales purchase and transfer report
+
+[33mcommit 3b839e36af7d09eb6160a5a6093fb3812bad4387[m
+Merge: 9bf5e99 3b779da
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Aug 2 16:01:09 2024 +0530
+
+    Merge branch 'dev' of https://github.com/tdrsoftwares/wine
+
+[33mcommit 3b779dabc55c928ceeb07465f886108f99b4fd36[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Aug 1 19:42:35 2024 +0530
+
+    epos changes
+
+[33mcommit 20269f13dcc6a7827462442791731eb0e3155470[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Aug 1 13:40:05 2024 +0530
+
+    stock report pagination, sNo issues fixed
+
+[33mcommit cb1915ba848206c96c94a56ee3ea2ddb7980ad9f[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Aug 1 13:39:45 2024 +0530
+
+    stock report pagination, sNo issues fixed
+
+[33mcommit 783a0988577865c9439d9a67204d0d8c14bf6e12[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Aug 1 11:45:20 2024 +0530
+
+    epos modification
+
+[33mcommit 5341b80654f9647b195e7171f0ae59e95f018723[m
+Merge: cebaf83 2d9cf18
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Jul 31 18:06:05 2024 +0530
+
+    Merge branch 'tanmay_updated' of https://github.com/tdrsoftwares/wine into dev
+
+[33mcommit 9bf5e995497c5edbd500adfcd2c6a126f831ec98[m
+Merge: cebaf83 2d9cf18
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Jul 31 18:02:56 2024 +0530
+
+    Merge branch 'tanmay_updated' of https://github.com/tdrsoftwares/wine
+
+[33mcommit cebaf8359981d797ceeac1ae288c9e36db41c04a[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Jul 31 16:04:46 2024 +0530
+
+    stock data issue fixed
+
+[33mcommit 2d9cf18c78501a769e8319547eff455049e83467[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Wed Jul 31 13:48:29 2024 +0530
+
+    epos changes
+
+[33mcommit 42c0db2a190ce6c9c31389c3e405c7ed7ea70b8c[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Jul 30 20:01:22 2024 +0530
+
+    epos code changes pushed
+
+[33mcommit 0b724c5a7afa71aff0ff3cf8360f9e0d5d528351[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Tue Jul 30 13:55:37 2024 +0530
+
+    license info new design implementation
+
+[33mcommit 4d9d20b78ff567134904d0ccf4bb3b1ba9975334[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Jul 29 18:59:57 2024 +0530
+
+    some adjustments
+
+[33mcommit 2af4591dbe6fb4f48c306f19a65e588f01f7256b[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Jul 29 16:04:03 2024 +0530
+
+    only pcs option added to monthly statement
+
+[33mcommit 29c70546026095ac38f56f2a8485e54afc4100cd[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Mon Jul 29 11:04:14 2024 +0530
+
+    sale bill issue fixed
+
+[33mcommit 681d42db2c764480041c107c714056e7a38b3186[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Jul 27 19:52:11 2024 +0530
+
+    license warning fixed
+
+[33mcommit a8d8af27ad9a9bdc424a9937374ad1270ac5844a[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Jul 27 13:24:53 2024 +0530
+
+    warning message on salebill fixed, pcs edit on a salebill table issue fixed
+
+[33mcommit 59ad71670d18b3a2d5d76374f677f423fa20a5ff[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Jul 27 13:24:42 2024 +0530
+
+    warning message on salebill fixed, pcs edit on a salebill table issue fixed
+
+[33mcommit c8d36b2b722b5ecf9595ce322621bb055d86e194[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Sat Jul 27 10:30:30 2024 +0530
+
+    sale bill update fix for new entry
+
+[33mcommit ca18852257fa381052b033641f5763b0368a1c8c[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Jul 26 16:10:19 2024 +0530
+
+    sale bill item name search issue fixed
+
+[33mcommit ebf545097b1996e0aa67f6c28d7f844a1870af32[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Jul 26 12:45:34 2024 +0530
+
+    license validation added
+
+[33mcommit 167367e777864f84e8cb37f882b7cc054b41d474[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Fri Jul 26 11:15:00 2024 +0530
+
+    login changes
+
+[33mcommit 07bf33cffebbeaa9f16625ab6b8d287c785e38d7[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Jul 25 19:06:44 2024 +0530
+
+    Adjustments for all module
+
+[33mcommit dc9909c88a1d408f68d70aae7ba87f299de9f839[m
+Author: Tanmay Paul <tanmaypaulofficial@gmail.com>
+Date:   Thu Jul 25 14:37:47 2024 +0530
+
+    store register fix
+
+[33mcommit 1ee806965a7cc67ba8f7cc7930f741729ee59de5[m
+Author: kishortalukdar <kishortalukdar55@gmail.com>
+Date:   Thu Jul 25 13:26:35 2024 +0530
+
+    change login url
+
+[33mcommit c05c0427f53f58e92e32d5275c70
